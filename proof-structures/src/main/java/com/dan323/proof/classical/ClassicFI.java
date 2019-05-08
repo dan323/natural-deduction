@@ -7,7 +7,7 @@ import com.dan323.proof.Proof;
 import com.dan323.proof.ProofStep;
 import com.dan323.proof.generic.FI;
 
-public class ClassicFI extends FI implements ClassicalAction {
+public final class ClassicFI extends FI implements ClassicalAction {
 
     public ClassicFI(int i, int j) {
         super(i, j, lo -> new NegationClassic((ClassicalLogicOperation) lo),()->new ConstantClassic(false));

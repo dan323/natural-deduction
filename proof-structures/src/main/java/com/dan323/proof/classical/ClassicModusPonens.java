@@ -4,7 +4,7 @@ import com.dan323.proof.Proof;
 import com.dan323.proof.ProofStep;
 import com.dan323.proof.generic.ModusPonens;
 
-public class ClassicModusPonens extends ModusPonens implements ClassicalAction {
+public final class ClassicModusPonens extends ModusPonens implements ClassicalAction {
 
     public ClassicModusPonens(int a, int b) {
         super(a, b);

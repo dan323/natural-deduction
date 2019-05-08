@@ -1,8 +1,6 @@
 package com.dan323.proof.test;
 
-import com.dan323.expresions.clasical.ImplicationClassic;
-import com.dan323.expresions.clasical.NegationClassic;
-import com.dan323.expresions.clasical.VariableClassic;
+import com.dan323.expresions.clasical.*;
 import com.dan323.proof.classical.ClassicAssume;
 import com.dan323.proof.classical.ClassicDeductionTheorem;
 import com.dan323.proof.classical.proof.NaturalDeduction;
@@ -46,6 +44,67 @@ public class ProofTest {
         VariableClassic p = new VariableClassic("P");
         NaturalDeduction nd = new NaturalDeduction();
         nd.setGoal(new ImplicationClassic(new ImplicationClassic(p, new NegationClassic(p)), new NegationClassic(p)));
+        nd.automate();
+        Assertions.assertTrue(nd.isDone());
+    }
+
+
+    @Test
+    public void neg2() {
+        VariableClassic p = new VariableClassic("P");
+        VariableClassic r = new VariableClassic("R");
+        NaturalDeduction nd = new NaturalDeduction();
+        nd.setGoal(new ImplicationClassic(p, new ImplicationClassic(new NegationClassic(p), r)));
+        nd.automate();
+        Assertions.assertTrue(nd.isDone());
+    }
+
+    @Test
+    public void or2() {
+        VariableClassic p = new VariableClassic("P");
+        VariableClassic r = new VariableClassic("R");
+        NaturalDeduction nd = new NaturalDeduction();
+        nd.setGoal(new ImplicationClassic(p, new DisjunctionClassic(p, r)));
+        nd.automate();
+        Assertions.assertTrue(nd.isDone());
+    }
+
+    @Test
+    public void or1() {
+        VariableClassic p = new VariableClassic("P");
+        VariableClassic r = new VariableClassic("R");
+        NaturalDeduction nd = new NaturalDeduction();
+        nd.setGoal(new ImplicationClassic(p, new DisjunctionClassic(r, p)));
+        nd.automate();
+        Assertions.assertTrue(nd.isDone());
+    }
+
+    @Test
+    public void and1() {
+        VariableClassic p = new VariableClassic("P");
+        VariableClassic r = new VariableClassic("R");
+        NaturalDeduction nd = new NaturalDeduction();
+        nd.setGoal(new ImplicationClassic(new ConjuntionClassic(p,r), r));
+        nd.automate();
+        Assertions.assertTrue(nd.isDone());
+    }
+
+    @Test
+    public void and2() {
+        VariableClassic p = new VariableClassic("P");
+        VariableClassic r = new VariableClassic("R");
+        NaturalDeduction nd = new NaturalDeduction();
+        nd.setGoal(new ImplicationClassic(new ConjuntionClassic(p,r), p));
+        nd.automate();
+        Assertions.assertTrue(nd.isDone());
+    }
+    @Test
+
+    public void and3() {
+        VariableClassic p = new VariableClassic("P");
+        VariableClassic r = new VariableClassic("R");
+        NaturalDeduction nd = new NaturalDeduction();
+        nd.setGoal(new ImplicationClassic(p,new ImplicationClassic(r,new ConjuntionClassic(p,r))));
         nd.automate();
         Assertions.assertTrue(nd.isDone());
     }

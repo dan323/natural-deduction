@@ -4,7 +4,7 @@ import com.dan323.proof.Proof;
 import com.dan323.proof.ProofStep;
 import com.dan323.proof.generic.NotE;
 
-public class ClassicNotE extends NotE implements ClassicalAction {
+public final class ClassicNotE extends NotE implements ClassicalAction {
 
     public ClassicNotE(int j) {
         super(j);

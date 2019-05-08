@@ -16,11 +16,21 @@ import java.util.function.Function;
 public class AndE implements AbstractAction {
 
     private final int applyAt;
-    private Function<BinaryOperation,LogicOperation> side;
+    private Function<BinaryOperation, LogicOperation> side;
 
-    public AndE(int app,Function<BinaryOperation,LogicOperation> fun){
-        applyAt=app;
-        side=fun;
+    public AndE(int app, Function<BinaryOperation, LogicOperation> fun) {
+        applyAt = app;
+        side = fun;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        return obj instanceof AndE && ((AndE) obj).applyAt == applyAt && ((AndE) obj).side.equals(side);
+    }
+
+    @Override
+    public int hashCode() {
+        return super.hashCode()*applyAt;
     }
 
     @Override
@@ -29,7 +39,7 @@ public class AndE implements AbstractAction {
     }
 
     @Override
-    public void applyAbstract(Proof pf, ProofStepSupplier supp){
+    public void applyAbstract(Proof pf, ProofStepSupplier supp) {
         LogicOperation log = pf.getSteps().get(applyAt - 1).getStep();
         int assLevel = 0;
         if (!pf.getSteps().isEmpty()) {
@@ -37,10 +47,10 @@ public class AndE implements AbstractAction {
         }
         List<Integer> lst = new ArrayList<>();
         lst.add(applyAt);
-        pf.getSteps().add(supp.generateProofStep(assLevel,side.apply((BinaryOperation) log), new ProofReason("&E-2", lst)));
+        pf.getSteps().add(supp.generateProofStep(assLevel, side.apply((BinaryOperation) log), new ProofReason("&E-2", lst)));
     }
 
-    protected int getAppliedAt(){
+    protected int getAppliedAt() {
         return applyAt;
     }
 

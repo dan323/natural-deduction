@@ -5,7 +5,7 @@ import com.dan323.proof.Proof;
 import com.dan323.proof.ProofStep;
 import com.dan323.proof.generic.FE;
 
-public class ClassicFE extends FE implements ClassicalAction {
+public final class ClassicFE extends FE implements ClassicalAction {
 
     public ClassicFE(int j, ClassicalLogicOperation clo) {
         super(clo, j);

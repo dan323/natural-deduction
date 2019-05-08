@@ -7,6 +7,16 @@ import com.dan323.proof.ProofStep;
 
 public final class ClassicAndE1 extends AndE implements ClassicalAction {
 
+    @Override
+    public int hashCode() {
+        return super.hashCode()*2;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        return obj instanceof ClassicAndE1 && super.equals(obj);
+    }
+
     public ClassicAndE1(int i) {
         super(i,BinaryOperation::getLeft);
     }

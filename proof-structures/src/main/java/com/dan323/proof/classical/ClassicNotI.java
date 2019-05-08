@@ -6,7 +6,7 @@ import com.dan323.proof.Proof;
 import com.dan323.proof.ProofStep;
 import com.dan323.proof.generic.NotI;
 
-public class ClassicNotI extends NotI implements ClassicalAction {
+public final class ClassicNotI extends NotI implements ClassicalAction {
 
     public ClassicNotI() {
         super(lo -> new NegationClassic((ClassicalLogicOperation) lo));

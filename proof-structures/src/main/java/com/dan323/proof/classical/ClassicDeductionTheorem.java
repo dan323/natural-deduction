@@ -6,7 +6,7 @@ import com.dan323.proof.Proof;
 import com.dan323.proof.ProofStep;
 import com.dan323.proof.generic.DeductionTheorem;
 
-public class ClassicDeductionTheorem extends DeductionTheorem implements ClassicalAction {
+public final class ClassicDeductionTheorem extends DeductionTheorem implements ClassicalAction {
 
     public ClassicDeductionTheorem() {
         super((l1, l2) -> new ImplicationClassic((ClassicalLogicOperation) l1, (ClassicalLogicOperation) l2));
