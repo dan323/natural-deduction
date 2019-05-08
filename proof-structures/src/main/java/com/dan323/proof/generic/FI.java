@@ -14,7 +14,7 @@ import java.util.function.Supplier;
 /**
  * @author danco
  */
-public class FI implements AbstractAction {
+public abstract class FI implements AbstractAction {
 
     private final int neg;
     private final int pos;

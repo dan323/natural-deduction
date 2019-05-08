@@ -8,6 +8,8 @@ import com.dan323.proof.generic.Action;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import java.util.List;
+
 /**
  * @author danco
  */
@@ -26,6 +28,16 @@ public class ProofTest {
         if (a2.isValid(nd)) {
             a2.apply(nd);
         }
+        Assertions.assertTrue(nd.isDone());
+    }
+
+    @Test
+    public void deMorgan() {
+        VariableClassic p = new VariableClassic("P");
+        VariableClassic q = new VariableClassic("Q");
+        NaturalDeduction nd = new NaturalDeduction();
+        nd.initializeProof(List.of(new NegationClassic(new DisjunctionClassic(new NegationClassic(p), new NegationClassic(q)))), new ConjuntionClassic(p, q));
+        nd.automate();
         Assertions.assertTrue(nd.isDone());
     }
 
@@ -84,7 +96,7 @@ public class ProofTest {
         VariableClassic p = new VariableClassic("P");
         VariableClassic r = new VariableClassic("R");
         NaturalDeduction nd = new NaturalDeduction();
-        nd.setGoal(new ImplicationClassic(new ConjuntionClassic(p,r), r));
+        nd.setGoal(new ImplicationClassic(new ConjuntionClassic(p, r), r));
         nd.automate();
         Assertions.assertTrue(nd.isDone());
     }
@@ -94,17 +106,18 @@ public class ProofTest {
         VariableClassic p = new VariableClassic("P");
         VariableClassic r = new VariableClassic("R");
         NaturalDeduction nd = new NaturalDeduction();
-        nd.setGoal(new ImplicationClassic(new ConjuntionClassic(p,r), p));
+        nd.setGoal(new ImplicationClassic(new ConjuntionClassic(p, r), p));
         nd.automate();
         Assertions.assertTrue(nd.isDone());
     }
+
     @Test
 
     public void and3() {
         VariableClassic p = new VariableClassic("P");
         VariableClassic r = new VariableClassic("R");
         NaturalDeduction nd = new NaturalDeduction();
-        nd.setGoal(new ImplicationClassic(p,new ImplicationClassic(r,new ConjuntionClassic(p,r))));
+        nd.setGoal(new ImplicationClassic(p, new ImplicationClassic(r, new ConjuntionClassic(p, r))));
         nd.automate();
         Assertions.assertTrue(nd.isDone());
     }

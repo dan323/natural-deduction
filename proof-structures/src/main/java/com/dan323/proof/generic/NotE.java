@@ -11,7 +11,7 @@ import java.util.List;
 /**
  * @author danco
  */
-public class NotE implements AbstractAction {
+public abstract class NotE implements AbstractAction {
 
     private final int neg;
 

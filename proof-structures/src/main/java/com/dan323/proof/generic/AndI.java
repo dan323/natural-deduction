@@ -12,7 +12,7 @@ import java.util.function.BiFunction;
 /**
  * @author danco
  */
-public class AndI implements AbstractAction {
+public abstract class AndI implements AbstractAction {
 
     private final int applyAt1;
     private final int applyAt2;

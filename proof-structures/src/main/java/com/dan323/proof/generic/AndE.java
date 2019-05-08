@@ -13,7 +13,7 @@ import java.util.function.Function;
 /**
  * @author danco
  */
-public class AndE implements AbstractAction {
+public abstract class AndE implements AbstractAction {
 
     private final int applyAt;
     private Function<BinaryOperation, LogicOperation> side;

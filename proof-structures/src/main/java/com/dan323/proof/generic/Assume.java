@@ -9,7 +9,7 @@ import java.util.ArrayList;
 /**
  * @author danco
  */
-public class Assume implements AbstractAction {
+public abstract class Assume implements AbstractAction {
 
     private final LogicOperation log;
 

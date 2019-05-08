@@ -9,7 +9,7 @@ import java.util.List;
 /**
  * @author danco
  */
-public class Copy implements AbstractAction {
+public abstract class Copy implements AbstractAction {
 
     private final int source;
 

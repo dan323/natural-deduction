@@ -14,7 +14,7 @@ import java.util.function.Function;
 /**
  * @author danco
  */
-public class NotI implements AbstractAction {
+public abstract class NotI implements AbstractAction {
 
     private Function<LogicOperation,Negation> negate;
 

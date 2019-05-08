@@ -12,7 +12,7 @@ import java.util.function.BiFunction;
 /**
  * @author danco
  */
-public class OrI implements AbstractAction {
+public abstract class OrI implements AbstractAction {
 
     private int applyAt;
     private LogicOperation intro;

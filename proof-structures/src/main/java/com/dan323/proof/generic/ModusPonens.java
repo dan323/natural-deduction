@@ -11,7 +11,7 @@ import java.util.List;
 /**
  * @author danco
  */
-public class ModusPonens implements AbstractAction {
+public abstract class ModusPonens implements AbstractAction {
 
     private final int applyAt1;
     private final int applyAt2;
@@ -39,7 +39,7 @@ public class ModusPonens implements AbstractAction {
         LogicOperation sol = ((BinaryOperation) pf.getSteps().get(applyAt1 - 1).getStep()).getRight();
         int assLevel = 0;
         if (!pf.getSteps().isEmpty()) {
-            assLevel = pf.getSteps().get(pf.getSteps().size() - 1).getAssumptionLevel();
+            assLevel = Action.getLastAssumptionLevel(pf);
         }
         List<Integer> lst = new ArrayList<>();
         lst.add(applyAt1);

@@ -13,7 +13,7 @@ import java.util.List;
 /**
  * @author danco
  */
-public class OrE implements AbstractAction {
+public abstract class OrE implements AbstractAction {
 
     private final int disj;
     private final int rule1;

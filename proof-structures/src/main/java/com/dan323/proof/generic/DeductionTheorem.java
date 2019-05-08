@@ -13,7 +13,7 @@ import java.util.function.BiFunction;
 /**
  * @author danco
  */
-public class DeductionTheorem implements AbstractAction {
+public abstract class DeductionTheorem implements AbstractAction {
 
     private int lastAssumption;
     private BiFunction<LogicOperation, LogicOperation, Implication> constructor;

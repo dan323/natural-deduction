@@ -11,7 +11,7 @@ import java.util.List;
 /**
  * @author danco
  */
-public class FE implements AbstractAction {
+public abstract class FE implements AbstractAction {
 
     private LogicOperation intro;
     private int falseIndex;
