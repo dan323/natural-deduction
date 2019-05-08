@@ -4,7 +4,7 @@ import com.dan323.proof.Proof;
 import com.dan323.proof.generic.OrE;
 import com.dan323.proof.modal.proof.ProofStepModal;
 
-public class ModalOrE extends OrE implements ModalAction {
+public final class ModalOrE extends OrE implements ModalAction {
 
     public ModalOrE(int dis, int r1, int r2) {
         super(dis, r1, r2);

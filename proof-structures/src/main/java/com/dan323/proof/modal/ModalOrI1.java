@@ -6,7 +6,7 @@ import com.dan323.proof.Proof;
 import com.dan323.proof.generic.OrI;
 import com.dan323.proof.modal.proof.ProofStepModal;
 
-public class ModalOrI1 extends OrI implements ModalAction {
+public final class ModalOrI1 extends OrI implements ModalAction {
 
     public ModalOrI1(int i, ModalLogicalExpression intro) {
         super(i, intro, (l1, l2) -> new DisjunctionModal((ModalLogicalExpression) l1, (ModalLogicalExpression) l2));

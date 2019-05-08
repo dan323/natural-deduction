@@ -6,7 +6,7 @@ import com.dan323.proof.Proof;
 import com.dan323.proof.generic.AndI;
 import com.dan323.proof.modal.proof.ProofStepModal;
 
-public class ModalAndI extends AndI implements ModalAction {
+public final class ModalAndI extends AndI implements ModalAction {
 
     public ModalAndI(int i1, int i2) {
         super(i1, i2, (l1, l2) -> new ConjuntionModal((ModalLogicalExpression) l1, (ModalLogicalExpression) l2));

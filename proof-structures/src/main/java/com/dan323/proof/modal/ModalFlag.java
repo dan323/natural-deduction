@@ -8,7 +8,7 @@ import com.dan323.proof.modal.proof.ProofStepModal;
 
 import java.util.ArrayList;
 
-public class ModalFlag implements ModalAction {
+public final class ModalFlag implements ModalAction {
 
     private final String state;
     private final String state1;

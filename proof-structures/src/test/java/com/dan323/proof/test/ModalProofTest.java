@@ -2,6 +2,7 @@ package com.dan323.proof.test;
 
 import com.dan323.expresions.modal.Always;
 import com.dan323.expresions.modal.ImplicationModal;
+import com.dan323.expresions.modal.NegationModal;
 import com.dan323.expresions.modal.VariableModal;
 import com.dan323.proof.generic.Action;
 import com.dan323.proof.modal.*;
@@ -57,6 +58,47 @@ public class ModalProofTest {
         Action a9=new ModalDeductionTheorem();
         if (a9.isValid(mnd)){
             a9.apply(mnd);
+        }
+
+        Assertions.assertTrue(mnd.isDone());
+    }
+
+    public void classic(){
+        ModalNaturalDeduction mnd=new ModalNaturalDeduction();
+        VariableModal pp=new VariableModal("P");
+        VariableModal qq=new VariableModal("Q");
+        mnd.initializeProof(new ArrayList<>(),new ImplicationModal(new ImplicationModal(pp,qq),new ImplicationModal(new NegationModal(qq),new NegationModal(pp))));
+        Action a1=new ModalAssume(new ImplicationModal(pp,qq),"s0");
+        if (a1.isValid(mnd)){
+            a1.apply(mnd);
+        }
+        Action a2=new ModalAssume(new NegationModal(qq),"s0");
+        if (a2.isValid(mnd)){
+            a2.apply(mnd);
+        }
+        Action a3=new ModalAssume(pp,"s0");
+        if (a3.isValid(mnd)){
+            a3.apply(mnd);
+        }
+        Action a4=new ModalModusPonens(1,3);
+        if (a4.isValid(mnd)){
+            a4.apply(mnd);
+        }
+        Action a5=new ModalFI(2,4);
+        if (a5.isValid(mnd)){
+            a5.apply(mnd);
+        }
+        Action a6=new ModalNotI();
+        if (a6.isValid(mnd)){
+            a6.apply(mnd);
+        }
+        Action a7=new ModalDeductionTheorem();
+        if (a7.isValid(mnd)){
+            a7.apply(mnd);
+        }
+        Action a8=new ModalDeductionTheorem();
+        if (a8.isValid(mnd)){
+            a8.apply(mnd);
         }
 
         Assertions.assertTrue(mnd.isDone());

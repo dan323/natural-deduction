@@ -1,14 +1,14 @@
 package com.dan323.proof.modal;
 
 import com.dan323.expresions.util.BinaryOperation;
-import com.dan323.proof.generic.AndE;
 import com.dan323.proof.Proof;
+import com.dan323.proof.generic.AndE;
 import com.dan323.proof.modal.proof.ProofStepModal;
 
-public class ModalAndE1 extends AndE implements ModalAction {
+public final class ModalAndE1 extends AndE implements ModalAction {
 
     public ModalAndE1(int i) {
-        super(i,BinaryOperation::getLeft);
+        super(i, BinaryOperation::getLeft);
     }
 
     @Override

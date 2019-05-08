@@ -4,7 +4,7 @@ import com.dan323.proof.Proof;
 import com.dan323.proof.generic.Copy;
 import com.dan323.proof.modal.proof.ProofStepModal;
 
-public class ModalCopy extends Copy implements ModalAction {
+public final class ModalCopy extends Copy implements ModalAction {
 
     public ModalCopy(int i) {
         super(i);

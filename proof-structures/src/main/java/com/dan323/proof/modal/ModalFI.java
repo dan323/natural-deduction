@@ -7,7 +7,7 @@ import com.dan323.proof.Proof;
 import com.dan323.proof.generic.FI;
 import com.dan323.proof.modal.proof.ProofStepModal;
 
-public class ModalFI extends FI implements ModalAction {
+public final class ModalFI extends FI implements ModalAction {
 
     public ModalFI(int i, int j) {
         super(i, j, lo -> new NegationModal((ModalLogicalExpression) lo), () -> new ConstantModal(false));

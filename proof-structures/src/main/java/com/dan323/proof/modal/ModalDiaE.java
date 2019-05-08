@@ -13,7 +13,7 @@ import com.dan323.proof.modal.proof.ProofStepModal;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ModalDiaE implements ModalAction {
+public final class ModalDiaE implements ModalAction {
 
     private int j;
 

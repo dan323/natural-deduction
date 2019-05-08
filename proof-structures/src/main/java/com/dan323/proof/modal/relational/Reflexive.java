@@ -2,13 +2,14 @@ package com.dan323.proof.modal.relational;
 
 import com.dan323.proof.Proof;
 import com.dan323.proof.ProofReason;
+import com.dan323.proof.generic.Action;
 import com.dan323.proof.generic.ProofStepSupplier;
 import com.dan323.proof.modal.proof.ModalNaturalDeduction;
 import com.dan323.proof.modal.proof.ProofStepModal;
 
 import java.util.ArrayList;
 
-public class Reflexive implements RelationalAction {
+public final class Reflexive implements RelationalAction {
 
     private String state;
 
@@ -23,12 +24,12 @@ public class Reflexive implements RelationalAction {
 
     @Override
     public void applyAbstract(Proof pf, ProofStepSupplier supp) {
-//Unnecessary method
+        ((ModalNaturalDeduction) pf).flag(state,state);
+        pf.getSteps().add(supp.generateProofStep(Action.getLastAssumptionLevel(pf),null,new ProofReason("Ass("+state+" > "+state+")",new ArrayList<>())));
     }
 
     @Override
     public void apply(Proof pf) {
-        ((ModalNaturalDeduction) pf).flag(state,state);
-        pf.getSteps().add(new ProofStepModal("s0",pf.getSteps().get(pf.getSteps().size()-1).getAssumptionLevel(),null,new ProofReason("Ass("+state+" > "+state+")",new ArrayList<>())));
+        applyAbstract(pf,(assLevel, log, reason) -> new ProofStepModal("s0",assLevel,log,reason));
     }
 }

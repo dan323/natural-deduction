@@ -11,7 +11,7 @@ import com.dan323.proof.modal.proof.ProofStepModal;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ModalBoxE implements ModalAction {
+public final class ModalBoxE implements ModalAction {
 
     private int i;
     private int q;

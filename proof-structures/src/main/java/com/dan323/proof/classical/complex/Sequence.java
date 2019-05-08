@@ -2,11 +2,10 @@ package com.dan323.proof.classical.complex;
 
 import com.dan323.proof.Proof;
 import com.dan323.proof.classical.ClassicalAction;
-import com.dan323.proof.generic.ProofStepSupplier;
 
 import java.util.List;
 
-public class Sequence implements ClassicalAction {
+public final class Sequence extends CompositionRule {
 
     List<ClassicalAction> lst;
 
@@ -28,11 +27,6 @@ public class Sequence implements ClassicalAction {
             pf.getSteps().remove(pf.getSteps().size() - 1);
         }
         return true;
-    }
-
-    @Override
-    public void applyAbstract(Proof pf, ProofStepSupplier supp) {
-        //Unnecessary method
     }
 
     @Override

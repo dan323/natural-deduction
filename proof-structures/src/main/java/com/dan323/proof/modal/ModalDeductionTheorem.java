@@ -6,7 +6,7 @@ import com.dan323.proof.Proof;
 import com.dan323.proof.generic.DeductionTheorem;
 import com.dan323.proof.modal.proof.ProofStepModal;
 
-public class ModalDeductionTheorem extends DeductionTheorem implements ModalAction {
+public final class ModalDeductionTheorem extends DeductionTheorem implements ModalAction {
 
     public ModalDeductionTheorem() {
         super((l1, l2) -> new ImplicationModal((ModalLogicalExpression) l1, (ModalLogicalExpression) l2));

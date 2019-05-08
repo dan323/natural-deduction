@@ -5,7 +5,7 @@ import com.dan323.proof.Proof;
 import com.dan323.proof.generic.FE;
 import com.dan323.proof.modal.proof.ProofStepModal;
 
-public class ModalFE extends FE implements ModalAction {
+public final class ModalFE extends FE implements ModalAction {
 
     private final String state;
 

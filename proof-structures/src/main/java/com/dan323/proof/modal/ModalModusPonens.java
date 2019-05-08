@@ -4,10 +4,20 @@ import com.dan323.proof.Proof;
 import com.dan323.proof.generic.ModusPonens;
 import com.dan323.proof.modal.proof.ProofStepModal;
 
-public class ModalModusPonens extends ModusPonens implements ModalAction {
+public final class ModalModusPonens extends ModusPonens implements ModalAction {
 
     public ModalModusPonens(int i1, int i2) {
         super(i1, i2);
+    }
+
+    @Override
+    public int hashCode() {
+        return super.hashCode() * 5;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        return (obj instanceof ModalModusPonens) && super.equals(obj);
     }
 
     @Override

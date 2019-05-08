@@ -5,7 +5,7 @@ import com.dan323.proof.Proof;
 import com.dan323.proof.generic.Assume;
 import com.dan323.proof.modal.proof.ProofStepModal;
 
-public class ModalAssume extends Assume implements ModalAction {
+public final class ModalAssume extends Assume implements ModalAction {
 
     private final String state;
 

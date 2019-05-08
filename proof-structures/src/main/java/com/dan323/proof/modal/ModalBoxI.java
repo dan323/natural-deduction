@@ -13,7 +13,7 @@ import com.dan323.proof.modal.proof.ProofStepModal;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ModalBoxI implements ModalAction {
+public final class ModalBoxI implements ModalAction {
 
     private static final String REGEX_GREATER = " > ";
     private int lastAssumption;
@@ -27,7 +27,7 @@ public class ModalBoxI implements ModalAction {
         if (assLevel == 0) {
             return false;
         }
-        lastAssumption=Action.getToLastAssumption(pf,assLevel);
+        lastAssumption = Action.getToLastAssumption(pf, assLevel);
         ProofStep log = pf.getSteps().get(pf.getSteps().size() - lastAssumption);
         if (log.getStep() != null) {
             return false;
@@ -47,9 +47,9 @@ public class ModalBoxI implements ModalAction {
             assLevel = Action.getLastAssumptionLevel(pf);
         }
         List<Integer> lst = new ArrayList<>();
-        lst.add(pf.getSteps().size() - lastAssumption +1);
+        lst.add(pf.getSteps().size() - lastAssumption + 1);
         lst.add(pf.getSteps().size());
-        pf.getSteps().add(supp.generateProofStep(assLevel-1,new Always((ModalLogicalExpression) pf.getSteps().get(pf.getSteps().size() - 1).getStep()), new ProofReason("[]I", lst)));
+        pf.getSteps().add(supp.generateProofStep(assLevel - 1, new Always((ModalLogicalExpression) pf.getSteps().get(pf.getSteps().size() - 1).getStep()), new ProofReason("[]I", lst)));
     }
 
     @Override
@@ -57,7 +57,7 @@ public class ModalBoxI implements ModalAction {
         ProofStep log = pf.getSteps().get(pf.getSteps().size() - lastAssumption);
         String st = log.getProof().getNameProof().substring(4, log.getProof().getNameProof().length() - 1);
         String[] sts = st.split(REGEX_GREATER);
-        applyAbstract(pf,(assLevel, log1, reason) -> new ProofStepModal(sts[0],assLevel,log1,reason));
+        applyAbstract(pf, (assLevel, log1, reason) -> new ProofStepModal(sts[0], assLevel, log1, reason));
         ((ModalNaturalDeduction) pf).removeState(sts[1]);
     }
 }

@@ -1,9 +1,9 @@
 package com.dan323.proof.modal.proof;
 
 import com.dan323.expresions.LogicOperation;
-import com.dan323.proof.generic.Action;
 import com.dan323.proof.Proof;
 import com.dan323.proof.ProofReason;
+import com.dan323.proof.generic.Action;
 import com.dan323.proof.modal.ModalAction;
 
 import java.util.ArrayList;
@@ -11,7 +11,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class ModalNaturalDeduction extends Proof {
+public final class ModalNaturalDeduction extends Proof {
 
     private Map<String, List<String>> linkedStates = new HashMap<>();
 

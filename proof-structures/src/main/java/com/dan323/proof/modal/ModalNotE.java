@@ -4,7 +4,7 @@ import com.dan323.proof.Proof;
 import com.dan323.proof.generic.NotE;
 import com.dan323.proof.modal.proof.ProofStepModal;
 
-public class ModalNotE extends NotE implements ModalAction {
+public final class ModalNotE extends NotE implements ModalAction {
 
     public ModalNotE(int j) {
         super(j);
