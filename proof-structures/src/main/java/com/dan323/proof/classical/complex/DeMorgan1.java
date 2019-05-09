@@ -1,8 +1,10 @@
 package com.dan323.proof.classical.complex;
 
 import com.dan323.expresions.clasical.*;
+import com.dan323.expresions.util.Negation;
 import com.dan323.proof.Proof;
 import com.dan323.proof.classical.*;
+import com.dan323.proof.generic.RuleUtils;
 
 public final class DeMorgan1 extends CompositionRule {
 
@@ -22,7 +24,7 @@ public final class DeMorgan1 extends CompositionRule {
 
     @Override
     public boolean isValid(Proof pf) {
-        return (i <= pf.getSteps().size()) && (pf.getSteps().get(i - 1).getStep() instanceof NegationClassic)
+        return RuleUtils.isValidIndexAndProp(pf,i) && RuleUtils.isOperation(pf,i, Negation.class)
                 && (((UnaryOperationClassic) pf.getSteps().get(i - 1).getStep()).getElement() instanceof DisjunctionClassic);
     }
 

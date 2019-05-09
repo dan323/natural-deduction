@@ -43,7 +43,7 @@ public final class ModalNaturalDeduction extends Proof {
         if (linkedStates.containsKey(flagged)) {
             linkedStates.remove(flagged);
             for (Map.Entry<String, List<String>> s : linkedStates.entrySet()) {
-                s.getValue().removeIf(q -> q.equals(flagged));
+                s.getValue().removeIf(flagged::equals);
             }
         }
     }

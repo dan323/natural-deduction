@@ -1,13 +1,15 @@
 package com.dan323.proof.classical.complex;
 
 import com.dan323.expresions.clasical.BinaryOperationClassic;
-import com.dan323.expresions.clasical.DisjunctionClassic;
 import com.dan323.expresions.clasical.NegationClassic;
+import com.dan323.expresions.util.Disjunction;
+import com.dan323.expresions.util.Negation;
 import com.dan323.proof.Proof;
 import com.dan323.proof.classical.ClassicAssume;
 import com.dan323.proof.classical.ClassicDeductionTheorem;
 import com.dan323.proof.classical.ClassicFE;
 import com.dan323.proof.classical.ClassicFI;
+import com.dan323.proof.generic.RuleUtils;
 
 public final class OrE2 extends CompositionRule {
 
@@ -32,7 +34,7 @@ public final class OrE2 extends CompositionRule {
 
     @Override
     public boolean isValid(Proof pf) {
-        if (a <= pf.getSteps().size() && b <= pf.getSteps().size() && pf.getSteps().get(a - 1).isValid() && (pf.getSteps().get(b - 1).isValid() && pf.getSteps().get(a - 1).getStep() instanceof DisjunctionClassic) && pf.getSteps().get(b - 1).getStep() instanceof NegationClassic) {
+        if (RuleUtils.isValidIndexAndProp(pf, a) && RuleUtils.isValidIndexAndProp(pf, b) && RuleUtils.isOperation(pf, a, Disjunction.class) && RuleUtils.isOperation(pf, b, Negation.class)) {
             return ((BinaryOperationClassic) pf.getSteps().get(a - 1).getStep()).getRight().equals(((NegationClassic) pf.getSteps().get(b - 1).getStep()).getElement());
         }
         return false;

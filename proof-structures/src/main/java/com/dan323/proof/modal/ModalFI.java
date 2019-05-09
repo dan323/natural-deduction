@@ -9,8 +9,11 @@ import com.dan323.proof.modal.proof.ProofStepModal;
 
 public final class ModalFI extends FI implements ModalAction {
 
-    public ModalFI(int i, int j) {
+    private String state;
+
+    public ModalFI(String state, int i, int j) {
         super(i, j, lo -> new NegationModal((ModalLogicalExpression) lo), () -> new ConstantModal(false));
+        this.state = state;
     }
 
     @Override
@@ -23,6 +26,6 @@ public final class ModalFI extends FI implements ModalAction {
 
     @Override
     public void apply(Proof pf) {
-        applyAbstract(pf, ((assLevel, log, reason) -> new ProofStepModal(((ProofStepModal) pf.getSteps().get(getPos() - 1)).getState(), assLevel, log, reason)));
+        applyAbstract(pf, (assLevel, log, reason) -> new ProofStepModal(state, assLevel, log, reason));
     }
 }
