@@ -29,7 +29,7 @@ public final class ModalFlag implements ModalAction {
         if (!pf.getSteps().isEmpty()) {
             assLevel = pf.getSteps().get(pf.getSteps().size() - 1).getAssumptionLevel();
         }
-        ((ModalNaturalDeduction) pf).flag(state, state1);
+        ((ModalNaturalDeduction) pf).assume(state, state1);
         pf.getSteps().add(supp.generateProofStep(assLevel + 1, null, new ProofReason("Ass(" + state + " > " + state1 + ")", new ArrayList<>())));
     }
 

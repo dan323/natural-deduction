@@ -3,11 +3,15 @@ package com.dan323.proof.test;
 import com.dan323.expresions.clasical.*;
 import com.dan323.proof.classical.ClassicAssume;
 import com.dan323.proof.classical.ClassicDeductionTheorem;
+import com.dan323.proof.classical.ClassicFE;
+import com.dan323.proof.classical.ClassicOrE;
 import com.dan323.proof.classical.proof.NaturalDeduction;
 import com.dan323.proof.generic.Action;
+import com.dan323.proof.modal.ModalOrE;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -112,7 +116,6 @@ public class ProofTest {
     }
 
     @Test
-
     public void and3() {
         VariableClassic p = new VariableClassic("P");
         VariableClassic r = new VariableClassic("R");
@@ -122,4 +125,41 @@ public class ProofTest {
         Assertions.assertTrue(nd.isDone());
     }
 
+    @Test
+    public void FE1() {
+        VariableClassic p = new VariableClassic("P");
+        NaturalDeduction nd = new NaturalDeduction();
+        nd.initializeProof(new ArrayList<>(), new ImplicationClassic(new ConstantClassic(false), p));
+        nd.automate();
+        Assertions.assertTrue(nd.isDone());
+    }
+
+    @Test
+    public void FE2() {
+        VariableClassic p = new VariableClassic("P");
+        NaturalDeduction nd = new NaturalDeduction();
+        nd.initializeProof(new ArrayList<>(), new ImplicationClassic(new ConstantClassic(false), p));
+        Action a1 = new ClassicAssume(new ConstantClassic(false));
+        Action a2 = new ClassicFE(1, p);
+        Action a3 = new ClassicDeductionTheorem();
+        a1.apply(nd);
+        a2.apply(nd);
+        a3.apply(nd);
+        Assertions.assertTrue(nd.isDone());
+    }
+
+    @Test
+    public void OrE() {
+        VariableClassic p = new VariableClassic("P");
+        VariableClassic q = new VariableClassic("Q");
+        VariableClassic s = new VariableClassic("R");
+        ClassicalLogicOperation disj = new DisjunctionClassic(p, q);
+        ClassicalLogicOperation imp1 = new ImplicationClassic(p, s);
+        ClassicalLogicOperation imp2 = new ImplicationClassic(q, s);
+        NaturalDeduction nd = new NaturalDeduction();
+        nd.initializeProof(List.of(disj,imp1,imp2), s);
+        Action a1=new ClassicOrE(1,2,3);
+        a1.apply(nd);
+        Assertions.assertTrue(nd.isDone());
+    }
 }

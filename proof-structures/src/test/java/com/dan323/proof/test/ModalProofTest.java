@@ -6,6 +6,7 @@ import com.dan323.proof.generic.Action;
 import com.dan323.proof.modal.*;
 import com.dan323.proof.modal.proof.ModalNaturalDeduction;
 import com.dan323.proof.modal.relational.Reflexive;
+import com.dan323.proof.modal.relational.Transitive;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -123,6 +124,22 @@ public class ModalProofTest {
         lst.add(new ModalFI(STATE_0,17,2));
         lst.add(new ModalNotI());
         lst.add(new ModalNotE(19));
+        proof(lst,mnd);
+        Assertions.assertTrue(mnd.isDone());
+    }
+
+    @Test
+    public void transitive(){
+        ModalNaturalDeduction mnd = new ModalNaturalDeduction();
+        VariableModal p = new VariableModal("P");
+        mnd.initializeProof(List.of(new Always(p)), new Always(new Always(p)));
+        List<Action> lst = new ArrayList<>();
+        lst.add(new ModalFlag(STATE_0,STATE_1));
+        lst.add(new ModalFlag(STATE_1,"s2"));
+        lst.add(new Transitive(STATE_0,STATE_1,"s2"));
+        lst.add(new ModalBoxE(1,4));
+        lst.add(new ModalBoxI());
+        lst.add(new ModalBoxI());
         proof(lst,mnd);
         Assertions.assertTrue(mnd.isDone());
     }
