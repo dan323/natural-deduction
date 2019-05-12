@@ -1,6 +1,5 @@
 package com.dan323.expresions.clasical;
 
-import com.dan323.expresions.LogicOperation;
 import com.dan323.expresions.exceptions.InvalidMapValuesException;
 import com.dan323.expresions.util.Variable;
 
@@ -36,8 +35,4 @@ public final class VariableClassic implements ClassicalLogicOperation, Variable 
         throw new InvalidMapValuesException("The map " + values + " gives no value to " + var);
     }
 
-    @Override
-    public Variable construct(String name) {
-        return LogicOperation.construct(lst->new VariableClassic(name));
-    }
 }

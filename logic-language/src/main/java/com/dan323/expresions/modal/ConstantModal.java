@@ -1,18 +1,19 @@
 package com.dan323.expresions.modal;
 
-import com.dan323.expresions.LogicOperation;
 import com.dan323.expresions.util.Constant;
 
 public final class ConstantModal implements ModalLogicalExpression, Constant {
 
+    public static final ConstantModal TRUE = new ConstantModal(true);
+    public static final ConstantModal FALSE = new ConstantModal(false);
     private final boolean val;
 
-    public boolean getValue(){
-        return val;
+    private ConstantModal(boolean b) {
+        val = b;
     }
 
-    public ConstantModal(boolean b){
-        val=b;
+    public boolean getValue() {
+        return val;
     }
 
     @Override
@@ -22,19 +23,19 @@ public final class ConstantModal implements ModalLogicalExpression, Constant {
 
     @Override
     public boolean equals(Object ltl) {
-        return (ltl instanceof ConstantModal) && ((ConstantModal)ltl).val==val;
+        return (ltl instanceof ConstantModal) && ((ConstantModal) ltl).val == val;
     }
 
     @Override
-    public int hashCode(){
-        return val?1:0;
+    public int hashCode() {
+        return val ? 1 : 0;
     }
 
     @Override
     public Constant construct(int val) {
-        if (val!=0 && val!=1){
+        if (val != 0 && val != 1) {
             throw new IllegalArgumentException();
         }
-        return LogicOperation.construct(lst->new ConstantModal(val==1));
+        return new ConstantModal(val == 1);
     }
 }

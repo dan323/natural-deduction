@@ -6,12 +6,12 @@ public abstract class UnaryOperationClassic implements ClassicalLogicOperation, 
 
     private final ClassicalLogicOperation element;
 
-    UnaryOperationClassic(ClassicalLogicOperation element){
-        this.element=element;
+    UnaryOperationClassic(ClassicalLogicOperation element) {
+        this.element = element;
     }
 
     @Override
-    public ClassicalLogicOperation getElement(){
+    public ClassicalLogicOperation getElement() {
         return element;
     }
 
@@ -21,13 +21,13 @@ public abstract class UnaryOperationClassic implements ClassicalLogicOperation, 
     }
 
     @Override
-    public int hashCode(){
-        return element.hashCode()*15;
+    public int hashCode() {
+        return element.hashCode() * 15;
     }
 
     @Override
-    public String toString(){
-        return getOperator() +" ("+getElement()+")";
+    public String toString() {
+        return getOperator() + " (" + getElement() + ")";
     }
 
     protected abstract String getOperator();

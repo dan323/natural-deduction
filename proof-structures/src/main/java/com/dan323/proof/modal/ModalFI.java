@@ -12,7 +12,7 @@ public final class ModalFI extends FI implements ModalAction {
     private String state;
 
     public ModalFI(String state, int i, int j) {
-        super(i, j, lo -> new NegationModal((ModalLogicalExpression) lo), () -> new ConstantModal(false));
+        super(i, j, lo -> new NegationModal((ModalLogicalExpression) lo), () -> ConstantModal.FALSE);
         this.state = state;
     }
 

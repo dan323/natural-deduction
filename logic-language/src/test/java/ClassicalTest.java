@@ -1,7 +1,5 @@
 import com.dan323.expresions.clasical.*;
 import com.dan323.expresions.exceptions.InvalidMapValuesException;
-import com.dan323.expresions.modal.*;
-import com.dan323.expresions.util.Variable;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -15,7 +13,7 @@ public class ClassicalTest {
 
     @Test
     public void classicalToStringTest() {
-        ConstantClassic c = new ConstantClassic(true);
+        ConstantClassic c = ConstantClassic.TRUE;
         VariableClassic v = new VariableClassic("P");
         ClassicalLogicOperation clo = new NegationClassic(new ConjuntionClassic(v, c));
 
@@ -23,38 +21,45 @@ public class ClassicalTest {
     }
 
     @Test
-    public void modalToStringTest(){
-        ConstantModal c=new ConstantModal(false);
-        VariableModal v=new VariableModal("P");
-        ModalLogicalExpression clo= new Sometime(new ImplicationModal(new DisjunctionModal(v,c),new ConjuntionModal(c,v)));
+    public void equalsVarTest() {
+        VariableClassic v = new VariableClassic("P");
+        VariableClassic w = new VariableClassic("P");
+        Assertions.assertEquals(v, w);
+        Assertions.assertEquals(v.hashCode(), w.hashCode());
+    }
 
-        Assertions.assertEquals(clo.toString(),"<> ((("+v+") | ("+c+")) -> (("+c+") & ("+v+")))");
+    @Test
+    public void equalsConsTest() {
+        ConstantClassic v = ConstantClassic.FALSE;
+        ConstantClassic w = ConstantClassic.TRUE;
+        Assertions.assertNotEquals(v, w);
+        Assertions.assertNotEquals(v.hashCode(), w.hashCode());
     }
 
     @Test
     public void classicalEvaluationTest() {
-        ConstantClassic c = new ConstantClassic(true);
+        ConstantClassic c = ConstantClassic.TRUE;
         VariableClassic v = new VariableClassic("P");
         VariableClassic w = new VariableClassic("Q");
         ClassicalLogicOperation clo = new DisjunctionClassic(new NegationClassic(new ConjuntionClassic(v, w)), c);
 
         Map<String, Boolean> values = new HashMap<>();
-        values.put("P",true);
-        values.put("Q",false);
+        values.put("P", true);
+        values.put("Q", false);
         Assertions.assertTrue(clo.evaluate(values));
-        Assertions.assertFalse((new ImplicationClassic(clo,new NegationClassic(clo))).evaluate(values));
+        Assertions.assertFalse((new ImplicationClassic(clo, new NegationClassic(clo))).evaluate(values));
     }
 
     @Test
-    public void insuficientValuesMap(){
-        ConstantClassic c = new ConstantClassic(true);
+    public void insufficientValuesMap() {
+        ConstantClassic c = ConstantClassic.TRUE;
         VariableClassic v = new VariableClassic("P");
         VariableClassic w = new VariableClassic("Q");
         ClassicalLogicOperation clo = new ConjuntionClassic(new NegationClassic(new ConjuntionClassic(v, w)), c);
 
         Map<String, Boolean> values = new HashMap<>();
-        values.put("Q",false);
-        Assertions.assertThrows(InvalidMapValuesException.class,()->clo.evaluate(values));
+        values.put("Q", false);
+        Assertions.assertThrows(InvalidMapValuesException.class, () -> clo.evaluate(values));
     }
 
 }

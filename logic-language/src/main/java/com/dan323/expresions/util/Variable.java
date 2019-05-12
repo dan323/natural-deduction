@@ -7,5 +7,4 @@ import com.dan323.expresions.LogicOperation;
  */
 public interface Variable extends LogicOperation {
 
-    Variable construct(String name);
 }

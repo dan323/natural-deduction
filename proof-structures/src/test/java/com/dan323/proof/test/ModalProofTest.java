@@ -1,7 +1,11 @@
 package com.dan323.proof.test;
 
+import com.dan323.expresions.clasical.ConstantClassic;
+import com.dan323.expresions.clasical.ImplicationClassic;
+import com.dan323.expresions.clasical.VariableClassic;
 import com.dan323.expresions.modal.*;
 import com.dan323.proof.Proof;
+import com.dan323.proof.classical.proof.NaturalDeduction;
 import com.dan323.proof.generic.Action;
 import com.dan323.proof.modal.*;
 import com.dan323.proof.modal.proof.ModalNaturalDeduction;
@@ -142,6 +146,23 @@ public class ModalProofTest {
         lst.add(new ModalBoxI());
         proof(lst,mnd);
         Assertions.assertTrue(mnd.isDone());
+    }
+
+    @Test
+    public void FEModalTest() {
+        VariableModal p = new VariableModal("P");
+        ModalNaturalDeduction nd = new ModalNaturalDeduction();
+        nd.initializeProof(new ArrayList<>(), new ImplicationModal(ConstantModal.FALSE, p));
+        List<Action> lst = new ArrayList<>();
+        lst.add(new ModalAssume(ConstantModal.FALSE,"s0"));
+        lst.add(new ModalAssume(new NegationModal(p),"s0"));
+        lst.add(new ModalCopy(1));
+        lst.add(new ModalNotI());
+        lst.add(new ModalNotE(4));
+        lst.add(new ModalDeductionTheorem());
+        proof(lst,nd);
+        Assertions.assertTrue(nd.isDone());
+
     }
 
     private void proof(List<Action> lst, Proof pf) {

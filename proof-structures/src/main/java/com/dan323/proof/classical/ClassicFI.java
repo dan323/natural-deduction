@@ -10,7 +10,7 @@ import com.dan323.proof.generic.FI;
 public final class ClassicFI extends FI implements ClassicalAction {
 
     public ClassicFI(int i, int j) {
-        super(i, j, lo -> new NegationClassic((ClassicalLogicOperation) lo),()->new ConstantClassic(false));
+        super(i, j, lo -> new NegationClassic((ClassicalLogicOperation) lo), () -> ConstantClassic.FALSE);
     }
 
     @Override

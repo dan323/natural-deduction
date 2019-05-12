@@ -129,7 +129,16 @@ public class ProofTest {
     public void FE1() {
         VariableClassic p = new VariableClassic("P");
         NaturalDeduction nd = new NaturalDeduction();
-        nd.initializeProof(new ArrayList<>(), new ImplicationClassic(new ConstantClassic(false), p));
+        nd.initializeProof(new ArrayList<>(), new ImplicationClassic(ConstantClassic.FALSE, p));
+        nd.automate();
+        Assertions.assertTrue(nd.isDone());
+    }
+
+    @Test
+    public void AndI() {
+        VariableClassic p = new VariableClassic("P");
+        NaturalDeduction nd = new NaturalDeduction();
+        nd.initializeProof(List.of(p), new ConjuntionClassic(p, p));
         nd.automate();
         Assertions.assertTrue(nd.isDone());
     }
@@ -138,8 +147,8 @@ public class ProofTest {
     public void FE2() {
         VariableClassic p = new VariableClassic("P");
         NaturalDeduction nd = new NaturalDeduction();
-        nd.initializeProof(new ArrayList<>(), new ImplicationClassic(new ConstantClassic(false), p));
-        Action a1 = new ClassicAssume(new ConstantClassic(false));
+        nd.initializeProof(new ArrayList<>(), new ImplicationClassic(ConstantClassic.FALSE, p));
+        Action a1 = new ClassicAssume(ConstantClassic.FALSE);
         Action a2 = new ClassicFE(1, p);
         Action a3 = new ClassicDeductionTheorem();
         a1.apply(nd);

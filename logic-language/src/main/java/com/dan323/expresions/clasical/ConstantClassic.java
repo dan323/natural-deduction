@@ -1,15 +1,16 @@
 package com.dan323.expresions.clasical;
 
-import com.dan323.expresions.LogicOperation;
 import com.dan323.expresions.util.Constant;
 
 import java.util.Map;
 
 public final class ConstantClassic implements ClassicalLogicOperation, Constant {
 
+    public static final ConstantClassic FALSE = new ConstantClassic(false);
+    public static final ConstantClassic TRUE = new ConstantClassic(true);
     private final boolean val;
 
-    public ConstantClassic(boolean b) {
+    private ConstantClassic(boolean b) {
         val = b;
     }
 
@@ -38,10 +39,10 @@ public final class ConstantClassic implements ClassicalLogicOperation, Constant 
     }
 
     @Override
-    public com.dan323.expresions.util.Constant construct(int val) {
-        if (val != 0 && val != 1){
+    public Constant construct(int val) {
+        if (val != 0 && val != 1) {
             throw new IllegalArgumentException();
         }
-        return LogicOperation.construct(lst->new ConstantClassic(val==1));
+        return new ConstantClassic(val == 1);
     }
 }

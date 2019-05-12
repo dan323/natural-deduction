@@ -6,8 +6,8 @@ import com.dan323.expresions.LogicOperation;
 import java.util.Map;
 
 @FunctionalInterface
-public interface PatternMapper {
+public interface PatternMapper<T extends LogicOperation> {
 
-    Map<String, LogicOperation> compareLogic(LogicOperation l1, LogicOperation l2);
+    Map<String, T> compareLogic(T l1, T l2);
 
 }
