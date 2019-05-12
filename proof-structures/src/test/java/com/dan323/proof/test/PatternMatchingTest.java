@@ -18,7 +18,7 @@ public class PatternMatchingTest {
         VariableClassic p = new VariableClassic("P");
         VariableClassic q = new VariableClassic("Q");
         Map<String, ClassicalLogicOperation> sol = pat.compareLogic(new ImplicationClassic(p, q), new ImplicationClassic(new NegationClassic(ConstantClassic.FALSE), ConstantClassic.TRUE));
-        Assertions.assertEquals(sol.get("P"), new NegationClassic(ConstantClassic.FALSE));
-        Assertions.assertEquals(sol.get("Q"), ConstantClassic.TRUE);
+        Assertions.assertEquals(new NegationClassic(ConstantClassic.FALSE), sol.get("P"));
+        Assertions.assertEquals(ConstantClassic.TRUE, sol.get("Q"));
     }
 }
