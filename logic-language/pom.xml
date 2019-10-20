@@ -5,10 +5,16 @@
     <parent>
         <artifactId>natural-deduction</artifactId>
         <groupId>com.dan323</groupId>
-        <version>1.2</version>
+        <version>2.0</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
-    <version>${logic.version}</version>
+    <packaging>pom</packaging>
+    <version>2.0</version>
+    <modules>
+        <module>framework</module>
+        <module>implementation</module>
+        <module>implementation.modal</module>
+    </modules>
     <artifactId>logic-language</artifactId>
 
 

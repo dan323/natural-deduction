@@ -5,20 +5,62 @@
     <parent>
         <artifactId>natural-deduction</artifactId>
         <groupId>com.dan323</groupId>
-        <version>1.2</version>
+        <version>2.0</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
     <dependencies>
         <dependency>
             <groupId>com.dan323</groupId>
-            <artifactId>logic-language</artifactId>
+            <artifactId>language-framework</artifactId>
             <version>${logic.version}</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>com.dan323</groupId>
-            <artifactId>proof-structures</artifactId>
+            <artifactId>language-implementation.classic</artifactId>
+            <version>${logic.version}</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.dan323</groupId>
+            <artifactId>implementation.modal</artifactId>
+            <version>${logic.version}</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.dan323</groupId>
+            <artifactId>deduction.model</artifactId>
+            <version>${rest.version}</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.dan323</groupId>
+            <artifactId>deduction.service</artifactId>
+            <version>${rest.version}</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.dan323</groupId>
+            <artifactId>deduction.controller</artifactId>
+            <version>${rest.version}</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.dan323</groupId>
+            <artifactId>implementation.deduction.modal</artifactId>
+            <version>${proof.version}</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.dan323</groupId>
+            <artifactId>framework.deduction</artifactId>
+            <version>${proof.version}</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.dan323</groupId>
+            <artifactId>implementation.deduction.classic</artifactId>
             <version>${proof.version}</version>
             <scope>compile</scope>
         </dependency>
@@ -42,7 +84,25 @@
                 <executions>
                     <execution>
                         <id>report-aggregate</id>
-                        <phase>install</phase>
+                        <phase>site</phase>
+                        <goals>
+                            <goal>report-aggregate</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.pitest</groupId>
+                <artifactId>pitest-maven</artifactId>
+                <version>1.4.10</version>
+                <executions>
+                    <execution>
+                        <id>pit-report</id>
+                        <phase>none</phase>
+                    </execution>
+                    <execution>
+                        <id>put-it-together</id>
+                        <phase>site</phase>
                         <goals>
                             <goal>report-aggregate</goal>
                         </goals>

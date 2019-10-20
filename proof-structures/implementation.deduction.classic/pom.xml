@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>proof-structures</artifactId>
+        <groupId>com.dan323</groupId>
+        <version>1.2</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>implementation.deduction.classic</artifactId>
+    <dependencies>
+        <dependency>
+            <groupId>com.dan323</groupId>
+            <artifactId>framework.deduction</artifactId>
+            <version>${proof.version}</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.dan323</groupId>
+            <artifactId>language-implementation.classic</artifactId>
+            <version>${logic.version}</version>
+            <scope>compile</scope>
+        </dependency>
+    </dependencies>
+
+
+</project>

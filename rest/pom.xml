@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xmlns="http://maven.apache.org/POM/4.0.0"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>natural-deduction</artifactId>
+        <groupId>com.dan323</groupId>
+        <version>2.0</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>rest</artifactId>
+    <packaging>pom</packaging>
+    <version>1.0</version>
+    <modules>
+        <module>deduction.model</module>
+        <module>deduction.service</module>
+        <module>deduction.controller</module>
+    </modules>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.reflections</groupId>
+            <artifactId>reflections</artifactId>
+            <version>0.9.11</version>
+        </dependency>
+        <dependency>
+            <groupId>com.dan323</groupId>
+            <artifactId>proof-structures</artifactId>
+            <version>${proof.version}</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context</artifactId>
+            <version>5.1.4.RELEASE</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-web</artifactId>
+            <version>5.1.3.RELEASE</version>
+        </dependency>
+        <dependency>
+            <groupId>com.dan323</groupId>
+            <artifactId>language-framework</artifactId>
+            <version>${logic.version}</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.dan323</groupId>
+            <artifactId>framework.deduction</artifactId>
+            <version>${proof.version}</version>
+            <scope>compile</scope>
+        </dependency>
+    </dependencies>
+
+</project>
