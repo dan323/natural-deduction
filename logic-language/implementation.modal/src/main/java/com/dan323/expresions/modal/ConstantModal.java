@@ -32,10 +32,10 @@ public final class ConstantModal implements ModalLogicalExpression, Constant {
     }
 
     @Override
-    public Constant construct(int val) {
-        if (val != 0 && val != 1) {
+    public Constant construct(double val) {
+        if (val != 0.0 && val != 1.0) {
             throw new IllegalArgumentException();
         }
-        return new ConstantModal(val == 1);
+        return val == 1.0 ? TRUE : FALSE;
     }
 }

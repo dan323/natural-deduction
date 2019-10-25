@@ -39,10 +39,10 @@ public final class ConstantClassic implements ClassicalLogicOperation, Constant 
     }
 
     @Override
-    public Constant construct(int val) {
-        if (val != 0 && val != 1) {
+    public Constant construct(double val) {
+        if (val != 0.0 && val != 1.0) {
             throw new IllegalArgumentException();
         }
-        return new ConstantClassic(val == 1);
+        return val == 1.0 ? TRUE : FALSE;
     }
 }

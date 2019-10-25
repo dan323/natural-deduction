@@ -84,7 +84,7 @@
                 <executions>
                     <execution>
                         <id>report-aggregate</id>
-                        <phase>site</phase>
+                        <phase>verify</phase>
                         <goals>
                             <goal>report-aggregate</goal>
                         </goals>
@@ -102,7 +102,7 @@
                     </execution>
                     <execution>
                         <id>put-it-together</id>
-                        <phase>site</phase>
+                        <phase>none</phase>
                         <goals>
                             <goal>report-aggregate</goal>
                         </goals>
