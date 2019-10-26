@@ -1,4 +1,4 @@
-package com.dan323.langauge.classic;
+package com.dan323.language.classic;
 
 import com.dan323.expresions.classical.ConjunctionClassic;
 import com.dan323.expresions.classical.ConstantClassic;

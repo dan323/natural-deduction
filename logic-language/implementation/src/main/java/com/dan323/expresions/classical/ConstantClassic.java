@@ -19,6 +19,16 @@ public final class ConstantClassic implements ClassicalLogicOperation, Constant 
     }
 
     @Override
+    public Constant falsehood() {
+        return FALSE;
+    }
+
+    @Override
+    public Constant truehood() {
+        return TRUE;
+    }
+
+    @Override
     public String toString() {
         return String.valueOf(val);
     }
@@ -38,11 +48,4 @@ public final class ConstantClassic implements ClassicalLogicOperation, Constant 
         return getValue();
     }
 
-    @Override
-    public Constant construct(double val) {
-        if (val != 0.0 && val != 1.0) {
-            throw new IllegalArgumentException();
-        }
-        return val == 1.0 ? TRUE : FALSE;
-    }
 }

@@ -35,7 +35,7 @@ public abstract class NotI implements AbstractAction {
         LogicOperation lo = pf.getSteps().get(pf.getSteps().size() - 1).getStep();
         if (lo instanceof Constant) {
             Constant cons = (Constant) lo;
-            if (!cons.construct(0).equals(cons)) {
+            if (!cons.falsehood().equals(cons)) {
                 return false;
             }
         }

@@ -5,5 +5,7 @@ package com.dan323.expresions.base;
  */
 public interface Constant extends LogicOperation {
 
-    Constant construct(double val);
+    Constant falsehood();
+    Constant truehood();
+
 }

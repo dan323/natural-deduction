@@ -26,7 +26,7 @@ public abstract class FE implements AbstractAction {
     public boolean isValid(Proof pf) {
         if (RuleUtils.isValidIndexAndProp(pf, falseIndex) && RuleUtils.isOperation(pf, falseIndex, Constant.class)) {
             Constant cons = (Constant) pf.getSteps().get(falseIndex - 1).getStep();
-            return cons.construct(0).equals(cons);
+            return cons.falsehood().equals(cons);
         }
         return false;
     }

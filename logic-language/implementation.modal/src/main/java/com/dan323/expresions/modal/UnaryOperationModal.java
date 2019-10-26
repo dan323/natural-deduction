@@ -31,6 +31,6 @@ public abstract class UnaryOperationModal implements ModalLogicalExpression, Una
 
     @Override
     public final int hashCode(){
-        return super.hashCode()*element.hashCode()*getOperator().hashCode();
+        return element.hashCode()*13-11*getOperator().hashCode();
     }
 }

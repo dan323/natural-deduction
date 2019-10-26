@@ -12,6 +12,16 @@ public final class ConstantModal implements ModalLogicalExpression, Constant {
         val = b;
     }
 
+    @Override
+    public Constant falsehood() {
+        return FALSE;
+    }
+
+    @Override
+    public Constant truehood() {
+        return TRUE;
+    }
+
     public boolean getValue() {
         return val;
     }
@@ -29,13 +39,5 @@ public final class ConstantModal implements ModalLogicalExpression, Constant {
     @Override
     public int hashCode() {
         return val ? 1 : 0;
-    }
-
-    @Override
-    public Constant construct(double val) {
-        if (val != 0.0 && val != 1.0) {
-            throw new IllegalArgumentException();
-        }
-        return val == 1.0 ? TRUE : FALSE;
     }
 }

@@ -1,4 +1,4 @@
-package com.dan323.langauge.classic;
+package com.dan323.language.classic;
 
 import com.dan323.expresions.base.Implication;
 import com.dan323.expresions.base.LogicOperation;
@@ -67,11 +67,7 @@ public class ClassicalTest {
     }
 
     @Test
-    public void constantConstructTest() {
-        Assertions.assertThrows(IllegalArgumentException.class, () -> ConstantClassic.TRUE.construct(2));
-        Assertions.assertEquals(ConstantClassic.TRUE, ConstantClassic.FALSE.construct(1));
-        Assertions.assertEquals(ConstantClassic.FALSE, ConstantClassic.FALSE.construct(0));
-
+    public void constantHashCodeTest() {
         Assertions.assertNotEquals(ConstantClassic.TRUE.hashCode(), ConstantClassic.FALSE.hashCode());
     }
 
