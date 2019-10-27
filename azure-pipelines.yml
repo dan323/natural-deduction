@@ -11,7 +11,7 @@ steps:
 - task: Maven@3
   inputs:
     mavenPomFile: '$(pom)'
-    goals: 'clean compile'
+    goals: 'clean install'
     publishJUnitResults: false
     javaHomeOption: 'JDKVersion'
     jdkVersionOption: '1.11'
