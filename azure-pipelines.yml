@@ -6,12 +6,18 @@
 trigger:
 - master
 pool:
-  vmImage: 'ubuntu-latest'
+  vmImage: 'ubuntu-1604'
+
+
 
 steps:
 - script: echo Hello, world!
   displayName: 'Run a one-line script'
 - script: mvn compile
+  displayName: 'Build'
 - script: mvn verify
+  displayName: 'Unit testing'
 - script: mvn pitest-maven:mutationCoverage
+  displayName: 'mutations testing'
 - script: mvn package
+  displayName: 'End'
