@@ -12,7 +12,7 @@ public final class ConjunctionClassic extends BinaryOperationClassic implements 
 
     @Override
     protected String getOperator() {
-        return "&";
+        return Conjunction.OPERATOR;
     }
 
     @Override

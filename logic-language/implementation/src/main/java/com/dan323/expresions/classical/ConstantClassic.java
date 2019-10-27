@@ -19,13 +19,8 @@ public final class ConstantClassic implements ClassicalLogicOperation, Constant 
     }
 
     @Override
-    public Constant falsehood() {
-        return FALSE;
-    }
-
-    @Override
-    public Constant truehood() {
-        return TRUE;
+    public boolean isFalsehood() {
+        return equals(FALSE);
     }
 
     @Override

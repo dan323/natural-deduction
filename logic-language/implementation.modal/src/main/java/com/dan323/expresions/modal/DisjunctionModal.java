@@ -10,7 +10,7 @@ public final class DisjunctionModal extends BinaryOperationModal implements Disj
 
     @Override
     protected String getOperator() {
-        return "|";
+        return Disjunction.OPERATOR;
     }
 
 }

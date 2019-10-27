@@ -12,7 +12,7 @@ public final class NegationClassic extends UnaryOperationClassic implements Nega
 
     @Override
     protected String getOperator() {
-        return "-";
+        return Negation.OPERATOR;
     }
 
     @Override

@@ -5,4 +5,5 @@ package com.dan323.expresions.base;
  */
 public interface Negation extends UnaryOperation {
 
+    String OPERATOR = "-";
 }

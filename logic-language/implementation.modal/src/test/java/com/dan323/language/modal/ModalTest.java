@@ -73,6 +73,11 @@ public class ModalTest {
     }
 
     @Test
+    public void AlwaysTest() {
+
+    }
+
+    @Test
     public void toStringComplex() {
         VariableModal P = new VariableModal("P");
         NegationModal d = new NegationModal(P);

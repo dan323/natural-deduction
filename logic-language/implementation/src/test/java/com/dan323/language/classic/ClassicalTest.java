@@ -68,6 +68,8 @@ public class ClassicalTest {
 
     @Test
     public void constantHashCodeTest() {
+        Assertions.assertTrue(ConstantClassic.FALSE.isFalsehood());
+        Assertions.assertFalse(ConstantClassic.TRUE.isFalsehood());
         Assertions.assertNotEquals(ConstantClassic.TRUE.hashCode(), ConstantClassic.FALSE.hashCode());
     }
 

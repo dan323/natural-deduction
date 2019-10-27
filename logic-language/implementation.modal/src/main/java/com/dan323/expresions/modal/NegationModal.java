@@ -10,7 +10,7 @@ public final class NegationModal extends UnaryOperationModal implements Negation
 
     @Override
     protected String getOperator() {
-        return "-";
+        return Negation.OPERATOR;
     }
 
 }

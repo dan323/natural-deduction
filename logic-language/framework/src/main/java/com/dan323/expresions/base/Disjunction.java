@@ -5,4 +5,5 @@ package com.dan323.expresions.base;
  */
 public interface Disjunction extends BinaryOperation {
 
+    String OPERATOR = "|";
 }

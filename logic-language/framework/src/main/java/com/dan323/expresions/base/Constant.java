@@ -5,7 +5,6 @@ package com.dan323.expresions.base;
  */
 public interface Constant extends LogicOperation {
 
-    Constant falsehood();
-    Constant truehood();
+    boolean isFalsehood();
 
 }

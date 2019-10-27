@@ -10,7 +10,7 @@ public final class ConjunctionModal extends BinaryOperationModal implements Conj
 
     @Override
     protected String getOperator() {
-        return "&";
+        return Conjunction.OPERATOR;
     }
 
 }

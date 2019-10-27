@@ -13,13 +13,8 @@ public final class ConstantModal implements ModalLogicalExpression, Constant {
     }
 
     @Override
-    public Constant falsehood() {
-        return FALSE;
-    }
-
-    @Override
-    public Constant truehood() {
-        return TRUE;
+    public boolean isFalsehood() {
+        return equals(FALSE);
     }
 
     public boolean getValue() {

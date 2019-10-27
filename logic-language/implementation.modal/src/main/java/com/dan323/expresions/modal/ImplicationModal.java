@@ -10,7 +10,7 @@ public final class ImplicationModal extends BinaryOperationModal implements Impl
 
     @Override
     protected String getOperator() {
-        return "->";
+        return Implication.OPERATOR;
     }
 
 }

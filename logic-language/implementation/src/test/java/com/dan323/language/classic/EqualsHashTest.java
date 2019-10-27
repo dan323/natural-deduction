@@ -48,5 +48,6 @@ public class EqualsHashTest {
         ConstantClassic w = ConstantClassic.TRUE;
         Assertions.assertNotEquals(v, w);
         Assertions.assertNotEquals(v.hashCode(), w.hashCode());
+        Assertions.assertNotEquals(v, new ConjunctionClassic(v, w));
     }
 }

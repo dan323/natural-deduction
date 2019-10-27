@@ -5,4 +5,6 @@ package com.dan323.expresions.base;
  */
 public interface Conjunction extends BinaryOperation {
 
+    String OPERATOR = "&";
+
 }

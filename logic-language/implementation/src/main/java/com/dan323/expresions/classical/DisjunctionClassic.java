@@ -10,10 +10,9 @@ public final class DisjunctionClassic extends BinaryOperationClassic implements 
         super(l, r);
     }
 
-
     @Override
     protected String getOperator() {
-        return "|";
+        return Disjunction.OPERATOR;
     }
 
     @Override

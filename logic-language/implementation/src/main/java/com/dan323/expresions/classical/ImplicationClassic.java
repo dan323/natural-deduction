@@ -13,7 +13,7 @@ public final class ImplicationClassic extends BinaryOperationClassic implements 
 
     @Override
     protected String getOperator() {
-        return "->";
+        return Implication.OPERATOR;
     }
 
     @Override

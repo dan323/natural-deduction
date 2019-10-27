@@ -6,17 +6,17 @@ public abstract class UnaryOperationModal implements ModalLogicalExpression, Una
 
     private final ModalLogicalExpression element;
 
-    public UnaryOperationModal(ModalLogicalExpression element){
-        this.element=element;
+    public UnaryOperationModal(ModalLogicalExpression element) {
+        this.element = element;
     }
 
-    public ModalLogicalExpression getElement(){
+    public ModalLogicalExpression getElement() {
         return element;
     }
 
 
-    public String toString(){
-        return getOperator() +" ("+getElement()+")";
+    public String toString() {
+        return getOperator() + " (" + getElement() + ")";
     }
 
     protected abstract String getOperator();
@@ -25,12 +25,12 @@ public abstract class UnaryOperationModal implements ModalLogicalExpression, Una
     public final boolean equals(Object log) {
         return
                 log instanceof UnaryOperationModal && // The object is of the appropriate class
-                getOperator().equals(((UnaryOperationModal) log).getOperator()) && // The operations is the same
-                element.equals(((UnaryOperationModal) log).element); // The expression over which we apply it, is the same
+                        getOperator().equals(((UnaryOperationModal) log).getOperator()) && // The operations is the same
+                        element.equals(((UnaryOperationModal) log).element); // The expression over which we apply it, is the same
     }
 
     @Override
-    public final int hashCode(){
-        return element.hashCode()*13-11*getOperator().hashCode();
+    public final int hashCode() {
+        return element.hashCode() * 13 - 11 * getOperator().hashCode();
     }
 }

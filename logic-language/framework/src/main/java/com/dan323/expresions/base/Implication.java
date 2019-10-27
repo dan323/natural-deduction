@@ -5,5 +5,6 @@ package com.dan323.expresions.base;
  */
 public interface Implication extends BinaryOperation {
 
+    String OPERATOR = "->";
 
 }
