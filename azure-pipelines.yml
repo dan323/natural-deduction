@@ -45,6 +45,7 @@ steps:
     publishJUnitResults: true
     testResultsFiles: '**/pit-reports/*.xml'
     javaHomeOption: 'JDKVersion'
+    jdkVersionOption: '1.11'
     mavenVersionOption: 'Default'
     mavenAuthenticateFeed: false
     effectivePomSkip: false
@@ -56,6 +57,7 @@ steps:
     goals: 'deploy'
     publishJUnitResults: false
     javaHomeOption: 'JDKVersion'
+    jdkVersionOption: '1.11'
     mavenVersionOption: 'Default'
     mavenAuthenticateFeed: false
     effectivePomSkip: false
