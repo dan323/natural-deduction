@@ -13,7 +13,7 @@ steps:
   displayName: 'Start'
 - task: Maven@3
   inputs:
-    mavenPomFile: 'pom.xml'
+    mavenPomFile: 'logic-language/framework/pom.xml'
     goals: 'clean package install'
     publishJUnitResults: false
     javaHomeOption: 'JDKVersion'
@@ -29,6 +29,43 @@ steps:
     Contents: '**'
     TargetFolder: '$(build.artifactstagingdirectory)'
 
+- task: Maven@3
+  inputs:
+    mavenPomFile: 'logic-language/implementation/pom.xml'
+    goals: 'clean package install'
+    publishJUnitResults: false
+    javaHomeOption: 'JDKVersion'
+    jdkVersionOption: '1.11'
+    mavenVersionOption: 'Default'
+    mavenAuthenticateFeed: false
+    effectivePomSkip: false
+    sonarQubeRunAnalysis: false
+    
+
+- task: CopyFiles@2
+  inputs:
+    SourceFolder: '$(agent.builddirectory)'
+    Contents: '**'
+    TargetFolder: '$(build.artifactstagingdirectory)'
+
+- task: Maven@3
+  inputs:
+    mavenPomFile: 'logic-language/implementation.modal/pom.xml'
+    goals: 'clean package install'
+    publishJUnitResults: false
+    javaHomeOption: 'JDKVersion'
+    jdkVersionOption: '1.11'
+    mavenVersionOption: 'Default'
+    mavenAuthenticateFeed: false
+    effectivePomSkip: false
+    sonarQubeRunAnalysis: false
+
+
+- task: CopyFiles@2
+  inputs:
+    SourceFolder: '$(agent.builddirectory)'
+    Contents: '**'
+    TargetFolder: '$(build.artifactstagingdirectory)'
 
 - task: Maven@3
   inputs:
@@ -47,7 +84,6 @@ steps:
     SourceFolder: '$(agent.builddirectory)'
     Contents: '**'
     TargetFolder: '$(build.artifactstagingdirectory)'
-
 
 
 - task: Maven@3
