@@ -2,14 +2,14 @@ package com.dan323.proof.generic.proof;
 
 import com.dan323.expresions.base.LogicOperation;
 
-public class ProofStep {
+public class ProofStep<T extends LogicOperation> {
 
     private final int assumptionLevel;
-    private final LogicOperation step;
+    private final T step;
     private final ProofReason proof;
     private boolean valid;
 
-    public ProofStep(int ass, LogicOperation statement, ProofReason why) {
+    public ProofStep(int ass, T statement, ProofReason why) {
         assumptionLevel = ass;
         step = statement;
         proof = why;
@@ -28,7 +28,7 @@ public class ProofStep {
         return assumptionLevel;
     }
 
-    public LogicOperation getStep() {
+    public T getStep() {
         return step;
     }
 

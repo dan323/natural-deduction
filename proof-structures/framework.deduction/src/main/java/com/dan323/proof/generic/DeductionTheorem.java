@@ -14,17 +14,25 @@ import java.util.function.BiFunction;
 /**
  * @author danco
  */
-public abstract class DeductionTheorem implements AbstractAction {
+public abstract class DeductionTheorem<T extends LogicOperation, Q extends ProofStep<T>> implements AbstractAction<T, Q> {
 
     private int lastAssumption;
-    private BiFunction<LogicOperation, LogicOperation, Implication> constructor;
+    private BiFunction<T, T, Implication<T>> constructor;
 
-    public DeductionTheorem(BiFunction<LogicOperation, LogicOperation, Implication> construct) {
+    public DeductionTheorem(BiFunction<T, T, Implication<T>> construct) {
         constructor = construct;
     }
 
+    public boolean equals(Object obj) {
+        return getClass().equals(obj.getClass());
+    }
+
+    public int hashCode() {
+        return getClass().hashCode();
+    }
+
     @Override
-    public boolean isValid(Proof pf) {
+    public boolean isValid(Proof<T, Q> pf) {
         if (pf.getSteps().isEmpty()) {
             return false;
         }
@@ -42,12 +50,15 @@ public abstract class DeductionTheorem implements AbstractAction {
     }
 
     @Override
-    public void applyStepSupplier(Proof pf, ProofStepSupplier supp) {
+    public void applyStepSupplier(Proof<T, Q> pf, ProofStepSupplier<T, Q> supp) {
         int assLevel = Action.getLastAssumptionLevel(pf);
         int i = Action.disableUntilLastAssumption(pf, assLevel);
         List<Integer> lst = new ArrayList<>();
         lst.add(pf.getSteps().size() - i + 1);
         lst.add(pf.getSteps().size());
-        pf.getSteps().add(supp.generateProofStep(assLevel - 1, constructor.apply(pf.getSteps().get(pf.getSteps().size() - i).getStep(), pf.getSteps().get(pf.getSteps().size() - 1).getStep()), new ProofReason("->I", lst)));
+        pf.getSteps().add(supp.generateProofStep(assLevel - 1,
+                constructor.apply(pf.getSteps().get(pf.getSteps().size() - i).getStep(),
+                        pf.getSteps().get(pf.getSteps().size() - 1).getStep()).castToLanguage(),
+                new ProofReason("->I", lst)));
     }
 }

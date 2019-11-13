@@ -4,6 +4,7 @@ import com.dan323.expresions.base.LogicOperation;
 import com.dan323.expresions.base.Negation;
 import com.dan323.proof.generic.proof.Proof;
 import com.dan323.proof.generic.proof.ProofReason;
+import com.dan323.proof.generic.proof.ProofStep;
 import com.dan323.proof.generic.proof.ProofStepSupplier;
 
 import java.util.ArrayList;
@@ -12,7 +13,7 @@ import java.util.List;
 /**
  * @author danco
  */
-public abstract class NotE implements AbstractAction {
+public abstract class NotE<T extends LogicOperation, Q extends ProofStep<T>> implements AbstractAction<T, Q> {
 
     private final int neg;
 
@@ -21,23 +22,37 @@ public abstract class NotE implements AbstractAction {
     }
 
     @Override
-    public boolean isValid(Proof pf) {
+    public boolean equals(Object obj) {
+        if (getClass().equals(obj.getClass())) {
+            return ((NotE<T, Q>) obj).getNeg() == getNeg();
+        } else {
+            return false;
+        }
+    }
+
+    @Override
+    public int hashCode() {
+        return getClass().hashCode() * 13 + getNeg() * 17;
+    }
+
+    @Override
+    public boolean isValid(Proof<T, Q> pf) {
         if (RuleUtils.isValidIndexAndProp(pf, neg)) {
-            LogicOperation lo = pf.getSteps().get(neg - 1).getStep();
-            return (lo instanceof Negation) && (((Negation) lo).getElement() instanceof Negation);
+            T lo = pf.getSteps().get(neg - 1).getStep();
+            return (lo instanceof Negation) && (((Negation<T>) lo).getElement() instanceof Negation);
         }
         return false;
     }
 
     @Override
-    public void applyStepSupplier(Proof pf, ProofStepSupplier supp) {
+    public void applyStepSupplier(Proof<T, Q> pf, ProofStepSupplier<T, Q> supp) {
         int assLevel = 0;
         if (!pf.getSteps().isEmpty()) {
             assLevel = pf.getSteps().get(pf.getSteps().size() - 1).getAssumptionLevel();
         }
         List<Integer> lst = new ArrayList<>();
         lst.add(neg);
-        LogicOperation sol = ((Negation) ((Negation) (pf.getSteps().get(neg - 1).getStep())).getElement()).getElement();
+        T sol = ((Negation<T>) ((Negation<T>) (pf.getSteps().get(neg - 1).getStep())).getElement()).getElement();
         pf.getSteps().add(supp.generateProofStep(assLevel, sol, new ProofReason("-E", lst)));
     }
 

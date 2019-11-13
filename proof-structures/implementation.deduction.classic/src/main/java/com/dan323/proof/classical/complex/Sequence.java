@@ -1,7 +1,9 @@
 package com.dan323.proof.classical.complex;
 
+import com.dan323.expresions.classical.ClassicalLogicOperation;
 import com.dan323.proof.classical.ClassicalAction;
 import com.dan323.proof.generic.proof.Proof;
+import com.dan323.proof.generic.proof.ProofStep;
 
 import java.util.List;
 
@@ -14,7 +16,7 @@ public final class Sequence extends CompositionRule {
     }
 
     @Override
-    public boolean isValid(Proof pf) {
+    public boolean isValid(Proof<ClassicalLogicOperation, ProofStep<ClassicalLogicOperation>> pf) {
         int size = pf.getSteps().size();
         for (ClassicalAction ca : lst) {
             if (!ca.isValid(pf)) {
@@ -30,7 +32,7 @@ public final class Sequence extends CompositionRule {
     }
 
     @Override
-    public void apply(Proof pf) {
+    public void apply(Proof<ClassicalLogicOperation, ProofStep<ClassicalLogicOperation>> pf) {
         for (ClassicalAction ca : lst) {
             ca.apply(pf);
         }

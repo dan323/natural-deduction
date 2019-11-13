@@ -1,13 +1,14 @@
 package com.dan323.proof.classical.complex;
 
+import com.dan323.expresions.base.BinaryOperation;
 import com.dan323.expresions.base.Negation;
-import com.dan323.expresions.classical.BinaryOperationClassic;
+import com.dan323.expresions.base.UnaryOperation;
 import com.dan323.expresions.classical.ClassicalLogicOperation;
 import com.dan323.expresions.classical.DisjunctionClassic;
-import com.dan323.expresions.classical.UnaryOperationClassic;
 import com.dan323.proof.classical.*;
 import com.dan323.proof.generic.RuleUtils;
 import com.dan323.proof.generic.proof.Proof;
+import com.dan323.proof.generic.proof.ProofStep;
 
 public final class DeMorgan1 extends CompositionRule {
 
@@ -26,15 +27,15 @@ public final class DeMorgan1 extends CompositionRule {
     }
 
     @Override
-    public boolean isValid(Proof pf) {
+    public boolean isValid(Proof<ClassicalLogicOperation, ProofStep<ClassicalLogicOperation>> pf) {
         return RuleUtils.isValidIndexAndProp(pf, i) && RuleUtils.isOperation(pf, i, Negation.class)
-                && (((UnaryOperationClassic) pf.getSteps().get(i - 1).getStep()).getElement() instanceof DisjunctionClassic);
+                && (((UnaryOperation<ClassicalLogicOperation>) pf.getSteps().get(i - 1).getStep()).getElement() instanceof DisjunctionClassic);
     }
 
     @Override
-    public void apply(Proof pf) {
-        ClassicalLogicOperation left = ((BinaryOperationClassic) ((UnaryOperationClassic) pf.getSteps().get(i - 1).getStep()).getElement()).getLeft();
-        ClassicalLogicOperation right = ((BinaryOperationClassic) ((UnaryOperationClassic) pf.getSteps().get(i - 1).getStep()).getElement()).getRight();
+    public void apply(Proof<ClassicalLogicOperation, ProofStep<ClassicalLogicOperation>> pf) {
+        ClassicalLogicOperation left = ((BinaryOperation<ClassicalLogicOperation>) ((UnaryOperation<ClassicalLogicOperation>) pf.getSteps().get(i - 1).getStep()).getElement()).getLeft();
+        ClassicalLogicOperation right = ((BinaryOperation<ClassicalLogicOperation>) ((UnaryOperation<ClassicalLogicOperation>) pf.getSteps().get(i - 1).getStep()).getElement()).getRight();
         (new ClassicAssume(left)).apply(pf);
         (new ClassicOrI1(pf.getSteps().size(), right)).apply(pf);
         (new ClassicFI(pf.getSteps().size(), i)).apply(pf);

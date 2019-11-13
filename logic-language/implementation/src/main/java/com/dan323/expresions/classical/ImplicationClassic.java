@@ -1,10 +1,11 @@
 package com.dan323.expresions.classical;
 
 import com.dan323.expresions.base.Implication;
+import com.dan323.expresions.base.LogicOperation;
 
 import java.util.Map;
 
-public final class ImplicationClassic extends BinaryOperationClassic implements Implication {
+public final class ImplicationClassic extends Implication<ClassicalLogicOperation> implements ClassicalLogicOperation {
 
 
     public ImplicationClassic(ClassicalLogicOperation l, ClassicalLogicOperation r) {
@@ -12,13 +13,12 @@ public final class ImplicationClassic extends BinaryOperationClassic implements 
     }
 
     @Override
-    protected String getOperator() {
-        return Implication.OPERATOR;
-    }
-
-    @Override
     public boolean evaluate(Map<String, Boolean> values) {
         return !getLeft().evaluate(values) || getRight().evaluate(values);
     }
 
+    @Override
+    public boolean equals(Object obj) {
+        return ClassicalLogicOperation.classicalOperationEquals(obj, super::equals);
+    }
 }

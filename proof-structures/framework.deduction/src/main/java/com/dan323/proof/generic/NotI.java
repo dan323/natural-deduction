@@ -15,16 +15,26 @@ import java.util.function.Function;
 /**
  * @author danco
  */
-public abstract class NotI implements AbstractAction {
+public abstract class NotI<T extends LogicOperation, Q extends ProofStep<T>> implements AbstractAction<T, Q> {
 
-    private Function<LogicOperation, Negation> negate;
+    private Function<T, Negation<T>> negate;
 
-    public NotI(Function<LogicOperation, Negation> negate) {
+    public NotI(Function<T, Negation<T>> negate) {
         this.negate = negate;
     }
 
     @Override
-    public boolean isValid(Proof pf) {
+    public boolean equals(Object obj) {
+        return obj.getClass().equals(getClass());
+    }
+
+    @Override
+    public int hashCode() {
+        return getClass().hashCode();
+    }
+
+    @Override
+    public boolean isValid(Proof<T, Q> pf) {
         if (pf.getSteps().isEmpty()) {
             return false;
         }
@@ -38,6 +48,8 @@ public abstract class NotI implements AbstractAction {
             if (!cons.isFalsehood()) {
                 return false;
             }
+        } else {
+            return false;
         }
         int lastAssumption = Action.getToLastAssumption(pf, assLevel);
         ProofStep log = pf.getSteps().get(pf.getSteps().size() - lastAssumption);
@@ -45,12 +57,12 @@ public abstract class NotI implements AbstractAction {
     }
 
     @Override
-    public void applyStepSupplier(Proof pf, ProofStepSupplier supp) {
+    public void applyStepSupplier(Proof<T, Q> pf, ProofStepSupplier<T, Q> supp) {
         int assLevel = pf.getSteps().get(pf.getSteps().size() - 1).getAssumptionLevel();
         int i = Action.disableUntilLastAssumption(pf, assLevel);
         List<Integer> lst = new ArrayList<>();
         lst.add(pf.getSteps().size() - i + 1);
         lst.add(pf.getSteps().size());
-        pf.getSteps().add(supp.generateProofStep(assLevel - 1, negate.apply(pf.getSteps().get(pf.getSteps().size() - i).getStep()), new ProofReason("-I", lst)));
+        pf.getSteps().add(supp.generateProofStep(assLevel - 1, negate.apply(pf.getSteps().get(pf.getSteps().size() - i).getStep()).castToLanguage(), new ProofReason("-I", lst)));
     }
 }

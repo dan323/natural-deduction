@@ -1,14 +1,18 @@
 package com.dan323.expresions.base;
 
+import java.util.function.Predicate;
+
 /**
  * Interface to abstract all logic expressions
  */
 public interface LogicOperation {
 
-    /**
-     * @see Object#toString()
-     * @return the representing String
-     */
-    String toString();
+    static boolean logicOperationEquals(Object object, Predicate<LogicOperation> check, Predicate<Object> equalsFunction) {
+        if (object instanceof LogicOperation && check.test((LogicOperation)object)) {
+            return equalsFunction.test(object);
+        } else {
+            return false;
+        }
+    }
 
 }

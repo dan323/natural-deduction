@@ -7,24 +7,24 @@ import com.dan323.proof.generic.Action;
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class Proof {
+public abstract class Proof<T extends LogicOperation, Q extends ProofStep<T>> {
 
-    private List<LogicOperation> assms;
-    private LogicOperation goal;
-    private List<ProofStep> steps = new ArrayList<>();
+    private List<T> assms;
+    private T goal;
+    private List<Q> steps = new ArrayList<>();
 
-    public List<LogicOperation> getAssms() {
+    public List<T> getAssms() {
         return assms;
     }
 
-    protected void setAssms(List<LogicOperation> assms) {
+    protected void setAssms(List<T> assms) {
         this.assms = assms;
     }
 
-    public abstract boolean isValid(Action act);
+    public abstract boolean isValid(Action<T,Q> act);
 
     public boolean isDone() {
-        for (ProofStep st : steps) {
+        for (Q st : steps) {
             if (goal.equals(st.getStep()) && st.getAssumptionLevel() == 0) {
                 return true;
             }
@@ -36,31 +36,24 @@ public abstract class Proof {
         steps = new ArrayList<>();
     }
 
-    public void initializeProof(List<LogicOperation> assms, LogicOperation goal) {
-        setAssms(assms);
-        initializeProofSteps();
-        setGoal(goal);
-        for (LogicOperation lo : assms) {
-            steps.add(new ProofStep(0, lo, new ProofReason("Ass", new ArrayList<>())));
-        }
-    }
+    public abstract void initializeProof(List<T> assms, T goal);
 
     public LogicOperation getGoal() {
         return goal;
     }
 
-    protected void setGoal(LogicOperation goal) {
+    protected void setGoal(T goal) {
         this.goal = goal;
     }
 
-    public List<ProofStep> getSteps() {
+    public List<Q> getSteps() {
         return steps;
     }
 
     public String toString() {
         StringBuilder sb = new StringBuilder();
         if (steps != null) {
-            for (ProofStep ps : steps) {
+            for (Q ps : steps) {
                 sb.append(ps.toString()).append("\n");
             }
         }

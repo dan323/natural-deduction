@@ -6,20 +6,15 @@ import com.dan323.proof.generic.DeductionTheorem;
 import com.dan323.proof.generic.proof.Proof;
 import com.dan323.proof.generic.proof.ProofStep;
 
-public final class ClassicDeductionTheorem extends DeductionTheorem implements ClassicalAction {
+public final class ClassicDeductionTheorem extends DeductionTheorem<ClassicalLogicOperation, ProofStep<ClassicalLogicOperation>> implements ClassicalAction {
 
     public ClassicDeductionTheorem() {
-        super((l1, l2) -> new ImplicationClassic((ClassicalLogicOperation) l1, (ClassicalLogicOperation) l2));
+        super(ImplicationClassic::new);
     }
 
     @Override
-    public void apply(Proof pf) {
+    public void apply(Proof<ClassicalLogicOperation, ProofStep<ClassicalLogicOperation>> pf) {
         applyStepSupplier(pf, ProofStep::new);
-    }
-
-    @Override
-    public boolean equals(Object ob) {
-        return ob instanceof ClassicDeductionTheorem;
     }
 
     @Override

@@ -1,16 +1,17 @@
 package com.dan323.expresions.modal;
 
 import com.dan323.expresions.base.Implication;
+import com.dan323.expresions.base.LogicOperation;
 
-public final class ImplicationModal extends BinaryOperationModal implements Implication {
+public final class ImplicationModal extends Implication<ModalLogicalOperation> implements ModalLogicalOperation {
 
-    public ImplicationModal(ModalLogicalExpression l, ModalLogicalExpression r) {
+    public ImplicationModal(ModalLogicalOperation l, ModalLogicalOperation r) {
         super(l, r);
     }
 
     @Override
-    protected String getOperator() {
-        return Implication.OPERATOR;
+    public boolean equals(Object obj) {
+        return ModalLogicalOperation.modalOperationEquals(obj, super::equals);
     }
 
 }

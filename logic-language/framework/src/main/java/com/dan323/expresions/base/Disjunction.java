@@ -3,7 +3,16 @@ package com.dan323.expresions.base;
 /**
  * @author danco
  */
-public interface Disjunction extends BinaryOperation {
+public abstract class Disjunction<T extends LogicOperation> extends BinaryOperation<T> {
 
-    String OPERATOR = "|";
+    private static final String OPERATOR = "|";
+
+    public Disjunction(T left, T right) {
+        super(left, right);
+    }
+
+    @Override
+    protected String getOperator() {
+        return OPERATOR;
+    }
 }

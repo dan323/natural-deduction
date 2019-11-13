@@ -1,16 +1,16 @@
 package com.dan323.expresions.modal;
 
 import com.dan323.expresions.base.Disjunction;
+import com.dan323.expresions.base.LogicOperation;
 
-public final class DisjunctionModal extends BinaryOperationModal implements Disjunction {
+public final class DisjunctionModal extends Disjunction<ModalLogicalOperation> implements ModalLogicalOperation {
 
-    public DisjunctionModal(ModalLogicalExpression l, ModalLogicalExpression r) {
+    public DisjunctionModal(ModalLogicalOperation l, ModalLogicalOperation r) {
         super(l, r);
     }
 
     @Override
-    protected String getOperator() {
-        return Disjunction.OPERATOR;
+    public boolean equals(Object obj) {
+        return ModalLogicalOperation.modalOperationEquals(obj, super::equals);
     }
-
 }

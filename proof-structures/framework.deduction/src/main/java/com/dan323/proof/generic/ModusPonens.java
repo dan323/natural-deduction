@@ -4,6 +4,7 @@ import com.dan323.expresions.base.BinaryOperation;
 import com.dan323.expresions.base.LogicOperation;
 import com.dan323.proof.generic.proof.Proof;
 import com.dan323.proof.generic.proof.ProofReason;
+import com.dan323.proof.generic.proof.ProofStep;
 import com.dan323.proof.generic.proof.ProofStepSupplier;
 
 import java.util.ArrayList;
@@ -12,7 +13,7 @@ import java.util.List;
 /**
  * @author danco
  */
-public abstract class ModusPonens implements AbstractAction {
+public abstract class ModusPonens<T extends LogicOperation, Q extends ProofStep<T>> implements AbstractAction<T, Q> {
 
     private final int applyAt1;
     private final int applyAt2;
@@ -20,6 +21,19 @@ public abstract class ModusPonens implements AbstractAction {
     public ModusPonens(int i1, int i2) {
         applyAt1 = i1;
         applyAt2 = i2;
+    }
+
+    public boolean equals(Object obj) {
+        if (getClass().equals(obj.getClass())) {
+            ModusPonens modusPonens = getClass().cast(obj);
+            return modusPonens.applyAt1 == get1() && modusPonens.applyAt2 == get2();
+        } else {
+            return false;
+        }
+    }
+
+    public int hashCode() {
+        return applyAt1 * 17 + applyAt2 * 19;
     }
 
     protected int get1() {
@@ -31,13 +45,13 @@ public abstract class ModusPonens implements AbstractAction {
     }
 
     @Override
-    public boolean isValid(Proof pf) {
+    public boolean isValid(Proof<T, Q> pf) {
         return RuleUtils.isValidModusPonens(pf, applyAt1, applyAt2);
     }
 
     @Override
-    public void applyStepSupplier(Proof pf, ProofStepSupplier supp) {
-        LogicOperation sol = ((BinaryOperation) pf.getSteps().get(applyAt1 - 1).getStep()).getRight();
+    public void applyStepSupplier(Proof<T, Q> pf, ProofStepSupplier<T, Q> supp) {
+        T sol = ((BinaryOperation<T>) pf.getSteps().get(applyAt1 - 1).getStep()).getRight();
         int assLevel = 0;
         if (!pf.getSteps().isEmpty()) {
             assLevel = Action.getLastAssumptionLevel(pf);

@@ -1,16 +1,17 @@
 package com.dan323.expresions.modal;
 
+import com.dan323.expresions.base.LogicOperation;
 import com.dan323.expresions.base.Negation;
 
-public final class NegationModal extends UnaryOperationModal implements Negation {
+public final class NegationModal extends Negation<ModalLogicalOperation> implements ModalLogicalOperation {
 
-    public NegationModal(ModalLogicalExpression elem) {
+    public NegationModal(ModalLogicalOperation elem) {
         super(elem);
     }
 
     @Override
-    protected String getOperator() {
-        return Negation.OPERATOR;
+    public boolean equals(Object obj) {
+        return ModalLogicalOperation.modalOperationEquals(obj, super::equals);
     }
 
 }

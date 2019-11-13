@@ -1,5 +1,6 @@
 package com.dan323.proof.modal;
 
+import com.dan323.expresions.modal.ModalLogicalOperation;
 import com.dan323.proof.generic.proof.Proof;
 import com.dan323.proof.generic.proof.ProofReason;
 import com.dan323.proof.generic.proof.ProofStepSupplier;
@@ -19,12 +20,12 @@ public final class ModalFlag implements ModalAction {
     }
 
     @Override
-    public boolean isValid(Proof pf) {
+    public boolean isValid(Proof<ModalLogicalOperation, ProofStepModal> pf) {
         return true;
     }
 
     @Override
-    public void applyStepSupplier(Proof pf, ProofStepSupplier supp) {
+    public void applyStepSupplier(Proof<ModalLogicalOperation, ProofStepModal> pf, ProofStepSupplier<ModalLogicalOperation, ProofStepModal> supp) {
         int assLevel = 0;
         if (!pf.getSteps().isEmpty()) {
             assLevel = pf.getSteps().get(pf.getSteps().size() - 1).getAssumptionLevel();
@@ -34,7 +35,7 @@ public final class ModalFlag implements ModalAction {
     }
 
     @Override
-    public void apply(Proof pf) {
+    public void apply(Proof<ModalLogicalOperation, ProofStepModal> pf) {
         applyStepSupplier(pf, ((assLevel, log, reason) -> new ProofStepModal("s0", assLevel, log, reason)));
     }
 }

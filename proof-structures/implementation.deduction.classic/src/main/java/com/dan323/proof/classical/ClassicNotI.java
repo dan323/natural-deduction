@@ -6,14 +6,14 @@ import com.dan323.proof.generic.NotI;
 import com.dan323.proof.generic.proof.Proof;
 import com.dan323.proof.generic.proof.ProofStep;
 
-public final class ClassicNotI extends NotI implements ClassicalAction {
+public final class ClassicNotI extends NotI<ClassicalLogicOperation, ProofStep<ClassicalLogicOperation>> implements ClassicalAction {
 
     public ClassicNotI() {
-        super(lo -> new NegationClassic((ClassicalLogicOperation) lo));
+        super(NegationClassic::new);
     }
 
     @Override
-    public void apply(Proof pf) {
+    public void apply(Proof<ClassicalLogicOperation, ProofStep<ClassicalLogicOperation>> pf) {
         applyStepSupplier(pf, ProofStep::new);
     }
 }

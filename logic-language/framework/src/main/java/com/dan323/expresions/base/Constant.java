@@ -3,8 +3,12 @@ package com.dan323.expresions.base;
 /**
  * @author danco
  */
-public interface Constant extends LogicOperation {
+public abstract class Constant<T extends LogicOperation> implements LogicOperation {
 
-    boolean isFalsehood();
+    public abstract boolean isFalsehood();
+
+    public T castToLanguage(){
+        return (T)this;
+    }
 
 }

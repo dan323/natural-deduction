@@ -1,7 +1,7 @@
 package com.dan323.proof.modal;
 
 import com.dan323.expresions.base.LogicOperation;
-import com.dan323.expresions.modal.ModalLogicalExpression;
+import com.dan323.expresions.modal.ModalLogicalOperation;
 import com.dan323.expresions.modal.Sometime;
 import com.dan323.proof.generic.proof.Proof;
 import com.dan323.proof.generic.proof.ProofReason;
@@ -23,21 +23,21 @@ public final class ModalDiaI implements ModalAction {
     }
 
     @Override
-    public boolean isValid(Proof pf) {
+    public boolean isValid(Proof<ModalLogicalOperation, ProofStepModal> pf) {
         ModalNaturalDeduction mnd = (ModalNaturalDeduction) pf;
-        return mnd.checkFlag(state, ((ProofStepModal) mnd.getSteps().get(i - 1)).getState());
+        return mnd.checkFlag(state, mnd.getSteps().get(i - 1).getState());
     }
 
     @Override
-    public void applyStepSupplier(Proof pf, ProofStepSupplier supp) {
-        LogicOperation log = pf.getSteps().get(i - 1).getStep();
+    public void applyStepSupplier(Proof<ModalLogicalOperation, ProofStepModal> pf, ProofStepSupplier<ModalLogicalOperation, ProofStepModal> supp) {
+        ModalLogicalOperation log = pf.getSteps().get(i - 1).getStep();
         List<Integer> lst = new ArrayList<>();
         lst.add(i);
-        pf.getSteps().add(supp.generateProofStep(pf.getSteps().get(pf.getSteps().size() - 1).getAssumptionLevel(), new Sometime((ModalLogicalExpression) log), new ProofReason("<>I", lst)));
+        pf.getSteps().add(supp.generateProofStep(pf.getSteps().get(pf.getSteps().size() - 1).getAssumptionLevel(), new Sometime(log), new ProofReason("<>I", lst)));
     }
 
     @Override
-    public void apply(Proof pf) {
+    public void apply(Proof<ModalLogicalOperation, ProofStepModal> pf) {
         applyStepSupplier(pf, ((assLevel, log, reason) -> new ProofStepModal(state, assLevel, log, reason)));
     }
 }

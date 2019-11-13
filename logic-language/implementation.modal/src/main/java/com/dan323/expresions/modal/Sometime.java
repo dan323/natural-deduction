@@ -1,13 +1,22 @@
 package com.dan323.expresions.modal;
 
-public final class Sometime extends UnaryOperationModal {
+import com.dan323.expresions.base.LogicOperation;
+import com.dan323.expresions.base.UnaryOperation;
 
-    public Sometime(ModalLogicalExpression element) {
+public final class Sometime extends UnaryOperation<ModalLogicalOperation> implements ModalLogicalOperation {
+
+    public Sometime(ModalLogicalOperation element) {
         super(element);
     }
 
     @Override
     protected String getOperator() {
         return "<>";
+    }
+
+
+    @Override
+    public boolean equals(Object obj) {
+        return ModalLogicalOperation.modalOperationEquals(obj, super::equals);
     }
 }

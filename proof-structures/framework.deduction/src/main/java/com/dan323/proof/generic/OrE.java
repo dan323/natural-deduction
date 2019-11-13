@@ -6,6 +6,7 @@ import com.dan323.expresions.base.Implication;
 import com.dan323.expresions.base.LogicOperation;
 import com.dan323.proof.generic.proof.Proof;
 import com.dan323.proof.generic.proof.ProofReason;
+import com.dan323.proof.generic.proof.ProofStep;
 import com.dan323.proof.generic.proof.ProofStepSupplier;
 
 import java.util.ArrayList;
@@ -14,7 +15,7 @@ import java.util.List;
 /**
  * @author danco
  */
-public abstract class OrE implements AbstractAction {
+public abstract class OrE<T extends LogicOperation, Q extends ProofStep<T>> implements AbstractAction<T, Q> {
 
     private final int disj;
     private final int rule1;
@@ -39,7 +40,7 @@ public abstract class OrE implements AbstractAction {
     }
 
     @Override
-    public boolean isValid(Proof pf) {
+    public boolean isValid(Proof<T, Q> pf) {
         if (RuleUtils.isValidIndexAndProp(pf, disj) && RuleUtils.isValidIndexAndProp(pf, rule1) && RuleUtils.isValidIndexAndProp(pf, rule2)) {
             LogicOperation dis = pf.getSteps().get(disj - 1).getStep();
             LogicOperation r1 = pf.getSteps().get(rule1 - 1).getStep();
@@ -56,8 +57,8 @@ public abstract class OrE implements AbstractAction {
     }
 
     @Override
-    public void applyStepSupplier(Proof pf, ProofStepSupplier supp) {
-        LogicOperation sol = ((BinaryOperation) pf.getSteps().get(rule1 - 1).getStep()).getRight();
+    public void applyStepSupplier(Proof<T, Q> pf, ProofStepSupplier<T, Q> supp) {
+        T sol = ((BinaryOperation<T>) pf.getSteps().get(rule1 - 1).getStep()).getRight();
         int assLevel = 0;
         if (!pf.getSteps().isEmpty()) {
             assLevel = pf.getSteps().get(pf.getSteps().size() - 1).getAssumptionLevel();

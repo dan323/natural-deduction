@@ -1,7 +1,9 @@
 package com.dan323.proof.modal;
 
+import com.dan323.expresions.base.LogicOperation;
+import com.dan323.expresions.base.UnaryOperation;
+import com.dan323.expresions.modal.ModalLogicalOperation;
 import com.dan323.expresions.modal.Sometime;
-import com.dan323.expresions.modal.UnaryOperationModal;
 import com.dan323.proof.generic.Action;
 import com.dan323.proof.generic.RuleUtils;
 import com.dan323.proof.generic.proof.Proof;
@@ -23,7 +25,7 @@ public final class ModalDiaE implements ModalAction {
     }
 
     @Override
-    public boolean isValid(Proof pf) {
+    public boolean isValid(Proof<ModalLogicalOperation, ProofStepModal> pf) {
         if (pf.getSteps().isEmpty()) {
             return false;
         }
@@ -33,7 +35,7 @@ public final class ModalDiaE implements ModalAction {
         if (!RuleUtils.isOperation(pf, j, Sometime.class)) {
             return false;
         }
-        String origin = ((ProofStepModal) pf.getSteps().get(j - 1)).getState();
+        String origin = (pf.getSteps().get(j - 1)).getState();
         int assLevel = Action.getLastAssumptionLevel(pf);
         if (assLevel < 2) {
             return false;
@@ -60,11 +62,11 @@ public final class ModalDiaE implements ModalAction {
 
         ((ModalNaturalDeduction) pf).isFresh(last, st[1]);
 
-        return log1.getStep().equals(((UnaryOperationModal) pf.getSteps().get(j - 1).getStep()).getElement());
+        return log1.getStep().equals(((UnaryOperation<ModalLogicalOperation>) pf.getSteps().get(j - 1).getStep()).getElement());
     }
 
-    public void applyStepSupplier(Proof pf, ProofStepSupplier supp) {
-        ProofStepModal psm = ((ProofStepModal) pf.getSteps().get(pf.getSteps().size() - 1));
+    public void applyStepSupplier(Proof<ModalLogicalOperation, ProofStepModal> pf, ProofStepSupplier<ModalLogicalOperation, ProofStepModal> supp) {
+        ProofStepModal psm = pf.getSteps().get(pf.getSteps().size() - 1);
         List<Integer> lst = new ArrayList<>();
         int i = Action.getToLastAssumption(pf, psm.getAssumptionLevel());
         lst.add(j);
@@ -74,8 +76,8 @@ public final class ModalDiaE implements ModalAction {
     }
 
     @Override
-    public void apply(Proof pf) {
-        ProofStepModal psm = ((ProofStepModal) pf.getSteps().get(pf.getSteps().size() - 1));
+    public void apply(Proof<ModalLogicalOperation, ProofStepModal> pf) {
+        ProofStepModal psm = pf.getSteps().get(pf.getSteps().size() - 1);
         applyStepSupplier(pf, ((assLevel, log, reason) -> new ProofStepModal(psm.getState(), assLevel, log, reason)));
     }
 }

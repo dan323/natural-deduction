@@ -1,7 +1,7 @@
 package com.dan323.proof.modal;
 
 import com.dan323.expresions.modal.Always;
-import com.dan323.expresions.modal.ModalLogicalExpression;
+import com.dan323.expresions.modal.ModalLogicalOperation;
 import com.dan323.proof.generic.Action;
 import com.dan323.proof.generic.proof.Proof;
 import com.dan323.proof.generic.proof.ProofReason;
@@ -19,7 +19,7 @@ public final class ModalBoxI implements ModalAction {
     private int lastAssumption;
 
     @Override
-    public boolean isValid(Proof pf) {
+    public boolean isValid(Proof<ModalLogicalOperation, ProofStepModal> pf) {
         if (pf.getSteps().isEmpty()) {
             return false;
         }
@@ -41,7 +41,7 @@ public final class ModalBoxI implements ModalAction {
     }
 
     @Override
-    public void applyStepSupplier(Proof pf, ProofStepSupplier supp) {
+    public void applyStepSupplier(Proof<ModalLogicalOperation, ProofStepModal> pf, ProofStepSupplier<ModalLogicalOperation, ProofStepModal> supp) {
         int assLevel = 0;
         if (!pf.getSteps().isEmpty()) {
             assLevel = Action.getLastAssumptionLevel(pf);
@@ -49,11 +49,11 @@ public final class ModalBoxI implements ModalAction {
         List<Integer> lst = new ArrayList<>();
         lst.add(pf.getSteps().size() - lastAssumption + 1);
         lst.add(pf.getSteps().size());
-        pf.getSteps().add(supp.generateProofStep(assLevel - 1, new Always((ModalLogicalExpression) pf.getSteps().get(pf.getSteps().size() - 1).getStep()), new ProofReason("[]I", lst)));
+        pf.getSteps().add(supp.generateProofStep(assLevel - 1, new Always(pf.getSteps().get(pf.getSteps().size() - 1).getStep()), new ProofReason("[]I", lst)));
     }
 
     @Override
-    public void apply(Proof pf) {
+    public void apply(Proof<ModalLogicalOperation, ProofStepModal> pf) {
         ProofStep log = pf.getSteps().get(pf.getSteps().size() - lastAssumption);
         String st = log.getProof().getNameProof().substring(4, log.getProof().getNameProof().length() - 1);
         String[] sts = st.split(REGEX_GREATER);

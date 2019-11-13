@@ -21,7 +21,7 @@ public class ClassicalTest {
         VariableClassic v = new VariableClassic("P");
         ClassicalLogicOperation clo = new NegationClassic(new ConjunctionClassic(v, c));
 
-        Assertions.assertEquals("true", c.toString());
+        Assertions.assertEquals("TRUE", c.toString());
         Assertions.assertEquals("P", v.toString());
         Assertions.assertEquals("- (" + v + " & " + c + ")", clo.toString());
     }
@@ -117,6 +117,6 @@ public class ClassicalTest {
         VariableClassic P = new VariableClassic("P");
         NegationClassic d = new NegationClassic(P);
         ImplicationClassic n = new ImplicationClassic(d,d);
-        Assertions.assertEquals("(- (P)) -> (- (P))",n.toString());
+        Assertions.assertEquals("(- P) -> (- P)",n.toString());
     }
 }

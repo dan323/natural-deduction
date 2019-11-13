@@ -1,14 +1,21 @@
 package com.dan323.expresions.modal;
 
-public final class Always extends UnaryOperationModal {
+import com.dan323.expresions.base.UnaryOperation;
 
-    public Always(ModalLogicalExpression element) {
+public final class Always extends UnaryOperation<ModalLogicalOperation> implements ModalLogicalOperation {
+
+    public Always(ModalLogicalOperation element) {
         super(element);
     }
 
     @Override
     protected String getOperator() {
         return "[]";
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        return ModalLogicalOperation.modalOperationEquals(obj, super::equals);
     }
 
 }

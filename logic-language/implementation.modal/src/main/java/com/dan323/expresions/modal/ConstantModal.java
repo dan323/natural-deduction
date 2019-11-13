@@ -2,10 +2,11 @@ package com.dan323.expresions.modal;
 
 import com.dan323.expresions.base.Constant;
 
-public final class ConstantModal implements ModalLogicalExpression, Constant {
+public class ConstantModal extends Constant<ModalLogicalOperation> implements ModalLogicalOperation {
 
-    public static final ConstantModal TRUE = new ConstantModal(true);
-    public static final ConstantModal FALSE = new ConstantModal(false);
+    public final static ConstantModal TRUE = new ConstantModal(true);
+    public final static ConstantModal FALSE = new ConstantModal(false);
+
     private final boolean val;
 
     private ConstantModal(boolean b) {
@@ -23,16 +24,7 @@ public final class ConstantModal implements ModalLogicalExpression, Constant {
 
     @Override
     public String toString() {
-        return String.valueOf(val);
+        return String.valueOf(val).toUpperCase();
     }
 
-    @Override
-    public boolean equals(Object ltl) {
-        return (ltl instanceof ConstantModal) && ((ConstantModal) ltl).val == val;
-    }
-
-    @Override
-    public int hashCode() {
-        return val ? 1 : 0;
-    }
 }

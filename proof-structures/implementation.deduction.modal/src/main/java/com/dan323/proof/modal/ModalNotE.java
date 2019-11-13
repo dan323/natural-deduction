@@ -1,10 +1,11 @@
 package com.dan323.proof.modal;
 
+import com.dan323.expresions.modal.ModalLogicalOperation;
 import com.dan323.proof.generic.NotE;
 import com.dan323.proof.generic.proof.Proof;
 import com.dan323.proof.modal.proof.ProofStepModal;
 
-public final class ModalNotE extends NotE implements ModalAction {
+public final class ModalNotE extends NotE<ModalLogicalOperation, ProofStepModal> implements ModalAction {
 
     public ModalNotE(int j) {
         super(j);
@@ -21,7 +22,7 @@ public final class ModalNotE extends NotE implements ModalAction {
     }
 
     @Override
-    public void apply(Proof pf) {
-        applyStepSupplier(pf, ((assLevel, log, reason) -> new ProofStepModal(((ProofStepModal) pf.getSteps().get(getNeg() - 1)).getState(), assLevel, log, reason)));
+    public void apply(Proof<ModalLogicalOperation, ProofStepModal> pf) {
+        applyStepSupplier(pf, ((assLevel, log, reason) -> new ProofStepModal((pf.getSteps().get(getNeg() - 1)).getState(), assLevel, log, reason)));
     }
 }

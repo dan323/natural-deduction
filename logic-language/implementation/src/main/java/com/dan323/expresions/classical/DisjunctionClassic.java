@@ -1,23 +1,24 @@
 package com.dan323.expresions.classical;
 
 import com.dan323.expresions.base.Disjunction;
+import com.dan323.expresions.base.LogicOperation;
 
 import java.util.Map;
 
-public final class DisjunctionClassic extends BinaryOperationClassic implements Disjunction {
+public final class DisjunctionClassic extends Disjunction<ClassicalLogicOperation> implements ClassicalLogicOperation {
 
     public DisjunctionClassic(ClassicalLogicOperation l, ClassicalLogicOperation r) {
         super(l, r);
     }
 
     @Override
-    protected String getOperator() {
-        return Disjunction.OPERATOR;
+    public boolean evaluate(Map<String, Boolean> values) {
+        return getLeft().evaluate(values) || getRight().evaluate(values);
     }
 
     @Override
-    public boolean evaluate(Map<String, Boolean> values) {
-        return getLeft().evaluate(values) || getRight().evaluate(values);
+    public boolean equals(Object obj) {
+        return ClassicalLogicOperation.classicalOperationEquals(obj, super::equals);
     }
 
 }

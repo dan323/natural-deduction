@@ -11,16 +11,13 @@ public class PatternMapperUnaryBinaryOps implements PatternMapper<LogicOperation
     public Map<String, LogicOperation> compareLogic(LogicOperation l1, LogicOperation l2) {
         if (l1 instanceof Constant && l2 instanceof Constant && l1.equals(l2)) {
             return new HashMap<>();
-        }
-        if (l1 instanceof Variable) {
+        } else if (l1 instanceof Variable) {
             Map<String, LogicOperation> sol = new HashMap<>();
             sol.put(l1.toString(), l2);
             return sol;
-        }
-        if (l1 instanceof UnaryOperation && l1.getClass().equals(l2.getClass())) {
+        } else if (l1 instanceof UnaryOperation && l1.getClass().equals(l2.getClass())) {
             return compareLogic(((UnaryOperation) l1).getElement(), ((UnaryOperation) l2).getElement());
-        }
-        if (l1 instanceof BinaryOperation && l1.getClass().equals(l2.getClass())) {
+        } else if (l1 instanceof BinaryOperation && l1.getClass().equals(l2.getClass())) {
             return checkBinaryOperation((BinaryOperation) l1, (BinaryOperation) l2);
         }
         return null;

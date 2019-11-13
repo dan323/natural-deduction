@@ -1,8 +1,6 @@
 package com.dan323.language.classic;
 
-import com.dan323.expresions.classical.ConjunctionClassic;
-import com.dan323.expresions.classical.ConstantClassic;
-import com.dan323.expresions.classical.VariableClassic;
+import com.dan323.expresions.classical.*;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -17,6 +15,28 @@ public class EqualsHashTest {
         VariableClassic v2 = new VariableClassic("P");
         ConjunctionClassic c1 = new ConjunctionClassic(v1, v1);
         ConjunctionClassic c2 = new ConjunctionClassic(v2, v2);
+        Assertions.assertNotSame(c1, c2);
+        Assertions.assertEquals(c1, c2);
+        Assertions.assertEquals(c1.hashCode(), c2.hashCode());
+    }
+
+    @Test
+    public void equalsImpTest() {
+        VariableClassic v1 = new VariableClassic("P");
+        VariableClassic v2 = new VariableClassic("P");
+        ImplicationClassic c1 = new ImplicationClassic(v1, v1);
+        ImplicationClassic c2 = new ImplicationClassic(v2, v2);
+        Assertions.assertNotSame(c1, c2);
+        Assertions.assertEquals(c1, c2);
+        Assertions.assertEquals(c1.hashCode(), c2.hashCode());
+    }
+
+    @Test
+    public void equalsDisjTest() {
+        VariableClassic v1 = new VariableClassic("P");
+        VariableClassic v2 = new VariableClassic("P");
+        DisjunctionClassic c1 = new DisjunctionClassic(v1, v1);
+        DisjunctionClassic c2 = new DisjunctionClassic(v2, v2);
         Assertions.assertNotSame(c1, c2);
         Assertions.assertEquals(c1, c2);
         Assertions.assertEquals(c1.hashCode(), c2.hashCode());

@@ -3,8 +3,16 @@ package com.dan323.expresions.base;
 /**
  * @author danco
  */
-public interface Implication extends BinaryOperation {
+public abstract class Implication<T extends LogicOperation> extends BinaryOperation<T> {
 
-    String OPERATOR = "->";
+    private static final String OPERATOR = "->";
 
+    public Implication(T left, T right) {
+        super(left, right);
+    }
+
+    @Override
+    protected String getOperator() {
+        return OPERATOR;
+    }
 }

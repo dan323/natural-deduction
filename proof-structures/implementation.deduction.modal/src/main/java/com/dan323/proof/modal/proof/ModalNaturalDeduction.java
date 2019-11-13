@@ -1,6 +1,6 @@
 package com.dan323.proof.modal.proof;
 
-import com.dan323.expresions.base.LogicOperation;
+import com.dan323.expresions.modal.ModalLogicalOperation;
 import com.dan323.proof.generic.Action;
 import com.dan323.proof.generic.proof.Proof;
 import com.dan323.proof.generic.proof.ProofReason;
@@ -11,17 +11,17 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public final class ModalNaturalDeduction extends Proof {
+public final class ModalNaturalDeduction extends Proof<ModalLogicalOperation, ProofStepModal> {
 
     private Map<String, List<String>> linkedStates = new HashMap<>();
     private Map<String, List<String>> assms = new HashMap<>();
 
     @Override
-    public void initializeProof(List<LogicOperation> assms, LogicOperation goal) {
+    public void initializeProof(List<ModalLogicalOperation> assms, ModalLogicalOperation goal) {
         setGoal(goal);
         super.initializeProofSteps();
         super.setAssms(assms);
-        for (LogicOperation lo : assms) {
+        for (ModalLogicalOperation lo : assms) {
             getSteps().add(new ProofStepModal("s0", 0, lo, new ProofReason("Ass", new ArrayList<>())));
         }
         linkedStates.put("s0", new ArrayList<>());
@@ -39,7 +39,7 @@ public final class ModalNaturalDeduction extends Proof {
     }
 
     @Override
-    public boolean isValid(Action act) {
+    public boolean isValid(Action<ModalLogicalOperation, ProofStepModal> act) {
         return (act instanceof ModalAction);
     }
 

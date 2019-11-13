@@ -4,6 +4,7 @@ import com.dan323.expresions.base.LogicOperation;
 import com.dan323.expresions.classical.exceptions.InvalidMapValuesException;
 
 import java.util.Map;
+import java.util.function.Predicate;
 
 /**
  * A classical logical expression can be evaluated when all propositional variables are given truth value
@@ -12,6 +13,10 @@ public interface ClassicalLogicOperation extends LogicOperation {
 
     static boolean isClassical(LogicOperation log) {
         return log instanceof ClassicalLogicOperation;
+    }
+
+    static boolean classicalOperationEquals(Object obj, Predicate<Object> equalsMethod) {
+        return LogicOperation.logicOperationEquals(obj, ClassicalLogicOperation::isClassical, equalsMethod);
     }
 
     static boolean areClassical(LogicOperation... logs) {

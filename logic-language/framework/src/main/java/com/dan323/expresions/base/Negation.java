@@ -3,7 +3,16 @@ package com.dan323.expresions.base;
 /**
  * @author danco
  */
-public interface Negation extends UnaryOperation {
+public abstract class Negation<T extends LogicOperation> extends UnaryOperation<T> {
 
-    String OPERATOR = "-";
+    private static final String OPERATOR = "-";
+
+    public Negation(T element) {
+        super(element);
+    }
+
+    @Override
+    protected String getOperator() {
+        return OPERATOR;
+    }
 }

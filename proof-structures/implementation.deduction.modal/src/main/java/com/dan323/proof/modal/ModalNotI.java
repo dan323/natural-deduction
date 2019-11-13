@@ -1,16 +1,16 @@
 package com.dan323.proof.modal;
 
-import com.dan323.expresions.modal.ModalLogicalExpression;
+import com.dan323.expresions.modal.ModalLogicalOperation;
 import com.dan323.expresions.modal.NegationModal;
 import com.dan323.proof.generic.Action;
 import com.dan323.proof.generic.NotI;
 import com.dan323.proof.generic.proof.Proof;
 import com.dan323.proof.modal.proof.ProofStepModal;
 
-public final class ModalNotI extends NotI implements ModalAction {
+public final class ModalNotI extends NotI<ModalLogicalOperation, ProofStepModal> implements ModalAction {
 
     public ModalNotI() {
-        super(lo -> new NegationModal((ModalLogicalExpression) lo));
+        super(NegationModal::new);
     }
 
     @Override
@@ -24,9 +24,9 @@ public final class ModalNotI extends NotI implements ModalAction {
     }
 
     @Override
-    public void apply(Proof pf) {
+    public void apply(Proof<ModalLogicalOperation, ProofStepModal> pf) {
         applyStepSupplier(pf, ((assLevel, log, reason) ->
-                new ProofStepModal(((ProofStepModal) pf.getSteps().get(pf.getSteps().size() -
+                new ProofStepModal((pf.getSteps().get(pf.getSteps().size() -
                         Action.getToLastAssumption(pf, assLevel + 1) + 1)).getState(), assLevel, log, reason)));
 
     }
