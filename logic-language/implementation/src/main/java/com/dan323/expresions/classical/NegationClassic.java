@@ -16,6 +16,10 @@ public final class NegationClassic extends Negation<ClassicalLogicOperation> imp
         return !getElement().evaluate(values);
     }
 
+    @Override
+    public int hashCode() {
+        return super.hashCode() * 3 + getClass().hashCode();
+    }
 
     @Override
     public boolean equals(Object obj) {

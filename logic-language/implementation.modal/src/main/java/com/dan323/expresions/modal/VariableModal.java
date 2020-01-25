@@ -7,6 +7,10 @@ public final class VariableModal extends Variable implements ModalLogicalOperati
         super(var);
     }
 
+    @Override
+    public int hashCode() {
+        return super.hashCode() * 3 + getClass().hashCode();
+    }
 
     @Override
     public boolean equals(Object obj) {

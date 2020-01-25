@@ -14,6 +14,11 @@ public final class Sometime extends UnaryOperation<ModalLogicalOperation> implem
         return "<>";
     }
 
+    @Override
+    public int hashCode() {
+        return super.hashCode() * 3 + getClass().hashCode();
+    }
+
 
     @Override
     public boolean equals(Object obj) {

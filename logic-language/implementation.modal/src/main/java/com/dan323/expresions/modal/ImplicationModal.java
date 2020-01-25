@@ -10,6 +10,11 @@ public final class ImplicationModal extends Implication<ModalLogicalOperation> i
     }
 
     @Override
+    public int hashCode() {
+        return super.hashCode() * 3 + getClass().hashCode();
+    }
+
+    @Override
     public boolean equals(Object obj) {
         return ModalLogicalOperation.modalOperationEquals(obj, super::equals);
     }

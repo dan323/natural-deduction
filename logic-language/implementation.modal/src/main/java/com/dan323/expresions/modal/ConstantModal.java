@@ -27,4 +27,15 @@ public class ConstantModal extends Constant<ModalLogicalOperation> implements Mo
         return String.valueOf(val).toUpperCase();
     }
 
+
+    @Override
+    public int hashCode() {
+        return super.hashCode() * 3 + getClass().hashCode();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        return obj instanceof ConstantModal && ((ConstantModal) obj).val == val;
+    }
+
 }

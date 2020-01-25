@@ -15,6 +15,11 @@ public final class Until extends BinaryOperation<ModalLogicalOperation> implemen
     }
 
     @Override
+    public int hashCode() {
+        return super.hashCode() * 3 + getClass().hashCode();
+    }
+
+    @Override
     public boolean equals(Object obj) {
         return ModalLogicalOperation.modalOperationEquals(obj, super::equals);
     }

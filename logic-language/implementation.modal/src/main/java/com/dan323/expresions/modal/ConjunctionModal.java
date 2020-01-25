@@ -14,4 +14,8 @@ public final class ConjunctionModal extends Conjunction<ModalLogicalOperation> i
         return ModalLogicalOperation.modalOperationEquals(obj, super::equals);
     }
 
+    @Override
+    public int hashCode() {
+        return super.hashCode() * 3 + getClass().hashCode();
+    }
 }

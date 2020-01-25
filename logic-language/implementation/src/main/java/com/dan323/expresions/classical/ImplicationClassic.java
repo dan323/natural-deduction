@@ -1,7 +1,6 @@
 package com.dan323.expresions.classical;
 
 import com.dan323.expresions.base.Implication;
-import com.dan323.expresions.base.LogicOperation;
 
 import java.util.Map;
 
@@ -20,5 +19,10 @@ public final class ImplicationClassic extends Implication<ClassicalLogicOperatio
     @Override
     public boolean equals(Object obj) {
         return ClassicalLogicOperation.classicalOperationEquals(obj, super::equals);
+    }
+
+    @Override
+    public int hashCode() {
+        return super.hashCode() * 3 + getClass().hashCode();
     }
 }

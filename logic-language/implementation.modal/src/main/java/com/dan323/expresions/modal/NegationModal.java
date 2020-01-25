@@ -10,6 +10,11 @@ public final class NegationModal extends Negation<ModalLogicalOperation> impleme
     }
 
     @Override
+    public int hashCode() {
+        return super.hashCode() * 3 + getClass().hashCode();
+    }
+
+    @Override
     public boolean equals(Object obj) {
         return ModalLogicalOperation.modalOperationEquals(obj, super::equals);
     }

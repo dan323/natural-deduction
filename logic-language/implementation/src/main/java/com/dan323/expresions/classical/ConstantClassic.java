@@ -4,7 +4,7 @@ import com.dan323.expresions.base.Constant;
 
 import java.util.Map;
 
-public class ConstantClassic extends Constant<ClassicalLogicOperation> implements ClassicalLogicOperation {
+public final class ConstantClassic extends Constant<ClassicalLogicOperation> implements ClassicalLogicOperation {
 
     public final static ConstantClassic FALSE = new ConstantClassic(false);
     public final static ConstantClassic TRUE = new ConstantClassic(true);
@@ -22,6 +22,16 @@ public class ConstantClassic extends Constant<ClassicalLogicOperation> implement
     @Override
     public boolean isFalsehood() {
         return equals(FALSE);
+    }
+
+    @Override
+    public int hashCode() {
+        return super.hashCode() * 3 + getClass().hashCode();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        return obj instanceof ConstantClassic && ((ConstantClassic) obj).val == val;
     }
 
     @Override
