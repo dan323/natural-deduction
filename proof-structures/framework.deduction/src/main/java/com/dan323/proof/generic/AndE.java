@@ -26,7 +26,7 @@ public abstract class AndE<T extends LogicOperation, Q extends ProofStep<T>> imp
 
     @Override
     public boolean equals(Object obj) {
-        if (getClass().equals(obj.getClass())) {
+        if (obj != null && getClass().equals(obj.getClass())) {
             return ((AndE) obj).applyAt == applyAt;
         } else {
             return false;

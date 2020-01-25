@@ -16,6 +16,11 @@ public class ProofReason {
         return (obj instanceof ProofReason) && obj.toString().equals(toString());
     }
 
+    @Override
+    public int hashCode() {
+        return toString().hashCode();
+    }
+
     public String getNameProof() {
         return nameProof;
     }

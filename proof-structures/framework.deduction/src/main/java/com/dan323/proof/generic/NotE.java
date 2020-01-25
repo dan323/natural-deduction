@@ -23,8 +23,8 @@ public abstract class NotE<T extends LogicOperation, Q extends ProofStep<T>> imp
 
     @Override
     public boolean equals(Object obj) {
-        if (getClass().equals(obj.getClass())) {
-            return ((NotE<T, Q>) obj).getNeg() == getNeg();
+        if (obj != null && obj.getClass().equals(getClass())) {
+            return ((NotE) obj).getNeg() == getNeg();
         } else {
             return false;
         }
@@ -39,7 +39,7 @@ public abstract class NotE<T extends LogicOperation, Q extends ProofStep<T>> imp
     public boolean isValid(Proof<T, Q> pf) {
         if (RuleUtils.isValidIndexAndProp(pf, neg)) {
             T lo = pf.getSteps().get(neg - 1).getStep();
-            return (lo instanceof Negation) && (((Negation<T>) lo).getElement() instanceof Negation);
+            return (lo instanceof Negation) && (((Negation) lo).getElement() instanceof Negation);
         }
         return false;
     }
@@ -52,7 +52,7 @@ public abstract class NotE<T extends LogicOperation, Q extends ProofStep<T>> imp
         }
         List<Integer> lst = new ArrayList<>();
         lst.add(neg);
-        T sol = ((Negation<T>) ((Negation<T>) (pf.getSteps().get(neg - 1).getStep())).getElement()).getElement();
+        T sol = ((Negation<T>) ((Negation) (pf.getSteps().get(neg - 1).getStep())).getElement()).getElement();
         pf.getSteps().add(supp.generateProofStep(assLevel, sol, new ProofReason("-E", lst)));
     }
 

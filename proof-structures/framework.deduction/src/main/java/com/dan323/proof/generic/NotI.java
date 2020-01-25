@@ -25,7 +25,7 @@ public abstract class NotI<T extends LogicOperation, Q extends ProofStep<T>> imp
 
     @Override
     public boolean equals(Object obj) {
-        return obj.getClass().equals(getClass());
+        return obj != null && obj.getClass().equals(getClass());
     }
 
     @Override

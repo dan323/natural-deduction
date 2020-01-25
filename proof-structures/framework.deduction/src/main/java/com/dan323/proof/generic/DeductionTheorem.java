@@ -24,7 +24,7 @@ public abstract class DeductionTheorem<T extends LogicOperation, Q extends Proof
     }
 
     public boolean equals(Object obj) {
-        return getClass().equals(obj.getClass());
+        return obj != null && getClass().equals(obj.getClass());
     }
 
     public int hashCode() {

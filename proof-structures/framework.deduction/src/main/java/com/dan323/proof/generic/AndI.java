@@ -26,10 +26,9 @@ public abstract class AndI<T extends LogicOperation, Q extends ProofStep<T>> imp
     }
 
     @Override
-    @SuppressWarnings("unchecked")
     public boolean equals(Object object) {
-        if (object.getClass().equals(getClass())) {
-            AndI<T, Q> obj = (AndI<T, Q>) object;
+        if (object != null && object.getClass().equals(getClass())) {
+            AndI obj = (AndI) object;
             return applyAt1 == obj.applyAt1 && applyAt2 == obj.applyAt2;
         } else {
             return false;

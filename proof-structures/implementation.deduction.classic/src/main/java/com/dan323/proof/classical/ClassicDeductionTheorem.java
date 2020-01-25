@@ -16,9 +16,4 @@ public final class ClassicDeductionTheorem extends DeductionTheorem<ClassicalLog
     public void apply(Proof<ClassicalLogicOperation, ProofStep<ClassicalLogicOperation>> pf) {
         applyStepSupplier(pf, ProofStep::new);
     }
-
-    @Override
-    public int hashCode() {
-        return 21 * super.hashCode() * 19;
-    }
 }
