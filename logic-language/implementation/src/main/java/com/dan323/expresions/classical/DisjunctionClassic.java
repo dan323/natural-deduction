@@ -1,7 +1,6 @@
 package com.dan323.expresions.classical;
 
 import com.dan323.expresions.base.Disjunction;
-import com.dan323.expresions.base.LogicOperation;
 
 import java.util.Map;
 

@@ -6,8 +6,8 @@ import java.util.Map;
 
 public final class ConstantClassic implements ClassicalLogicOperation, Constant<ClassicalLogicOperation> {
 
-    public final static ConstantClassic FALSE = new ConstantClassic(false);
-    public final static ConstantClassic TRUE = new ConstantClassic(true);
+    public static final ConstantClassic FALSE = new ConstantClassic(false);
+    public static final ConstantClassic TRUE = new ConstantClassic(true);
 
     private final boolean val;
 

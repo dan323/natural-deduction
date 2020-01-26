@@ -1,6 +1,5 @@
 package com.dan323.expresions.classical;
 
-import com.dan323.expresions.base.LogicOperation;
 import com.dan323.expresions.base.Variable;
 import com.dan323.expresions.classical.exceptions.InvalidMapValuesException;
 
