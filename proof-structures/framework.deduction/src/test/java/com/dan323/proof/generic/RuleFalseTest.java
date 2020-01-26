@@ -50,6 +50,8 @@ public class RuleFalseTest {
     public void fIIsValidTest() {
         FI<LogicOperation, ProofStep<LogicOperation>> fI = new RuleFalseTest.FIStub(1, 2);
 
+        assertEquals(1, fI.getPos());
+        assertEquals(2, fI.getNeg());
         assertEquals(new RuleFalseTest.FIStub(1, 2), fI);
         assertNotEquals(new RuleFalseTest.FIStub(1, 3), fI);
         assertEquals(new RuleFalseTest.FIStub(1, 2).hashCode(), fI.hashCode());
@@ -72,9 +74,17 @@ public class RuleFalseTest {
 
         assertFalse(fI.isValid(pf));
 
+        LogicOperation log = mock(LogicOperation.class);
+        Negation<LogicOperation> notVar = new Negation<>(log) {
+        };
+        doReturn(notVar).when(pStep1).getStep();
+        doReturn(log).when(pStep0).getStep();
+
+        assertFalse(fI.isValid(pf));
+
         Variable<LogicOperation> var = new Variable<>("P") {
         };
-        Negation<LogicOperation> notVar = mockNot(var);
+        notVar = mockNot(var);
         doReturn(notVar).when(pStep1).getStep();
         doReturn(var).when(pStep0).getStep();
 
@@ -86,6 +96,8 @@ public class RuleFalseTest {
         Variable<LogicOperation> var = mock(Variable.class);
         FE<LogicOperation, ProofStep<LogicOperation>> fE = new RuleFalseTest.FEStub(var, 1);
 
+        assertEquals(fE, fE);
+        assertNotEquals(fE, new RuleFalseTest.FEStub(var, 2));
         assertEquals(new RuleFalseTest.FEStub(var, 1), fE);
         assertNotEquals(fE, new Object());
         assertEquals(new RuleFalseTest.FEStub(var, 1).hashCode(), fE.hashCode());
@@ -106,6 +118,10 @@ public class RuleFalseTest {
 
         Constant<LogicOperation> constant = mock(Constant.class);
         doReturn(constant).when(pStep0).getStep();
+        doReturn(false).when(constant).isFalsehood();
+
+        assertFalse(fE.isValid(pf));
+
         doReturn(true).when(constant).isFalsehood();
 
         assertTrue(fE.isValid(pf));
@@ -119,7 +135,6 @@ public class RuleFalseTest {
         doReturn(1).when(list).size();
         doReturn(pStep0).when(list).get(eq(0));
         doReturn(1).when(pStep0).getAssumptionLevel();
-        Constant<LogicOperation> constant = mock(Constant.class, Answers.CALLS_REAL_METHODS);
         doAnswer(invocationOnMock -> record.add(invocationOnMock.getArgument(0))).when(list).add(any(ProofStep.class));
         Variable<LogicOperation> variable = mock(Variable.class, Answers.CALLS_REAL_METHODS);
         doReturn("P").when(variable).toString();
