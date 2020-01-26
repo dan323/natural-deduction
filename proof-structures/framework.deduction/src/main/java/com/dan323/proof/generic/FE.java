@@ -9,6 +9,7 @@ import com.dan323.proof.generic.proof.ProofStepSupplier;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author danco
@@ -24,9 +25,23 @@ public abstract class FE<T extends LogicOperation, Q extends ProofStep<T>> imple
     }
 
     @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof FE)) return false;
+        FE<?, ?> fe = (FE<?, ?>) o;
+        return o.getClass().equals(getClass()) && falseIndex == fe.falseIndex &&
+                Objects.equals(intro, fe.intro);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(intro, falseIndex, getClass());
+    }
+
+    @Override
     public boolean isValid(Proof<T, Q> pf) {
         if (RuleUtils.isValidIndexAndProp(pf, falseIndex) && RuleUtils.isOperation(pf, falseIndex, Constant.class)) {
-            Constant cons = (Constant) pf.getSteps().get(falseIndex - 1).getStep();
+            Constant<?> cons = (Constant<?>) pf.getSteps().get(falseIndex - 1).getStep();
             return cons.isFalsehood();
         }
         return false;

@@ -25,6 +25,7 @@ public class ModalOperatorsTest {
         Always always3 = new Always(ConstantModal.FALSE);
         Assertions.assertNotEquals(always, always3);
         Assertions.assertEquals(always, always2);
+        Assertions.assertEquals(always.hashCode(), always2.hashCode());
     }
 
     @Test
@@ -40,7 +41,9 @@ public class ModalOperatorsTest {
         Sometime sometime2 = new Sometime(ConstantModal.FALSE);
         Assertions.assertNotEquals(sometime, sometime2);
         Assertions.assertEquals(sometime, sometime1);
+        Assertions.assertEquals(sometime.hashCode(), sometime1.hashCode());
     }
+
     @Test
     public void untilTest() {
         Until until = new Until(ConstantModal.FALSE, ConstantModal.TRUE);
@@ -50,9 +53,12 @@ public class ModalOperatorsTest {
     @Test
     public void untilEqualsTest() {
         Until until = new Until(ConstantModal.FALSE, ConstantModal.TRUE);
+        Until until3 = new Until(ConstantModal.FALSE, ConstantModal.TRUE);
         Until until1 = new Until(ConstantModal.TRUE, ConstantModal.FALSE);
         Until until2 = new Until(ConstantModal.FALSE, ConstantModal.FALSE);
         Assertions.assertNotEquals(until, until2);
+        Assertions.assertEquals(until, until3);
+        Assertions.assertEquals(until.hashCode(), until3.hashCode());
         Assertions.assertNotEquals(until, until1);
     }
 }

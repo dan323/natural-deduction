@@ -4,14 +4,13 @@ import com.dan323.expresions.base.Constant;
 
 import java.util.Map;
 
-public final class ConstantClassic implements ClassicalLogicOperation, Constant<ClassicalLogicOperation> {
+public enum ConstantClassic implements ClassicalLogicOperation, Constant<ClassicalLogicOperation> {
 
-    public static final ConstantClassic FALSE = new ConstantClassic(false);
-    public static final ConstantClassic TRUE = new ConstantClassic(true);
+    FALSE(false),TRUE(true);
 
     private final boolean val;
 
-    private ConstantClassic(boolean b) {
+    ConstantClassic(boolean b) {
         val = b;
     }
 
@@ -22,16 +21,6 @@ public final class ConstantClassic implements ClassicalLogicOperation, Constant<
     @Override
     public boolean isFalsehood() {
         return equals(FALSE);
-    }
-
-    @Override
-    public int hashCode() {
-        return super.hashCode() * 3 + getClass().hashCode();
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        return obj instanceof ConstantClassic && ((ConstantClassic) obj).val == val;
     }
 
     @Override

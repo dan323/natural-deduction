@@ -1,6 +1,5 @@
 package com.dan323.proof.modal;
 
-import com.dan323.expresions.base.LogicOperation;
 import com.dan323.expresions.modal.ModalLogicalOperation;
 import com.dan323.expresions.modal.Sometime;
 import com.dan323.proof.generic.proof.Proof;

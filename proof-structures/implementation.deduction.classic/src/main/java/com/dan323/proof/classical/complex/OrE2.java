@@ -2,7 +2,6 @@ package com.dan323.proof.classical.complex;
 
 import com.dan323.expresions.base.BinaryOperation;
 import com.dan323.expresions.base.Disjunction;
-import com.dan323.expresions.base.LogicOperation;
 import com.dan323.expresions.base.Negation;
 import com.dan323.expresions.classical.ClassicalLogicOperation;
 import com.dan323.expresions.classical.NegationClassic;

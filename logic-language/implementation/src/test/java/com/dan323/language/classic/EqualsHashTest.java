@@ -24,10 +24,13 @@ public class EqualsHashTest {
     public void equalsImpTest() {
         VariableClassic v1 = new VariableClassic("P");
         VariableClassic v2 = new VariableClassic("P");
+        VariableClassic v3 = new VariableClassic("Q");
         ImplicationClassic c1 = new ImplicationClassic(v1, v1);
         ImplicationClassic c2 = new ImplicationClassic(v2, v2);
+        ImplicationClassic c3 = new ImplicationClassic(v1, v3);
         Assertions.assertNotSame(c1, c2);
         Assertions.assertEquals(c1, c2);
+        Assertions.assertNotEquals(c1, c3);
         Assertions.assertEquals(c1.hashCode(), c2.hashCode());
     }
 
@@ -35,10 +38,13 @@ public class EqualsHashTest {
     public void equalsDisjTest() {
         VariableClassic v1 = new VariableClassic("P");
         VariableClassic v2 = new VariableClassic("P");
+        VariableClassic v3 = new VariableClassic("Q");
         DisjunctionClassic c1 = new DisjunctionClassic(v1, v1);
         DisjunctionClassic c2 = new DisjunctionClassic(v2, v2);
+        DisjunctionClassic c3 = new DisjunctionClassic(v2, v3);
         Assertions.assertNotSame(c1, c2);
         Assertions.assertEquals(c1, c2);
+        Assertions.assertNotEquals(c1,c3);
         Assertions.assertEquals(c1.hashCode(), c2.hashCode());
     }
 
@@ -69,5 +75,18 @@ public class EqualsHashTest {
         Assertions.assertNotEquals(v, w);
         Assertions.assertNotEquals(v.hashCode(), w.hashCode());
         Assertions.assertNotEquals(v, new ConjunctionClassic(v, w));
+    }
+
+    @Test
+    public void negationEquals() {
+        VariableClassic P = new VariableClassic("P");
+        VariableClassic Q = new VariableClassic("Q");
+        NegationClassic d = new NegationClassic(P);
+        NegationClassic q = new NegationClassic(P);
+        NegationClassic t = new NegationClassic(Q);
+        Assertions.assertNotEquals(P, d);
+        Assertions.assertEquals(q, d);
+        Assertions.assertNotEquals(q, t);
+        Assertions.assertEquals(q.hashCode(), d.hashCode());
     }
 }

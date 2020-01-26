@@ -26,7 +26,7 @@ public final class Sequence extends CompositionRule {
         }
         int size2 = pf.getSteps().size();
         for (int i = size; i < size2; i++) {
-            pf.getSteps().remove(pf.getSteps().size() - 1);
+            pf.removeLastStep();
         }
         return true;
     }

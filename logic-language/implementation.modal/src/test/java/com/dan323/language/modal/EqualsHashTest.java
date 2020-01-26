@@ -21,13 +21,29 @@ public class EqualsHashTest {
     }
 
     @Test
+    public void negationEquals() {
+        VariableModal P = new VariableModal("P");
+        VariableModal Q = new VariableModal("Q");
+        NegationModal d = new NegationModal(P);
+        NegationModal q = new NegationModal(P);
+        NegationModal t = new NegationModal(Q);
+        Assertions.assertNotEquals(P, d);
+        Assertions.assertNotEquals(t, d);
+        Assertions.assertEquals(q, d);
+        Assertions.assertEquals(q.hashCode(), d.hashCode());
+    }
+
+    @Test
     public void equalsImpTest() {
         VariableModal v1 = new VariableModal("P");
         VariableModal v2 = new VariableModal("P");
+        VariableModal v3 = new VariableModal("Q");
         ImplicationModal c1 = new ImplicationModal(v1, v1);
         ImplicationModal c2 = new ImplicationModal(v2, v2);
+        ImplicationModal c3 = new ImplicationModal(v2, v3);
         Assertions.assertNotSame(c1, c2);
         Assertions.assertEquals(c1, c2);
+        Assertions.assertNotEquals(c1, c3);
         Assertions.assertEquals(c1.hashCode(), c2.hashCode());
     }
 
@@ -35,10 +51,13 @@ public class EqualsHashTest {
     public void equalsDisjTest() {
         VariableModal v1 = new VariableModal("P");
         VariableModal v2 = new VariableModal("P");
+        VariableModal v3 = new VariableModal("Q");
         DisjunctionModal c1 = new DisjunctionModal(v1, v1);
         DisjunctionModal c2 = new DisjunctionModal(v2, v2);
+        DisjunctionModal c3 = new DisjunctionModal(v2, v3);
         Assertions.assertNotSame(c1, c2);
         Assertions.assertEquals(c1, c2);
+        Assertions.assertNotEquals(c1, c3);
         Assertions.assertEquals(c1.hashCode(), c2.hashCode());
     }
 

@@ -1,12 +1,12 @@
 package com.dan323.expresions.base;
 
-import com.dan323.expresions.base.BinaryOperation;
 import com.dan323.expresions.base.stub.BinaryOperationStub;
-import com.dan323.expresions.base.LogicOperation;
 import com.dan323.expresions.base.stub.LogicOperationStub;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author danco
@@ -26,6 +26,13 @@ public class BinaryOperationTest {
         binaryOperation3 = new BinaryOperationStub(new LogicOperationStub(4), new LogicOperationStub(5));
         binaryOperation4 = new BinaryOperationStub(new LogicOperationStub(1), binaryOperation1);
         binaryOperation5 = new BinaryOperationStub(binaryOperation2, binaryOperation1);
+    }
+    
+    @Test
+    public void castTest() {
+        assertNotNull(binaryOperation1.castToLanguage());
+        assertEquals(binaryOperation1, binaryOperation1.castToLanguage());
+        assertTrue(binaryOperation1.castToLanguage() instanceof LogicOperation);
     }
 
     @Test

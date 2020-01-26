@@ -20,20 +20,23 @@ public abstract class FI<T extends LogicOperation, Q extends ProofStep<T>> imple
 
     private final int neg;
     private final int pos;
-    private final Function<T, Negation<T>> negationFunction;
+    private final Class<Negation<T>> negationClass;
     private final Supplier<Constant<T>> constantFunction;
 
     public FI(int a, int b, Function<T, Negation<T>> negate, Supplier<Constant<T>> genConst) {
         pos = a;
         neg = b;
-        negationFunction = negate;
+        negationClass = (Class<Negation<T>>) negate.apply(null).getClass();
         constantFunction = genConst;
     }
 
     @Override
     public boolean isValid(Proof<T, Q> pf) {
         if (RuleUtils.isValidIndexAndProp(pf, neg) && RuleUtils.isValidIndexAndProp(pf, pos) && RuleUtils.isOperation(pf, neg, Negation.class)) {
-            return negationFunction.apply(pf.getSteps().get(pos - 1).getStep()).equals(pf.getSteps().get(neg - 1).getStep());
+            Negation<?> negation = (Negation<?>) pf.getSteps().get(neg - 1).getStep();
+            if (negation.getElement().equals(pf.getSteps().get(pos - 1).getStep())) {
+                return negationClass.equals(negation.getClass());
+            }
         }
         return false;
     }
@@ -56,5 +59,15 @@ public abstract class FI<T extends LogicOperation, Q extends ProofStep<T>> imple
         lst.add(pos);
         lst.add(neg);
         pf.getSteps().add(supp.generateProofStep(assLevel, constantFunction.get().castToLanguage(), new ProofReason("FI", lst)));
+    }
+
+    @Override
+    public int hashCode() {
+        return getClass().hashCode() * 31 + pos * 17 + neg * 23;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        return obj != null && obj.getClass().equals(getClass()) && ((FI<?, ?>) obj).neg == neg && ((FI<?, ?>) obj).pos == pos;
     }
 }

@@ -5,7 +5,6 @@ import com.dan323.expresions.modal.ModalLogicalOperation;
 import com.dan323.proof.generic.Action;
 import com.dan323.proof.generic.proof.Proof;
 import com.dan323.proof.generic.proof.ProofReason;
-import com.dan323.proof.generic.proof.ProofStep;
 import com.dan323.proof.generic.proof.ProofStepSupplier;
 import com.dan323.proof.modal.proof.ModalNaturalDeduction;
 import com.dan323.proof.modal.proof.ProofStepModal;
@@ -28,13 +27,13 @@ public final class ModalBoxI implements ModalAction {
             return false;
         }
         lastAssumption = Action.getToLastAssumption(pf, assLevel);
-        ProofStep log = pf.getSteps().get(pf.getSteps().size() - lastAssumption);
+        ProofStepModal log = pf.getSteps().get(pf.getSteps().size() - lastAssumption);
         if (log.getStep() != null) {
             return false;
         }
         String st = log.getProof().getNameProof().substring(4, log.getProof().getNameProof().length() - 1);
         String[] lst = st.split(REGEX_GREATER);
-        if (!((ProofStepModal) (pf.getSteps().get(pf.getSteps().size() - 1))).getState().equals(lst[1])) {
+        if (!(pf.getSteps().get(pf.getSteps().size() - 1)).getState().equals(lst[1])) {
             return false;
         }
         return ((ModalNaturalDeduction) pf).isFresh(lst[1], lst[0]);
@@ -54,7 +53,7 @@ public final class ModalBoxI implements ModalAction {
 
     @Override
     public void apply(Proof<ModalLogicalOperation, ProofStepModal> pf) {
-        ProofStep log = pf.getSteps().get(pf.getSteps().size() - lastAssumption);
+        ProofStepModal log = pf.getSteps().get(pf.getSteps().size() - lastAssumption);
         String st = log.getProof().getNameProof().substring(4, log.getProof().getNameProof().length() - 1);
         String[] sts = st.split(REGEX_GREATER);
         applyStepSupplier(pf, (assLevel, log1, reason) -> new ProofStepModal(sts[0], assLevel, log1, reason));

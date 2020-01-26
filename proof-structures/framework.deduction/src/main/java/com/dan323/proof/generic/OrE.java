@@ -11,6 +11,7 @@ import com.dan323.proof.generic.proof.ProofStepSupplier;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author danco
@@ -46,14 +47,33 @@ public abstract class OrE<T extends LogicOperation, Q extends ProofStep<T>> impl
             LogicOperation r1 = pf.getSteps().get(rule1 - 1).getStep();
             LogicOperation r2 = pf.getSteps().get(rule2 - 1).getStep();
             if ((dis instanceof Disjunction) && (r1 instanceof Implication) && (r2 instanceof Implication)) {
-                LogicOperation left = ((BinaryOperation) dis).getLeft();
-                LogicOperation right = ((BinaryOperation) dis).getRight();
-                if (((BinaryOperation) r1).getLeft().equals(left) && ((BinaryOperation) r2).getLeft().equals(right)) {
-                    return ((BinaryOperation) r1).getRight().equals(((BinaryOperation) r2).getRight());
+                LogicOperation left = ((BinaryOperation<?>) dis).getLeft();
+                LogicOperation right = ((BinaryOperation<?>) dis).getRight();
+                if (((BinaryOperation<?>) r1).getLeft().equals(left) && ((BinaryOperation<?>) r2).getLeft().equals(right)) {
+                    return ((BinaryOperation<?>) r1).getRight().equals(((BinaryOperation<?>) r2).getRight());
                 }
             }
         }
         return false;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof OrE)) {
+            return false;
+        }
+        OrE<?, ?> orE = (OrE<?, ?>) o;
+        return disj == orE.disj &&
+                rule1 == orE.rule1 &&
+                rule2 == orE.rule2;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(disj, rule1, rule2);
     }
 
     @Override

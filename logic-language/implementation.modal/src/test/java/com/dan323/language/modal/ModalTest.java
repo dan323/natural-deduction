@@ -52,18 +52,8 @@ public class ModalTest {
     @Test
     public void implicationToString() {
         VariableModal P = new VariableModal("P");
-        Implication d = new ImplicationModal(P, P);
+        ImplicationModal d = new ImplicationModal(P, P);
         Assertions.assertEquals("P -> P", d.toString());
-    }
-
-    @Test
-    public void negationEquals() {
-        VariableModal P = new VariableModal("P");
-        NegationModal d = new NegationModal(P);
-        NegationModal q = new NegationModal(P);
-        Assertions.assertNotEquals(P, d);
-        Assertions.assertEquals(q, d);
-        Assertions.assertEquals(q.hashCode(), d.hashCode());
     }
 
     @Test
@@ -72,11 +62,6 @@ public class ModalTest {
         Assertions.assertTrue(ConstantModal.FALSE.isFalsehood());
         Assertions.assertFalse(ConstantModal.FALSE.getValue());
         Assertions.assertFalse(ConstantModal.TRUE.isFalsehood());
-    }
-
-    @Test
-    public void AlwaysTest() {
-
     }
 
     @Test

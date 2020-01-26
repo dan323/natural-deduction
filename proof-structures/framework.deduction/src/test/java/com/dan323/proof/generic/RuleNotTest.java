@@ -134,7 +134,6 @@ public class RuleNotTest {
         Assertions.assertTrue(record.get(0).isValid());
     }
 
-
     @Test
     public void notIApplyTest() {
         List<ProofStep<LogicOperation>> record = new ArrayList<>();
@@ -169,6 +168,4 @@ public class RuleNotTest {
             super(i);
         }
     }
-
-
 }

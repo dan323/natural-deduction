@@ -9,6 +9,7 @@ import com.dan323.proof.generic.proof.ProofStepSupplier;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.BiFunction;
 
 /**
@@ -40,10 +41,20 @@ public abstract class OrI<T extends LogicOperation, Q extends ProofStep<T>> impl
         List<Integer> lst = new ArrayList<>();
         lst.add(applyAt);
         T result = disjunction.apply(pf.getSteps().get(applyAt - 1).getStep(), intro).castToLanguage();
-        pf.getSteps().add(supp.generateProofStep(assLevel, result, new ProofReason("|I-1", lst)));
+        pf.getSteps().add(supp.generateProofStep(assLevel, result, new ProofReason("|I", lst)));
     }
 
     protected int getAt() {
         return applyAt;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        return o instanceof OrI && o.getClass().equals(getClass()) && ((OrI<?, ?>) o).applyAt == applyAt && Objects.equals(((OrI<?, ?>) o).intro, intro);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(applyAt, intro, disjunction);
     }
 }

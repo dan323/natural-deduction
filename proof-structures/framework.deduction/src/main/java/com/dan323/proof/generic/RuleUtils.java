@@ -20,7 +20,7 @@ public final class RuleUtils {
                 isValidIndexAndProp(pf, applyAt2) && // applyAt2 is a valid index
                 // applyAt2 gives result to an active proposition
                 isOperation(pf, applyAt1, Implication.class) && // applyAt1 is an implication
-                ((Implication) pf.getSteps().get(applyAt1 - 1).getStep()).getLeft()
+                ((Implication<?>) pf.getSteps().get(applyAt1 - 1).getStep()).getLeft()
                         .equals(pf.getSteps().get(applyAt2 - 1).getStep()); // applyAt2 -> something == applyAt1
     }
 

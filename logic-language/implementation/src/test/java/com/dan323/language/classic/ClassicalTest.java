@@ -98,18 +98,8 @@ public class ClassicalTest {
     @Test
     public void implicationToString() {
         VariableClassic P = new VariableClassic("P");
-        Implication d = new ImplicationClassic(P, P);
+        ImplicationClassic d = new ImplicationClassic(P, P);
         Assertions.assertEquals("P -> P", d.toString());
-    }
-
-    @Test
-    public void negationEquals() {
-        VariableClassic P = new VariableClassic("P");
-        NegationClassic d = new NegationClassic(P);
-        NegationClassic q = new NegationClassic(P);
-        Assertions.assertNotEquals(P, d);
-        Assertions.assertEquals(q, d);;
-        Assertions.assertEquals(q.hashCode(), d.hashCode());
     }
 
     @Test

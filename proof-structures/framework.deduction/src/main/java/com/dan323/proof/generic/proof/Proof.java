@@ -17,6 +17,10 @@ public abstract class Proof<T extends LogicOperation, Q extends ProofStep<T>> {
         return assms;
     }
 
+    public void removeLastStep(){
+        steps.remove(steps.size()-1);
+    }
+
     protected void setAssms(List<T> assms) {
         this.assms = assms;
     }
