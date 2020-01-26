@@ -1,7 +1,6 @@
 package com.dan323.expresions.modal;
 
 import com.dan323.expresions.base.Implication;
-import com.dan323.expresions.base.LogicOperation;
 
 public final class ImplicationModal extends Implication<ModalLogicalOperation> implements ModalLogicalOperation {
 

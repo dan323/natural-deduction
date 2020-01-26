@@ -15,7 +15,7 @@ public final class Always extends UnaryOperation<ModalLogicalOperation> implemen
 
     @Override
     public int hashCode() {
-        return super.hashCode() * 3 + getClass().hashCode();
+        return super.hashCode() * 5 + getClass().hashCode();
     }
 
     @Override

@@ -1,6 +1,5 @@
 package com.dan323.expresions.modal;
 
-import com.dan323.expresions.base.LogicOperation;
 import com.dan323.expresions.base.Negation;
 
 public final class NegationModal extends Negation<ModalLogicalOperation> implements ModalLogicalOperation {
