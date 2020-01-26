@@ -4,7 +4,7 @@ import com.dan323.expresions.base.Constant;
 
 import java.util.Map;
 
-public final class ConstantClassic extends Constant<ClassicalLogicOperation> implements ClassicalLogicOperation {
+public final class ConstantClassic implements ClassicalLogicOperation, Constant<ClassicalLogicOperation> {
 
     public final static ConstantClassic FALSE = new ConstantClassic(false);
     public final static ConstantClassic TRUE = new ConstantClassic(true);
