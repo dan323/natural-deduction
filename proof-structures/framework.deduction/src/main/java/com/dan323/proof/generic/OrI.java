@@ -50,11 +50,14 @@ public abstract class OrI<T extends LogicOperation, Q extends ProofStep<T>> impl
 
     @Override
     public boolean equals(Object o) {
-        return o instanceof OrI && o.getClass().equals(getClass()) && ((OrI<?, ?>) o).applyAt == applyAt && Objects.equals(((OrI<?, ?>) o).intro, intro);
+        return o instanceof OrI &&
+                o.getClass().equals(getClass()) &&
+                ((OrI<?, ?>) o).applyAt == applyAt &&
+                Objects.equals(((OrI<?, ?>) o).intro, intro);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(applyAt, intro, disjunction);
+        return Objects.hash(applyAt, intro, getClass());
     }
 }

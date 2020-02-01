@@ -24,6 +24,6 @@ public final class ClassicAndE2 extends AndE<ClassicalLogicOperation, ProofStep<
 
     @Override
     public void apply(Proof<ClassicalLogicOperation, ProofStep<ClassicalLogicOperation>> pf) {
-        applyStepSupplier(pf, (ProofStep::new));
+        applyStepSupplier(pf, ProofStep::new);
     }
 }

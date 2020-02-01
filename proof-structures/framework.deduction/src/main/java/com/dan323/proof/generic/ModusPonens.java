@@ -24,9 +24,8 @@ public abstract class ModusPonens<T extends LogicOperation, Q extends ProofStep<
     }
 
     public boolean equals(Object obj) {
-        if (obj!=null && getClass().equals(obj.getClass())) {
-            ModusPonens modusPonens = getClass().cast(obj);
-            return modusPonens.applyAt1 == get1() && modusPonens.applyAt2 == get2();
+        if (obj != null && getClass().equals(obj.getClass())) {
+            return ((ModusPonens<?, ?>) obj).applyAt1 == applyAt1 && ((ModusPonens<?, ?>) obj).applyAt2 == applyAt2;
         } else {
             return false;
         }

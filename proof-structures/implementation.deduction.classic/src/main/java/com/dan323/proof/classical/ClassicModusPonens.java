@@ -11,7 +11,6 @@ public final class ClassicModusPonens extends ModusPonens<ClassicalLogicOperatio
         super(a, b);
     }
 
-
     @Override
     public void apply(Proof<ClassicalLogicOperation, ProofStep<ClassicalLogicOperation>> pf) {
         applyStepSupplier(pf, ProofStep::new);

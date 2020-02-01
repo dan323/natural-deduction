@@ -18,4 +18,18 @@ public final class ModalFE extends FE<ModalLogicalOperation, ProofStepModal> imp
     public void apply(Proof<ModalLogicalOperation, ProofStepModal> pf) {
         applyStepSupplier(pf, ((assLevel, log, reason) -> new ProofStepModal(state, assLevel, log, reason)));
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o instanceof ModalFE) {
+            return super.equals(o) && ((ModalFE) o).state.equals(state);
+        } else {
+            return false;
+        }
+    }
+
+    @Override
+    public int hashCode() {
+        return super.hashCode() * 7 + state.hashCode() * 5;
+    }
 }

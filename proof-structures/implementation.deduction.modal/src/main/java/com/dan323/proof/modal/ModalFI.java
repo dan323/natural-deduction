@@ -28,4 +28,18 @@ public final class ModalFI extends FI<ModalLogicalOperation, ProofStepModal> imp
     public void apply(Proof<ModalLogicalOperation, ProofStepModal> pf) {
         applyStepSupplier(pf, (assLevel, log, reason) -> new ProofStepModal(state, assLevel, log, reason));
     }
+
+    @Override
+    public int hashCode() {
+        return super.hashCode() * 7 + state.hashCode() * 5;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof ModalFI) {
+            return super.equals(obj) && ((ModalFI) obj).state.equals(state);
+        } else {
+            return false;
+        }
+    }
 }

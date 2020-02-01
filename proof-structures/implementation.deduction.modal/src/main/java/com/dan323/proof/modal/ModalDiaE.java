@@ -7,7 +7,6 @@ import com.dan323.proof.generic.Action;
 import com.dan323.proof.generic.RuleUtils;
 import com.dan323.proof.generic.proof.Proof;
 import com.dan323.proof.generic.proof.ProofReason;
-import com.dan323.proof.generic.proof.ProofStep;
 import com.dan323.proof.generic.proof.ProofStepSupplier;
 import com.dan323.proof.modal.proof.ModalNaturalDeduction;
 import com.dan323.proof.modal.proof.ProofStepModal;
@@ -40,8 +39,8 @@ public final class ModalDiaE implements ModalAction {
             return false;
         }
         int i = Action.getToLastAssumption(pf, assLevel);
-        ProofStep log1 = pf.getSteps().get(pf.getSteps().size() - i);
-        ProofStep log2 = pf.getSteps().get(pf.getSteps().size() - i - 1);
+        ProofStepModal log1 = pf.getSteps().get(pf.getSteps().size() - i);
+        ProofStepModal log2 = pf.getSteps().get(pf.getSteps().size() - i - 1);
 
         if (!log2.getProof().getNameProof().startsWith("Ass(")) {
             return false;
@@ -49,7 +48,7 @@ public final class ModalDiaE implements ModalAction {
 
         String[] st = log2.getProof().getNameProof().substring(4, log2.getProof().getNameProof().length() - 1).split(" > ");
 
-        if (!((ProofStepModal) log1).getState().equals(st[1])) {
+        if (!log1.getState().equals(st[1])) {
             return false;
         }
 
@@ -57,11 +56,11 @@ public final class ModalDiaE implements ModalAction {
             return false;
         }
 
-        String last = ((ProofStepModal) pf.getSteps().get(pf.getSteps().size() - 1)).getState();
+        String last = (pf.getSteps().get(pf.getSteps().size() - 1)).getState();
 
         ((ModalNaturalDeduction) pf).isFresh(last, st[1]);
 
-        return log1.getStep().equals(((UnaryOperation<ModalLogicalOperation>) pf.getSteps().get(j - 1).getStep()).getElement());
+        return log1.getStep().equals(((UnaryOperation<?>) pf.getSteps().get(j - 1).getStep()).getElement());
     }
 
     public void applyStepSupplier(Proof<ModalLogicalOperation, ProofStepModal> pf, ProofStepSupplier<ModalLogicalOperation, ProofStepModal> supp) {

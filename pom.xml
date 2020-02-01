@@ -19,9 +19,9 @@
         <jdk.version>13</jdk.version>
         <pitest.version>1.4.11</pitest.version>
         <pitest.junit5.version>0.11</pitest.junit5.version>
-        <proof.version>1.2</proof.version>
-        <rest.version>1.0</rest.version>
-        <logic.version>2.0</logic.version>
+        <proof.version>1.3</proof.version>
+        <rest.version>1.1</rest.version>
+        <logic.version>2.1</logic.version>
         <reflections.version>0.9.11</reflections.version>
         <maven.javadoc.version>3.1.1</maven.javadoc.version>
         <maven.compiler.version>3.8.1</maven.compiler.version>

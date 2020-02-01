@@ -29,7 +29,7 @@ public final class DeMorgan1 extends CompositionRule {
     @Override
     public boolean isValid(Proof<ClassicalLogicOperation, ProofStep<ClassicalLogicOperation>> pf) {
         return RuleUtils.isValidIndexAndProp(pf, i) && RuleUtils.isOperation(pf, i, Negation.class)
-                && (((UnaryOperation<ClassicalLogicOperation>) pf.getSteps().get(i - 1).getStep()).getElement() instanceof DisjunctionClassic);
+                && (((UnaryOperation<?>) pf.getSteps().get(i - 1).getStep()).getElement() instanceof DisjunctionClassic);
     }
 
     @Override

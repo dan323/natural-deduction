@@ -27,7 +27,7 @@
             <artifactId>implementation.modal</artifactId>
             <version>${logic.version}</version>
             <scope>compile</scope>
-        </dependency>
+        </dependency><!--
         <dependency>
             <groupId>com.dan323</groupId>
             <artifactId>deduction.model</artifactId>
@@ -45,7 +45,7 @@
             <artifactId>deduction.controller</artifactId>
             <version>${rest.version}</version>
             <scope>compile</scope>
-        </dependency>
+        </dependency>-->
         <dependency>
             <groupId>com.dan323</groupId>
             <artifactId>implementation.deduction.modal</artifactId>
@@ -94,7 +94,7 @@
             <plugin>
                 <groupId>org.pitest</groupId>
                 <artifactId>pitest-maven</artifactId>
-                <version>1.4.10</version>
+                <version>${pitest.version}</version>
                 <executions>
                     <execution>
                         <id>pit-report</id>
@@ -102,7 +102,7 @@
                     </execution>
                     <execution>
                         <id>put-it-together</id>
-                        <phase>none</phase>
+                        <phase>verify</phase>
                         <goals>
                             <goal>report-aggregate</goal>
                         </goals>

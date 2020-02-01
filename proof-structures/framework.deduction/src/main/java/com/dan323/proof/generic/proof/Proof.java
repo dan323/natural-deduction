@@ -17,23 +17,24 @@ public abstract class Proof<T extends LogicOperation, Q extends ProofStep<T>> {
         return assms;
     }
 
-    public void removeLastStep(){
-        steps.remove(steps.size()-1);
+    public void removeLastStep() {
+        steps.remove(steps.size() - 1);
     }
 
     protected void setAssms(List<T> assms) {
         this.assms = assms;
     }
 
-    public abstract boolean isValid(Action<T,Q> act);
+    public abstract boolean isValid(Action<T, Q> act);
 
     public boolean isDone() {
-        for (Q st : steps) {
-            if (goal.equals(st.getStep()) && st.getAssumptionLevel() == 0) {
-                return true;
-            }
+        if (goal == null) {
+            return false;
         }
-        return false;
+        return steps.stream()
+                .filter(ProofStep::isValid)
+                .filter(s -> s.getStep() != null && s.getStep().equals(goal))
+                .anyMatch(s -> s.getAssumptionLevel() == 0);
     }
 
     protected void initializeProofSteps() {

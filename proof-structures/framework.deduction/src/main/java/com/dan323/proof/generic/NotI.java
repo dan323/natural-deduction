@@ -44,7 +44,7 @@ public abstract class NotI<T extends LogicOperation, Q extends ProofStep<T>> imp
         }
         LogicOperation lo = pf.getSteps().get(pf.getSteps().size() - 1).getStep();
         if (lo instanceof Constant) {
-            Constant cons = (Constant) lo;
+            Constant<?> cons = (Constant<?>) lo;
             if (!cons.isFalsehood()) {
                 return false;
             }
@@ -52,7 +52,7 @@ public abstract class NotI<T extends LogicOperation, Q extends ProofStep<T>> imp
             return false;
         }
         int lastAssumption = Action.getToLastAssumption(pf, assLevel);
-        ProofStep log = pf.getSteps().get(pf.getSteps().size() - lastAssumption);
+        Q log = pf.getSteps().get(pf.getSteps().size() - lastAssumption);
         return log.getProof().getNameProof().equals("Ass");
     }
 

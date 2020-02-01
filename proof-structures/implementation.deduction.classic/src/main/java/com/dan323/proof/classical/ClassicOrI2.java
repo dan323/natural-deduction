@@ -9,7 +9,7 @@ import com.dan323.proof.generic.proof.ProofStep;
 public final class ClassicOrI2 extends OrI<ClassicalLogicOperation, ProofStep<ClassicalLogicOperation>> implements ClassicalAction {
 
     public ClassicOrI2(int i, ClassicalLogicOperation intro) {
-        super(i, intro, (l1, l2) -> new DisjunctionClassic( l2,  l1));
+        super(i, intro, (l1, l2) -> new DisjunctionClassic(l2, l1));
     }
 
     @Override
