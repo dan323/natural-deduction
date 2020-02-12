@@ -5,7 +5,7 @@ import com.dan323.expresions.classical.exceptions.InvalidMapValuesException;
 
 import java.util.Map;
 
-public final class VariableClassic extends Variable implements ClassicalLogicOperation {
+public final class VariableClassic extends Variable<ClassicalLogicOperation> implements ClassicalLogicOperation {
 
     public VariableClassic(String var) {
         super(var);

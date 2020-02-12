@@ -2,7 +2,10 @@ package com.dan323.proof.modal;
 
 import com.dan323.expresions.base.UnaryOperation;
 import com.dan323.expresions.modal.ModalLogicalOperation;
+import com.dan323.expresions.modal.ModalOperation;
 import com.dan323.expresions.modal.Sometime;
+import com.dan323.expresions.relation.LessEqual;
+import com.dan323.expresions.relation.RelationOperation;
 import com.dan323.proof.generic.Action;
 import com.dan323.proof.generic.RuleUtils;
 import com.dan323.proof.generic.proof.Proof;
@@ -14,57 +17,63 @@ import com.dan323.proof.modal.proof.ProofStepModal;
 import java.util.ArrayList;
 import java.util.List;
 
-public final class ModalDiaE implements ModalAction {
+public final class ModalDiaE<T> implements ModalAction<T> {
 
     private int j;
+    private T state0;
 
-    public ModalDiaE(int i) {
+    public ModalDiaE(int i, T state0) {
         j = i;
+        this.state0 = state0;
     }
 
     @Override
-    public boolean isValid(Proof<ModalLogicalOperation, ProofStepModal> pf) {
-        if (pf.getSteps().isEmpty()) {
+    public boolean isValid(Proof<ModalOperation, ProofStepModal<T>> pf) {
+        if (!(!pf.getSteps().isEmpty() && RuleUtils.isValidIndexAndProp(pf, j) && RuleUtils.isOperation(pf, j, Sometime.class))) {
             return false;
         }
-        if (!RuleUtils.isValidIndexAndProp(pf, j)) {
-            return false;
-        }
-        if (!RuleUtils.isOperation(pf, j, Sometime.class)) {
-            return false;
-        }
-        String origin = (pf.getSteps().get(j - 1)).getState();
+        T origin = (pf.getSteps().get(j - 1)).getState();
         int assLevel = Action.getLastAssumptionLevel(pf);
         if (assLevel < 2) {
             return false;
         }
         int i = Action.getToLastAssumption(pf, assLevel);
-        ProofStepModal log1 = pf.getSteps().get(pf.getSteps().size() - i);
-        ProofStepModal log2 = pf.getSteps().get(pf.getSteps().size() - i - 1);
+        ProofStepModal<T> log1 = pf.getSteps().get(pf.getSteps().size() - i);
+        ProofStepModal<T> log2 = pf.getSteps().get(pf.getSteps().size() - i - 1);
 
-        if (!log2.getProof().getNameProof().startsWith("Ass(")) {
-            return false;
+        if (!(log2.getStep() instanceof LessEqual)) {
+            if (log1.getStep() instanceof LessEqual) {
+                log2 = log1;
+                log1 = pf.getSteps().get(pf.getSteps().size() - i - 1);
+            } else {
+                return false;
+            }
         }
 
-        String[] st = log2.getProof().getNameProof().substring(4, log2.getProof().getNameProof().length() - 1).split(" > ");
+        T leftState = ((LessEqual<T>) log2.getStep()).getLeft();
+        T rightState = ((LessEqual<T>) log2.getStep()).getRight();
 
-        if (!log1.getState().equals(st[1])) {
+        if (!(log1.getState().equals(rightState) && origin.equals(leftState))) {
             return false;
         }
-
-        if (!origin.equals(st[0])) {
-            return false;
+        if ((pf.getSteps().get(pf.getSteps().size() - 1).getStep()) instanceof ModalLogicalOperation) {
+            T last = (pf.getSteps().get(pf.getSteps().size() - 1)).getState();
+            if (!ModalNaturalDeduction.isFresh(pf, last, pf.getSteps().size() - i, state0)) {
+                return false;
+            }
+        } else {
+            RelationOperation<T> operation = (RelationOperation<T>) (pf.getSteps().get(pf.getSteps().size() - 1).getStep());
+            if (!ModalNaturalDeduction.isFresh(pf, operation.getLeft(), pf.getSteps().size() - i, state0) ||
+                    !ModalNaturalDeduction.isFresh(pf, operation.getRight(), pf.getSteps().size() - i, state0)) {
+                return false;
+            }
         }
-
-        String last = (pf.getSteps().get(pf.getSteps().size() - 1)).getState();
-
-        ((ModalNaturalDeduction) pf).isFresh(last, st[1]);
 
         return log1.getStep().equals(((UnaryOperation<?>) pf.getSteps().get(j - 1).getStep()).getElement());
     }
 
-    public void applyStepSupplier(Proof<ModalLogicalOperation, ProofStepModal> pf, ProofStepSupplier<ModalLogicalOperation, ProofStepModal> supp) {
-        ProofStepModal psm = pf.getSteps().get(pf.getSteps().size() - 1);
+    public void applyStepSupplier(Proof<ModalOperation, ProofStepModal<T>> pf, ProofStepSupplier<ModalOperation, ProofStepModal<T>> supp) {
+        ProofStepModal<T> psm = pf.getSteps().get(pf.getSteps().size() - 1);
         List<Integer> lst = new ArrayList<>();
         int i = Action.getToLastAssumption(pf, psm.getAssumptionLevel());
         lst.add(j);
@@ -74,8 +83,8 @@ public final class ModalDiaE implements ModalAction {
     }
 
     @Override
-    public void apply(Proof<ModalLogicalOperation, ProofStepModal> pf) {
-        ProofStepModal psm = pf.getSteps().get(pf.getSteps().size() - 1);
-        applyStepSupplier(pf, ((assLevel, log, reason) -> new ProofStepModal(psm.getState(), assLevel, log, reason)));
+    public void apply(Proof<ModalOperation, ProofStepModal<T>> pf) {
+        ProofStepModal<T> psm = pf.getSteps().get(pf.getSteps().size() - 1);
+        applyStepSupplier(pf, ((assLevel, log, reason) -> new ProofStepModal<>(psm.getState(), assLevel, (ModalLogicalOperation) log, reason)));
     }
 }

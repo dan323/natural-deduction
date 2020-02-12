@@ -7,8 +7,8 @@ public abstract class Variable<T> implements LogicOperation {
 
     private final String var;
 
-    public T castToLanguage(){
-        return (T)this;
+    public T castToLanguage() {
+        return (T) this;
     }
 
     public Variable(String var) {
@@ -22,7 +22,7 @@ public abstract class Variable<T> implements LogicOperation {
 
     @Override
     public boolean equals(Object log) {
-        return (log instanceof Variable) && ((Variable) log).var.equals(var);
+        return log != null && log.getClass().equals(getClass()) && ((Variable<?>) log).var.equals(var);
     }
 
     @Override

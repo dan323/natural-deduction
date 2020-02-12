@@ -2,10 +2,13 @@ package com.dan323.expresions.modal;
 
 import com.dan323.expresions.base.Disjunction;
 
-public final class DisjunctionModal extends Disjunction<ModalLogicalOperation> implements ModalLogicalOperation {
+public final class DisjunctionModal extends Disjunction<ModalOperation> implements ModalLogicalOperation {
 
     public DisjunctionModal(ModalLogicalOperation l, ModalLogicalOperation r) {
         super(l, r);
+    }
+    public DisjunctionModal(ModalOperation l, ModalOperation r) {
+        this((ModalLogicalOperation)l, (ModalLogicalOperation)r);
     }
 
     @Override

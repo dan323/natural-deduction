@@ -2,7 +2,7 @@ package com.dan323.expresions.modal;
 
 import com.dan323.expresions.base.BinaryOperation;
 
-public final class Until extends BinaryOperation<ModalLogicalOperation> implements ModalLogicalOperation {
+public final class Until extends BinaryOperation<ModalOperation> implements ModalLogicalOperation {
 
     public Until(ModalLogicalOperation l, ModalLogicalOperation r) {
         super(l, r);

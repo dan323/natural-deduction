@@ -2,10 +2,14 @@ package com.dan323.expresions.modal;
 
 import com.dan323.expresions.base.Conjunction;
 
-public final class ConjunctionModal extends Conjunction<ModalLogicalOperation> implements ModalLogicalOperation {
+public final class ConjunctionModal extends Conjunction<ModalOperation> implements ModalLogicalOperation {
 
     public ConjunctionModal(ModalLogicalOperation l, ModalLogicalOperation r) {
         super(l, r);
+    }
+
+    public ConjunctionModal(ModalOperation l, ModalOperation r) {
+        this((ModalLogicalOperation) l, (ModalLogicalOperation) r);
     }
 
     @Override

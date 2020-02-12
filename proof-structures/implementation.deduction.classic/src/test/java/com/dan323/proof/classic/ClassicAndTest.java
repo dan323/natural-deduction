@@ -5,32 +5,17 @@ import com.dan323.expresions.classical.ConjunctionClassic;
 import com.dan323.expresions.classical.VariableClassic;
 import com.dan323.proof.classical.ClassicAndE1;
 import com.dan323.proof.classical.ClassicAndE2;
+import com.dan323.proof.classical.ClassicAndI;
+import com.dan323.proof.classical.ClassicAssume;
 import com.dan323.proof.classical.proof.NaturalDeduction;
 import com.dan323.proof.generic.proof.ProofStep;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 
-public class ClassicAndETest {
-
-    @Test
-    public void classicAndEBasicTest() {
-        ClassicAndE1 andE1 = new ClassicAndE1(1);
-        assertEquals(andE1, andE1);
-        assertEquals(andE1, new ClassicAndE1(1));
-        assertNotEquals(andE1, new ClassicAndE1(2));
-        assertEquals(andE1.hashCode(), new ClassicAndE1(1).hashCode());
-
-        ClassicAndE2 andE2 = new ClassicAndE2(1);
-        assertEquals(andE2, andE2);
-        assertEquals(andE2, new ClassicAndE2(1));
-        assertNotEquals(andE2, new ClassicAndE2(2));
-        assertEquals(andE2.hashCode(), new ClassicAndE2(1).hashCode());
-    }
+public class ClassicAndTest {
 
     @Test
     public void classicAndEApply() {
@@ -40,7 +25,8 @@ public class ClassicAndETest {
         pf.getSteps().add(pStep);
         doReturn(1).when(pStep).getAssumptionLevel();
         VariableClassic variable = new VariableClassic("P");
-        doReturn(new ConjunctionClassic(variable, variable)).when(pStep).getStep();
+        VariableClassic variable2 = new VariableClassic("Q");
+        doReturn(new ConjunctionClassic(variable, variable2)).when(pStep).getStep();
 
         andE1.apply(pf);
 
@@ -52,9 +38,26 @@ public class ClassicAndETest {
         ClassicAndE2 andE2 = new ClassicAndE2(1);
         andE2.apply(pf);
 
-        Assertions.assertEquals("P", pf.getSteps().get(pf.getSteps().size() - 1).getStep().toString());
+        Assertions.assertEquals("Q", pf.getSteps().get(pf.getSteps().size() - 1).getStep().toString());
         Assertions.assertEquals(1, pf.getSteps().get(pf.getSteps().size() - 1).getAssumptionLevel());
         Assertions.assertEquals("&E [1]", pf.getSteps().get(pf.getSteps().size() - 1).getProof().toString());
-        Assertions.assertEquals("   P           &E [1]", pf.getSteps().get(pf.getSteps().size() - 1).toString());
+        Assertions.assertEquals("   Q           &E [1]", pf.getSteps().get(pf.getSteps().size() - 1).toString());
+    }
+
+    @Test
+    public void classicAndIApply() {
+        ClassicAndI andI = new ClassicAndI(1,2);
+        ClassicAssume assume1 = new ClassicAssume(new VariableClassic("P"));
+        ClassicAssume assume2 = new ClassicAssume(new VariableClassic("Q"));
+        NaturalDeduction pf = new NaturalDeduction();
+
+        assume1.apply(pf);
+        assume2.apply(pf);
+        andI.apply(pf);
+
+        Assertions.assertEquals("P & Q", pf.getSteps().get(pf.getSteps().size() - 1).getStep().toString());
+        Assertions.assertEquals(2, pf.getSteps().get(pf.getSteps().size() - 1).getAssumptionLevel());
+        Assertions.assertEquals("&I [1, 2]", pf.getSteps().get(pf.getSteps().size() - 1).getProof().toString());
+        Assertions.assertEquals("      P & Q           &I [1, 2]", pf.getSteps().get(pf.getSteps().size() - 1).toString());
     }
 }

@@ -13,16 +13,6 @@ public final class ClassicAndE1 extends AndE<ClassicalLogicOperation, ProofStep<
     }
 
     @Override
-    public int hashCode() {
-        return super.hashCode() * 2;
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        return obj instanceof ClassicAndE1 && super.equals(obj);
-    }
-
-    @Override
     public void apply(Proof<ClassicalLogicOperation,ProofStep<ClassicalLogicOperation>> pf) {
         applyStepSupplier(pf, ProofStep::new);
     }

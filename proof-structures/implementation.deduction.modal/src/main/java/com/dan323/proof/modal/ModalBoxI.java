@@ -2,6 +2,8 @@ package com.dan323.proof.modal;
 
 import com.dan323.expresions.modal.Always;
 import com.dan323.expresions.modal.ModalLogicalOperation;
+import com.dan323.expresions.modal.ModalOperation;
+import com.dan323.expresions.relation.LessEqual;
 import com.dan323.proof.generic.Action;
 import com.dan323.proof.generic.proof.Proof;
 import com.dan323.proof.generic.proof.ProofReason;
@@ -11,14 +13,29 @@ import com.dan323.proof.modal.proof.ProofStepModal;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
-public final class ModalBoxI implements ModalAction {
+public final class ModalBoxI<T> implements ModalAction<T> {
 
-    private static final String REGEX_GREATER = " > ";
     private int lastAssumption;
+    private T state0;
+
+    public ModalBoxI(T state0) {
+        this.state0 = state0;
+    }
 
     @Override
-    public boolean isValid(Proof<ModalLogicalOperation, ProofStepModal> pf) {
+    public boolean equals(Object obj) {
+        return obj != null && obj.getClass().equals(getClass());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getClass());
+    }
+
+    @Override
+    public boolean isValid(Proof<ModalOperation, ProofStepModal<T>> pf) {
         if (pf.getSteps().isEmpty()) {
             return false;
         }
@@ -27,20 +44,20 @@ public final class ModalBoxI implements ModalAction {
             return false;
         }
         lastAssumption = Action.getToLastAssumption(pf, assLevel);
-        ProofStepModal log = pf.getSteps().get(pf.getSteps().size() - lastAssumption);
+        ProofStepModal<T> log = pf.getSteps().get(pf.getSteps().size() - lastAssumption);
         if (log.getStep() != null) {
             return false;
         }
-        String st = log.getProof().getNameProof().substring(4, log.getProof().getNameProof().length() - 1);
-        String[] lst = st.split(REGEX_GREATER);
-        if (!(pf.getSteps().get(pf.getSteps().size() - 1)).getState().equals(lst[1])) {
+        T stateLess = ((LessEqual<T>) log.getStep()).getLeft();
+        T stateGreater = ((LessEqual<T>) log.getStep()).getRight();
+        if (!(pf.getSteps().get(pf.getSteps().size() - 1)).getState().equals(stateGreater)) {
             return false;
         }
-        return ((ModalNaturalDeduction) pf).isFresh(lst[1], lst[0]);
+        return ModalNaturalDeduction.isFresh(pf, stateLess, pf.getSteps().size() - lastAssumption + 1, state0);
     }
 
     @Override
-    public void applyStepSupplier(Proof<ModalLogicalOperation, ProofStepModal> pf, ProofStepSupplier<ModalLogicalOperation, ProofStepModal> supp) {
+    public void applyStepSupplier(Proof<ModalOperation, ProofStepModal<T>> pf, ProofStepSupplier<ModalOperation, ProofStepModal<T>> supp) {
         int assLevel = 0;
         if (!pf.getSteps().isEmpty()) {
             assLevel = Action.getLastAssumptionLevel(pf);
@@ -48,15 +65,15 @@ public final class ModalBoxI implements ModalAction {
         List<Integer> lst = new ArrayList<>();
         lst.add(pf.getSteps().size() - lastAssumption + 1);
         lst.add(pf.getSteps().size());
-        pf.getSteps().add(supp.generateProofStep(assLevel - 1, new Always(pf.getSteps().get(pf.getSteps().size() - 1).getStep()), new ProofReason("[]I", lst)));
+        pf.getSteps().add(supp.generateProofStep(assLevel - 1, new Always((ModalLogicalOperation) pf.getSteps().get(pf.getSteps().size() - 1).getStep()), new ProofReason("[]I", lst)));
     }
 
     @Override
-    public void apply(Proof<ModalLogicalOperation, ProofStepModal> pf) {
-        ProofStepModal log = pf.getSteps().get(pf.getSteps().size() - lastAssumption);
-        String st = log.getProof().getNameProof().substring(4, log.getProof().getNameProof().length() - 1);
-        String[] sts = st.split(REGEX_GREATER);
-        applyStepSupplier(pf, (assLevel, log1, reason) -> new ProofStepModal(sts[0], assLevel, log1, reason));
-        ((ModalNaturalDeduction) pf).removeState(sts[1]);
+    public void apply(Proof<ModalOperation, ProofStepModal<T>> pf) {
+        ProofStepModal<T> log = pf.getSteps().get(pf.getSteps().size() - lastAssumption);
+        T stateLess = ((LessEqual<T>) log.getStep()).getLeft();
+
+        Action.disableUntilLastAssumption(pf, log.getAssumptionLevel());
+        applyStepSupplier(pf, (assLevel, log1, reason) -> new ProofStepModal<>(stateLess, assLevel, (ModalLogicalOperation) log1, reason));
     }
 }

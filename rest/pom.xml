@@ -22,7 +22,7 @@
         <dependency>
             <groupId>org.reflections</groupId>
             <artifactId>reflections</artifactId>
-            <version>0.9.11</version>
+            <version>${reflections.version}</version>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
@@ -52,7 +52,6 @@
             <plugin>
                 <groupId>org.pitest</groupId>
                 <artifactId>pitest-maven</artifactId>
-                <version>${pitest.version}</version>
                 <executions>
                     <execution>
                         <id>pit-report</id>

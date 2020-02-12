@@ -32,7 +32,7 @@ public abstract class NotE<T extends LogicOperation, Q extends ProofStep<T>> imp
 
     @Override
     public int hashCode() {
-        return getClass().hashCode() * 13 + getNeg() * 17;
+        return getClass().hashCode() * 13 + neg * 17;
     }
 
     @Override

@@ -2,7 +2,7 @@ package com.dan323.expresions.modal;
 
 import com.dan323.expresions.base.UnaryOperation;
 
-public final class Always extends UnaryOperation<ModalLogicalOperation> implements ModalLogicalOperation {
+public final class Always extends UnaryOperation<ModalOperation> implements ModalLogicalOperation {
 
     public Always(ModalLogicalOperation element) {
         super(element);

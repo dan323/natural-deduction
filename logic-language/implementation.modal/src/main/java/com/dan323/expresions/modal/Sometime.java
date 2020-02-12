@@ -2,7 +2,7 @@ package com.dan323.expresions.modal;
 
 import com.dan323.expresions.base.UnaryOperation;
 
-public final class Sometime extends UnaryOperation<ModalLogicalOperation> implements ModalLogicalOperation {
+public final class Sometime extends UnaryOperation<ModalOperation> implements ModalLogicalOperation {
 
     public Sometime(ModalLogicalOperation element) {
         super(element);

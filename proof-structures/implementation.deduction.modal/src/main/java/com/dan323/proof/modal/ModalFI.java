@@ -2,31 +2,29 @@ package com.dan323.proof.modal;
 
 import com.dan323.expresions.modal.ConstantModal;
 import com.dan323.expresions.modal.ModalLogicalOperation;
+import com.dan323.expresions.modal.ModalOperation;
 import com.dan323.expresions.modal.NegationModal;
 import com.dan323.proof.generic.FI;
 import com.dan323.proof.generic.proof.Proof;
 import com.dan323.proof.modal.proof.ProofStepModal;
 
-public final class ModalFI extends FI<ModalLogicalOperation, ProofStepModal> implements ModalAction {
+public final class ModalFI<T> extends FI<ModalOperation, ProofStepModal<T>> implements ModalAction<T> {
 
-    private String state;
+    private T state;
 
-    public ModalFI(String state, int i, int j) {
+    public ModalFI(T state, int i, int j) {
         super(i, j, NegationModal::new, () -> ConstantModal.FALSE);
         this.state = state;
     }
 
     @Override
-    public boolean isValid(Proof<ModalLogicalOperation, ProofStepModal> pf) {
-        if (super.isValid(pf)) {
-            return ModalAction.checkEqualState(pf, getPos(), getNeg());
-        }
-        return false;
+    public boolean isValid(Proof<ModalOperation, ProofStepModal<T>> pf) {
+        return super.isValid(pf) && ModalAction.checkEqualState(pf, getPos(), getNeg());
     }
 
     @Override
-    public void apply(Proof<ModalLogicalOperation, ProofStepModal> pf) {
-        applyStepSupplier(pf, (assLevel, log, reason) -> new ProofStepModal(state, assLevel, log, reason));
+    public void apply(Proof<ModalOperation, ProofStepModal<T>> pf) {
+        applyStepSupplier(pf, (assLevel, log, reason) -> new ProofStepModal<>(state, assLevel, (ModalLogicalOperation) log, reason));
     }
 
     @Override
@@ -36,10 +34,6 @@ public final class ModalFI extends FI<ModalLogicalOperation, ProofStepModal> imp
 
     @Override
     public boolean equals(Object obj) {
-        if (obj instanceof ModalFI) {
-            return super.equals(obj) && ((ModalFI) obj).state.equals(state);
-        } else {
-            return false;
-        }
+        return super.equals(obj) && ((ModalFI<?>) obj).state.equals(state);
     }
 }

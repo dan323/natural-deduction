@@ -102,7 +102,7 @@
                     </execution>
                     <execution>
                         <id>put-it-together</id>
-                        <phase>verify</phase>
+                        <phase>none</phase>
                         <goals>
                             <goal>report-aggregate</goal>
                         </goals>

@@ -2,10 +2,14 @@ package com.dan323.expresions.modal;
 
 import com.dan323.expresions.base.Negation;
 
-public final class NegationModal extends Negation<ModalLogicalOperation> implements ModalLogicalOperation {
+public final class NegationModal extends Negation<ModalOperation> implements ModalLogicalOperation {
 
     public NegationModal(ModalLogicalOperation elem) {
         super(elem);
+    }
+
+    public NegationModal(ModalOperation elem) {
+        this((ModalLogicalOperation) elem);
     }
 
     @Override

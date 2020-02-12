@@ -2,6 +2,8 @@ package com.dan323.proof.modal;
 
 import com.dan323.expresions.modal.Always;
 import com.dan323.expresions.modal.ModalLogicalOperation;
+import com.dan323.expresions.modal.ModalOperation;
+import com.dan323.expresions.relation.LessEqual;
 import com.dan323.proof.generic.Action;
 import com.dan323.proof.generic.RuleUtils;
 import com.dan323.proof.generic.proof.Proof;
@@ -9,10 +11,9 @@ import com.dan323.proof.generic.proof.ProofReason;
 import com.dan323.proof.generic.proof.ProofStepSupplier;
 import com.dan323.proof.modal.proof.ProofStepModal;
 
-import java.util.ArrayList;
 import java.util.List;
 
-public final class ModalBoxE implements ModalAction {
+public final class ModalBoxE<T> implements ModalAction<T> {
 
     private int i;
     private int q;
@@ -23,37 +24,35 @@ public final class ModalBoxE implements ModalAction {
     }
 
     @Override
-    public boolean isValid(Proof<ModalLogicalOperation, ProofStepModal> pf) {
+    public boolean isValid(Proof<ModalOperation, ProofStepModal<T>> pf) {
         if (RuleUtils.isValidIndexAndProp(pf, i) && RuleUtils.isValidIndexAndProp(pf, q) && RuleUtils.isOperation(pf, i, Always.class)) {
-            ProofStepModal ps = pf.getSteps().get(i - 1);
-            ProofStepModal ps2 = pf.getSteps().get(q - 1);
-            return (ps2.getProof().getNameProof().startsWith("Ass(" + ps.getState() + " > "));
+            ProofStepModal<T> ps = pf.getSteps().get(i - 1);
+            ProofStepModal<T> ps2 = pf.getSteps().get(q - 1);
+            T state = ps.getState();
+            return (ps2.getStep() instanceof LessEqual) && ((LessEqual<T>) ps2.getStep()).getLeft().equals(state);
         }
         return false;
     }
 
     @Override
-    public void applyStepSupplier(Proof<ModalLogicalOperation, ProofStepModal> pf, ProofStepSupplier<ModalLogicalOperation, ProofStepModal> supp) {
+    public void applyStepSupplier(Proof<ModalOperation, ProofStepModal<T>> pf, ProofStepSupplier<ModalOperation, ProofStepModal<T>> supp) {
         int assLevel = 0;
         if (!pf.getSteps().isEmpty()) {
             assLevel = Action.getLastAssumptionLevel(pf);
         }
-        List<Integer> lst = new ArrayList<>();
-        lst.add(i);
-        ProofStepModal ps = pf.getSteps().get(i - 1);
+        ProofStepModal<T> ps = pf.getSteps().get(i - 1);
         Always al = (Always) ps.getStep();
-        pf.getSteps().add(supp.generateProofStep(assLevel, al.getElement(), new ProofReason("[]E", lst)));
+        pf.getSteps().add(supp.generateProofStep(assLevel, al.getElement(), new ProofReason("[]E", List.of(i, q))));
     }
 
     @Override
-    public void apply(Proof<ModalLogicalOperation, ProofStepModal> pf) {
-        ProofStepModal ps = pf.getSteps().get(i - 1);
-        String fl = pf.getSteps().get(q - 1).getProof().getNameProof().substring(4 + ps.getState().length() + 3, pf.getSteps().get(q - 1).getProof().getNameProof().length() - 1);
-        applyStepSupplier(pf, ((assLevel, log, reason) -> new ProofStepModal(fl, assLevel, log, reason)));
+    public void apply(Proof<ModalOperation, ProofStepModal<T>> pf) {
+        T fl = ((LessEqual<T>) pf.getSteps().get(q - 1).getStep()).getRight();
+        applyStepSupplier(pf, ((assLevel, log, reason) -> new ProofStepModal<>(fl, assLevel, (ModalLogicalOperation) log, reason)));
     }
 
     public boolean equals(Object ob) {
-        return (ob instanceof ModalBoxE) && ((ModalBoxE) ob).i == i && ((ModalBoxE) ob).q == q;
+        return (ob instanceof ModalBoxE) && ((ModalBoxE<?>) ob).i == i && ((ModalBoxE<?>) ob).q == q;
     }
 
     public int hashCode() {

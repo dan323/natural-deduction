@@ -1,21 +1,32 @@
 package com.dan323.proof.modal;
 
 import com.dan323.expresions.modal.ModalLogicalOperation;
+import com.dan323.expresions.modal.ModalOperation;
+import com.dan323.expresions.relation.RelationOperation;
 import com.dan323.proof.generic.Assume;
 import com.dan323.proof.generic.proof.Proof;
 import com.dan323.proof.modal.proof.ProofStepModal;
 
-public final class ModalAssume extends Assume<ModalLogicalOperation, ProofStepModal> implements ModalAction {
+public final class ModalAssume<T> extends Assume<ModalOperation, ProofStepModal<T>> implements ModalAction<T> {
 
-    private final String state;
+    private final T state;
 
-    public ModalAssume(ModalLogicalOperation clo, String st) {
+    public ModalAssume(ModalLogicalOperation clo, T st) {
         super(clo);
         state = st;
     }
 
+    public ModalAssume(RelationOperation<T> operation) {
+        super(operation);
+        state = null;
+    }
+
     @Override
-    public void apply(Proof<ModalLogicalOperation, ProofStepModal> pf) {
-        applyStepSupplier(pf, ((assLevel, log, reason) -> new ProofStepModal(state, assLevel, log, reason)));
+    public void apply(Proof<ModalOperation, ProofStepModal<T>> pf) {
+        if (state == null) {
+            applyStepSupplier(pf, (assLevel, log, reason) -> new ProofStepModal<>(assLevel, (RelationOperation<T>) log, reason));
+        } else {
+            applyStepSupplier(pf, (assLevel, log, reason) -> new ProofStepModal<>(state, assLevel, (ModalLogicalOperation) log, reason));
+        }
     }
 }
