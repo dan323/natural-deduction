@@ -3,7 +3,16 @@
 
 name: Compile and Test
 
-on: [push, pull_request]
+on: 
+  push:
+    branches: master
+  
+  pull_request:
+    types: [opened,synchronized, reopened]
+  
+  create:
+    branches:
+      - release/*
 
 jobs:
   compile:
@@ -27,4 +36,7 @@ jobs:
       with:
         java-version: 13
     - name: test with mvn
-      run: mvn -B -f pom.xml clean verify
+      env:
+        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        SONAR_ORGANIZATION: ${{ secrets.SONAR_ORGANIZATION }}
+      run: mvn -B -f pom.xml clean verify -Dsonar.login=$SONAR_TOKEN -Dsonar.host.url=https://sonarcloud.io/ -Dsonar.organization=$SONAR_ORGANIZATION
