@@ -3,16 +3,7 @@
 
 name: Compile and Test
 
-on: 
-  push:
-    branches: master
-  
-  pull_request:
-    types: [opened,synchronized, reopened]
-  
-  create:
-    branches:
-      - release/*
+on: [push, pull_request]
 
 jobs:
   compile:
