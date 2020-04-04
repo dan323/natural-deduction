@@ -3,7 +3,14 @@
 
 name: Compile and Test
 
-on: [push, pull_request]
+on: 
+  push:
+    branches: 
+      - master
+      - release/*
+  pull_request:
+    branches:
+      - master
 
 jobs:
   compile:
@@ -17,9 +24,7 @@ jobs:
           java-version: 13
       - run: mvn -f pom.xml clean compile
   test:
-    
     runs-on: ubuntu-latest
-
     steps:
     - uses: actions/checkout@v2
     - name: Set up JDK 13
@@ -30,4 +35,4 @@ jobs:
       env:
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         SONAR_ORGANIZATION: ${{ secrets.SONAR_ORGANIZATION }}
-      run: mvn -B -f pom.xml clean verify -Dsonar.login=$SONAR_TOKEN -Dsonar.host.url=https://sonarcloud.io/ -Dsonar.organization=$SONAR_ORGANIZATION
+      run: mvn -B -f pom.xml verify -Dsonar.login=$SONAR_TOKEN -Dsonar.host.url=https://sonarcloud.io/ -Dsonar.organization=$SONAR_ORGANIZATION
