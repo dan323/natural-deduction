@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>PatternMapperUnaryBinaryOps.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">jacoco-report-aggregate</a> &gt; <a href="../index.html" class="el_bundle">framework.deduction</a> &gt; <a href="index.source.html" class="el_package">com.dan323.proof.generic.pattern</a> &gt; <span class="el_source">PatternMapperUnaryBinaryOps.java</span></div><h1>PatternMapperUnaryBinaryOps.java</h1><pre class="source lang-java linenums">package com.dan323.proof.generic.pattern;
+
+import com.dan323.expresions.base.*;
+
+import java.util.HashMap;
+import java.util.Map;
+
+<span class="nc" id="L8">public class PatternMapperUnaryBinaryOps implements PatternMapper&lt;LogicOperation&gt; {</span>
+
+    @Override
+    public Map&lt;String, LogicOperation&gt; compareLogic(LogicOperation l1, LogicOperation l2) {
+<span class="nc bnc" id="L12" title="All 6 branches missed.">        if (l1 instanceof Constant &amp;&amp; l2 instanceof Constant &amp;&amp; l1.equals(l2)) {</span>
+<span class="nc" id="L13">            return new HashMap&lt;&gt;();</span>
+<span class="nc bnc" id="L14" title="All 2 branches missed.">        } else if (l1 instanceof Variable) {</span>
+<span class="nc" id="L15">            Map&lt;String, LogicOperation&gt; sol = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L16">            sol.put(l1.toString(), l2);</span>
+<span class="nc" id="L17">            return sol;</span>
+<span class="nc bnc" id="L18" title="All 4 branches missed.">        } else if (l1 instanceof UnaryOperation &amp;&amp; l1.getClass().equals(l2.getClass())) {</span>
+<span class="nc" id="L19">            return compareLogic(((UnaryOperation) l1).getElement(), ((UnaryOperation) l2).getElement());</span>
+<span class="nc bnc" id="L20" title="All 4 branches missed.">        } else if (l1 instanceof BinaryOperation &amp;&amp; l1.getClass().equals(l2.getClass())) {</span>
+<span class="nc" id="L21">            return checkBinaryOperation((BinaryOperation) l1, (BinaryOperation) l2);</span>
+        }
+<span class="nc" id="L23">        return null;</span>
+    }
+
+    private Map&lt;String, LogicOperation&gt; checkBinaryOperation(BinaryOperation l1, BinaryOperation l2) {
+<span class="nc" id="L27">        Map&lt;String, LogicOperation&gt; m1 = compareLogic(l1.getLeft(), l2.getLeft());</span>
+<span class="nc" id="L28">        Map&lt;String, LogicOperation&gt; m2 = compareLogic(l1.getRight(), l2.getRight());</span>
+<span class="nc bnc" id="L29" title="All 2 branches missed.">        for (Map.Entry&lt;String, LogicOperation&gt; key1 : m1.entrySet()) {</span>
+<span class="nc bnc" id="L30" title="All 4 branches missed.">            if (m2.containsKey(key1.getKey()) &amp;&amp; !key1.getValue().equals(m2.get(key1.getKey()))) {</span>
+<span class="nc" id="L31">                return null;</span>
+            }
+<span class="nc" id="L33">        }</span>
+<span class="nc" id="L34">        m1.putAll(m2);</span>
+<span class="nc" id="L35">        return m1;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>
