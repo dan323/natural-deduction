@@ -59,24 +59,21 @@ public final class ModalNaturalDeduction<T> extends Proof<ModalOperation, ProofS
      * Function to assert that the state {@code state} is fresh at step {@code k}:
      * does not appear anywhere in a valid statement in any step before {@code k}
      *
-     * @param proof  proof to be checked
      * @param state  state checked for freshness
-     * @param k      step number where {@code state} must be new
-     * @param state0 initial state of the proof
-     * @param <T> Type of states
-     * @return true iff {@code state} does not appear in any valid proof statement of {@code proof} before {@code k}
+     * @param k      initial step number where {@code state} must not be created
+     * @return true iff {@code state} is used in {@code proof} before {@code k}
      */
-    public static <T> boolean isFresh(Proof<ModalOperation, ProofStepModal<T>> proof, T state, int k, T state0) {
-        for (int i = 0; i < k - 1; i++) {
-            ProofStepModal<T> step = proof.getSteps().get(i);
+    public boolean stateIsUsedBefore(T state, int k) {
+        boolean appears = state.equals(state0);
+        for (int i = 0; i < k && !appears; i++) {
+            ProofStepModal<T> step = getSteps().get(i);
             if (step.isValid() && step.getStep() instanceof LessEqual) {
                 LessEqual<T> operation = (LessEqual<T>) step.getStep();
-                if (!operation.getLeft().equals(state) && operation.getRight().equals(state)) {
-                    return false;
+                if ((operation.getLeft().equals(state) || operation.getRight().equals(state)) && !(operation.getLeft().equals(state) && operation.getRight().equals(state))) {
+                    appears = true;
                 }
             }
-
         }
-        return !state.equals(state0);
+        return appears;
     }
 }

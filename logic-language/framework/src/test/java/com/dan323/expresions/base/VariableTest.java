@@ -1,11 +1,11 @@
 package com.dan323.expresions.base;
 
-import com.dan323.expresions.base.Variable;
 import com.dan323.expresions.base.stub.VariableStub;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
  * @author danco
@@ -32,6 +32,5 @@ public class VariableTest {
         Variable<LogicOperation> p = new VariableStub("P");
         assertNotNull(p.castToLanguage());
         assertEquals(p, p.castToLanguage());
-        assertTrue(p.castToLanguage() instanceof LogicOperation);
     }
 }

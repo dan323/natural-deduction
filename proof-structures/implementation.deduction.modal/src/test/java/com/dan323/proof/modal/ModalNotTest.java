@@ -38,7 +38,7 @@ public class ModalNotTest {
         assume2.apply(pf);
         assume3.apply(pf);
         assume.apply(pf);
-        pf.getSteps().add(new ProofStepModal(state, 3, bottom, new ProofReason("TST", List.of())));
+        pf.getSteps().add(new ProofStepModal<>(state, 3, bottom, new ProofReason("TST", List.of())));
         modalnoti.apply(pf);
 
         Assertions.assertEquals("- P", pf.getSteps().get(pf.getSteps().size() - 1).getStep().toString());

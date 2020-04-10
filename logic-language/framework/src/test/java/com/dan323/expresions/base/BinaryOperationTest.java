@@ -32,7 +32,6 @@ public class BinaryOperationTest {
     public void castTest() {
         assertNotNull(binaryOperation1.castToLanguage());
         assertEquals(binaryOperation1, binaryOperation1.castToLanguage());
-        assertTrue(binaryOperation1.castToLanguage() instanceof LogicOperation);
     }
 
     @Test

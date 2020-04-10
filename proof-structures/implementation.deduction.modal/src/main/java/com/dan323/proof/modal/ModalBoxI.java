@@ -53,7 +53,7 @@ public final class ModalBoxI<T> implements ModalAction<T> {
         if (!(pf.getSteps().get(pf.getSteps().size() - 1)).getState().equals(stateGreater)) {
             return false;
         }
-        return ModalNaturalDeduction.isFresh(pf, stateLess, pf.getSteps().size() - lastAssumption + 1, state0);
+        return ((ModalNaturalDeduction<T>)pf).stateIsUsedBefore(stateLess, pf.getSteps().size() - lastAssumption + 1);
     }
 
     @Override

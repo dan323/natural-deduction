@@ -23,7 +23,6 @@ public class UnaryOperationTest {
     public void castTest() {
         assertNotNull(unaryOperation1.castToLanguage());
         assertEquals(unaryOperation1, unaryOperation1.castToLanguage());
-        assertTrue(unaryOperation1.castToLanguage() instanceof LogicOperation);
     }
 
     @BeforeEach

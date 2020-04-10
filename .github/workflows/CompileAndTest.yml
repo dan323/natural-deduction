@@ -1,0 +1,91 @@
+# This workflow will compile and test verify
+# when a push or pull request action on master is activated
+# or when a push is done in a release
+
+name: Main Workflow
+
+on:
+  push:
+    branches:
+      - master
+      - release/*
+  pull_request:
+    branches:
+      - master
+  release:
+    type:
+      - created
+
+jobs:
+  mvn_flow:
+    runs-on: ubuntu-latest
+    name: mvn flow Java 13
+    steps:
+      - uses: actions/checkout@master
+      - name: Setup java
+        uses: actions/setup-java@v1
+        with:
+          java-version: 13
+      - name: compile
+        run: mvn -B -f pom.xml clean compile
+      - name: run test suits
+        run: mvn -B -f pom.xml test
+      - name: jacoco report
+        run: mvn -B -f pom.xml -Dmaven.test.skip=true verify jacoco:report-aggregate
+      - name: sonar cloud
+        env:
+          SONAR_ORGANIZATION: ${{ secrets.SONAR_ORGANIZATION }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: mvn -B -f pom.xml package sonar:sonar -Dsonar.login=$SONAR_TOKEN -Dsonar.host.url=https://sonarcloud.io/ -Dsonar.organization=$SONAR_ORGANIZATION
+      - name: set PR number
+        run: |
+          mkdir jacoco-natural-deduction/target/tmp
+          mv -v jacoco-natural-deduction/target/site/* jacoco-natural-deduction/target/tmp/
+          mkdir jacoco-natural-deduction/target/site/$PR
+          mv -v jacoco-natural-deduction/target/tmp/* jacoco-natural-deduction/target/site/$PR/
+        env:
+          PR: ${{ github.event.pull_request.number }}
+      - name: publish jacoco report
+        uses: peaceiris/actions-gh-pages@v3
+        env:
+          PR: ${{ github.event.pull_request.number }}
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./jacoco-natural-deduction/target/site/
+          user_name: 'jacoco-report[bot]'
+          user_email: 'jacoco-report[bot]@users.noreply.github.com'
+          commit_message: 'jacoco-report for PR $PR'
+          keep_files: true
+
+  mutation_testing:
+    runs-on: ubuntu-latest
+    name: Mutation Testing
+    steps:
+      - uses: actions/checkout@master
+      - name: Setup java
+        uses: actions/setup-java@v1
+        with:
+          java-version: 13
+      - name: mutation testing
+        run: |
+          mvn -B -f pom.xml clean test-compile org.pitest:pitest-maven:mutationCoverage org.pitest:pitest-maven:report-aggregate-module
+          rm -r target/pit-reports/pit-reports
+          mkdir target/site
+          mv target/pit-reports target/site
+      - name: set PR number
+        run: |
+          mkdir target/tmp
+          mv -v target/site/* target/tmp
+          mkdir target/site/$PR
+          mv -v target/tmp/* target/site/$PR
+        env:
+          PR: ${{ github.event.pull_request.number }}
+      - name: publish pitest report
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./target/site/
+          user_name: 'pitest-report[bot]'
+          user_email: 'pitest-report[bot]@users.noreply.github.com'
+          commit_message: 'pitest-report for PR $PR'
+          keep_files: true
