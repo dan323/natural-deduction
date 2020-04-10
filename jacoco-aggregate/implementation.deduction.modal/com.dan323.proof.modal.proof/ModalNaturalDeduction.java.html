@@ -18,14 +18,14 @@ public final class ModalNaturalDeduction&lt;T&gt; extends Proof&lt;ModalOperatio
     private T state0;
 
     public static &lt;T&gt; boolean checkFlag(Proof&lt;ModalOperation, ProofStepModal&lt;T&gt;&gt; proof, T less, T greater) {
-<span class="nc bnc" id="L21" title="All 2 branches missed.">        for (ProofStepModal&lt;T&gt; pst : proof.getSteps()) {</span>
-<span class="nc bnc" id="L22" title="All 4 branches missed.">            if (pst.isValid() &amp;&amp; pst.getStep() instanceof LessEqual</span>
-<span class="nc bnc" id="L23" title="All 2 branches missed.">                    &amp;&amp; ((LessEqual&lt;T&gt;) pst.getStep()).getLeft().equals(less)</span>
-<span class="nc bnc" id="L24" title="All 2 branches missed.">                    &amp;&amp; ((LessEqual&lt;T&gt;) pst.getStep()).getRight().equals(greater)) {</span>
-<span class="nc" id="L25">                return true;</span>
+<span class="fc bfc" id="L21" title="All 2 branches covered.">        for (ProofStepModal&lt;T&gt; pst : proof.getSteps()) {</span>
+<span class="pc bpc" id="L22" title="1 of 4 branches missed.">            if (pst.isValid() &amp;&amp; pst.getStep() instanceof LessEqual</span>
+<span class="pc bpc" id="L23" title="1 of 2 branches missed.">                    &amp;&amp; ((LessEqual&lt;T&gt;) pst.getStep()).getLeft().equals(less)</span>
+<span class="fc bfc" id="L24" title="All 2 branches covered.">                    &amp;&amp; ((LessEqual&lt;T&gt;) pst.getStep()).getRight().equals(greater)) {</span>
+<span class="fc" id="L25">                return true;</span>
             }
-<span class="nc" id="L27">        }</span>
-<span class="nc" id="L28">        return false;</span>
+<span class="fc" id="L27">        }</span>
+<span class="fc" id="L28">        return false;</span>
     }
 
 <span class="fc" id="L31">    public ModalNaturalDeduction(T state0) {</span>
@@ -41,13 +41,13 @@ public final class ModalNaturalDeduction&lt;T&gt; extends Proof&lt;ModalOperatio
 <span class="fc" id="L41">        setGoal(goal);</span>
 <span class="fc" id="L42">        initializeProofSteps();</span>
 <span class="fc" id="L43">        setAssms(assms);</span>
-<span class="pc bpc" id="L44" title="1 of 2 branches missed.">        for (ModalOperation lo : assms) {</span>
-<span class="nc bnc" id="L45" title="All 2 branches missed.">            if (lo instanceof ModalLogicalOperation) {</span>
-<span class="nc" id="L46">                getSteps().add(new ProofStepModal&lt;&gt;(state0, 0, (ModalLogicalOperation) lo, new ProofReason(&quot;Ass&quot;, new ArrayList&lt;&gt;())));</span>
+<span class="fc bfc" id="L44" title="All 2 branches covered.">        for (ModalOperation lo : assms) {</span>
+<span class="fc bfc" id="L45" title="All 2 branches covered.">            if (lo instanceof ModalLogicalOperation) {</span>
+<span class="fc" id="L46">                getSteps().add(new ProofStepModal&lt;&gt;(state0, 0, (ModalLogicalOperation) lo, new ProofReason(&quot;Ass&quot;, new ArrayList&lt;&gt;())));</span>
             } else {
-<span class="nc" id="L48">                getSteps().add(new ProofStepModal&lt;&gt;(0, (RelationOperation&lt;T&gt;) lo, new ProofReason(&quot;Ass&quot;, new ArrayList&lt;&gt;())));</span>
+<span class="fc" id="L48">                getSteps().add(new ProofStepModal&lt;&gt;(0, (RelationOperation&lt;T&gt;) lo, new ProofReason(&quot;Ass&quot;, new ArrayList&lt;&gt;())));</span>
             }
-<span class="nc" id="L50">        }</span>
+<span class="fc" id="L50">        }</span>
 <span class="fc" id="L51">    }</span>
 
     @Override
@@ -59,25 +59,22 @@ public final class ModalNaturalDeduction&lt;T&gt; extends Proof&lt;ModalOperatio
      * Function to assert that the state {@code state} is fresh at step {@code k}:
      * does not appear anywhere in a valid statement in any step before {@code k}
      *
-     * @param proof  proof to be checked
      * @param state  state checked for freshness
-     * @param k      step number where {@code state} must be new
-     * @param state0 initial state of the proof
-     * @param &lt;T&gt; Type of states
-     * @return true iff {@code state} does not appear in any valid proof statement of {@code proof} before {@code k}
+     * @param k      initial step number where {@code state} must not be created
+     * @return true iff {@code state} is used in {@code proof} before {@code k}
      */
-    public static &lt;T&gt; boolean isFresh(Proof&lt;ModalOperation, ProofStepModal&lt;T&gt;&gt; proof, T state, int k, T state0) {
-<span class="fc bfc" id="L70" title="All 2 branches covered.">        for (int i = 0; i &lt; k - 1; i++) {</span>
-<span class="fc" id="L71">            ProofStepModal&lt;T&gt; step = proof.getSteps().get(i);</span>
-<span class="pc bpc" id="L72" title="2 of 4 branches missed.">            if (step.isValid() &amp;&amp; step.getStep() instanceof LessEqual) {</span>
-<span class="nc" id="L73">                LessEqual&lt;T&gt; operation = (LessEqual&lt;T&gt;) step.getStep();</span>
-<span class="nc bnc" id="L74" title="All 4 branches missed.">                if (!operation.getLeft().equals(state) &amp;&amp; operation.getRight().equals(state)) {</span>
-<span class="nc" id="L75">                    return false;</span>
+    public boolean stateIsUsedBefore(T state, int k) {
+<span class="fc" id="L67">        boolean appears = state.equals(state0);</span>
+<span class="fc bfc" id="L68" title="All 4 branches covered.">        for (int i = 0; i &lt; k &amp;&amp; !appears; i++) {</span>
+<span class="fc" id="L69">            ProofStepModal&lt;T&gt; step = getSteps().get(i);</span>
+<span class="pc bpc" id="L70" title="2 of 4 branches missed.">            if (step.isValid() &amp;&amp; step.getStep() instanceof LessEqual) {</span>
+<span class="nc" id="L71">                LessEqual&lt;T&gt; operation = (LessEqual&lt;T&gt;) step.getStep();</span>
+<span class="nc bnc" id="L72" title="All 8 branches missed.">                if ((operation.getLeft().equals(state) || operation.getRight().equals(state)) &amp;&amp; !(operation.getLeft().equals(state) &amp;&amp; operation.getRight().equals(state))) {</span>
+<span class="nc" id="L73">                    appears = true;</span>
                 }
             }
-
         }
-<span class="pc bpc" id="L80" title="1 of 2 branches missed.">        return !state.equals(state0);</span>
+<span class="fc" id="L77">        return appears;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

@@ -29,33 +29,17 @@ public abstract class RelationOperation&lt;T&gt; implements ModalOperation {
 <span class="nc" id="L29">        return left.toString() + &quot; &quot; + operation + &quot; &quot; + right.toString();</span>
     }
 
-    public boolean equals(Object object) {
-<span class="nc bnc" id="L33" title="All 2 branches missed.">        return object != null</span>
-<span class="nc bnc" id="L34" title="All 2 branches missed.">                &amp;&amp; object.getClass().equals(getClass())</span>
-<span class="nc bnc" id="L35" title="All 2 branches missed.">                &amp;&amp; left.equals(((RelationOperation&lt;?&gt;) object).left)</span>
-<span class="nc bnc" id="L36" title="All 2 branches missed.">                &amp;&amp; right.equals(((RelationOperation&lt;?&gt;) object).right);</span>
-    }
-
-    @Override
-    public int hashCode() {
-<span class="nc" id="L41">        return Objects.hash(left, right, getClass());</span>
-    }
-
     static boolean areRelation(LogicOperation... logs) {
-<span class="nc bnc" id="L45" title="All 2 branches missed.">        for (LogicOperation log : logs) {</span>
-<span class="nc bnc" id="L46" title="All 2 branches missed.">            if (!isRelation(log)) {</span>
-<span class="nc" id="L47">                return false;</span>
+<span class="fc bfc" id="L33" title="All 2 branches covered.">        for (LogicOperation log : logs) {</span>
+<span class="fc bfc" id="L34" title="All 2 branches covered.">            if (!isRelation(log)) {</span>
+<span class="fc" id="L35">                return false;</span>
             }
         }
-<span class="nc" id="L50">        return true;</span>
-    }
-
-    static boolean relationOperationEquals(Object obj, Predicate&lt;Object&gt; equalsMethod) {
-<span class="nc" id="L54">        return LogicOperation.logicOperationEquals(obj, RelationOperation::isRelation, equalsMethod);</span>
+<span class="fc" id="L38">        return true;</span>
     }
 
     static boolean isRelation(LogicOperation log) {
-<span class="nc" id="L58">        return log instanceof RelationOperation;</span>
+<span class="fc" id="L42">        return log instanceof RelationOperation;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>
