@@ -102,13 +102,13 @@ jobs:
           user_email: 'pitest-report[bot]@users.noreply.github.com'
           commit_message: "pitest-report for PR $PR"
           keep_files: true
-        - name: publish pitest report
-          uses: peaceiris/actions-gh-pages@v3
-          if: github.event_name != 'pull_request'
-          with:
-            github_token: ${{ secrets.GITHUB_TOKEN }}
-            publish_dir: ./target/site/
-            user_name: 'pitest-report[bot]'
-            user_email: 'pitest-report[bot]@users.noreply.github.com'
-            commit_message: 'pitest-report'
-            keep_files: true
+      - name: publish pitest report
+        uses: peaceiris/actions-gh-pages@v3
+        if: github.event_name != 'pull_request'
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./target/site/
+          user_name: 'pitest-report[bot]'
+          user_email: 'pitest-report[bot]@users.noreply.github.com'
+          commit_message: 'pitest-report'
+          keep_files: true
