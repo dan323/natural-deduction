@@ -8,13 +8,9 @@ on:
   push:
     branches:
       - master
-      - release/*
   pull_request:
     branches:
       - master
-  release:
-    types:
-      - created
 
 jobs:
   mvn_flow:
@@ -39,6 +35,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: mvn -B -f pom.xml package sonar:sonar -Dsonar.login=$SONAR_TOKEN -Dsonar.host.url=https://sonarcloud.io/ -Dsonar.organization=$SONAR_ORGANIZATION
       - name: set PR number
+        if: github.event_name == 'pull_request'
         run: |
           mkdir jacoco-natural-deduction/target/tmp
           mv -v jacoco-natural-deduction/target/site/* jacoco-natural-deduction/target/tmp/
@@ -48,6 +45,7 @@ jobs:
           PR: ${{ github.event.pull_request.number }}
       - name: publish jacoco report
         uses: peaceiris/actions-gh-pages@v3
+        if: github.event_name == 'pull_request'
         env:
           PR: ${{ github.event.pull_request.number }}
         with:
@@ -55,7 +53,17 @@ jobs:
           publish_dir: ./jacoco-natural-deduction/target/site/
           user_name: 'jacoco-report[bot]'
           user_email: 'jacoco-report[bot]@users.noreply.github.com'
-          commit_message: 'jacoco-report for PR $PR'
+          commit_message: "jacoco-report for PR ${PR}"
+          keep_files: true
+      - name: publish jacoco report
+        uses: peaceiris/actions-gh-pages@v3
+        if: github.event_name != 'pull_request'
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./jacoco-natural-deduction/target/site/
+          user_name: 'jacoco-report[bot]'
+          user_email: 'jacoco-report[bot]@users.noreply.github.com'
+          commit_message: 'jacoco-report'
           keep_files: true
 
   mutation_testing:
@@ -74,6 +82,7 @@ jobs:
           mkdir -p target/site
           mv target/pit-reports target/site
       - name: set PR number
+        if: github.event_name == 'pull_request'
         run: |
           mkdir -p target/tmp
           mv -v target/site/* target/tmp
@@ -83,10 +92,23 @@ jobs:
           PR: ${{ github.event.pull_request.number }}
       - name: publish pitest report
         uses: peaceiris/actions-gh-pages@v3
+        if: github.event_name == 'pull_request'
+        env:
+          PR: ${{ github.event.pull_request.number }}
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./target/site/
           user_name: 'pitest-report[bot]'
           user_email: 'pitest-report[bot]@users.noreply.github.com'
-          commit_message: 'pitest-report for PR $PR'
+          commit_message: "pitest-report for PR $PR"
+          keep_files: true
+      - name: publish pitest report
+        uses: peaceiris/actions-gh-pages@v3
+        if: github.event_name != 'pull_request'
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./target/site/
+          user_name: 'pitest-report[bot]'
+          user_email: 'pitest-report[bot]@users.noreply.github.com'
+          commit_message: 'pitest-report'
           keep_files: true
