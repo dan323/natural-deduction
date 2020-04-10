@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>ModalDiaE.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">jacoco-report-aggregate</a> &gt; <a href="../index.html" class="el_bundle">implementation.deduction.modal</a> &gt; <a href="index.source.html" class="el_package">com.dan323.proof.modal</a> &gt; <span class="el_source">ModalDiaE.java</span></div><h1>ModalDiaE.java</h1><pre class="source lang-java linenums">package com.dan323.proof.modal;
+
+import com.dan323.expresions.base.UnaryOperation;
+import com.dan323.expresions.modal.ModalLogicalOperation;
+import com.dan323.expresions.modal.ModalOperation;
+import com.dan323.expresions.modal.Sometime;
+import com.dan323.expresions.relation.LessEqual;
+import com.dan323.expresions.relation.RelationOperation;
+import com.dan323.proof.generic.Action;
+import com.dan323.proof.generic.RuleUtils;
+import com.dan323.proof.generic.proof.Proof;
+import com.dan323.proof.generic.proof.ProofReason;
+import com.dan323.proof.generic.proof.ProofStepSupplier;
+import com.dan323.proof.modal.proof.ModalNaturalDeduction;
+import com.dan323.proof.modal.proof.ProofStepModal;
+
+import java.util.ArrayList;
+import java.util.List;
+
+public final class ModalDiaE&lt;T&gt; implements ModalAction&lt;T&gt; {
+
+    private int j;
+
+<span class="fc" id="L24">    public ModalDiaE(int i) {</span>
+<span class="fc" id="L25">        j = i;</span>
+<span class="fc" id="L26">    }</span>
+
+    @Override
+    public boolean isValid(Proof&lt;ModalOperation, ProofStepModal&lt;T&gt;&gt; pf) {
+
+<span class="pc bpc" id="L31" title="2 of 6 branches missed.">        if (!(!pf.getSteps().isEmpty() &amp;&amp; RuleUtils.isValidIndexAndProp(pf, j) &amp;&amp; RuleUtils.isOperation(pf, j, Sometime.class))) {</span>
+<span class="fc" id="L32">            return false;</span>
+        }
+
+<span class="fc" id="L35">        T origin = pf.getSteps().get(j - 1).getState();</span>
+<span class="fc" id="L36">        int assLevel = Action.getLastAssumptionLevel(pf);</span>
+<span class="fc bfc" id="L37" title="All 2 branches covered.">        if (assLevel &lt; 2) {</span>
+<span class="fc" id="L38">            return false;</span>
+        }
+
+<span class="fc" id="L41">        int i = Action.getToLastAssumption(pf, assLevel);</span>
+<span class="fc" id="L42">        ProofStepModal&lt;T&gt; log1 = pf.getSteps().get(pf.getSteps().size() - i);</span>
+<span class="fc" id="L43">        ProofStepModal&lt;T&gt; log2 = pf.getSteps().get(pf.getSteps().size() - i - 1);</span>
+
+<span class="fc bfc" id="L45" title="All 2 branches covered.">        if (!log2.isValid()) {</span>
+<span class="fc" id="L46">            return false;</span>
+        }
+
+<span class="fc bfc" id="L49" title="All 2 branches covered.">        if (!(log2.getStep() instanceof LessEqual)) {</span>
+<span class="pc bpc" id="L50" title="1 of 4 branches missed.">            if (log1.getStep() instanceof LessEqual &amp;&amp; log2.getStep() instanceof ModalLogicalOperation) {</span>
+<span class="fc" id="L51">                log2 = log1;</span>
+<span class="fc" id="L52">                log1 = pf.getSteps().get(pf.getSteps().size() - i - 1);</span>
+            } else {
+<span class="fc" id="L54">                return false;</span>
+            }
+<span class="pc bpc" id="L56" title="1 of 2 branches missed.">        } else if (!(log1.getStep() instanceof ModalLogicalOperation)){</span>
+<span class="fc" id="L57">            return false;</span>
+        }
+
+<span class="fc" id="L60">        T leftState = ((LessEqual&lt;T&gt;) log2.getStep()).getLeft();</span>
+<span class="fc" id="L61">        T rightState = ((LessEqual&lt;T&gt;) log2.getStep()).getRight();</span>
+
+<span class="pc bpc" id="L63" title="1 of 4 branches missed.">        if (!(log1.getState().equals(rightState) &amp;&amp; origin.equals(leftState))) {</span>
+<span class="fc" id="L64">            return false;</span>
+        }
+<span class="fc bfc" id="L66" title="All 2 branches covered.">        if (isNotFresh(pf, i)) {</span>
+<span class="fc" id="L67">            return false;</span>
+        }
+
+<span class="fc" id="L70">        return log1.getStep().equals(((UnaryOperation&lt;?&gt;) pf.getSteps().get(j - 1).getStep()).getElement());</span>
+    }
+
+    private boolean isNotFresh(Proof&lt;ModalOperation, ProofStepModal&lt;T&gt;&gt; pf, int i) {
+<span class="fc bfc" id="L74" title="All 2 branches covered.">        if ((pf.getSteps().get(pf.getSteps().size() - 1).getStep()) instanceof ModalLogicalOperation) {</span>
+<span class="fc" id="L75">            T last = (pf.getSteps().get(pf.getSteps().size() - 1)).getState();</span>
+<span class="fc bfc" id="L76" title="All 2 branches covered.">            return !((ModalNaturalDeduction&lt;T&gt;) pf).stateIsUsedBefore(last, pf.getSteps().size() - i);</span>
+        } else {
+<span class="fc" id="L78">            RelationOperation&lt;T&gt; operation = (RelationOperation&lt;T&gt;) (pf.getSteps().get(pf.getSteps().size() - 1).getStep());</span>
+<span class="fc bfc" id="L79" title="All 2 branches covered.">            return !((ModalNaturalDeduction&lt;T&gt;) pf).stateIsUsedBefore(operation.getLeft(), pf.getSteps().size() - i) ||</span>
+<span class="fc bfc" id="L80" title="All 2 branches covered.">                    !((ModalNaturalDeduction&lt;T&gt;) pf).stateIsUsedBefore(operation.getRight(), pf.getSteps().size() - i);</span>
+        }
+    }
+
+    public void applyStepSupplier(Proof&lt;ModalOperation, ProofStepModal&lt;T&gt;&gt; pf, ProofStepSupplier&lt;ModalOperation, ProofStepModal&lt;T&gt;&gt; supp) {
+<span class="fc" id="L85">        ProofStepModal&lt;T&gt; psm = pf.getSteps().get(pf.getSteps().size() - 1);</span>
+<span class="fc" id="L86">        List&lt;Integer&gt; lst = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L87">        int i = Action.getToLastAssumption(pf, psm.getAssumptionLevel());</span>
+<span class="fc" id="L88">        lst.add(j);</span>
+<span class="fc" id="L89">        lst.add(pf.getSteps().size() - i);</span>
+<span class="fc" id="L90">        lst.add(pf.getSteps().size());</span>
+<span class="fc" id="L91">        pf.getSteps().add(supp.generateProofStep(psm.getAssumptionLevel() - 2, psm.getStep(), new ProofReason(&quot;&lt;&gt;E&quot;, lst)));</span>
+<span class="fc" id="L92">    }</span>
+
+    @Override
+    public void apply(Proof&lt;ModalOperation, ProofStepModal&lt;T&gt;&gt; pf) {
+<span class="fc" id="L96">        ProofStepModal&lt;T&gt; psm = pf.getSteps().get(pf.getSteps().size() - 1);</span>
+<span class="fc" id="L97">        applyStepSupplier(pf, ((assLevel, log, reason) -&gt; new ProofStepModal&lt;&gt;(psm.getState(), assLevel, (ModalLogicalOperation) log, reason)));</span>
+<span class="fc" id="L98">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>
