@@ -6,7 +6,7 @@ name: Main Workflow
 
 on:
   pull_request:
-    type:
+    types:
       - closed
 
 jobs:
