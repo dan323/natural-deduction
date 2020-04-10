@@ -10,7 +10,6 @@ public class ConstantTest {
     public void castTest() {
         ConstantStub constantStub = new ConstantStub();
         Assertions.assertNotNull(constantStub.castToLanguage());
-        Assertions.assertTrue(constantStub.castToLanguage() instanceof LogicOperation);
         Assertions.assertEquals(constantStub, constantStub.castToLanguage());
     }
 }

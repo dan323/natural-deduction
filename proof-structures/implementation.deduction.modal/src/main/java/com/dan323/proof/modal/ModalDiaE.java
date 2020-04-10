@@ -20,34 +20,41 @@ import java.util.List;
 public final class ModalDiaE<T> implements ModalAction<T> {
 
     private int j;
-    private T state0;
 
-    public ModalDiaE(int i, T state0) {
+    public ModalDiaE(int i) {
         j = i;
-        this.state0 = state0;
     }
 
     @Override
     public boolean isValid(Proof<ModalOperation, ProofStepModal<T>> pf) {
+
         if (!(!pf.getSteps().isEmpty() && RuleUtils.isValidIndexAndProp(pf, j) && RuleUtils.isOperation(pf, j, Sometime.class))) {
             return false;
         }
-        T origin = (pf.getSteps().get(j - 1)).getState();
+
+        T origin = pf.getSteps().get(j - 1).getState();
         int assLevel = Action.getLastAssumptionLevel(pf);
         if (assLevel < 2) {
             return false;
         }
+
         int i = Action.getToLastAssumption(pf, assLevel);
         ProofStepModal<T> log1 = pf.getSteps().get(pf.getSteps().size() - i);
         ProofStepModal<T> log2 = pf.getSteps().get(pf.getSteps().size() - i - 1);
 
+        if (!log2.isValid()) {
+            return false;
+        }
+
         if (!(log2.getStep() instanceof LessEqual)) {
-            if (log1.getStep() instanceof LessEqual) {
+            if (log1.getStep() instanceof LessEqual && log2.getStep() instanceof ModalLogicalOperation) {
                 log2 = log1;
                 log1 = pf.getSteps().get(pf.getSteps().size() - i - 1);
             } else {
                 return false;
             }
+        } else if (!(log1.getStep() instanceof ModalLogicalOperation)){
+            return false;
         }
 
         T leftState = ((LessEqual<T>) log2.getStep()).getLeft();
@@ -56,20 +63,22 @@ public final class ModalDiaE<T> implements ModalAction<T> {
         if (!(log1.getState().equals(rightState) && origin.equals(leftState))) {
             return false;
         }
-        if ((pf.getSteps().get(pf.getSteps().size() - 1).getStep()) instanceof ModalLogicalOperation) {
-            T last = (pf.getSteps().get(pf.getSteps().size() - 1)).getState();
-            if (!ModalNaturalDeduction.isFresh(pf, last, pf.getSteps().size() - i, state0)) {
-                return false;
-            }
-        } else {
-            RelationOperation<T> operation = (RelationOperation<T>) (pf.getSteps().get(pf.getSteps().size() - 1).getStep());
-            if (!ModalNaturalDeduction.isFresh(pf, operation.getLeft(), pf.getSteps().size() - i, state0) ||
-                    !ModalNaturalDeduction.isFresh(pf, operation.getRight(), pf.getSteps().size() - i, state0)) {
-                return false;
-            }
+        if (isNotFresh(pf, i)) {
+            return false;
         }
 
         return log1.getStep().equals(((UnaryOperation<?>) pf.getSteps().get(j - 1).getStep()).getElement());
+    }
+
+    private boolean isNotFresh(Proof<ModalOperation, ProofStepModal<T>> pf, int i) {
+        if ((pf.getSteps().get(pf.getSteps().size() - 1).getStep()) instanceof ModalLogicalOperation) {
+            T last = (pf.getSteps().get(pf.getSteps().size() - 1)).getState();
+            return !((ModalNaturalDeduction<T>) pf).stateIsUsedBefore(last, pf.getSteps().size() - i);
+        } else {
+            RelationOperation<T> operation = (RelationOperation<T>) (pf.getSteps().get(pf.getSteps().size() - 1).getStep());
+            return !((ModalNaturalDeduction<T>) pf).stateIsUsedBefore(operation.getLeft(), pf.getSteps().size() - i) ||
+                    !((ModalNaturalDeduction<T>) pf).stateIsUsedBefore(operation.getRight(), pf.getSteps().size() - i);
+        }
     }
 
     public void applyStepSupplier(Proof<ModalOperation, ProofStepModal<T>> pf, ProofStepSupplier<ModalOperation, ProofStepModal<T>> supp) {
@@ -77,7 +86,7 @@ public final class ModalDiaE<T> implements ModalAction<T> {
         List<Integer> lst = new ArrayList<>();
         int i = Action.getToLastAssumption(pf, psm.getAssumptionLevel());
         lst.add(j);
-        lst.add(pf.getSteps().size() - i + 1);
+        lst.add(pf.getSteps().size() - i);
         lst.add(pf.getSteps().size());
         pf.getSteps().add(supp.generateProofStep(psm.getAssumptionLevel() - 2, psm.getStep(), new ProofReason("<>E", lst)));
     }

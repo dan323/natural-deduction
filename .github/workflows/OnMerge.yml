@@ -1,0 +1,35 @@
+# This workflow will compile and test verify
+# when a push or pull request action on master is activated
+# or when a push is done in a release
+
+name: Main Workflow
+
+on:
+  pull_request:
+    types:
+      - closed
+
+jobs:
+  mvn_flow:
+    runs-on: ubuntu-latest
+    name: delete pr info on github page
+    steps:
+      - uses: actions/checkout@master
+        with:
+          ref: 'gh-pages'
+      - name: remove data from pull request
+        env:
+          PR: ${{ github.event.pull_request.number }}
+        run: git rm -r $PR
+      - name: commit changes on web
+        env:
+          PR: ${{ github.event.pull_request.number }}
+        run: |
+          git config --local user.email "pr-clean[bot]@users.noreply.github.com"
+          git config --local user.name "pr-clean[bot]"
+          git commit -m "Removed PR-$PR reports"
+      - name: Push changes
+        uses: ad-m/github-push-action@master
+        with:
+          branch: 'gh-pages'
+          github_token: ${{ secrets.GITHUB_TOKEN }}

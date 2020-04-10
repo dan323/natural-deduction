@@ -1,4 +1,4 @@
-package com.dan323.language.modal;
+package com.dan323.expresions.modal;
 
 import com.dan323.expresions.modal.*;
 import org.junit.jupiter.api.Assertions;

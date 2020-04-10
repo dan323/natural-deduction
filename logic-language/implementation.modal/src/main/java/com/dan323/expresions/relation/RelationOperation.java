@@ -29,18 +29,6 @@ public abstract class RelationOperation<T> implements ModalOperation {
         return left.toString() + " " + operation + " " + right.toString();
     }
 
-    public boolean equals(Object object) {
-        return object != null
-                && object.getClass().equals(getClass())
-                && left.equals(((RelationOperation<?>) object).left)
-                && right.equals(((RelationOperation<?>) object).right);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(left, right, getClass());
-    }
-
     static boolean areRelation(LogicOperation... logs) {
         for (LogicOperation log : logs) {
             if (!isRelation(log)) {
@@ -48,10 +36,6 @@ public abstract class RelationOperation<T> implements ModalOperation {
             }
         }
         return true;
-    }
-
-    static boolean relationOperationEquals(Object obj, Predicate<Object> equalsMethod) {
-        return LogicOperation.logicOperationEquals(obj, RelationOperation::isRelation, equalsMethod);
     }
 
     static boolean isRelation(LogicOperation log) {
