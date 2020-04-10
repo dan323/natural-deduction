@@ -36,6 +36,7 @@ jobs:
         env:
           SONAR_ORGANIZATION: ${{ secrets.SONAR_ORGANIZATION }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: mvn -B -f pom.xml package sonar:sonar -Dsonar.login=$SONAR_TOKEN -Dsonar.host.url=https://sonarcloud.io/ -Dsonar.organization=$SONAR_ORGANIZATION
       - name: set PR number
         run: |
@@ -70,13 +71,13 @@ jobs:
         run: |
           mvn -B -f pom.xml clean test-compile org.pitest:pitest-maven:mutationCoverage org.pitest:pitest-maven:report-aggregate-module
           rm -r target/pit-reports/pit-reports
-          mkdir target/site
+          mkdir -p target/site
           mv target/pit-reports target/site
       - name: set PR number
         run: |
-          mkdir target/tmp
+          mkdir -p target/tmp
           mv -v target/site/* target/tmp
-          mkdir target/site/$PR
+          mkdir -p target/site/$PR
           mv -v target/tmp/* target/site/$PR
         env:
           PR: ${{ github.event.pull_request.number }}
