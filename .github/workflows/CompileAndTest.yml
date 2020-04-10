@@ -53,7 +53,7 @@ jobs:
           publish_dir: ./jacoco-natural-deduction/target/site/
           user_name: 'jacoco-report[bot]'
           user_email: 'jacoco-report[bot]@users.noreply.github.com'
-          commit_message: 'jacoco-report for PR' + $PR
+          commit_message: "jacoco-report for PR ${PR}"
           keep_files: true
       - name: publish jacoco report
         uses: peaceiris/actions-gh-pages@v3
@@ -100,7 +100,7 @@ jobs:
           publish_dir: ./target/site/
           user_name: 'pitest-report[bot]'
           user_email: 'pitest-report[bot]@users.noreply.github.com'
-          commit_message: 'pitest-report for PR ' + $PR
+          commit_message: "pitest-report for PR $PR"
           keep_files: true
         - name: publish pitest report
           uses: peaceiris/actions-gh-pages@v3
