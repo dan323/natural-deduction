@@ -56,10 +56,16 @@ public final class ModalNaturalDeduction<T> extends Proof<ModalOperation, ProofS
         boolean appears = state.equals(state0);
         for (int i = 0; i < k && !appears; i++) {
             ProofStepModal<T> step = getSteps().get(i);
-            if (step.isValid() && step.getStep() instanceof LessEqual) {
-                LessEqual<T> operation = (LessEqual<T>) step.getStep();
-                if ((operation.getLeft().equals(state) || operation.getRight().equals(state)) && !(operation.getLeft().equals(state) && operation.getRight().equals(state))) {
-                    appears = true;
+            if (step.isValid()) {
+                if (step.getStep() instanceof RelationOperation){
+                    RelationOperation<T> operation = (RelationOperation<T>) step.getStep();
+                    if ((operation.getLeft().equals(state) || operation.getRight().equals(state)) && !(operation.getLeft().equals(state) && operation.getRight().equals(state))) {
+                        appears = true;
+                    }
+                } else{
+                    if (step.getState().equals(state)) {
+                        appears = true;
+                    }
                 }
             }
         }
