@@ -7,7 +7,6 @@ import com.dan323.proof.generic.proof.ProofReason;
 import com.dan323.proof.generic.proof.ProofStep;
 import com.dan323.proof.generic.proof.ProofStepSupplier;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -51,13 +50,7 @@ public abstract class ModusPonens<T extends LogicOperation, Q extends ProofStep<
     @Override
     public void applyStepSupplier(Proof<T, Q> pf, ProofStepSupplier<T, Q> supp) {
         T sol = ((BinaryOperation<T>) pf.getSteps().get(applyAt1 - 1).getStep()).getRight();
-        int assLevel = 0;
-        if (!pf.getSteps().isEmpty()) {
-            assLevel = Action.getLastAssumptionLevel(pf);
-        }
-        List<Integer> lst = new ArrayList<>();
-        lst.add(applyAt1);
-        lst.add(applyAt2);
-        pf.getSteps().add(supp.generateProofStep(assLevel, sol, new ProofReason("->E", lst)));
+        int assLevel = Action.getLastAssumptionLevel(pf);
+        pf.getSteps().add(supp.generateProofStep(assLevel, sol, new ProofReason("->E", List.of(applyAt1, applyAt2))));
     }
 }

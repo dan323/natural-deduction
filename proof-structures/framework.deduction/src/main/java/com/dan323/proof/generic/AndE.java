@@ -7,8 +7,7 @@ import com.dan323.proof.generic.proof.ProofReason;
 import com.dan323.proof.generic.proof.ProofStep;
 import com.dan323.proof.generic.proof.ProofStepSupplier;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Collections;
 import java.util.function.Function;
 
 /**
@@ -46,13 +45,12 @@ public abstract class AndE<T extends LogicOperation, Q extends ProofStep<T>> imp
     @Override
     public void applyStepSupplier(Proof<T, Q> pf, ProofStepSupplier<T, Q> supp) {
         T log = pf.getSteps().get(applyAt - 1).getStep();
-        int assLevel = 0;
-        if (!pf.getSteps().isEmpty()) {
-            assLevel = Action.getLastAssumptionLevel(pf);
-        }
-        List<Integer> lst = new ArrayList<>();
-        lst.add(applyAt);
-        pf.getSteps().add(supp.generateProofStep(assLevel, side.apply((Conjunction<T>) log), new ProofReason("&E", lst)));
+        int assLevel = Action.getLastAssumptionLevel(pf);
+        pf.getSteps().add(supp.generateProofStep(assLevel, side.apply((Conjunction<T>) log), getReason()));
+    }
+
+    private ProofReason getReason() {
+        return new ProofReason("&E", Collections.singletonList(applyAt));
     }
 
     protected int getAppliedAt() {

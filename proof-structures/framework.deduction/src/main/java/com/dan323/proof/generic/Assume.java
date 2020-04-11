@@ -6,7 +6,7 @@ import com.dan323.proof.generic.proof.ProofReason;
 import com.dan323.proof.generic.proof.ProofStep;
 import com.dan323.proof.generic.proof.ProofStepSupplier;
 
-import java.util.ArrayList;
+import java.util.Collections;
 
 /**
  * @author danco
@@ -26,10 +26,11 @@ public abstract class Assume<T extends LogicOperation, Q extends ProofStep<T>> i
 
     @Override
     public void applyStepSupplier(Proof<T, Q> pf, ProofStepSupplier<T, Q> supp) {
-        int assLevel = 0;
-        if (!pf.getSteps().isEmpty()) {
-            assLevel = pf.getSteps().get(pf.getSteps().size() - 1).getAssumptionLevel();
-        }
-        pf.getSteps().add(supp.generateProofStep(assLevel + 1, log, new ProofReason("Ass", new ArrayList<>())));
+        int assLevel = Action.getLastAssumptionLevel(pf);
+        pf.getSteps().add(supp.generateProofStep(assLevel + 1, log, getReason()));
+    }
+
+    protected ProofReason getReason() {
+        return new ProofReason("Ass", Collections.emptyList());
     }
 }

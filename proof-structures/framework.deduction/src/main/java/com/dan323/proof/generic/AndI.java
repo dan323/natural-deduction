@@ -47,16 +47,15 @@ public abstract class AndI<T extends LogicOperation, Q extends ProofStep<T>> imp
 
     @Override
     public void applyStepSupplier(Proof<T, Q> pf, ProofStepSupplier<T, Q> supp) {
-        int assLevel = 0;
-        if (!pf.getSteps().isEmpty()) {
-            assLevel = Action.getLastAssumptionLevel(pf);
-        }
-        List<Integer> lst = List.of(applyAt1, applyAt2);
+        int assLevel = Action.getLastAssumptionLevel(pf);
         pf.getSteps().add(supp.generateProofStep(assLevel,
                 conjunctionConstructor.apply(pf.getSteps().get(applyAt1 - 1).getStep(),
-                        pf.getSteps().get(applyAt2 - 1).getStep()).castToLanguage(),
-                new ProofReason("&I", lst)));
+                        pf.getSteps().get(applyAt2 - 1).getStep()).castToLanguage(), getReason()));
 
+    }
+
+    private ProofReason getReason() {
+        return new ProofReason("&I", List.of(applyAt1, applyAt2));
     }
 
     protected int get1() {
