@@ -53,7 +53,7 @@ public final class ModalDiaE<T> implements ModalAction<T> {
             } else {
                 return false;
             }
-        } else if (!(log1.getStep() instanceof ModalLogicalOperation)){
+        } else if (!(log1.getStep() instanceof ModalLogicalOperation)) {
             return false;
         }
 
@@ -63,7 +63,10 @@ public final class ModalDiaE<T> implements ModalAction<T> {
         if (!(log1.getState().equals(rightState) && origin.equals(leftState))) {
             return false;
         }
-        if (isNotFresh(pf, i)) {
+        if (((ModalNaturalDeduction<T>) pf).stateIsUsedBefore(log1.getState(), pf.getSteps().size() - i - 1)) {
+            return false;
+        }
+        if (!isNotFresh(pf, pf.getSteps().size() - i - 1)) {
             return false;
         }
 
@@ -73,11 +76,11 @@ public final class ModalDiaE<T> implements ModalAction<T> {
     private boolean isNotFresh(Proof<ModalOperation, ProofStepModal<T>> pf, int i) {
         if ((pf.getSteps().get(pf.getSteps().size() - 1).getStep()) instanceof ModalLogicalOperation) {
             T last = (pf.getSteps().get(pf.getSteps().size() - 1)).getState();
-            return !((ModalNaturalDeduction<T>) pf).stateIsUsedBefore(last, pf.getSteps().size() - i);
+            return ((ModalNaturalDeduction<T>) pf).stateIsUsedBefore(last, i);
         } else {
             RelationOperation<T> operation = (RelationOperation<T>) (pf.getSteps().get(pf.getSteps().size() - 1).getStep());
-            return !((ModalNaturalDeduction<T>) pf).stateIsUsedBefore(operation.getLeft(), pf.getSteps().size() - i) ||
-                    !((ModalNaturalDeduction<T>) pf).stateIsUsedBefore(operation.getRight(), pf.getSteps().size() - i);
+            return ((ModalNaturalDeduction<T>) pf).stateIsUsedBefore(operation.getLeft(), i) &&
+                    ((ModalNaturalDeduction<T>) pf).stateIsUsedBefore(operation.getRight(), i);
         }
     }
 

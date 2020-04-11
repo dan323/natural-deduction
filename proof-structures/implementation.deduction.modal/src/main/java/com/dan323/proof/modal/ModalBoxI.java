@@ -37,7 +37,6 @@ public final class ModalBoxI<T> implements ModalAction<T> {
         if (!(log.getStep() instanceof LessEqual)) {
             return false;
         }
-        T stateLess = ((LessEqual<T>) log.getStep()).getLeft();
         T stateGreater = ((LessEqual<T>) log.getStep()).getRight();
         ProofStepModal<T> conclusion = pf.getSteps().get(pf.getSteps().size() - 1);
         if (!(conclusion.getStep() instanceof ModalLogicalOperation)) {
@@ -46,7 +45,7 @@ public final class ModalBoxI<T> implements ModalAction<T> {
         if (!(pf.getSteps().get(pf.getSteps().size() - 1)).getState().equals(stateGreater)) {
             return false;
         }
-        return ((ModalNaturalDeduction<T>) pf).stateIsUsedBefore(stateLess, pf.getSteps().size() - lastAssumption + 1);
+        return !((ModalNaturalDeduction<T>) pf).stateIsUsedBefore(stateGreater, pf.getSteps().size() - lastAssumption);
     }
 
     @Override
