@@ -7,8 +7,7 @@ import com.dan323.proof.generic.proof.ProofReason;
 import com.dan323.proof.generic.proof.ProofStep;
 import com.dan323.proof.generic.proof.ProofStepSupplier;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Collections;
 
 /**
  * @author danco
@@ -17,47 +16,46 @@ public abstract class NotE&lt;T extends LogicOperation, Q extends ProofStep&lt;T
 
     private final int neg;
 
-<span class="fc" id="L20">    public NotE(int i) {</span>
-<span class="fc" id="L21">        neg = i;</span>
-<span class="fc" id="L22">    }</span>
+<span class="fc" id="L19">    public NotE(int i) {</span>
+<span class="fc" id="L20">        neg = i;</span>
+<span class="fc" id="L21">    }</span>
 
     @Override
     public boolean equals(Object obj) {
-<span class="pc bpc" id="L26" title="1 of 4 branches missed.">        if (obj != null &amp;&amp; obj.getClass().equals(getClass())) {</span>
-<span class="pc bpc" id="L27" title="1 of 2 branches missed.">            return ((NotE&lt;?, ?&gt;) obj).neg == neg;</span>
+<span class="pc bpc" id="L25" title="1 of 4 branches missed.">        if (obj != null &amp;&amp; obj.getClass().equals(getClass())) {</span>
+<span class="pc bpc" id="L26" title="1 of 2 branches missed.">            return ((NotE&lt;?, ?&gt;) obj).neg == neg;</span>
         } else {
-<span class="fc" id="L29">            return false;</span>
+<span class="fc" id="L28">            return false;</span>
         }
     }
 
     @Override
     public int hashCode() {
-<span class="fc" id="L35">        return getClass().hashCode() * 13 + neg * 17;</span>
+<span class="fc" id="L34">        return getClass().hashCode() * 13 + neg * 17;</span>
     }
 
     @Override
     public boolean isValid(Proof&lt;T, Q&gt; pf) {
-<span class="fc bfc" id="L40" title="All 2 branches covered.">        if (RuleUtils.isValidIndexAndProp(pf, neg)) {</span>
-<span class="fc" id="L41">            T lo = pf.getSteps().get(neg - 1).getStep();</span>
-<span class="pc bpc" id="L42" title="2 of 4 branches missed.">            return (lo instanceof Negation) &amp;&amp; (((Negation&lt;?&gt;) lo).getElement() instanceof Negation);</span>
+<span class="fc bfc" id="L39" title="All 2 branches covered.">        if (RuleUtils.isValidIndexAndProp(pf, neg)) {</span>
+<span class="fc" id="L40">            T lo = pf.getSteps().get(neg - 1).getStep();</span>
+<span class="pc bpc" id="L41" title="2 of 4 branches missed.">            return (lo instanceof Negation) &amp;&amp; (((Negation&lt;?&gt;) lo).getElement() instanceof Negation);</span>
         }
-<span class="fc" id="L44">        return false;</span>
+<span class="fc" id="L43">        return false;</span>
     }
 
     @Override
     public void applyStepSupplier(Proof&lt;T, Q&gt; pf, ProofStepSupplier&lt;T, Q&gt; supp) {
-<span class="fc" id="L49">        int assLevel = 0;</span>
-<span class="pc bpc" id="L50" title="1 of 2 branches missed.">        if (!pf.getSteps().isEmpty()) {</span>
-<span class="fc" id="L51">            assLevel = pf.getSteps().get(pf.getSteps().size() - 1).getAssumptionLevel();</span>
-        }
-<span class="fc" id="L53">        List&lt;Integer&gt; lst = new ArrayList&lt;&gt;();</span>
-<span class="fc" id="L54">        lst.add(neg);</span>
-<span class="fc" id="L55">        T sol = ((Negation&lt;T&gt;) ((Negation) (pf.getSteps().get(neg - 1).getStep())).getElement()).getElement();</span>
-<span class="fc" id="L56">        pf.getSteps().add(supp.generateProofStep(assLevel, sol, new ProofReason(&quot;-E&quot;, lst)));</span>
-<span class="fc" id="L57">    }</span>
+<span class="fc" id="L48">        int assLevel = pf.getSteps().get(pf.getSteps().size() - 1).getAssumptionLevel();</span>
+<span class="fc" id="L49">        T sol = ((Negation&lt;T&gt;) ((Negation) (pf.getSteps().get(neg - 1).getStep())).getElement()).getElement();</span>
+<span class="fc" id="L50">        pf.getSteps().add(supp.generateProofStep(assLevel, sol, getReason()));</span>
+<span class="fc" id="L51">    }</span>
+
+    private ProofReason getReason() {
+<span class="fc" id="L54">        return new ProofReason(&quot;-E&quot;, Collections.singletonList(neg));</span>
+    }
 
     protected int getNeg() {
-<span class="fc" id="L60">        return neg;</span>
+<span class="fc" id="L58">        return neg;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

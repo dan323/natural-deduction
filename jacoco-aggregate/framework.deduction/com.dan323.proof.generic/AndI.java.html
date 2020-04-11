@@ -47,24 +47,23 @@ public abstract class AndI&lt;T extends LogicOperation, Q extends ProofStep&lt;T
 
     @Override
     public void applyStepSupplier(Proof&lt;T, Q&gt; pf, ProofStepSupplier&lt;T, Q&gt; supp) {
-<span class="fc" id="L50">        int assLevel = 0;</span>
-<span class="pc bpc" id="L51" title="1 of 2 branches missed.">        if (!pf.getSteps().isEmpty()) {</span>
-<span class="fc" id="L52">            assLevel = Action.getLastAssumptionLevel(pf);</span>
-        }
-<span class="fc" id="L54">        List&lt;Integer&gt; lst = List.of(applyAt1, applyAt2);</span>
-<span class="fc" id="L55">        pf.getSteps().add(supp.generateProofStep(assLevel,</span>
-<span class="fc" id="L56">                conjunctionConstructor.apply(pf.getSteps().get(applyAt1 - 1).getStep(),</span>
-<span class="fc" id="L57">                        pf.getSteps().get(applyAt2 - 1).getStep()).castToLanguage(),</span>
-                new ProofReason(&quot;&amp;I&quot;, lst)));
+<span class="fc" id="L50">        int assLevel = Action.getLastAssumptionLevel(pf);</span>
+<span class="fc" id="L51">        pf.getSteps().add(supp.generateProofStep(assLevel,</span>
+<span class="fc" id="L52">                conjunctionConstructor.apply(pf.getSteps().get(applyAt1 - 1).getStep(),</span>
+<span class="fc" id="L53">                        pf.getSteps().get(applyAt2 - 1).getStep()).castToLanguage(), getReason()));</span>
 
-<span class="fc" id="L60">    }</span>
+<span class="fc" id="L55">    }</span>
+
+    private ProofReason getReason() {
+<span class="fc" id="L58">        return new ProofReason(&quot;&amp;I&quot;, List.of(applyAt1, applyAt2));</span>
+    }
 
     protected int get1() {
-<span class="fc" id="L63">        return applyAt1;</span>
+<span class="fc" id="L62">        return applyAt1;</span>
     }
 
     protected int get2() {
-<span class="fc" id="L67">        return applyAt2;</span>
+<span class="fc" id="L66">        return applyAt2;</span>
     }
 
 }

@@ -18,38 +18,38 @@ public final class ModalBoxE&lt;T&gt; implements ModalAction&lt;T&gt; {
     private int i;
     private int q;
 
-<span class="nc" id="L21">    public ModalBoxE(int j, int p) {</span>
-<span class="nc" id="L22">        i = j;</span>
-<span class="nc" id="L23">        q = p;</span>
-<span class="nc" id="L24">    }</span>
+<span class="fc" id="L21">    public ModalBoxE(int j, int p) {</span>
+<span class="fc" id="L22">        i = j;</span>
+<span class="fc" id="L23">        q = p;</span>
+<span class="fc" id="L24">    }</span>
 
     @Override
     public boolean isValid(Proof&lt;ModalOperation, ProofStepModal&lt;T&gt;&gt; pf) {
-<span class="nc bnc" id="L28" title="All 6 branches missed.">        if (RuleUtils.isValidIndexAndProp(pf, i) &amp;&amp; RuleUtils.isValidIndexAndProp(pf, q) &amp;&amp; RuleUtils.isOperation(pf, i, Always.class)) {</span>
-<span class="nc" id="L29">            ProofStepModal&lt;T&gt; ps = pf.getSteps().get(i - 1);</span>
-<span class="nc" id="L30">            ProofStepModal&lt;T&gt; ps2 = pf.getSteps().get(q - 1);</span>
-<span class="nc" id="L31">            T state = ps.getState();</span>
-<span class="nc bnc" id="L32" title="All 4 branches missed.">            return (ps2.getStep() instanceof LessEqual) &amp;&amp; ((LessEqual&lt;T&gt;) ps2.getStep()).getLeft().equals(state);</span>
+<span class="pc bpc" id="L28" title="1 of 6 branches missed.">        if (RuleUtils.isValidIndexAndProp(pf, i) &amp;&amp; RuleUtils.isValidIndexAndProp(pf, q) &amp;&amp; RuleUtils.isOperation(pf, i, Always.class)) {</span>
+<span class="fc" id="L29">            ProofStepModal&lt;T&gt; ps = pf.getSteps().get(i - 1);</span>
+<span class="fc" id="L30">            ProofStepModal&lt;T&gt; ps2 = pf.getSteps().get(q - 1);</span>
+<span class="fc" id="L31">            T state = ps.getState();</span>
+<span class="pc bpc" id="L32" title="1 of 4 branches missed.">            return (ps2.getStep() instanceof LessEqual) &amp;&amp; ((LessEqual&lt;T&gt;) ps2.getStep()).getLeft().equals(state);</span>
         }
-<span class="nc" id="L34">        return false;</span>
+<span class="fc" id="L34">        return false;</span>
     }
 
     @Override
     public void applyStepSupplier(Proof&lt;ModalOperation, ProofStepModal&lt;T&gt;&gt; pf, ProofStepSupplier&lt;ModalOperation, ProofStepModal&lt;T&gt;&gt; supp) {
-<span class="nc" id="L39">        int assLevel = 0;</span>
-<span class="nc bnc" id="L40" title="All 2 branches missed.">        if (!pf.getSteps().isEmpty()) {</span>
-<span class="nc" id="L41">            assLevel = Action.getLastAssumptionLevel(pf);</span>
+<span class="fc" id="L39">        int assLevel = 0;</span>
+<span class="pc bpc" id="L40" title="1 of 2 branches missed.">        if (!pf.getSteps().isEmpty()) {</span>
+<span class="fc" id="L41">            assLevel = Action.getLastAssumptionLevel(pf);</span>
         }
-<span class="nc" id="L43">        ProofStepModal&lt;T&gt; ps = pf.getSteps().get(i - 1);</span>
-<span class="nc" id="L44">        Always al = (Always) ps.getStep();</span>
-<span class="nc" id="L45">        pf.getSteps().add(supp.generateProofStep(assLevel, al.getElement(), new ProofReason(&quot;[]E&quot;, List.of(i, q))));</span>
-<span class="nc" id="L46">    }</span>
+<span class="fc" id="L43">        ProofStepModal&lt;T&gt; ps = pf.getSteps().get(i - 1);</span>
+<span class="fc" id="L44">        Always al = (Always) ps.getStep();</span>
+<span class="fc" id="L45">        pf.getSteps().add(supp.generateProofStep(assLevel, al.getElement(), new ProofReason(&quot;[]E&quot;, List.of(i, q))));</span>
+<span class="fc" id="L46">    }</span>
 
     @Override
     public void apply(Proof&lt;ModalOperation, ProofStepModal&lt;T&gt;&gt; pf) {
-<span class="nc" id="L50">        T fl = ((LessEqual&lt;T&gt;) pf.getSteps().get(q - 1).getStep()).getRight();</span>
-<span class="nc" id="L51">        applyStepSupplier(pf, ((assLevel, log, reason) -&gt; new ProofStepModal&lt;&gt;(fl, assLevel, (ModalLogicalOperation) log, reason)));</span>
-<span class="nc" id="L52">    }</span>
+<span class="fc" id="L50">        T fl = ((LessEqual&lt;T&gt;) pf.getSteps().get(q - 1).getStep()).getRight();</span>
+<span class="fc" id="L51">        applyStepSupplier(pf, ((assLevel, log, reason) -&gt; new ProofStepModal&lt;&gt;(fl, assLevel, (ModalLogicalOperation) log, reason)));</span>
+<span class="fc" id="L52">    }</span>
 
     public boolean equals(Object ob) {
 <span class="nc bnc" id="L55" title="All 6 branches missed.">        return (ob instanceof ModalBoxE) &amp;&amp; ((ModalBoxE&lt;?&gt;) ob).i == i &amp;&amp; ((ModalBoxE&lt;?&gt;) ob).q == q;</span>

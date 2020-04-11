@@ -5,7 +5,7 @@
  */
 public interface Constant&lt;T extends LogicOperation&gt; extends LogicOperation {
 
-    public abstract boolean isFalsehood();
+    boolean isFalsehood();
 
     default T castToLanguage() {
 <span class="fc" id="L11">        return (T) this;</span>

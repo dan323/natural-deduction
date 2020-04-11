@@ -7,8 +7,7 @@ import com.dan323.proof.generic.proof.ProofReason;
 import com.dan323.proof.generic.proof.ProofStep;
 import com.dan323.proof.generic.proof.ProofStepSupplier;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Collections;
 import java.util.function.Function;
 
 /**
@@ -19,44 +18,43 @@ public abstract class AndE&lt;T extends LogicOperation, Q extends ProofStep&lt;T
     private final int applyAt;
     private Function&lt;Conjunction&lt;T&gt;, T&gt; side;
 
-<span class="fc" id="L22">    public AndE(int app, Function&lt;Conjunction&lt;T&gt;, T&gt; fun) {</span>
-<span class="fc" id="L23">        applyAt = app;</span>
-<span class="fc" id="L24">        side = fun;</span>
-<span class="fc" id="L25">    }</span>
+<span class="fc" id="L21">    public AndE(int app, Function&lt;Conjunction&lt;T&gt;, T&gt; fun) {</span>
+<span class="fc" id="L22">        applyAt = app;</span>
+<span class="fc" id="L23">        side = fun;</span>
+<span class="fc" id="L24">    }</span>
 
     @Override
     public boolean equals(Object obj) {
-<span class="pc bpc" id="L29" title="1 of 4 branches missed.">        if (obj != null &amp;&amp; getClass().equals(obj.getClass())) {</span>
-<span class="fc bfc" id="L30" title="All 2 branches covered.">            return ((AndE&lt;?, ?&gt;) obj).applyAt == applyAt;</span>
+<span class="pc bpc" id="L28" title="1 of 4 branches missed.">        if (obj != null &amp;&amp; getClass().equals(obj.getClass())) {</span>
+<span class="fc bfc" id="L29" title="All 2 branches covered.">            return ((AndE&lt;?, ?&gt;) obj).applyAt == applyAt;</span>
         } else {
-<span class="fc" id="L32">            return false;</span>
+<span class="fc" id="L31">            return false;</span>
         }
     }
 
     @Override
     public int hashCode() {
-<span class="fc" id="L38">        return 11 * applyAt + getClass().hashCode() * 13;</span>
+<span class="fc" id="L37">        return 11 * applyAt + getClass().hashCode() * 13;</span>
     }
 
     @Override
     public boolean isValid(Proof&lt;T, Q&gt; pf) {
-<span class="pc bpc" id="L43" title="2 of 4 branches missed.">        return RuleUtils.isValidIndexAndProp(pf, applyAt) &amp;&amp; RuleUtils.isOperation(pf, applyAt, Conjunction.class);</span>
+<span class="pc bpc" id="L42" title="2 of 4 branches missed.">        return RuleUtils.isValidIndexAndProp(pf, applyAt) &amp;&amp; RuleUtils.isOperation(pf, applyAt, Conjunction.class);</span>
     }
 
     @Override
     public void applyStepSupplier(Proof&lt;T, Q&gt; pf, ProofStepSupplier&lt;T, Q&gt; supp) {
-<span class="fc" id="L48">        T log = pf.getSteps().get(applyAt - 1).getStep();</span>
-<span class="fc" id="L49">        int assLevel = 0;</span>
-<span class="pc bpc" id="L50" title="1 of 2 branches missed.">        if (!pf.getSteps().isEmpty()) {</span>
-<span class="fc" id="L51">            assLevel = Action.getLastAssumptionLevel(pf);</span>
-        }
-<span class="fc" id="L53">        List&lt;Integer&gt; lst = new ArrayList&lt;&gt;();</span>
-<span class="fc" id="L54">        lst.add(applyAt);</span>
-<span class="fc" id="L55">        pf.getSteps().add(supp.generateProofStep(assLevel, side.apply((Conjunction&lt;T&gt;) log), new ProofReason(&quot;&amp;E&quot;, lst)));</span>
-<span class="fc" id="L56">    }</span>
+<span class="fc" id="L47">        T log = pf.getSteps().get(applyAt - 1).getStep();</span>
+<span class="fc" id="L48">        int assLevel = Action.getLastAssumptionLevel(pf);</span>
+<span class="fc" id="L49">        pf.getSteps().add(supp.generateProofStep(assLevel, side.apply((Conjunction&lt;T&gt;) log), getReason()));</span>
+<span class="fc" id="L50">    }</span>
+
+    private ProofReason getReason() {
+<span class="fc" id="L53">        return new ProofReason(&quot;&amp;E&quot;, Collections.singletonList(applyAt));</span>
+    }
 
     protected int getAppliedAt() {
-<span class="fc" id="L59">        return applyAt;</span>
+<span class="fc" id="L57">        return applyAt;</span>
     }
 
 }

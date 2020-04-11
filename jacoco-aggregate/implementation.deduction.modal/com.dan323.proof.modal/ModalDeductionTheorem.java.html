@@ -3,6 +3,7 @@
 import com.dan323.expresions.modal.ImplicationModal;
 import com.dan323.expresions.modal.ModalLogicalOperation;
 import com.dan323.expresions.modal.ModalOperation;
+import com.dan323.proof.generic.Action;
 import com.dan323.proof.generic.DeductionTheorem;
 import com.dan323.proof.generic.proof.Proof;
 import com.dan323.proof.modal.proof.ProofStepModal;
@@ -10,17 +11,23 @@ import com.dan323.proof.modal.proof.ProofStepModal;
 public final class ModalDeductionTheorem&lt;T&gt; extends DeductionTheorem&lt;ModalOperation, ProofStepModal&lt;T&gt;&gt; implements ModalAction&lt;T&gt; {
 
     public ModalDeductionTheorem() {
-<span class="fc" id="L13">        super(ImplicationModal::new);</span>
-<span class="fc" id="L14">    }</span>
+<span class="fc" id="L14">        super(ImplicationModal::new);</span>
+<span class="fc" id="L15">    }</span>
 
     @Override
     public boolean isValid(Proof&lt;ModalOperation, ProofStepModal&lt;T&gt;&gt; pf) {
-<span class="fc bfc" id="L18" title="All 4 branches covered.">        return super.isValid(pf) &amp;&amp; ModalAction.checkEqualState(pf, pf.getSteps().size() - getLastAssumption() + 1, pf.getSteps().size());</span>
+<span class="fc" id="L19">        int assLevel = Action.getLastAssumptionLevel(pf);</span>
+<span class="fc bfc" id="L20" title="All 2 branches covered.">        if (assLevel == 0) {</span>
+<span class="fc" id="L21">            return false;</span>
+        }
+<span class="fc" id="L23">        int lastAssumption = Action.getToLastAssumption(pf, assLevel);</span>
+<span class="fc" id="L24">        ProofStepModal&lt;T&gt; log = pf.getSteps().get(pf.getSteps().size() - lastAssumption);</span>
+<span class="pc bpc" id="L25" title="1 of 4 branches missed.">        return log.getProof().getNameProof().equals(&quot;Ass&quot;) &amp;&amp; ModalAction.checkEqualState(pf, pf.getSteps().size() - lastAssumption + 1, pf.getSteps().size());</span>
     }
 
     @Override
     public void apply(Proof&lt;ModalOperation, ProofStepModal&lt;T&gt;&gt; pf) {
-<span class="fc" id="L23">        applyStepSupplier(pf, (assLevel, log, reason) -&gt; new ProofStepModal&lt;&gt;((pf.getSteps().get(pf.getSteps().size() - 1)).getState(), assLevel, (ModalLogicalOperation) log, reason));</span>
-<span class="fc" id="L24">    }</span>
+<span class="fc" id="L30">        applyStepSupplier(pf, (assLevel, log, reason) -&gt; new ProofStepModal&lt;&gt;((pf.getSteps().get(pf.getSteps().size() - 1)).getState(), assLevel, (ModalLogicalOperation) log, reason));</span>
+<span class="fc" id="L31">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

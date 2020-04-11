@@ -2,18 +2,13 @@
 
 import com.dan323.expresions.classical.ClassicalLogicOperation;
 import com.dan323.proof.generic.FE;
-import com.dan323.proof.generic.proof.Proof;
 import com.dan323.proof.generic.proof.ProofStep;
 
 public final class ClassicFE extends FE&lt;ClassicalLogicOperation, ProofStep&lt;ClassicalLogicOperation&gt;&gt; implements ClassicalAction {
 
     public ClassicFE(int j, ClassicalLogicOperation clo) {
-<span class="fc" id="L11">        super(clo, j);</span>
-<span class="fc" id="L12">    }</span>
+<span class="fc" id="L10">        super(clo, j);</span>
+<span class="fc" id="L11">    }</span>
 
-    @Override
-    public void apply(Proof&lt;ClassicalLogicOperation, ProofStep&lt;ClassicalLogicOperation&gt;&gt; pf) {
-<span class="fc" id="L16">        applyStepSupplier(pf, ProofStep::new);</span>
-<span class="fc" id="L17">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

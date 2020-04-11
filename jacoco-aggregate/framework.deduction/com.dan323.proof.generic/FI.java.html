@@ -8,7 +8,6 @@ import com.dan323.proof.generic.proof.ProofReason;
 import com.dan323.proof.generic.proof.ProofStep;
 import com.dan323.proof.generic.proof.ProofStepSupplier;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -23,52 +22,46 @@ public abstract class FI&lt;T extends LogicOperation, Q extends ProofStep&lt;T&g
     private final Class&lt;Negation&lt;T&gt;&gt; negationClass;
     private final Supplier&lt;Constant&lt;T&gt;&gt; constantFunction;
 
-<span class="fc" id="L26">    public FI(int a, int b, Function&lt;T, Negation&lt;T&gt;&gt; negate, Supplier&lt;Constant&lt;T&gt;&gt; genConst) {</span>
-<span class="fc" id="L27">        pos = a;</span>
-<span class="fc" id="L28">        neg = b;</span>
-<span class="fc" id="L29">        negationClass = (Class&lt;Negation&lt;T&gt;&gt;) negate.apply(null).getClass();</span>
-<span class="fc" id="L30">        constantFunction = genConst;</span>
-<span class="fc" id="L31">    }</span>
+<span class="fc" id="L25">    public FI(int a, int b, Function&lt;T, Negation&lt;T&gt;&gt; negate, Supplier&lt;Constant&lt;T&gt;&gt; genConst) {</span>
+<span class="fc" id="L26">        pos = a;</span>
+<span class="fc" id="L27">        neg = b;</span>
+<span class="fc" id="L28">        negationClass = (Class&lt;Negation&lt;T&gt;&gt;) negate.apply(null).getClass();</span>
+<span class="fc" id="L29">        constantFunction = genConst;</span>
+<span class="fc" id="L30">    }</span>
 
     @Override
     public boolean isValid(Proof&lt;T, Q&gt; pf) {
-<span class="fc bfc" id="L35" title="All 6 branches covered.">        if (RuleUtils.isValidIndexAndProp(pf, neg) &amp;&amp; RuleUtils.isValidIndexAndProp(pf, pos) &amp;&amp; RuleUtils.isOperation(pf, neg, Negation.class)) {</span>
-<span class="fc" id="L36">            Negation&lt;?&gt; negation = (Negation&lt;?&gt;) pf.getSteps().get(neg - 1).getStep();</span>
-<span class="fc bfc" id="L37" title="All 2 branches covered.">            if (negation.getElement().equals(pf.getSteps().get(pos - 1).getStep())) {</span>
-<span class="fc" id="L38">                return negationClass.equals(negation.getClass());</span>
+<span class="fc bfc" id="L34" title="All 6 branches covered.">        if (RuleUtils.isValidIndexAndProp(pf, neg) &amp;&amp; RuleUtils.isValidIndexAndProp(pf, pos) &amp;&amp; RuleUtils.isOperation(pf, neg, Negation.class)) {</span>
+<span class="fc" id="L35">            Negation&lt;?&gt; negation = (Negation&lt;?&gt;) pf.getSteps().get(neg - 1).getStep();</span>
+<span class="fc bfc" id="L36" title="All 2 branches covered.">            if (negation.getElement().equals(pf.getSteps().get(pos - 1).getStep())) {</span>
+<span class="fc" id="L37">                return negationClass.equals(negation.getClass());</span>
             }
         }
-<span class="fc" id="L41">        return false;</span>
+<span class="fc" id="L40">        return false;</span>
     }
 
     protected int getPos() {
-<span class="fc" id="L45">        return pos;</span>
+<span class="fc" id="L44">        return pos;</span>
     }
 
     protected int getNeg() {
-<span class="fc" id="L49">        return neg;</span>
+<span class="fc" id="L48">        return neg;</span>
     }
 
     @Override
     public void applyStepSupplier(Proof&lt;T, Q&gt; pf, ProofStepSupplier&lt;T, Q&gt; supp) {
-<span class="fc" id="L54">        int assLevel = 0;</span>
-<span class="pc bpc" id="L55" title="1 of 2 branches missed.">        if (!pf.getSteps().isEmpty()) {</span>
-<span class="fc" id="L56">            assLevel = pf.getSteps().get(pf.getSteps().size() - 1).getAssumptionLevel();</span>
-        }
-<span class="fc" id="L58">        List&lt;Integer&gt; lst = new ArrayList&lt;&gt;();</span>
-<span class="fc" id="L59">        lst.add(pos);</span>
-<span class="fc" id="L60">        lst.add(neg);</span>
-<span class="fc" id="L61">        pf.getSteps().add(supp.generateProofStep(assLevel, constantFunction.get().castToLanguage(), new ProofReason(&quot;FI&quot;, lst)));</span>
-<span class="fc" id="L62">    }</span>
+<span class="fc" id="L53">        int assLevel = pf.getSteps().get(pf.getSteps().size() - 1).getAssumptionLevel();</span>
+<span class="fc" id="L54">        pf.getSteps().add(supp.generateProofStep(assLevel, constantFunction.get().castToLanguage(), new ProofReason(&quot;FI&quot;, List.of(pos, neg))));</span>
+<span class="fc" id="L55">    }</span>
 
     @Override
     public int hashCode() {
-<span class="fc" id="L66">        return getClass().hashCode() * 31 + pos * 17 + neg * 23;</span>
+<span class="fc" id="L59">        return getClass().hashCode() * 31 + pos * 17 + neg * 23;</span>
     }
 
     @Override
     public boolean equals(Object obj) {
-<span class="pc bpc" id="L71" title="3 of 8 branches missed.">        return obj != null &amp;&amp; obj.getClass().equals(getClass()) &amp;&amp; ((FI&lt;?, ?&gt;) obj).neg == neg &amp;&amp; ((FI&lt;?, ?&gt;) obj).pos == pos;</span>
+<span class="pc bpc" id="L64" title="3 of 8 branches missed.">        return obj != null &amp;&amp; obj.getClass().equals(getClass()) &amp;&amp; ((FI&lt;?, ?&gt;) obj).neg == neg &amp;&amp; ((FI&lt;?, ?&gt;) obj).pos == pos;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

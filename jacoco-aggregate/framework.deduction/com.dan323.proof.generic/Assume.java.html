@@ -6,7 +6,7 @@ import com.dan323.proof.generic.proof.ProofReason;
 import com.dan323.proof.generic.proof.ProofStep;
 import com.dan323.proof.generic.proof.ProofStepSupplier;
 
-import java.util.ArrayList;
+import java.util.Collections;
 
 /**
  * @author danco
@@ -26,11 +26,12 @@ public abstract class Assume&lt;T extends LogicOperation, Q extends ProofStep&lt
 
     @Override
     public void applyStepSupplier(Proof&lt;T, Q&gt; pf, ProofStepSupplier&lt;T, Q&gt; supp) {
-<span class="fc" id="L29">        int assLevel = 0;</span>
-<span class="fc bfc" id="L30" title="All 2 branches covered.">        if (!pf.getSteps().isEmpty()) {</span>
-<span class="fc" id="L31">            assLevel = pf.getSteps().get(pf.getSteps().size() - 1).getAssumptionLevel();</span>
-        }
-<span class="fc" id="L33">        pf.getSteps().add(supp.generateProofStep(assLevel + 1, log, new ProofReason(&quot;Ass&quot;, new ArrayList&lt;&gt;())));</span>
-<span class="fc" id="L34">    }</span>
+<span class="fc" id="L29">        int assLevel = Action.getLastAssumptionLevel(pf);</span>
+<span class="fc" id="L30">        pf.getSteps().add(supp.generateProofStep(assLevel + 1, log, getReason()));</span>
+<span class="fc" id="L31">    }</span>
+
+    protected ProofReason getReason() {
+<span class="fc" id="L34">        return new ProofReason(&quot;Ass&quot;, Collections.emptyList());</span>
+    }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

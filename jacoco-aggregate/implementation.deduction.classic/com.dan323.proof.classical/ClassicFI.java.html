@@ -3,19 +3,14 @@
 import com.dan323.expresions.classical.ClassicalLogicOperation;
 import com.dan323.expresions.classical.ConstantClassic;
 import com.dan323.expresions.classical.NegationClassic;
-import com.dan323.proof.generic.proof.Proof;
-import com.dan323.proof.generic.proof.ProofStep;
 import com.dan323.proof.generic.FI;
+import com.dan323.proof.generic.proof.ProofStep;
 
 public final class ClassicFI extends FI&lt;ClassicalLogicOperation, ProofStep&lt;ClassicalLogicOperation&gt;&gt; implements ClassicalAction {
 
     public ClassicFI(int i, int j) {
-<span class="fc" id="L13">        super(i, j, NegationClassic::new, () -&gt; ConstantClassic.FALSE);</span>
-<span class="fc" id="L14">    }</span>
+<span class="fc" id="L12">        super(i, j, NegationClassic::new, () -&gt; ConstantClassic.FALSE);</span>
+<span class="fc" id="L13">    }</span>
 
-    @Override
-    public void apply(Proof&lt;ClassicalLogicOperation, ProofStep&lt;ClassicalLogicOperation&gt;&gt; pf) {
-<span class="fc" id="L18">        applyStepSupplier(pf, ProofStep::new);</span>
-<span class="fc" id="L19">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

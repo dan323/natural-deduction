@@ -2,18 +2,13 @@
 
 import com.dan323.expresions.classical.ClassicalLogicOperation;
 import com.dan323.proof.generic.OrE;
-import com.dan323.proof.generic.proof.Proof;
 import com.dan323.proof.generic.proof.ProofStep;
 
 public final class ClassicOrE extends OrE&lt;ClassicalLogicOperation, ProofStep&lt;ClassicalLogicOperation&gt;&gt; implements ClassicalAction {
 
     public ClassicOrE(int a, int b, int c) {
-<span class="fc" id="L11">        super(a, b, c);</span>
-<span class="fc" id="L12">    }</span>
+<span class="fc" id="L10">        super(a, b, c);</span>
+<span class="fc" id="L11">    }</span>
 
-    @Override
-    public void apply(Proof&lt;ClassicalLogicOperation, ProofStep&lt;ClassicalLogicOperation&gt;&gt; pf) {
-<span class="fc" id="L16">        applyStepSupplier(pf, ProofStep::new);</span>
-<span class="fc" id="L17">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

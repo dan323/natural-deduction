@@ -3,18 +3,12 @@
 import com.dan323.expresions.base.BinaryOperation;
 import com.dan323.expresions.classical.ClassicalLogicOperation;
 import com.dan323.proof.generic.AndE;
-import com.dan323.proof.generic.proof.Proof;
 import com.dan323.proof.generic.proof.ProofStep;
 
 public final class ClassicAndE1 extends AndE&lt;ClassicalLogicOperation, ProofStep&lt;ClassicalLogicOperation&gt;&gt; implements ClassicalAction {
 
     public ClassicAndE1(int i) {
-<span class="fc" id="L12">        super(i, BinaryOperation::getLeft);</span>
-<span class="fc" id="L13">    }</span>
-
-    @Override
-    public void apply(Proof&lt;ClassicalLogicOperation,ProofStep&lt;ClassicalLogicOperation&gt;&gt; pf) {
-<span class="fc" id="L17">        applyStepSupplier(pf, ProofStep::new);</span>
-<span class="fc" id="L18">    }</span>
+<span class="fc" id="L11">        super(i, BinaryOperation::getLeft);</span>
+<span class="fc" id="L12">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>
