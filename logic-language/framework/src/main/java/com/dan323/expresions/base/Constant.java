@@ -5,7 +5,7 @@ package com.dan323.expresions.base;
  */
 public interface Constant<T extends LogicOperation> extends LogicOperation {
 
-    public abstract boolean isFalsehood();
+    boolean isFalsehood();
 
     default T castToLanguage() {
         return (T) this;
