@@ -13,7 +13,7 @@ import java.util.function.Function;
 public interface Action<T extends LogicOperation, Q extends ProofStep<T>> extends AbstractAction<T, Q> {
 
     static <T extends LogicOperation, Q extends ProofStep<T>> int getLastAssumptionLevel(Proof<T, Q> pf) {
-        return pf.getSteps().get(pf.getSteps().size() - 1).getAssumptionLevel();
+        return pf.getSteps().isEmpty() ? 0 : pf.getSteps().get(pf.getSteps().size() - 1).getAssumptionLevel();
     }
 
     static <T extends LogicOperation, Q extends ProofStep<T>> int disableUntilLastAssumption(Proof<T, Q> pf, int assLevel) {
