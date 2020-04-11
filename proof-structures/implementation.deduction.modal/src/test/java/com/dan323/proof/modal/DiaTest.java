@@ -50,7 +50,7 @@ public class DiaTest {
     public void diaIApply() {
         // Init variables
         var mlo = new VariableModal("P");
-        var diaI = new ModalDiaI<>(2, STATE_1);
+        var diaI = new ModalDiaI<String>(2, 1);
         var pf = new ModalNaturalDeduction<>(STATE_0);
         var initStep = new LessEqual<>(STATE_0, STATE_1);
         var assume = new ModalAssume<>(mlo, STATE_1);
@@ -61,8 +61,8 @@ public class DiaTest {
 
         Assertions.assertEquals("<> P", pf.getSteps().get(pf.getSteps().size() - 1).getStep().toString());
         Assertions.assertEquals(1, pf.getSteps().get(pf.getSteps().size() - 1).getAssumptionLevel());
-        Assertions.assertEquals("<>I [2]", pf.getSteps().get(pf.getSteps().size() - 1).getProof().toString());
-        Assertions.assertEquals("s1:    <> P           <>I [2]", pf.getSteps().get(pf.getSteps().size() - 1).toString());
+        Assertions.assertEquals("<>I [2, 1]", pf.getSteps().get(pf.getSteps().size() - 1).getProof().toString());
+        Assertions.assertEquals("s0:    <> P           <>I [2, 1]", pf.getSteps().get(pf.getSteps().size() - 1).toString());
     }
 
     @Test
@@ -184,7 +184,7 @@ public class DiaTest {
 
     @Test
     public void diaIValid() {
-        var diaI = new ModalDiaI<>(2, STATE_0);
+        var diaI = new ModalDiaI<String>(2, 1);
         var proof = new ModalNaturalDeduction<>(STATE_0);
         var initStep = new LessEqual<>(STATE_0, STATE_1);
         var expression = mock(ModalLogicalOperation.class);
