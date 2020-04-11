@@ -6,8 +6,7 @@ import com.dan323.proof.generic.proof.ProofReason;
 import com.dan323.proof.generic.proof.ProofStep;
 import com.dan323.proof.generic.proof.ProofStepSupplier;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Collections;
 
 /**
  * @author danco
@@ -27,16 +26,14 @@ public abstract class Copy<T extends LogicOperation, Q extends ProofStep<T>> imp
 
     @Override
     public void applyStepSupplier(Proof<T, Q> pf, ProofStepSupplier<T, Q> supp) {
-        int assLevel = 0;
-        if (!pf.getSteps().isEmpty()) {
-            assLevel = Action.getLastAssumptionLevel(pf);
-        }
-        List<Integer> lst = new ArrayList<>();
-        lst.add(source);
-        pf.getSteps().add(supp.generateProofStep(assLevel, pf.getSteps().get(source - 1).getStep(), new ProofReason("Rep", lst)));
+        pf.getSteps().add(supp.generateProofStep(Action.getLastAssumptionLevel(pf), pf.getSteps().get(source - 1).getStep(), getReason()));
     }
 
     public int getAppliedAt() {
         return source;
+    }
+
+    protected ProofReason getReason() {
+        return new ProofReason("Rep", Collections.singletonList(source));
     }
 }

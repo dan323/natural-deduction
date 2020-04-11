@@ -8,7 +8,6 @@ import com.dan323.proof.generic.proof.ProofReason;
 import com.dan323.proof.generic.proof.ProofStep;
 import com.dan323.proof.generic.proof.ProofStepSupplier;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -51,14 +50,8 @@ public abstract class FI<T extends LogicOperation, Q extends ProofStep<T>> imple
 
     @Override
     public void applyStepSupplier(Proof<T, Q> pf, ProofStepSupplier<T, Q> supp) {
-        int assLevel = 0;
-        if (!pf.getSteps().isEmpty()) {
-            assLevel = pf.getSteps().get(pf.getSteps().size() - 1).getAssumptionLevel();
-        }
-        List<Integer> lst = new ArrayList<>();
-        lst.add(pos);
-        lst.add(neg);
-        pf.getSteps().add(supp.generateProofStep(assLevel, constantFunction.get().castToLanguage(), new ProofReason("FI", lst)));
+        int assLevel = pf.getSteps().get(pf.getSteps().size() - 1).getAssumptionLevel();
+        pf.getSteps().add(supp.generateProofStep(assLevel, constantFunction.get().castToLanguage(), new ProofReason("FI", List.of(pos, neg))));
     }
 
     @Override

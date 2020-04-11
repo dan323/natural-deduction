@@ -17,17 +17,6 @@ public final class ModalNaturalDeduction<T> extends Proof<ModalOperation, ProofS
 
     private T state0;
 
-    public static <T> boolean checkFlag(Proof<ModalOperation, ProofStepModal<T>> proof, T less, T greater) {
-        for (ProofStepModal<T> pst : proof.getSteps()) {
-            if (pst.isValid() && pst.getStep() instanceof LessEqual
-                    && ((LessEqual<T>) pst.getStep()).getLeft().equals(less)
-                    && ((LessEqual<T>) pst.getStep()).getRight().equals(greater)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
     public ModalNaturalDeduction(T state0) {
         this.state0 = state0;
     }

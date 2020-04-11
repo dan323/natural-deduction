@@ -76,7 +76,6 @@ public class RuleImplicationTest {
         doReturn(proof).when(pStep0).getProof();
         doReturn("Ass").when(proof).getNameProof();
         Assertions.assertTrue(ded.isValid(pf));
-        Assertions.assertEquals(2, ded.getLastAssumption());
     }
 
     @Test

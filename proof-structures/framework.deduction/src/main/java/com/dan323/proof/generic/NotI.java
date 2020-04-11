@@ -35,10 +35,7 @@ public abstract class NotI<T extends LogicOperation, Q extends ProofStep<T>> imp
 
     @Override
     public boolean isValid(Proof<T, Q> pf) {
-        if (pf.getSteps().isEmpty()) {
-            return false;
-        }
-        int assLevel = pf.getSteps().get(pf.getSteps().size() - 1).getAssumptionLevel();
+        int assLevel = Action.getLastAssumptionLevel(pf);
         if (assLevel == 0) {
             return false;
         }
@@ -58,7 +55,7 @@ public abstract class NotI<T extends LogicOperation, Q extends ProofStep<T>> imp
 
     @Override
     public void applyStepSupplier(Proof<T, Q> pf, ProofStepSupplier<T, Q> supp) {
-        int assLevel = pf.getSteps().get(pf.getSteps().size() - 1).getAssumptionLevel();
+        int assLevel = Action.getLastAssumptionLevel(pf);
         int i = Action.disableUntilLastAssumption(pf, assLevel);
         List<Integer> lst = new ArrayList<>();
         lst.add(pf.getSteps().size() - i + 1);

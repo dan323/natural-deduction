@@ -9,7 +9,6 @@ import com.dan323.proof.generic.proof.ProofReason;
 import com.dan323.proof.generic.proof.ProofStep;
 import com.dan323.proof.generic.proof.ProofStepSupplier;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -79,14 +78,7 @@ public abstract class OrE<T extends LogicOperation, Q extends ProofStep<T>> impl
     @Override
     public void applyStepSupplier(Proof<T, Q> pf, ProofStepSupplier<T, Q> supp) {
         T sol = ((BinaryOperation<T>) pf.getSteps().get(rule1 - 1).getStep()).getRight();
-        int assLevel = 0;
-        if (!pf.getSteps().isEmpty()) {
-            assLevel = pf.getSteps().get(pf.getSteps().size() - 1).getAssumptionLevel();
-        }
-        List<Integer> lst = new ArrayList<>();
-        lst.add(disj);
-        lst.add(rule1);
-        lst.add(rule2);
-        pf.getSteps().add(supp.generateProofStep(assLevel, sol, new ProofReason("|E", lst)));
+        int assLevel = pf.getSteps().get(pf.getSteps().size() - 1).getAssumptionLevel();
+        pf.getSteps().add(supp.generateProofStep(assLevel, sol, new ProofReason("|E", List.of(disj, rule1, rule2))));
     }
 }
