@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>NotI.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">jacoco-report-aggregate</a> &gt; <a href="../index.html" class="el_bundle">framework.deduction</a> &gt; <a href="index.source.html" class="el_package">com.dan323.proof.generic</a> &gt; <span class="el_source">NotI.java</span></div><h1>NotI.java</h1><pre class="source lang-java linenums">package com.dan323.proof.generic;
+
+import com.dan323.expresions.base.Constant;
+import com.dan323.expresions.base.LogicOperation;
+import com.dan323.expresions.base.Negation;
+import com.dan323.proof.generic.proof.Proof;
+import com.dan323.proof.generic.proof.ProofReason;
+import com.dan323.proof.generic.proof.ProofStep;
+import com.dan323.proof.generic.proof.ProofStepSupplier;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Function;
+
+/**
+ * @author danco
+ */
+public abstract class NotI&lt;T extends LogicOperation, Q extends ProofStep&lt;T&gt;&gt; implements AbstractAction&lt;T, Q&gt; {
+
+    private Function&lt;T, Negation&lt;T&gt;&gt; negate;
+
+<span class="fc" id="L22">    public NotI(Function&lt;T, Negation&lt;T&gt;&gt; negate) {</span>
+<span class="fc" id="L23">        this.negate = negate;</span>
+<span class="fc" id="L24">    }</span>
+
+    @Override
+    public boolean equals(Object obj) {
+<span class="pc bpc" id="L28" title="2 of 4 branches missed.">        return obj != null &amp;&amp; obj.getClass().equals(getClass());</span>
+    }
+
+    @Override
+    public int hashCode() {
+<span class="fc" id="L33">        return getClass().hashCode();</span>
+    }
+
+    @Override
+    public boolean isValid(Proof&lt;T, Q&gt; pf) {
+<span class="fc" id="L38">        int assLevel = Action.getLastAssumptionLevel(pf);</span>
+<span class="fc bfc" id="L39" title="All 2 branches covered.">        if (assLevel == 0) {</span>
+<span class="fc" id="L40">            return false;</span>
+        }
+<span class="fc" id="L42">        LogicOperation lo = pf.getSteps().get(pf.getSteps().size() - 1).getStep();</span>
+<span class="fc bfc" id="L43" title="All 2 branches covered.">        if (lo instanceof Constant) {</span>
+<span class="fc" id="L44">            Constant&lt;?&gt; cons = (Constant&lt;?&gt;) lo;</span>
+<span class="fc bfc" id="L45" title="All 2 branches covered.">            if (!cons.isFalsehood()) {</span>
+<span class="fc" id="L46">                return false;</span>
+            }
+<span class="fc" id="L48">        } else {</span>
+<span class="fc" id="L49">            return false;</span>
+        }
+<span class="fc" id="L51">        int lastAssumption = Action.getToLastAssumption(pf, assLevel);</span>
+<span class="fc" id="L52">        Q log = pf.getSteps().get(pf.getSteps().size() - lastAssumption);</span>
+<span class="fc" id="L53">        return log.getProof().getNameProof().equals(&quot;Ass&quot;);</span>
+    }
+
+    @Override
+    public void applyStepSupplier(Proof&lt;T, Q&gt; pf, ProofStepSupplier&lt;T, Q&gt; supp) {
+<span class="fc" id="L58">        int assLevel = Action.getLastAssumptionLevel(pf);</span>
+<span class="fc" id="L59">        int i = Action.disableUntilLastAssumption(pf, assLevel);</span>
+<span class="fc" id="L60">        List&lt;Integer&gt; lst = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L61">        lst.add(pf.getSteps().size() - i + 1);</span>
+<span class="fc" id="L62">        lst.add(pf.getSteps().size());</span>
+<span class="fc" id="L63">        pf.getSteps().add(supp.generateProofStep(assLevel - 1, negate.apply(pf.getSteps().get(pf.getSteps().size() - i).getStep()).castToLanguage(), new ProofReason(&quot;-I&quot;, lst)));</span>
+<span class="fc" id="L64">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>
