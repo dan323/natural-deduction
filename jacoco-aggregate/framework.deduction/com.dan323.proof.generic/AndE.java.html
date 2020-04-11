@@ -39,7 +39,7 @@ public abstract class AndE&lt;T extends LogicOperation, Q extends ProofStep&lt;T
 
     @Override
     public boolean isValid(Proof&lt;T, Q&gt; pf) {
-<span class="pc bpc" id="L42" title="2 of 4 branches missed.">        return RuleUtils.isValidIndexAndProp(pf, applyAt) &amp;&amp; RuleUtils.isOperation(pf, applyAt, Conjunction.class);</span>
+<span class="pc bpc" id="L42" title="1 of 4 branches missed.">        return RuleUtils.isValidIndexAndProp(pf, applyAt) &amp;&amp; RuleUtils.isOperation(pf, applyAt, Conjunction.class);</span>
     }
 
     @Override

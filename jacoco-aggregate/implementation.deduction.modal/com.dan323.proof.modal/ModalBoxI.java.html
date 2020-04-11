@@ -37,38 +37,37 @@ import java.util.Objects;
 <span class="fc bfc" id="L37" title="All 2 branches covered.">        if (!(log.getStep() instanceof LessEqual)) {</span>
 <span class="fc" id="L38">            return false;</span>
         }
-<span class="fc" id="L40">        T stateLess = ((LessEqual&lt;T&gt;) log.getStep()).getLeft();</span>
-<span class="fc" id="L41">        T stateGreater = ((LessEqual&lt;T&gt;) log.getStep()).getRight();</span>
-<span class="fc" id="L42">        ProofStepModal&lt;T&gt; conclusion = pf.getSteps().get(pf.getSteps().size() - 1);</span>
-<span class="fc bfc" id="L43" title="All 2 branches covered.">        if (!(conclusion.getStep() instanceof ModalLogicalOperation)) {</span>
-<span class="fc" id="L44">            return false;</span>
+<span class="fc" id="L40">        T stateGreater = ((LessEqual&lt;T&gt;) log.getStep()).getRight();</span>
+<span class="fc" id="L41">        ProofStepModal&lt;T&gt; conclusion = pf.getSteps().get(pf.getSteps().size() - 1);</span>
+<span class="fc bfc" id="L42" title="All 2 branches covered.">        if (!(conclusion.getStep() instanceof ModalLogicalOperation)) {</span>
+<span class="fc" id="L43">            return false;</span>
         }
-<span class="fc bfc" id="L46" title="All 2 branches covered.">        if (!(pf.getSteps().get(pf.getSteps().size() - 1)).getState().equals(stateGreater)) {</span>
-<span class="fc" id="L47">            return false;</span>
+<span class="fc bfc" id="L45" title="All 2 branches covered.">        if (!(pf.getSteps().get(pf.getSteps().size() - 1)).getState().equals(stateGreater)) {</span>
+<span class="fc" id="L46">            return false;</span>
         }
-<span class="fc" id="L49">        return ((ModalNaturalDeduction&lt;T&gt;) pf).stateIsUsedBefore(stateLess, pf.getSteps().size() - lastAssumption + 1);</span>
+<span class="fc bfc" id="L48" title="All 2 branches covered.">        return !((ModalNaturalDeduction&lt;T&gt;) pf).stateIsUsedBefore(stateGreater, pf.getSteps().size() - lastAssumption);</span>
     }
 
     @Override
     public void applyStepSupplier(Proof&lt;ModalOperation, ProofStepModal&lt;T&gt;&gt; pf, ProofStepSupplier&lt;ModalOperation, ProofStepModal&lt;T&gt;&gt; supp) {
-<span class="nc" id="L54">        int assLevel = Action.getLastAssumptionLevel(pf);</span>
-<span class="nc" id="L55">        pf.getSteps().add(supp.generateProofStep(assLevel - 1, new Always((ModalLogicalOperation) pf.getSteps().get(pf.getSteps().size() - 1).getStep()), new ProofReason(&quot;[]I&quot;,</span>
-<span class="nc" id="L56">                List.of(pf.getSteps().size() - getLastAssumption(pf) + 1, pf.getSteps().size()))));</span>
-<span class="nc" id="L57">    }</span>
+<span class="fc" id="L53">        int assLevel = Action.getLastAssumptionLevel(pf);</span>
+<span class="fc" id="L54">        pf.getSteps().add(supp.generateProofStep(assLevel - 1, new Always((ModalLogicalOperation) pf.getSteps().get(pf.getSteps().size() - 1).getStep()), new ProofReason(&quot;[]I&quot;,</span>
+<span class="fc" id="L55">                List.of(pf.getSteps().size() - getLastAssumption(pf) + 1, pf.getSteps().size()))));</span>
+<span class="fc" id="L56">    }</span>
 
     private int getLastAssumption(Proof&lt;ModalOperation, ProofStepModal&lt;T&gt;&gt; pf) {
-<span class="fc" id="L60">        int assLevel = Action.getLastAssumptionLevel(pf);</span>
-<span class="fc" id="L61">        return Action.getToLastAssumption(pf, assLevel);</span>
+<span class="fc" id="L59">        int assLevel = Action.getLastAssumptionLevel(pf);</span>
+<span class="fc" id="L60">        return Action.getToLastAssumption(pf, assLevel);</span>
     }
 
     @Override
     public void apply(Proof&lt;ModalOperation, ProofStepModal&lt;T&gt;&gt; pf) {
-<span class="nc" id="L66">        int lastAssumption = getLastAssumption(pf);</span>
-<span class="nc" id="L67">        ProofStepModal&lt;T&gt; log = pf.getSteps().get(pf.getSteps().size() - lastAssumption);</span>
-<span class="nc" id="L68">        T stateLess = ((LessEqual&lt;T&gt;) log.getStep()).getLeft();</span>
+<span class="fc" id="L65">        int lastAssumption = getLastAssumption(pf);</span>
+<span class="fc" id="L66">        ProofStepModal&lt;T&gt; log = pf.getSteps().get(pf.getSteps().size() - lastAssumption);</span>
+<span class="fc" id="L67">        T stateLess = ((LessEqual&lt;T&gt;) log.getStep()).getLeft();</span>
 
-<span class="nc" id="L70">        Action.disableUntilLastAssumption(pf, log.getAssumptionLevel());</span>
-<span class="nc" id="L71">        applyStepSupplier(pf, (assLevel, log1, reason) -&gt; new ProofStepModal&lt;&gt;(stateLess, assLevel, (ModalLogicalOperation) log1, reason));</span>
-<span class="nc" id="L72">    }</span>
+<span class="fc" id="L69">        Action.disableUntilLastAssumption(pf, log.getAssumptionLevel());</span>
+<span class="fc" id="L70">        applyStepSupplier(pf, (assLevel, log1, reason) -&gt; new ProofStepModal&lt;&gt;(stateLess, assLevel, (ModalLogicalOperation) log1, reason));</span>
+<span class="fc" id="L71">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

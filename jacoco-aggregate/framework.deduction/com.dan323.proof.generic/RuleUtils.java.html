@@ -19,9 +19,9 @@ public final class RuleUtils {
                 // applyAt1 gives result to an active proposition
 <span class="pc bpc" id="L20" title="1 of 2 branches missed.">                isValidIndexAndProp(pf, applyAt2) &amp;&amp; // applyAt2 is a valid index</span>
                 // applyAt2 gives result to an active proposition
-<span class="pc bpc" id="L22" title="1 of 2 branches missed.">                isOperation(pf, applyAt1, Implication.class) &amp;&amp; // applyAt1 is an implication</span>
+<span class="fc bfc" id="L22" title="All 2 branches covered.">                isOperation(pf, applyAt1, Implication.class) &amp;&amp; // applyAt1 is an implication</span>
 <span class="fc" id="L23">                ((Implication&lt;?&gt;) pf.getSteps().get(applyAt1 - 1).getStep()).getLeft()</span>
-<span class="pc bpc" id="L24" title="1 of 2 branches missed.">                        .equals(pf.getSteps().get(applyAt2 - 1).getStep()); // applyAt2 -&gt; something == applyAt1</span>
+<span class="fc bfc" id="L24" title="All 2 branches covered.">                        .equals(pf.getSteps().get(applyAt2 - 1).getStep()); // applyAt2 -&gt; something == applyAt1</span>
     }
 
     public static &lt;T extends LogicOperation, Q extends ProofStep&lt;T&gt;&gt; boolean isValidIndex(Proof&lt;T, Q&gt; pf, int index) {

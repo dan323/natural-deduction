@@ -21,7 +21,7 @@ public interface Action&lt;T extends LogicOperation, Q extends ProofStep&lt;T&gt
     }
 
     private static &lt;T extends LogicOperation, Q extends ProofStep&lt;T&gt;&gt; void disable(Proof&lt;T, Q&gt; pf, int assLevel, int i) {
-<span class="pc bpc" id="L24" title="1 of 2 branches missed.">        if (pf.getSteps().get(pf.getSteps().size() - i).getAssumptionLevel() == assLevel) {</span>
+<span class="fc bfc" id="L24" title="All 2 branches covered.">        if (pf.getSteps().get(pf.getSteps().size() - i).getAssumptionLevel() == assLevel) {</span>
 <span class="fc" id="L25">            pf.getSteps().get(pf.getSteps().size() - i).disable();</span>
         }
 <span class="fc" id="L27">    }</span>

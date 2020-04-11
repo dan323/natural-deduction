@@ -38,7 +38,7 @@ public abstract class NotE&lt;T extends LogicOperation, Q extends ProofStep&lt;T
     public boolean isValid(Proof&lt;T, Q&gt; pf) {
 <span class="fc bfc" id="L39" title="All 2 branches covered.">        if (RuleUtils.isValidIndexAndProp(pf, neg)) {</span>
 <span class="fc" id="L40">            T lo = pf.getSteps().get(neg - 1).getStep();</span>
-<span class="pc bpc" id="L41" title="2 of 4 branches missed.">            return (lo instanceof Negation) &amp;&amp; (((Negation&lt;?&gt;) lo).getElement() instanceof Negation);</span>
+<span class="pc bpc" id="L41" title="1 of 4 branches missed.">            return (lo instanceof Negation) &amp;&amp; (((Negation&lt;?&gt;) lo).getElement() instanceof Negation);</span>
         }
 <span class="fc" id="L43">        return false;</span>
     }

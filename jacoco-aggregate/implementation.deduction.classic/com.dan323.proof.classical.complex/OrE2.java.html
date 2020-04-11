@@ -18,10 +18,10 @@ public final class OrE2 extends CompositionRule {
     private int a;
     private int b;
 
-<span class="nc" id="L21">    public OrE2(int i, int j) {</span>
-<span class="nc" id="L22">        a = i;</span>
-<span class="nc" id="L23">        b = j;</span>
-<span class="nc" id="L24">    }</span>
+<span class="fc" id="L21">    public OrE2(int i, int j) {</span>
+<span class="fc" id="L22">        a = i;</span>
+<span class="fc" id="L23">        b = j;</span>
+<span class="fc" id="L24">    }</span>
 
     public boolean equals(Object ob) {
 <span class="nc bnc" id="L27" title="All 2 branches missed.">        if (ob instanceof OrE2) {</span>
@@ -36,10 +36,10 @@ public final class OrE2 extends CompositionRule {
 
     @Override
     public boolean isValid(Proof&lt;ClassicalLogicOperation, ProofStep&lt;ClassicalLogicOperation&gt;&gt; pf) {
-<span class="nc bnc" id="L39" title="All 8 branches missed.">        if (RuleUtils.isValidIndexAndProp(pf, a) &amp;&amp; RuleUtils.isValidIndexAndProp(pf, b) &amp;&amp; RuleUtils.isOperation(pf, a, Disjunction.class) &amp;&amp; RuleUtils.isOperation(pf, b, Negation.class)) {</span>
+<span class="pc bpc" id="L39" title="5 of 8 branches missed.">        if (RuleUtils.isValidIndexAndProp(pf, a) &amp;&amp; RuleUtils.isValidIndexAndProp(pf, b) &amp;&amp; RuleUtils.isOperation(pf, a, Disjunction.class) &amp;&amp; RuleUtils.isOperation(pf, b, Negation.class)) {</span>
 <span class="nc" id="L40">            return ((BinaryOperation&lt;ClassicalLogicOperation&gt;) pf.getSteps().get(a - 1).getStep()).getRight().equals(((NegationClassic) pf.getSteps().get(b - 1).getStep()).getElement());</span>
         }
-<span class="nc" id="L42">        return false;</span>
+<span class="fc" id="L42">        return false;</span>
     }
 
     @Override
