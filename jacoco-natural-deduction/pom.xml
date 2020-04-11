@@ -5,7 +5,7 @@
     <parent>
         <artifactId>natural-deduction</artifactId>
         <groupId>com.dan323</groupId>
-        <version>2.1</version>
+        <version>0.1</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -85,24 +85,6 @@
                     <execution>
                         <id>report-aggregate</id>
                         <phase>verify</phase>
-                        <goals>
-                            <goal>report-aggregate</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.pitest</groupId>
-                <artifactId>pitest-maven</artifactId>
-                <version>${pitest.version}</version>
-                <executions>
-                    <execution>
-                        <id>pit-report</id>
-                        <phase>none</phase>
-                    </execution>
-                    <execution>
-                        <id>put-it-together</id>
-                        <phase>none</phase>
                         <goals>
                             <goal>report-aggregate</goal>
                         </goals>
