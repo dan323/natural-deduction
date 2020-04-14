@@ -8,59 +8,56 @@ import com.dan323.proof.generic.proof.ProofReason;
 import com.dan323.proof.generic.proof.ProofStep;
 import com.dan323.proof.generic.proof.ProofStepSupplier;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
 
 /**
  * @author danco
  */
-public abstract class NotI&lt;T extends LogicOperation, Q extends ProofStep&lt;T&gt;&gt; implements AbstractAction&lt;T, Q&gt; {
+public abstract class NotI&lt;T extends LogicOperation, Q extends ProofStep&lt;T&gt;, P extends Proof&lt;T, Q&gt;&gt; implements AbstractAction&lt;T, Q, P&gt; {
 
     private Function&lt;T, Negation&lt;T&gt;&gt; negate;
 
-<span class="fc" id="L22">    public NotI(Function&lt;T, Negation&lt;T&gt;&gt; negate) {</span>
-<span class="fc" id="L23">        this.negate = negate;</span>
-<span class="fc" id="L24">    }</span>
+<span class="fc" id="L21">    public NotI(Function&lt;T, Negation&lt;T&gt;&gt; negate) {</span>
+<span class="fc" id="L22">        this.negate = negate;</span>
+<span class="fc" id="L23">    }</span>
 
     @Override
     public boolean equals(Object obj) {
-<span class="pc bpc" id="L28" title="2 of 4 branches missed.">        return obj != null &amp;&amp; obj.getClass().equals(getClass());</span>
+<span class="pc bpc" id="L27" title="2 of 4 branches missed.">        return obj != null &amp;&amp; obj.getClass().equals(getClass());</span>
     }
 
     @Override
     public int hashCode() {
-<span class="fc" id="L33">        return getClass().hashCode();</span>
+<span class="fc" id="L32">        return getClass().hashCode();</span>
     }
 
     @Override
-    public boolean isValid(Proof&lt;T, Q&gt; pf) {
-<span class="fc" id="L38">        int assLevel = Action.getLastAssumptionLevel(pf);</span>
-<span class="fc bfc" id="L39" title="All 2 branches covered.">        if (assLevel == 0) {</span>
-<span class="fc" id="L40">            return false;</span>
+    public boolean isValid(P pf) {
+<span class="fc" id="L37">        int assLevel = RuleUtils.getLastAssumptionLevel(pf);</span>
+<span class="fc bfc" id="L38" title="All 2 branches covered.">        if (assLevel == 0) {</span>
+<span class="fc" id="L39">            return false;</span>
         }
-<span class="fc" id="L42">        LogicOperation lo = pf.getSteps().get(pf.getSteps().size() - 1).getStep();</span>
-<span class="fc bfc" id="L43" title="All 2 branches covered.">        if (lo instanceof Constant) {</span>
-<span class="fc" id="L44">            Constant&lt;?&gt; cons = (Constant&lt;?&gt;) lo;</span>
-<span class="fc bfc" id="L45" title="All 2 branches covered.">            if (!cons.isFalsehood()) {</span>
-<span class="fc" id="L46">                return false;</span>
+<span class="fc" id="L41">        LogicOperation lo = pf.getSteps().get(pf.getSteps().size() - 1).getStep();</span>
+<span class="fc bfc" id="L42" title="All 2 branches covered.">        if (lo instanceof Constant) {</span>
+<span class="fc" id="L43">            Constant&lt;?&gt; cons = (Constant&lt;?&gt;) lo;</span>
+<span class="fc bfc" id="L44" title="All 2 branches covered.">            if (!cons.isFalsehood()) {</span>
+<span class="fc" id="L45">                return false;</span>
             }
-<span class="fc" id="L48">        } else {</span>
-<span class="fc" id="L49">            return false;</span>
+<span class="fc" id="L47">        } else {</span>
+<span class="fc" id="L48">            return false;</span>
         }
-<span class="fc" id="L51">        int lastAssumption = Action.getToLastAssumption(pf, assLevel);</span>
-<span class="fc" id="L52">        Q log = pf.getSteps().get(pf.getSteps().size() - lastAssumption);</span>
-<span class="fc" id="L53">        return log.getProof().getNameProof().equals(&quot;Ass&quot;);</span>
+<span class="fc" id="L50">        int lastAssumption = RuleUtils.getToLastAssumption(pf,assLevel);</span>
+<span class="fc" id="L51">        Q log = pf.getSteps().get(pf.getSteps().size() - lastAssumption);</span>
+<span class="fc" id="L52">        return log.getProof().getNameProof().equals(&quot;Ass&quot;);</span>
     }
 
     @Override
-    public void applyStepSupplier(Proof&lt;T, Q&gt; pf, ProofStepSupplier&lt;T, Q&gt; supp) {
-<span class="fc" id="L58">        int assLevel = Action.getLastAssumptionLevel(pf);</span>
-<span class="fc" id="L59">        int i = Action.disableUntilLastAssumption(pf, assLevel);</span>
-<span class="fc" id="L60">        List&lt;Integer&gt; lst = new ArrayList&lt;&gt;();</span>
-<span class="fc" id="L61">        lst.add(pf.getSteps().size() - i + 1);</span>
-<span class="fc" id="L62">        lst.add(pf.getSteps().size());</span>
-<span class="fc" id="L63">        pf.getSteps().add(supp.generateProofStep(assLevel - 1, negate.apply(pf.getSteps().get(pf.getSteps().size() - i).getStep()).castToLanguage(), new ProofReason(&quot;-I&quot;, lst)));</span>
-<span class="fc" id="L64">    }</span>
+    public void applyStepSupplier(P pf, ProofStepSupplier&lt;T, Q&gt; supp) {
+<span class="fc" id="L57">        int assLevel = RuleUtils.getLastAssumptionLevel(pf);</span>
+<span class="fc" id="L58">        int i = RuleUtils.disableUntilLastAssumption(pf,assLevel);</span>
+<span class="fc" id="L59">        List&lt;Integer&gt; lst = List.of(pf.getSteps().size() - i + 1, pf.getSteps().size());</span>
+<span class="fc" id="L60">        pf.getSteps().add(supp.generateProofStep(assLevel - 1, negate.apply(pf.getSteps().get(pf.getSteps().size() - i).getStep()).castToLanguage(), new ProofReason(&quot;-I&quot;, lst)));</span>
+<span class="fc" id="L61">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

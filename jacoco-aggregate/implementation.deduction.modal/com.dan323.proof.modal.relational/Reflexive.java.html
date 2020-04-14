@@ -3,32 +3,31 @@
 import com.dan323.expresions.modal.ModalLogicalOperation;
 import com.dan323.expresions.modal.ModalOperation;
 import com.dan323.expresions.relation.LessEqual;
-import com.dan323.proof.generic.proof.Proof;
+import com.dan323.proof.generic.RuleUtils;
 import com.dan323.proof.generic.proof.ProofReason;
 import com.dan323.proof.generic.proof.ProofStepSupplier;
+import com.dan323.proof.modal.proof.ModalNaturalDeduction;
 import com.dan323.proof.modal.proof.ProofStepModal;
 
-import java.util.ArrayList;
-
-import static com.dan323.proof.generic.Action.getLastAssumptionLevel;
+import java.util.List;
 
 public final class Reflexive&lt;T&gt; extends RelationalAction&lt;T&gt; {
 
     private int step;
 
-<span class="nc" id="L19">    public Reflexive(int step) {</span>
-<span class="nc" id="L20">        this.step = step;</span>
-<span class="nc" id="L21">    }</span>
+<span class="nc" id="L18">    public Reflexive(int step) {</span>
+<span class="nc" id="L19">        this.step = step;</span>
+<span class="nc" id="L20">    }</span>
 
     @Override
-    public void applyStepSupplier(Proof&lt;ModalOperation, ProofStepModal&lt;T&gt;&gt; pf, ProofStepSupplier&lt;ModalOperation, ProofStepModal&lt;T&gt;&gt; supp) {
-<span class="nc" id="L25">        T state = pf.getSteps().get(step - 1).getState();</span>
-<span class="nc" id="L26">        pf.getSteps().add(supp.generateProofStep(getLastAssumptionLevel(pf), new LessEqual&lt;&gt;(state, state), new ProofReason(&quot;Refl&quot;, new ArrayList&lt;&gt;())));</span>
-<span class="nc" id="L27">    }</span>
+    public void applyStepSupplier(ModalNaturalDeduction&lt;T&gt; pf, ProofStepSupplier&lt;ModalOperation, ProofStepModal&lt;T&gt;&gt; supp) {
+<span class="nc" id="L24">        T state = pf.getSteps().get(step - 1).getState();</span>
+<span class="nc" id="L25">        pf.getSteps().add(supp.generateProofStep(RuleUtils.getLastAssumptionLevel(pf), new LessEqual&lt;&gt;(state, state), new ProofReason(&quot;Refl&quot;, List.of())));</span>
+<span class="nc" id="L26">    }</span>
 
     @Override
-    public boolean isValid(Proof&lt;ModalOperation, ProofStepModal&lt;T&gt;&gt; pf) {
-<span class="nc" id="L31">        return pf.getSteps().get(step - 1).getStep() instanceof ModalLogicalOperation;</span>
+    public boolean isValid(ModalNaturalDeduction&lt;T&gt; pf) {
+<span class="nc" id="L30">        return pf.getSteps().get(step - 1).getStep() instanceof ModalLogicalOperation;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

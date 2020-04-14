@@ -2,14 +2,15 @@
 
 import com.dan323.expresions.classical.ClassicalLogicOperation;
 import com.dan323.expresions.classical.DisjunctionClassic;
+import com.dan323.proof.classical.proof.NaturalDeduction;
 import com.dan323.proof.generic.OrI;
 import com.dan323.proof.generic.proof.ProofStep;
 
-public final class ClassicOrI1 extends OrI&lt;ClassicalLogicOperation, ProofStep&lt;ClassicalLogicOperation&gt;&gt; implements ClassicalAction {
+public final class ClassicOrI1 extends OrI&lt;ClassicalLogicOperation, ProofStep&lt;ClassicalLogicOperation&gt;, NaturalDeduction&gt; implements ClassicalAction {
 
     public ClassicOrI1(int i, ClassicalLogicOperation intro) {
-<span class="fc" id="L11">        super(i, intro, DisjunctionClassic::new);</span>
-<span class="fc" id="L12">    }</span>
+<span class="fc" id="L12">        super(i, intro, DisjunctionClassic::new);</span>
+<span class="fc" id="L13">    }</span>
 
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

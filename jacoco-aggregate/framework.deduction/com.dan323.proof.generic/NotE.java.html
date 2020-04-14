@@ -12,7 +12,7 @@ import java.util.Collections;
 /**
  * @author danco
  */
-public abstract class NotE&lt;T extends LogicOperation, Q extends ProofStep&lt;T&gt;&gt; implements AbstractAction&lt;T, Q&gt; {
+public abstract class NotE&lt;T extends LogicOperation, Q extends ProofStep&lt;T&gt;, P extends Proof&lt;T, Q&gt;&gt; implements AbstractAction&lt;T, Q, P&gt; {
 
     private final int neg;
 
@@ -23,7 +23,7 @@ public abstract class NotE&lt;T extends LogicOperation, Q extends ProofStep&lt;T
     @Override
     public boolean equals(Object obj) {
 <span class="pc bpc" id="L25" title="1 of 4 branches missed.">        if (obj != null &amp;&amp; obj.getClass().equals(getClass())) {</span>
-<span class="pc bpc" id="L26" title="1 of 2 branches missed.">            return ((NotE&lt;?, ?&gt;) obj).neg == neg;</span>
+<span class="pc bpc" id="L26" title="1 of 2 branches missed.">            return ((NotE&lt;?, ?, ?&gt;) obj).neg == neg;</span>
         } else {
 <span class="fc" id="L28">            return false;</span>
         }
@@ -35,18 +35,18 @@ public abstract class NotE&lt;T extends LogicOperation, Q extends ProofStep&lt;T
     }
 
     @Override
-    public boolean isValid(Proof&lt;T, Q&gt; pf) {
+    public boolean isValid(P pf) {
 <span class="fc bfc" id="L39" title="All 2 branches covered.">        if (RuleUtils.isValidIndexAndProp(pf, neg)) {</span>
 <span class="fc" id="L40">            T lo = pf.getSteps().get(neg - 1).getStep();</span>
-<span class="pc bpc" id="L41" title="1 of 4 branches missed.">            return (lo instanceof Negation) &amp;&amp; (((Negation&lt;?&gt;) lo).getElement() instanceof Negation);</span>
+<span class="fc bfc" id="L41" title="All 4 branches covered.">            return (lo instanceof Negation) &amp;&amp; (((Negation&lt;?&gt;) lo).getElement() instanceof Negation);</span>
         }
 <span class="fc" id="L43">        return false;</span>
     }
 
     @Override
-    public void applyStepSupplier(Proof&lt;T, Q&gt; pf, ProofStepSupplier&lt;T, Q&gt; supp) {
+    public void applyStepSupplier(P pf, ProofStepSupplier&lt;T, Q&gt; supp) {
 <span class="fc" id="L48">        int assLevel = pf.getSteps().get(pf.getSteps().size() - 1).getAssumptionLevel();</span>
-<span class="fc" id="L49">        T sol = ((Negation&lt;T&gt;) ((Negation) (pf.getSteps().get(neg - 1).getStep())).getElement()).getElement();</span>
+<span class="fc" id="L49">        T sol = ((Negation&lt;T&gt;) ((Negation&lt;T&gt;) (pf.getSteps().get(neg - 1).getStep())).getElement()).getElement();</span>
 <span class="fc" id="L50">        pf.getSteps().add(supp.generateProofStep(assLevel, sol, getReason()));</span>
 <span class="fc" id="L51">    }</span>
 

@@ -11,7 +11,7 @@ import java.util.Collections;
 /**
  * @author danco
  */
-public abstract class Copy&lt;T extends LogicOperation, Q extends ProofStep&lt;T&gt;&gt; implements AbstractAction&lt;T, Q&gt; {
+public abstract class Copy&lt;T extends LogicOperation, Q extends ProofStep&lt;T&gt;, P extends Proof&lt;T, Q&gt;&gt; implements AbstractAction&lt;T, Q, P&gt; {
 
     private final int source;
 
@@ -20,13 +20,13 @@ public abstract class Copy&lt;T extends LogicOperation, Q extends ProofStep&lt;T
 <span class="fc" id="L20">    }</span>
 
     @Override
-    public boolean isValid(Proof&lt;T, Q&gt; pf) {
+    public boolean isValid(P pf) {
 <span class="fc" id="L24">        return RuleUtils.isValidIndexAndProp(pf, source);</span>
     }
 
     @Override
-    public void applyStepSupplier(Proof&lt;T, Q&gt; pf, ProofStepSupplier&lt;T, Q&gt; supp) {
-<span class="fc" id="L29">        pf.getSteps().add(supp.generateProofStep(Action.getLastAssumptionLevel(pf), pf.getSteps().get(source - 1).getStep(), getReason()));</span>
+    public void applyStepSupplier(P pf, ProofStepSupplier&lt;T, Q&gt; supp) {
+<span class="fc" id="L29">        pf.getSteps().add(supp.generateProofStep(RuleUtils.getLastAssumptionLevel(pf), pf.getSteps().get(source - 1).getStep(), getReason()));</span>
 <span class="fc" id="L30">    }</span>
 
     public int getAppliedAt() {

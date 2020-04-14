@@ -1,14 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>NaturalDeduction.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">jacoco-report-aggregate</a> &gt; <a href="../index.html" class="el_bundle">implementation.deduction.classic</a> &gt; <a href="index.source.html" class="el_package">com.dan323.proof.classical.proof</a> &gt; <span class="el_source">NaturalDeduction.java</span></div><h1>NaturalDeduction.java</h1><pre class="source lang-java linenums">package com.dan323.proof.classical.proof;
 
-import com.dan323.expresions.base.BinaryOperation;
 import com.dan323.expresions.base.LogicOperation;
-import com.dan323.expresions.base.UnaryOperation;
 import com.dan323.expresions.classical.*;
 import com.dan323.proof.classical.*;
 import com.dan323.proof.classical.complex.DeMorgan1;
 import com.dan323.proof.classical.complex.OrE1;
 import com.dan323.proof.classical.complex.OrE2;
-import com.dan323.proof.generic.Action;
+import com.dan323.proof.generic.proof.ParseAction;
 import com.dan323.proof.generic.proof.Proof;
 import com.dan323.proof.generic.proof.ProofReason;
 import com.dan323.proof.generic.proof.ProofStep;
@@ -18,8 +16,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-@SuppressWarnings(&quot;unchecked&quot;)
-<span class="fc" id="L22">public final class NaturalDeduction extends Proof&lt;ClassicalLogicOperation, ProofStep&lt;ClassicalLogicOperation&gt;&gt; {</span>
+<span class="fc" id="L19">public final class NaturalDeduction extends Proof&lt;ClassicalLogicOperation, ProofStep&lt;ClassicalLogicOperation&gt;&gt; {</span>
 
     private List&lt;ClassicalLogicOperation&gt; goals;
     private List&lt;ClassicalAction&gt; actionsDone;
@@ -27,321 +24,386 @@ import java.util.Map;
 
     @Override
     public void setGoal(ClassicalLogicOperation g) {
-<span class="fc" id="L30">        super.setGoal(g);</span>
-<span class="fc" id="L31">        goals = new ArrayList&lt;&gt;();</span>
-<span class="fc" id="L32">        actionsDone = new ArrayList&lt;&gt;();</span>
-<span class="fc" id="L33">        usedForGoal = new HashMap&lt;&gt;();</span>
-<span class="fc" id="L34">        goals.add(g);</span>
-<span class="fc" id="L35">    }</span>
-
-    @Override
-    public boolean isValid(Action&lt;ClassicalLogicOperation, ProofStep&lt;ClassicalLogicOperation&gt;&gt; act) {
-<span class="nc" id="L39">        return (act instanceof ClassicalAction);</span>
-    }
+<span class="fc" id="L27">        super.setGoal(g);</span>
+<span class="fc" id="L28">        goals = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L29">        actionsDone = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L30">        usedForGoal = new HashMap&lt;&gt;();</span>
+<span class="fc" id="L31">        goals.add(g);</span>
+<span class="fc" id="L32">    }</span>
 
     @Override
     public void initializeProof(List&lt;ClassicalLogicOperation&gt; assms, ClassicalLogicOperation goal) {
-<span class="fc" id="L44">        setAssms(assms);</span>
-<span class="fc" id="L45">        initializeProofSteps();</span>
-<span class="fc" id="L46">        setGoal(goal);</span>
-<span class="fc bfc" id="L47" title="All 2 branches covered.">        for (ClassicalLogicOperation lo : assms) {</span>
-<span class="fc" id="L48">            getSteps().add(new ProofStep&lt;&gt;(0, lo, new ProofReason(&quot;Ass&quot;, new ArrayList&lt;&gt;())));</span>
-<span class="fc" id="L49">        }</span>
-<span class="fc" id="L50">    }</span>
+<span class="fc" id="L36">        initializeProofSteps();</span>
+<span class="fc" id="L37">        setAssms(assms);</span>
+<span class="fc" id="L38">        setGoal(goal);</span>
+<span class="fc" id="L39">    }</span>
 
+    @Override
+    public ParseAction&lt;ClassicalAction, NaturalDeduction&gt; getParser() {
+<span class="fc" id="L43">        return ParseClassicalAction.PARSE_CLASSICAL_ACTION;</span>
+    }
+
+    @Override
+    protected ProofStep&lt;ClassicalLogicOperation&gt; generateAssm(ClassicalLogicOperation logicExpresion) {
+<span class="fc" id="L48">        return new ProofStep&lt;&gt;(0, logicExpresion, new ProofReason(&quot;Ass&quot;, List.of()));</span>
+    }
+
+    /**
+     * Finish the proof it it can be done.
+     * It will stop without solving it if it cannot be solved
+     */
     public void automate() {
-<span class="fc" id="L53">        boolean b = true;</span>
-<span class="fc" id="L54">        boolean c = true;</span>
-<span class="fc bfc" id="L55" title="All 2 branches covered.">        while (c) {</span>
-<span class="fc bfc" id="L56" title="All 2 branches covered.">            while (b) {</span>
-<span class="fc" id="L57">                ClassicalAction intro = introRuleForGoal();</span>
-<span class="fc bfc" id="L58" title="All 6 branches covered.">                if (intro != null || (!getSteps().isEmpty() &amp;&amp; goals.get(goals.size() - 1).equals(getSteps().get(getSteps().size() - 1).getStep()))) {</span>
-<span class="fc" id="L59">                    updateGoals(intro);</span>
-<span class="fc bfc" id="L60" title="All 2 branches covered.">                    if (goals.isEmpty()) {</span>
-<span class="fc" id="L61">                        c = false;</span>
-<span class="fc" id="L62">                        b = false;</span>
+<span class="fc" id="L56">        boolean b = true;</span>
+<span class="fc" id="L57">        boolean c = true;</span>
+<span class="fc bfc" id="L58" title="All 2 branches covered.">        while (c) {</span>
+<span class="fc bfc" id="L59" title="All 2 branches covered.">            while (b) {</span>
+<span class="fc" id="L60">                ClassicalAction intro = introRuleForGoal();</span>
+<span class="fc bfc" id="L61" title="All 6 branches covered.">                if (intro != null || (!getSteps().isEmpty() &amp;&amp; goals.get(goals.size() - 1).equals(getSteps().get(getSteps().size() - 1).getStep()))) {</span>
+<span class="fc" id="L62">                    updateGoals(intro);</span>
+<span class="fc bfc" id="L63" title="All 2 branches covered.">                    if (goals.isEmpty()) {</span>
+<span class="fc" id="L64">                        c = false;</span>
+<span class="fc" id="L65">                        b = false;</span>
                     }
                     continue;
                 }
-<span class="fc" id="L66">                b = eliminateRules();</span>
-<span class="fc" id="L67">            }</span>
-<span class="fc bfc" id="L68" title="All 2 branches covered.">            if (c) {</span>
-<span class="fc" id="L69">                updateGoal();</span>
+<span class="fc" id="L69">                b = eliminateRules();</span>
+<span class="fc" id="L70">            }</span>
+<span class="fc bfc" id="L71" title="All 2 branches covered.">            if (c) {</span>
+<span class="fc" id="L72">                updateGoal();</span>
             }
-<span class="fc" id="L71">            b = true;</span>
+<span class="fc" id="L74">            b = true;</span>
         }
-<span class="fc" id="L73">    }</span>
+<span class="fc" id="L76">    }</span>
 
+    /**
+     * Look for an elimination rule, and apply it.
+     *
+     * @return true iff a rule was found and was applied
+     */
     private boolean eliminateRules() {
-<span class="fc" id="L76">        ClassicalAction ca = lookForElimRules();</span>
-<span class="fc bfc" id="L77" title="All 2 branches covered.">        if (ca != null) {</span>
-<span class="fc" id="L78">            ca.apply(this);</span>
-<span class="fc" id="L79">            return true;</span>
+<span class="fc" id="L84">        ClassicalAction ca = lookForElimRules();</span>
+<span class="fc bfc" id="L85" title="All 2 branches covered.">        if (ca != null) {</span>
+<span class="fc" id="L86">            ca.apply(this);</span>
+<span class="fc" id="L87">            return true;</span>
         } else {
-<span class="fc" id="L81">            return false;</span>
+<span class="fc" id="L89">            return false;</span>
         }
     }
 
     private void updateGoals(ClassicalAction intro) {
-<span class="fc bfc" id="L86" title="All 2 branches covered.">        if (intro != null) {</span>
-<span class="fc" id="L87">            intro.apply(this);</span>
+<span class="fc bfc" id="L94" title="All 2 branches covered.">        if (intro != null) {</span>
+<span class="fc" id="L95">            intro.apply(this);</span>
         }
-<span class="fc bfc" id="L89" title="All 4 branches covered.">        if (goals.size() &gt; 1 &amp;&amp; goals.get(goals.size() - 1).equals(ConstantClassic.FALSE)) {</span>
-<span class="fc" id="L90">            ClassicalAction cla = new ClassicNotI();</span>
-<span class="pc bpc" id="L91" title="1 of 2 branches missed.">            if (cla.isValid(this)) {</span>
-<span class="fc" id="L92">                cla.apply(this);</span>
-<span class="fc" id="L93">                goals.remove(goals.size() - 1);</span>
+<span class="fc bfc" id="L97" title="All 4 branches covered.">        if (goals.size() &gt; 1 &amp;&amp; goals.get(goals.size() - 1).equals(ConstantClassic.FALSE)) {</span>
+<span class="fc" id="L98">            ClassicalAction cla = new ClassicNotI();</span>
+<span class="pc bpc" id="L99" title="1 of 2 branches missed.">            if (cla.isValid(this)) {</span>
+<span class="fc" id="L100">                cla.apply(this);</span>
+<span class="fc" id="L101">                goals.remove(goals.size() - 1);</span>
             }
         }
-<span class="fc" id="L96">        goals.remove(goals.size() - 1);</span>
-<span class="fc" id="L97">        usedForGoal.remove(goals.size() + 2);</span>
-<span class="fc" id="L98">    }</span>
+<span class="fc" id="L104">        goals.remove(goals.size() - 1);</span>
+<span class="fc" id="L105">        usedForGoal.remove(goals.size() + 2);</span>
+<span class="fc" id="L106">    }</span>
 
+    /**
+     * Check if last goal can be reached with an intro rule
+     *
+     * @return the action that must be applied to reach the goal
+     */
     private ClassicalAction introRuleForGoal() {
-<span class="fc bfc" id="L101" title="All 2 branches covered.">        if (getSteps().isEmpty()) {</span>
-<span class="fc" id="L102">            return null;</span>
+<span class="fc bfc" id="L114" title="All 2 branches covered.">        if (getSteps().isEmpty()) {</span>
+<span class="fc" id="L115">            return null;</span>
         }
-<span class="fc" id="L104">        ClassicalLogicOperation goal = goals.get(goals.size() - 1);</span>
-<span class="fc bfc" id="L105" title="All 2 branches covered.">        for (int i = 0; i &lt; getSteps().size(); i++) {</span>
-<span class="pc bpc" id="L106" title="1 of 6 branches missed.">            if (getSteps().get(i).isValid() &amp;&amp; goal.equals(getSteps().get(i).getStep()) &amp;&amp; i + 1 &lt; getSteps().size()) {</span>
-<span class="nc" id="L107">                return new ClassicCopy(i + 1);</span>
+<span class="fc" id="L117">        ClassicalLogicOperation goal = goals.get(goals.size() - 1);</span>
+<span class="fc bfc" id="L118" title="All 2 branches covered.">        for (int i = 0; i &lt; getSteps().size(); i++) {</span>
+<span class="fc bfc" id="L119" title="All 6 branches covered.">            if (getSteps().get(i).isValid() &amp;&amp; goal.equals(getSteps().get(i).getStep()) &amp;&amp; i + 1 &lt; getSteps().size()) {</span>
+<span class="fc" id="L120">                return new ClassicCopy(i + 1);</span>
             }
         }
-<span class="fc" id="L110">        ClassicalAction sol = null;</span>
-<span class="pc bpc" id="L111" title="1 of 2 branches missed.">        if (goal instanceof ConjunctionClassic) {</span>
-<span class="nc" id="L112">            sol = introRuleForGoalConjuntion((BinaryOperation&lt;ClassicalLogicOperation&gt;) goal);</span>
-<span class="fc bfc" id="L113" title="All 2 branches covered.">        } else if (goal instanceof ImplicationClassic) {</span>
-<span class="fc" id="L114">            sol = introRuleForGoalImplication((BinaryOperation&lt;ClassicalLogicOperation&gt;) goal);</span>
-<span class="fc bfc" id="L115" title="All 2 branches covered.">        } else if (goal instanceof DisjunctionClassic) {</span>
-<span class="fc" id="L116">            sol = introRuleForGoalDisjunction((BinaryOperation&lt;ClassicalLogicOperation&gt;) goal);</span>
-<span class="fc bfc" id="L117" title="All 2 branches covered.">        } else if (goal instanceof NegationClassic) {</span>
-<span class="fc" id="L118">            sol = introRuleForGoalNegation((UnaryOperation&lt;ClassicalLogicOperation&gt;) goal);</span>
-<span class="fc bfc" id="L119" title="All 2 branches covered.">        } else if (goal.equals(ConstantClassic.FALSE)) {</span>
-<span class="fc" id="L120">            sol = introRuleForGoalContradiction();</span>
+<span class="fc" id="L123">        ClassicalAction sol = null;</span>
+<span class="pc bpc" id="L124" title="1 of 2 branches missed.">        if (goal instanceof ConjunctionClassic) {</span>
+<span class="nc" id="L125">            sol = introRuleForGoalConjuntion((ConjunctionClassic) goal);</span>
+<span class="fc bfc" id="L126" title="All 2 branches covered.">        } else if (goal instanceof ImplicationClassic) {</span>
+<span class="fc" id="L127">            sol = introRuleForGoalImplication((ImplicationClassic) goal);</span>
+<span class="fc bfc" id="L128" title="All 2 branches covered.">        } else if (goal instanceof DisjunctionClassic) {</span>
+<span class="fc" id="L129">            sol = introRuleForGoalDisjunction((DisjunctionClassic) goal);</span>
+<span class="fc bfc" id="L130" title="All 2 branches covered.">        } else if (goal instanceof NegationClassic) {</span>
+<span class="fc" id="L131">            sol = introRuleForGoalNegation((NegationClassic) goal);</span>
+<span class="fc bfc" id="L132" title="All 2 branches covered.">        } else if (goal.equals(ConstantClassic.FALSE)) {</span>
+<span class="fc" id="L133">            sol = introRuleForGoalContradiction();</span>
         }
-<span class="fc" id="L122">        return sol;</span>
+<span class="fc" id="L135">        return sol;</span>
     }
 
+    /**
+     * Check if last goal can be reached with an intro rule in case it is {@link ConstantClassic#FALSE}
+     *
+     * @return the action {@link ClassicFI} that must be used or null
+     */
     private ClassicalAction introRuleForGoalContradiction() {
-<span class="fc bfc" id="L126" title="All 2 branches covered.">        for (int i = 0; i &lt; getSteps().size(); i++) {</span>
-<span class="fc bfc" id="L127" title="All 4 branches covered.">            if (getSteps().get(i).isValid() &amp;&amp; getSteps().get(i).getStep() instanceof NegationClassic) {</span>
-<span class="fc" id="L128">                ClassicalLogicOperation element = ((NegationClassic) getSteps().get(i).getStep()).getElement();</span>
-<span class="fc bfc" id="L129" title="All 2 branches covered.">                for (int j = 0; j &lt; getSteps().size(); j++) {</span>
-<span class="fc bfc" id="L130" title="All 4 branches covered.">                    if (getSteps().get(j).isValid() &amp;&amp; getSteps().get(j).getStep().equals(element)) {</span>
-<span class="fc" id="L131">                        return new ClassicFI(j + 1, i + 1);</span>
+<span class="fc bfc" id="L144" title="All 2 branches covered.">        for (int i = 0; i &lt; getSteps().size(); i++) {</span>
+<span class="fc bfc" id="L145" title="All 4 branches covered.">            if (getSteps().get(i).isValid() &amp;&amp; getSteps().get(i).getStep() instanceof NegationClassic) {</span>
+<span class="fc" id="L146">                ClassicalLogicOperation element = ((NegationClassic) getSteps().get(i).getStep()).getElement();</span>
+<span class="fc bfc" id="L147" title="All 2 branches covered.">                for (int j = 0; j &lt; getSteps().size(); j++) {</span>
+<span class="fc bfc" id="L148" title="All 4 branches covered.">                    if (getSteps().get(j).isValid() &amp;&amp; getSteps().get(j).getStep().equals(element)) {</span>
+<span class="fc" id="L149">                        return new ClassicFI(j + 1, i + 1);</span>
                     }
                 }
             }
         }
-<span class="fc" id="L136">        return null;</span>
+<span class="fc" id="L154">        return null;</span>
     }
 
-    private ClassicalAction introRuleForGoalNegation(UnaryOperation&lt;ClassicalLogicOperation&gt; goal) {
-<span class="fc" id="L140">        ClassicalLogicOperation element = goal.getElement();</span>
-<span class="fc" id="L141">        int i = 0;</span>
-<span class="fc" id="L142">        int assmsLevel = getSteps().get(getSteps().size() - 1).getAssumptionLevel();</span>
-<span class="pc bpc" id="L143" title="1 of 4 branches missed.">        while (getSteps().size() - 1 - i &gt;= 0 &amp;&amp; getSteps().get(getSteps().size() - 1 - i).getAssumptionLevel() &gt;= assmsLevel) {</span>
-<span class="fc" id="L144">            i++;</span>
+    /**
+     * Check if last goal can be reached with an intro rule in case it is {@link NegationClassic}
+     *
+     * @return the action {@link ClassicNotI} that must be used or null
+     */
+    private ClassicalAction introRuleForGoalNegation(NegationClassic goal) {
+<span class="fc" id="L163">        ClassicalLogicOperation element = goal.getElement();</span>
+<span class="fc" id="L164">        int i = 0;</span>
+<span class="fc" id="L165">        int assmsLevel = getSteps().get(getSteps().size() - 1).getAssumptionLevel();</span>
+<span class="pc bpc" id="L166" title="1 of 4 branches missed.">        while (getSteps().size() - 1 - i &gt;= 0 &amp;&amp; getSteps().get(getSteps().size() - 1 - i).getAssumptionLevel() &gt;= assmsLevel) {</span>
+<span class="fc" id="L167">            i++;</span>
         }
-<span class="pc bpc" id="L146" title="1 of 2 branches missed.">        if (getSteps().get(getSteps().size() - i).getStep().equals(element)) {</span>
-<span class="nc bnc" id="L147" title="All 2 branches missed.">            for (int k = 0; k &lt; getSteps().size(); k++) {</span>
-<span class="nc bnc" id="L148" title="All 4 branches missed.">                if (getSteps().get(k).isValid() &amp;&amp; getSteps().get(k).getStep().equals(ConstantClassic.FALSE)) {</span>
-<span class="nc bnc" id="L149" title="All 2 branches missed.">                    if (k + 1 &lt; getSteps().size()) {</span>
-<span class="nc" id="L150">                        (new ClassicCopy(k + 1)).apply(this);</span>
+<span class="pc bpc" id="L169" title="1 of 2 branches missed.">        if (getSteps().get(getSteps().size() - i).getStep().equals(element)) {</span>
+<span class="nc bnc" id="L170" title="All 2 branches missed.">            for (int k = 0; k &lt; getSteps().size(); k++) {</span>
+<span class="nc bnc" id="L171" title="All 4 branches missed.">                if (getSteps().get(k).isValid() &amp;&amp; getSteps().get(k).getStep().equals(ConstantClassic.FALSE)) {</span>
+<span class="nc bnc" id="L172" title="All 2 branches missed.">                    if (k + 1 &lt; getSteps().size()) {</span>
+<span class="nc" id="L173">                        (new ClassicCopy(k + 1)).apply(this);</span>
                     }
-<span class="nc" id="L152">                    return new ClassicNotI();</span>
+<span class="nc" id="L175">                    return new ClassicNotI();</span>
                 }
             }
         }
-<span class="fc" id="L156">        return null;</span>
+<span class="fc" id="L179">        return null;</span>
     }
 
-    private ClassicalAction introRuleForGoalDisjunction(BinaryOperation&lt;ClassicalLogicOperation&gt; goal) {
-<span class="fc" id="L160">        ClassicalLogicOperation left = (goal).getLeft();</span>
-<span class="fc" id="L161">        ClassicalLogicOperation right = (goal).getRight();</span>
-<span class="fc bfc" id="L162" title="All 2 branches covered.">        for (int k = 0; k &lt; getSteps().size(); k++) {</span>
-<span class="fc bfc" id="L163" title="All 2 branches covered.">            if (getSteps().get(k).isValid()) {</span>
-<span class="pc bpc" id="L164" title="1 of 2 branches missed.">                if (getSteps().get(k).getStep().equals(left)) {</span>
-<span class="nc" id="L165">                    return new ClassicOrI1(k + 1, right);</span>
+    /**
+     * Check if last goal can be reached with an intro rule in case it is {@link DisjunctionClassic}
+     *
+     * @return the action {@link ClassicOrI1} or {@link ClassicOrI2} that must be used or null
+     */
+    private ClassicalAction introRuleForGoalDisjunction(DisjunctionClassic goal) {
+<span class="fc" id="L188">        ClassicalLogicOperation left = (goal).getLeft();</span>
+<span class="fc" id="L189">        ClassicalLogicOperation right = (goal).getRight();</span>
+<span class="fc bfc" id="L190" title="All 2 branches covered.">        for (int k = 0; k &lt; getSteps().size(); k++) {</span>
+<span class="fc bfc" id="L191" title="All 2 branches covered.">            if (getSteps().get(k).isValid()) {</span>
+<span class="pc bpc" id="L192" title="1 of 2 branches missed.">                if (getSteps().get(k).getStep().equals(left)) {</span>
+<span class="nc" id="L193">                    return new ClassicOrI1(k + 1, right);</span>
                 }
-<span class="pc bpc" id="L167" title="1 of 2 branches missed.">                if (getSteps().get(k).getStep().equals(right)) {</span>
-<span class="nc" id="L168">                    return new ClassicOrI2(k + 1, left);</span>
+<span class="pc bpc" id="L195" title="1 of 2 branches missed.">                if (getSteps().get(k).getStep().equals(right)) {</span>
+<span class="nc" id="L196">                    return new ClassicOrI2(k + 1, left);</span>
                 }
             }
         }
-<span class="fc" id="L172">        return null;</span>
+<span class="fc" id="L200">        return null;</span>
     }
 
-    private ClassicalAction introRuleForGoalConjuntion(BinaryOperation&lt;ClassicalLogicOperation&gt; goal) {
-<span class="nc" id="L176">        ClassicalLogicOperation left = (goal).getLeft();</span>
-<span class="nc" id="L177">        int a = -1;</span>
-<span class="nc" id="L178">        ClassicalLogicOperation right = (goal).getRight();</span>
-<span class="nc" id="L179">        int b = -1;</span>
-<span class="nc bnc" id="L180" title="All 2 branches missed.">        for (int i = 0; i &lt; getSteps().size(); i++) {</span>
-<span class="nc bnc" id="L181" title="All 2 branches missed.">            if (getSteps().get(i).isValid()) {</span>
-<span class="nc bnc" id="L182" title="All 2 branches missed.">                if (left.equals(getSteps().get(i).getStep())) {</span>
-<span class="nc" id="L183">                    a = i + 1;</span>
+    /**
+     * Check if last goal can be reached with an intro rule in case it is {@link ConjunctionClassic}
+     *
+     * @return the action {@link ClassicAndI} that must be used or null
+     */
+    private ClassicalAction introRuleForGoalConjuntion(ConjunctionClassic goal) {
+<span class="nc" id="L209">        ClassicalLogicOperation left = (goal).getLeft();</span>
+<span class="nc" id="L210">        int a = -1;</span>
+<span class="nc" id="L211">        ClassicalLogicOperation right = (goal).getRight();</span>
+<span class="nc" id="L212">        int b = -1;</span>
+<span class="nc bnc" id="L213" title="All 2 branches missed.">        for (int i = 0; i &lt; getSteps().size(); i++) {</span>
+<span class="nc bnc" id="L214" title="All 2 branches missed.">            if (getSteps().get(i).isValid()) {</span>
+<span class="nc bnc" id="L215" title="All 2 branches missed.">                if (left.equals(getSteps().get(i).getStep())) {</span>
+<span class="nc" id="L216">                    a = i + 1;</span>
                 }
-<span class="nc bnc" id="L185" title="All 2 branches missed.">                if (right.equals(getSteps().get(i).getStep())) {</span>
-<span class="nc" id="L186">                    b = i + 1;</span>
+<span class="nc bnc" id="L218" title="All 2 branches missed.">                if (right.equals(getSteps().get(i).getStep())) {</span>
+<span class="nc" id="L219">                    b = i + 1;</span>
                 }
             }
-<span class="nc bnc" id="L189" title="All 4 branches missed.">            if (a &gt; 0 &amp;&amp; b &gt; 0) {</span>
-<span class="nc" id="L190">                return new ClassicAndI(a, b);</span>
+<span class="nc bnc" id="L222" title="All 4 branches missed.">            if (a &gt; 0 &amp;&amp; b &gt; 0) {</span>
+<span class="nc" id="L223">                return new ClassicAndI(a, b);</span>
             }
         }
-<span class="nc" id="L193">        return null;</span>
+<span class="nc" id="L226">        return null;</span>
     }
 
-    private ClassicalAction introRuleForGoalImplication(BinaryOperation&lt;ClassicalLogicOperation&gt; goal) {
-<span class="fc" id="L197">        ClassicalLogicOperation left = (goal).getLeft();</span>
-<span class="fc" id="L198">        ClassicalLogicOperation right = (goal).getRight();</span>
-<span class="fc" id="L199">        int i = 0;</span>
-<span class="fc" id="L200">        int assmsLevel = getSteps().get(getSteps().size() - 1).getAssumptionLevel();</span>
-<span class="pc bpc" id="L201" title="1 of 4 branches missed.">        while (getSteps().size() - 1 - i &gt;= 0 &amp;&amp; getSteps().get(getSteps().size() - 1 - i).getAssumptionLevel() &gt;= assmsLevel) {</span>
-<span class="fc" id="L202">            i++;</span>
+    /**
+     * Check if last goal can be reached with an intro rule in case it is {@link ImplicationClassic}
+     *
+     * @return the action {@link ClassicDeductionTheorem} that must be used or null
+     */
+    private ClassicalAction introRuleForGoalImplication(ImplicationClassic goal) {
+<span class="fc" id="L235">        ClassicalLogicOperation left = (goal).getLeft();</span>
+<span class="fc" id="L236">        ClassicalLogicOperation right = (goal).getRight();</span>
+<span class="fc" id="L237">        int i = 0;</span>
+<span class="fc" id="L238">        int assmsLevel = getSteps().get(getSteps().size() - 1).getAssumptionLevel();</span>
+<span class="fc bfc" id="L239" title="All 4 branches covered.">        while (getSteps().size() - 1 - i &gt;= 0 &amp;&amp; getSteps().get(getSteps().size() - 1 - i).getAssumptionLevel() &gt;= assmsLevel) {</span>
+<span class="fc" id="L240">            i++;</span>
         }
-<span class="pc bpc" id="L204" title="1 of 2 branches missed.">        if (getSteps().get(getSteps().size() - i).getStep().equals(left)) {</span>
-<span class="pc bpc" id="L205" title="1 of 2 branches missed.">            for (int k = 0; k &lt; getSteps().size(); k++) {</span>
-<span class="fc bfc" id="L206" title="All 4 branches covered.">                if (getSteps().get(k).isValid() &amp;&amp; getSteps().get(k).getStep().equals(right)) {</span>
-<span class="pc bpc" id="L207" title="3 of 4 branches missed.">                    if (k + 1 &lt; getSteps().size() &amp;&amp; !getSteps().get(getSteps().size() - 1).getStep().equals(getSteps().get(k).getStep())) {</span>
-<span class="nc" id="L208">                        (new ClassicCopy(k + 1)).apply(this);</span>
+<span class="fc bfc" id="L242" title="All 2 branches covered.">        if (getSteps().get(getSteps().size() - i).getStep().equals(left)) {</span>
+<span class="pc bpc" id="L243" title="1 of 2 branches missed.">            for (int k = 0; k &lt; getSteps().size(); k++) {</span>
+<span class="fc bfc" id="L244" title="All 4 branches covered.">                if (getSteps().get(k).isValid() &amp;&amp; getSteps().get(k).getStep().equals(right)) {</span>
+<span class="pc bpc" id="L245" title="1 of 4 branches missed.">                    if (k + 1 &lt; getSteps().size() &amp;&amp; !getSteps().get(getSteps().size() - 1).getStep().equals(getSteps().get(k).getStep())) {</span>
+<span class="nc" id="L246">                        (new ClassicCopy(k + 1)).apply(this);</span>
                     }
-<span class="fc" id="L210">                    return new ClassicDeductionTheorem();</span>
+<span class="fc" id="L248">                    return new ClassicDeductionTheorem();</span>
                 }
             }
         }
-<span class="nc" id="L214">        return null;</span>
+<span class="fc" id="L252">        return null;</span>
     }
 
     private ClassicalAction lookForElimRules() {
-<span class="fc bfc" id="L218" title="All 2 branches covered.">        for (int i = 0; i &lt; getSteps().size(); i++) {</span>
-<span class="fc bfc" id="L219" title="All 2 branches covered.">            if (getSteps().get(i).isValid()) {</span>
-<span class="fc" id="L220">                ClassicalAction act = new DeMorgan1(i + 1);</span>
-<span class="fc" id="L221">                act = checkSingleAction(act);</span>
-<span class="fc bfc" id="L222" title="All 2 branches covered.">                if (act != null) {</span>
-<span class="fc" id="L223">                    return act;</span>
+<span class="fc bfc" id="L256" title="All 2 branches covered.">        for (int i = 0; i &lt; getSteps().size(); i++) {</span>
+<span class="fc bfc" id="L257" title="All 2 branches covered.">            if (getSteps().get(i).isValid()) {</span>
+<span class="fc" id="L258">                ClassicalAction act = new DeMorgan1(i + 1);</span>
+<span class="fc" id="L259">                act = checkSingleAction(act);</span>
+<span class="fc bfc" id="L260" title="All 2 branches covered.">                if (act != null) {</span>
+<span class="fc" id="L261">                    return act;</span>
                 }
-<span class="fc" id="L225">                act = new ClassicNotE(i + 1);</span>
-<span class="fc" id="L226">                act = checkSingleAction(act);</span>
-<span class="fc bfc" id="L227" title="All 2 branches covered.">                if (act != null) {</span>
-<span class="fc" id="L228">                    return act;</span>
+<span class="fc" id="L263">                act = new ClassicNotE(i + 1);</span>
+<span class="fc" id="L264">                act = checkSingleAction(act);</span>
+<span class="fc bfc" id="L265" title="All 2 branches covered.">                if (act != null) {</span>
+<span class="fc" id="L266">                    return act;</span>
                 }
-<span class="fc" id="L230">                act = checkAdditionOfAndI(i);</span>
-<span class="pc bpc" id="L231" title="1 of 2 branches missed.">                if (act != null) {</span>
-<span class="nc" id="L232">                    return act;</span>
+<span class="fc" id="L268">                act = checkAdditionOfAndI(i);</span>
+<span class="pc bpc" id="L269" title="1 of 2 branches missed.">                if (act != null) {</span>
+<span class="nc" id="L270">                    return act;</span>
                 }
-<span class="fc" id="L234">                act = checkAdditionOfDisjIModPonens(i);</span>
-<span class="fc bfc" id="L235" title="All 2 branches covered.">                if (act != null) {</span>
-<span class="fc" id="L236">                    return act;</span>
+<span class="fc" id="L272">                act = checkAdditionOfDisjIModPonens(i);</span>
+<span class="fc bfc" id="L273" title="All 2 branches covered.">                if (act != null) {</span>
+<span class="fc" id="L274">                    return act;</span>
                 }
             }
         }
-<span class="fc" id="L240">        return null;</span>
+<span class="fc" id="L278">        return null;</span>
     }
 
     private ClassicalAction checkAdditionOfAndI(int i) {
-<span class="fc" id="L244">        ClassicalAction act = new ClassicAndE1(i + 1);</span>
-<span class="fc" id="L245">        act = checkSingleAction(act);</span>
-<span class="pc bpc" id="L246" title="1 of 2 branches missed.">        if (act != null) {</span>
-<span class="nc" id="L247">            return act;</span>
+<span class="fc" id="L282">        ClassicalAction act = new ClassicAndE1(i + 1);</span>
+<span class="fc" id="L283">        act = checkSingleAction(act);</span>
+<span class="pc bpc" id="L284" title="1 of 2 branches missed.">        if (act != null) {</span>
+<span class="nc" id="L285">            return act;</span>
         }
-<span class="fc" id="L249">        act = new ClassicAndE2(i + 1);</span>
-<span class="fc" id="L250">        act = checkSingleAction(act);</span>
-<span class="fc" id="L251">        return act;</span>
+<span class="fc" id="L287">        act = new ClassicAndE2(i + 1);</span>
+<span class="fc" id="L288">        act = checkSingleAction(act);</span>
+<span class="fc" id="L289">        return act;</span>
     }
 
     private ClassicalAction checkSingleAction(ClassicalAction act) {
-<span class="pc bpc" id="L255" title="1 of 4 branches missed.">        if (!actionsDone.contains(act) &amp;&amp; act.isValid(this)) {</span>
-<span class="fc" id="L256">            actionsDone.add(act);</span>
-<span class="fc" id="L257">            return act;</span>
+<span class="pc bpc" id="L293" title="1 of 4 branches missed.">        if (!actionsDone.contains(act) &amp;&amp; act.isValid(this)) {</span>
+<span class="fc" id="L294">            actionsDone.add(act);</span>
+<span class="fc" id="L295">            return act;</span>
         }
-<span class="fc" id="L259">        return null;</span>
+<span class="fc" id="L297">        return null;</span>
     }
 
     private ClassicalAction checkAdditionOfDisjIModPonens(int i) {
-<span class="fc bfc" id="L263" title="All 2 branches covered.">        for (int j = 0; j &lt; getSteps().size(); j++) {</span>
-<span class="pc bpc" id="L264" title="1 of 2 branches missed.">            if (getSteps().get(j).isValid()) {</span>
-<span class="fc" id="L265">                ClassicalAction act = new ClassicModusPonens(i + 1, j + 1);</span>
-<span class="fc" id="L266">                act = checkSingleAction(act);</span>
-<span class="fc bfc" id="L267" title="All 2 branches covered.">                if (act != null) {</span>
-<span class="fc" id="L268">                    return act;</span>
+<span class="fc bfc" id="L301" title="All 2 branches covered.">        for (int j = 0; j &lt; getSteps().size(); j++) {</span>
+<span class="fc bfc" id="L302" title="All 2 branches covered.">            if (getSteps().get(j).isValid()) {</span>
+<span class="fc" id="L303">                ClassicalAction act = new ClassicModusPonens(i + 1, j + 1);</span>
+<span class="fc" id="L304">                act = checkSingleAction(act);</span>
+<span class="fc bfc" id="L305" title="All 2 branches covered.">                if (act != null) {</span>
+<span class="fc" id="L306">                    return act;</span>
                 }
-<span class="fc" id="L270">                act = new OrE1(i + 1, j + 1);</span>
-<span class="fc" id="L271">                act = checkSingleAction(act);</span>
-<span class="pc bpc" id="L272" title="1 of 2 branches missed.">                if (act != null) {</span>
-<span class="nc" id="L273">                    return act;</span>
+<span class="fc" id="L308">                act = new OrE1(i + 1, j + 1);</span>
+<span class="fc" id="L309">                act = checkSingleAction(act);</span>
+<span class="pc bpc" id="L310" title="1 of 2 branches missed.">                if (act != null) {</span>
+<span class="nc" id="L311">                    return act;</span>
                 }
-<span class="fc" id="L275">                act = new OrE2(i + 1, j + 1);</span>
-<span class="fc" id="L276">                act = checkSingleAction(act);</span>
-<span class="pc bpc" id="L277" title="1 of 2 branches missed.">                if (act != null) {</span>
-<span class="nc" id="L278">                    return act;</span>
+<span class="fc" id="L313">                act = new OrE2(i + 1, j + 1);</span>
+<span class="fc" id="L314">                act = checkSingleAction(act);</span>
+<span class="pc bpc" id="L315" title="1 of 2 branches missed.">                if (act != null) {</span>
+<span class="nc" id="L316">                    return act;</span>
                 }
             }
         }
-<span class="fc" id="L282">        return null;</span>
+<span class="fc" id="L320">        return null;</span>
     }
 
     private void updateGoal() {
-<span class="pc bpc" id="L286" title="1 of 2 branches missed.">        if (goals.get(goals.size() - 1).equals(ConstantClassic.FALSE)) {</span>
-<span class="nc" id="L287">            lastGoalFalse();</span>
+<span class="pc bpc" id="L324" title="1 of 2 branches missed.">        if (goals.get(goals.size() - 1).equals(ConstantClassic.FALSE)) {</span>
+<span class="nc" id="L325">            lastGoalFalse();</span>
         } else {
-<span class="fc" id="L289">            ClassicalLogicOperation goal = goals.get(goals.size() - 1);</span>
-<span class="pc bpc" id="L290" title="1 of 2 branches missed.">            if (goal instanceof ConjunctionClassic) {</span>
-<span class="nc" id="L291">                updateGoalConjuntion((BinaryOperation&lt;ClassicalLogicOperation&gt;) goal);</span>
-<span class="fc bfc" id="L292" title="All 2 branches covered.">            } else if (goal instanceof ImplicationClassic) {</span>
-<span class="fc" id="L293">                updateGoalImplication((BinaryOperation&lt;ClassicalLogicOperation&gt;) goal);</span>
-<span class="fc bfc" id="L294" title="All 2 branches covered.">            } else if (goal instanceof NegationClassic) {</span>
-<span class="fc" id="L295">                updateGoalNegation((UnaryOperation&lt;ClassicalLogicOperation&gt;) goal);</span>
+<span class="fc" id="L327">            ClassicalLogicOperation goal = goals.get(goals.size() - 1);</span>
+<span class="pc bpc" id="L328" title="1 of 2 branches missed.">            if (goal instanceof ConjunctionClassic) {</span>
+<span class="nc" id="L329">                updateGoalConjuntion((ConjunctionClassic) goal);</span>
+<span class="fc bfc" id="L330" title="All 2 branches covered.">            } else if (goal instanceof ImplicationClassic) {</span>
+<span class="fc" id="L331">                updateGoalImplication((ImplicationClassic) goal);</span>
+<span class="fc bfc" id="L332" title="All 2 branches covered.">            } else if (goal instanceof NegationClassic) {</span>
+<span class="fc" id="L333">                updateGoalNegation((NegationClassic) goal);</span>
             } else {
-<span class="fc" id="L297">                updateGoalContradiction(goal);</span>
+<span class="fc" id="L335">                updateGoalContradiction(goal);</span>
             }
         }
-<span class="fc" id="L300">    }</span>
+<span class="fc" id="L338">    }</span>
 
+    /**
+     * Update the goal list in case the last goal is {@link ConstantClassic#FALSE}
+     */
     private void lastGoalFalse() {
-<span class="nc" id="L303">        int j = -1;</span>
-<span class="nc bnc" id="L304" title="All 2 branches missed.">        for (int i = 0; i &lt; getSteps().size(); i++) {</span>
-<span class="nc" id="L305">            boolean b = true;</span>
-<span class="nc bnc" id="L306" title="All 4 branches missed.">            if (!usedForGoal.containsValue(i) &amp;&amp; getSteps().get(i).isValid()) {</span>
-<span class="nc" id="L307">                LogicOperation log = getSteps().get(i).getStep();</span>
-<span class="nc bnc" id="L308" title="All 2 branches missed.">                if (log instanceof NegationClassic) {</span>
-<span class="nc" id="L309">                    goals.add(((UnaryOperation&lt;ClassicalLogicOperation&gt;) log).getElement());</span>
-<span class="nc bnc" id="L310" title="All 2 branches missed.">                } else if (log instanceof DisjunctionClassic) {</span>
-<span class="nc" id="L311">                    goals.add(new NegationClassic(((BinaryOperation&lt;ClassicalLogicOperation&gt;) log).getLeft()));</span>
-<span class="nc bnc" id="L312" title="All 2 branches missed.">                } else if (log instanceof ImplicationClassic) {</span>
-<span class="nc" id="L313">                    goals.add(((BinaryOperation&lt;ClassicalLogicOperation&gt;) log).getLeft());</span>
+<span class="nc" id="L344">        int j = -1;</span>
+<span class="nc bnc" id="L345" title="All 2 branches missed.">        for (int i = 0; i &lt; getSteps().size(); i++) {</span>
+<span class="nc" id="L346">            boolean b = true;</span>
+<span class="nc bnc" id="L347" title="All 4 branches missed.">            if (!usedForGoal.containsValue(i) &amp;&amp; getSteps().get(i).isValid()) {</span>
+<span class="nc" id="L348">                LogicOperation log = getSteps().get(i).getStep();</span>
+<span class="nc bnc" id="L349" title="All 2 branches missed.">                if (log instanceof NegationClassic) {</span>
+<span class="nc" id="L350">                    goals.add(((NegationClassic) log).getElement());</span>
+<span class="nc bnc" id="L351" title="All 2 branches missed.">                } else if (log instanceof DisjunctionClassic) {</span>
+<span class="nc" id="L352">                    goals.add(new NegationClassic(((DisjunctionClassic) log).getLeft()));</span>
+<span class="nc bnc" id="L353" title="All 2 branches missed.">                } else if (log instanceof ImplicationClassic) {</span>
+<span class="nc" id="L354">                    goals.add(((ImplicationClassic) log).getLeft());</span>
                 } else {
-<span class="nc" id="L315">                    b = false;</span>
+<span class="nc" id="L356">                    b = false;</span>
                 }
-<span class="nc bnc" id="L317" title="All 2 branches missed.">                if (b) {</span>
-<span class="nc" id="L318">                    j = i;</span>
-<span class="nc" id="L319">                    break;</span>
+<span class="nc bnc" id="L358" title="All 2 branches missed.">                if (b) {</span>
+<span class="nc" id="L359">                    j = i;</span>
+<span class="nc" id="L360">                    break;</span>
                 }
             }
         }
-<span class="nc" id="L323">        usedForGoal.put(goals.size(), j);</span>
-<span class="nc" id="L324">    }</span>
+<span class="nc" id="L364">        usedForGoal.put(goals.size(), j);</span>
+<span class="nc" id="L365">    }</span>
 
+    /**
+     * Create new goal a assumption from the last goal. Assume the opposite
+     * and try to reach a contradiction
+     *
+     * @param goal last goal
+     */
     private void updateGoalContradiction(ClassicalLogicOperation goal) {
-<span class="fc" id="L327">        goals.add(new NegationClassic(new NegationClassic(goal)));</span>
-<span class="fc" id="L328">        goals.add(ConstantClassic.FALSE);</span>
-<span class="fc" id="L329">        (new ClassicAssume(new NegationClassic(goal))).apply(this);</span>
-<span class="fc" id="L330">    }</span>
+<span class="fc" id="L374">        goals.add(new NegationClassic(new NegationClassic(goal)));</span>
+<span class="fc" id="L375">        goals.add(ConstantClassic.FALSE);</span>
+<span class="fc" id="L376">        (new ClassicAssume(new NegationClassic(goal))).apply(this);</span>
+<span class="fc" id="L377">    }</span>
 
-    private void updateGoalNegation(UnaryOperation&lt;ClassicalLogicOperation&gt; goal) {
-<span class="fc" id="L333">        goals.add(ConstantClassic.FALSE);</span>
-<span class="fc" id="L334">        (new ClassicAssume((goal).getElement())).apply(this);</span>
-<span class="fc" id="L335">    }</span>
+    /**
+     * Create new goal a assumption from the last goal of type -
+     *
+     * @param goal last goal of type -
+     */
+    private void updateGoalNegation(NegationClassic goal) {
+<span class="fc" id="L385">        goals.add(ConstantClassic.FALSE);</span>
+<span class="fc" id="L386">        (new ClassicAssume((goal).getElement())).apply(this);</span>
+<span class="fc" id="L387">    }</span>
 
-    private void updateGoalImplication(BinaryOperation&lt;ClassicalLogicOperation&gt; goal) {
-<span class="fc" id="L338">        goals.add((goal).getRight());</span>
-<span class="fc" id="L339">        (new ClassicAssume((goal).getLeft())).apply(this);</span>
-<span class="fc" id="L340">    }</span>
+    /**
+     * Create new goal a assumption from the last goal of type -&gt;
+     *
+     * @param goal last goal of type -&gt;
+     */
+    private void updateGoalImplication(ImplicationClassic goal) {
+<span class="fc" id="L395">        goals.add((goal).getRight());</span>
+<span class="fc" id="L396">        (new ClassicAssume((goal).getLeft())).apply(this);</span>
+<span class="fc" id="L397">    }</span>
 
-    private void updateGoalConjuntion(BinaryOperation&lt;ClassicalLogicOperation&gt; goal) {
-<span class="nc" id="L343">        goals.add((goal).getLeft());</span>
-<span class="nc" id="L344">        goals.add((goal).getRight());</span>
-<span class="nc" id="L345">    }</span>
+    /**
+     * Create new goals from the last goal of type AND
+     *
+     * @param goal last goal of type AND
+     */
+    private void updateGoalConjuntion(ConjunctionClassic goal) {
+<span class="nc" id="L405">        goals.add((goal).getLeft());</span>
+<span class="nc" id="L406">        goals.add((goal).getRight());</span>
+<span class="nc" id="L407">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

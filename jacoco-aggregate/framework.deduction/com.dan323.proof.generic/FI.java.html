@@ -15,7 +15,7 @@ import java.util.function.Supplier;
 /**
  * @author danco
  */
-public abstract class FI&lt;T extends LogicOperation, Q extends ProofStep&lt;T&gt;&gt; implements AbstractAction&lt;T, Q&gt; {
+public abstract class FI&lt;T extends LogicOperation, Q extends ProofStep&lt;T&gt;, P extends Proof&lt;T, Q&gt;&gt; implements AbstractAction&lt;T, Q, P&gt; {
 
     private final int neg;
     private final int pos;
@@ -30,7 +30,7 @@ public abstract class FI&lt;T extends LogicOperation, Q extends ProofStep&lt;T&g
 <span class="fc" id="L30">    }</span>
 
     @Override
-    public boolean isValid(Proof&lt;T, Q&gt; pf) {
+    public boolean isValid(P pf) {
 <span class="fc bfc" id="L34" title="All 6 branches covered.">        if (RuleUtils.isValidIndexAndProp(pf, neg) &amp;&amp; RuleUtils.isValidIndexAndProp(pf, pos) &amp;&amp; RuleUtils.isOperation(pf, neg, Negation.class)) {</span>
 <span class="fc" id="L35">            Negation&lt;?&gt; negation = (Negation&lt;?&gt;) pf.getSteps().get(neg - 1).getStep();</span>
 <span class="fc bfc" id="L36" title="All 2 branches covered.">            if (negation.getElement().equals(pf.getSteps().get(pos - 1).getStep())) {</span>
@@ -49,7 +49,7 @@ public abstract class FI&lt;T extends LogicOperation, Q extends ProofStep&lt;T&g
     }
 
     @Override
-    public void applyStepSupplier(Proof&lt;T, Q&gt; pf, ProofStepSupplier&lt;T, Q&gt; supp) {
+    public void applyStepSupplier(P pf, ProofStepSupplier&lt;T, Q&gt; supp) {
 <span class="fc" id="L53">        int assLevel = pf.getSteps().get(pf.getSteps().size() - 1).getAssumptionLevel();</span>
 <span class="fc" id="L54">        pf.getSteps().add(supp.generateProofStep(assLevel, constantFunction.get().castToLanguage(), new ProofReason(&quot;FI&quot;, List.of(pos, neg))));</span>
 <span class="fc" id="L55">    }</span>
@@ -61,7 +61,7 @@ public abstract class FI&lt;T extends LogicOperation, Q extends ProofStep&lt;T&g
 
     @Override
     public boolean equals(Object obj) {
-<span class="pc bpc" id="L64" title="3 of 8 branches missed.">        return obj != null &amp;&amp; obj.getClass().equals(getClass()) &amp;&amp; ((FI&lt;?, ?&gt;) obj).neg == neg &amp;&amp; ((FI&lt;?, ?&gt;) obj).pos == pos;</span>
+<span class="pc bpc" id="L64" title="3 of 8 branches missed.">        return obj != null &amp;&amp; obj.getClass().equals(getClass()) &amp;&amp; ((FI&lt;?, ?, ?&gt;) obj).neg == neg &amp;&amp; ((FI&lt;?, ?, ?&gt;) obj).pos == pos;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

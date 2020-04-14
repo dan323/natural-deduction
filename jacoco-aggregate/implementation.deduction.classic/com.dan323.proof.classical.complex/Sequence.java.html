@@ -1,9 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>Sequence.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">jacoco-report-aggregate</a> &gt; <a href="../index.html" class="el_bundle">implementation.deduction.classic</a> &gt; <a href="index.source.html" class="el_package">com.dan323.proof.classical.complex</a> &gt; <span class="el_source">Sequence.java</span></div><h1>Sequence.java</h1><pre class="source lang-java linenums">package com.dan323.proof.classical.complex;
 
-import com.dan323.expresions.classical.ClassicalLogicOperation;
 import com.dan323.proof.classical.ClassicalAction;
-import com.dan323.proof.generic.proof.Proof;
-import com.dan323.proof.generic.proof.ProofStep;
+import com.dan323.proof.classical.proof.NaturalDeduction;
 
 import java.util.List;
 
@@ -11,31 +9,37 @@ public final class Sequence extends CompositionRule {
 
     private List&lt;ClassicalAction&gt; lst;
 
-<span class="nc" id="L14">    public Sequence(List&lt;ClassicalAction&gt; l) {</span>
-<span class="nc" id="L15">        lst = l;</span>
-<span class="nc" id="L16">    }</span>
+<span class="nc" id="L12">    public Sequence(List&lt;ClassicalAction&gt; l) {</span>
+<span class="nc" id="L13">        lst = l;</span>
+<span class="nc" id="L14">    }</span>
 
     @Override
-    public boolean isValid(Proof&lt;ClassicalLogicOperation, ProofStep&lt;ClassicalLogicOperation&gt;&gt; pf) {
-<span class="nc" id="L20">        int size = pf.getSteps().size();</span>
-<span class="nc bnc" id="L21" title="All 2 branches missed.">        for (ClassicalAction ca : lst) {</span>
-<span class="nc bnc" id="L22" title="All 2 branches missed.">            if (!ca.isValid(pf)) {</span>
-<span class="nc" id="L23">                return false;</span>
+    public boolean isValid(NaturalDeduction pf) {
+<span class="nc" id="L18">        int size = pf.getSteps().size();</span>
+<span class="nc bnc" id="L19" title="All 2 branches missed.">        for (ClassicalAction ca : lst) {</span>
+<span class="nc bnc" id="L20" title="All 2 branches missed.">            if (!ca.isValid(pf)) {</span>
+<span class="nc" id="L21">                resetProof(pf, size);</span>
+<span class="nc" id="L22">                return false;</span>
             }
-<span class="nc" id="L25">            ca.apply(pf);</span>
-<span class="nc" id="L26">        }</span>
-<span class="nc" id="L27">        int size2 = pf.getSteps().size();</span>
-<span class="nc bnc" id="L28" title="All 2 branches missed.">        for (int i = size; i &lt; size2; i++) {</span>
-<span class="nc" id="L29">            pf.removeLastStep();</span>
-        }
-<span class="nc" id="L31">        return true;</span>
+<span class="nc" id="L24">            ca.apply(pf);</span>
+<span class="nc" id="L25">        }</span>
+<span class="nc" id="L26">        resetProof(pf, size);</span>
+<span class="nc" id="L27">        return true;</span>
     }
 
+    private void resetProof(NaturalDeduction pf, int size) {
+<span class="nc" id="L31">        List&lt;ClassicalAction&gt; actions = pf.getParser().translateToActions(pf);</span>
+<span class="nc" id="L32">        pf.initializeProof(pf.getAssms(), pf.getGoal());</span>
+<span class="nc bnc" id="L33" title="All 2 branches missed.">        for (int i = 0; i &lt; size; i++) {</span>
+<span class="nc" id="L34">            actions.get(i).apply(pf);</span>
+        }
+<span class="nc" id="L36">    }</span>
+
     @Override
-    public void apply(Proof&lt;ClassicalLogicOperation, ProofStep&lt;ClassicalLogicOperation&gt;&gt; pf) {
-<span class="nc bnc" id="L36" title="All 2 branches missed.">        for (ClassicalAction ca : lst) {</span>
-<span class="nc" id="L37">            ca.apply(pf);</span>
-<span class="nc" id="L38">        }</span>
-<span class="nc" id="L39">    }</span>
+    public void apply(NaturalDeduction pf) {
+<span class="nc bnc" id="L40" title="All 2 branches missed.">        for (ClassicalAction ca : lst) {</span>
+<span class="nc" id="L41">            ca.apply(pf);</span>
+<span class="nc" id="L42">        }</span>
+<span class="nc" id="L43">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

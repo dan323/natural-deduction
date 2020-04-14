@@ -13,7 +13,7 @@ import java.util.function.BiFunction;
 /**
  * @author danco
  */
-public abstract class DeductionTheorem&lt;T extends LogicOperation, Q extends ProofStep&lt;T&gt;&gt; implements AbstractAction&lt;T, Q&gt; {
+public abstract class DeductionTheorem&lt;T extends LogicOperation, Q extends ProofStep&lt;T&gt;, P extends Proof&lt;T, Q&gt;&gt; implements AbstractAction&lt;T, Q, P&gt; {
 
     private BiFunction&lt;T, T, Implication&lt;T&gt;&gt; constructor;
 
@@ -30,20 +30,20 @@ public abstract class DeductionTheorem&lt;T extends LogicOperation, Q extends Pr
     }
 
     @Override
-    public boolean isValid(Proof&lt;T, Q&gt; pf) {
-<span class="fc" id="L34">        int assLevel = Action.getLastAssumptionLevel(pf);</span>
+    public boolean isValid(P pf) {
+<span class="fc" id="L34">        int assLevel = RuleUtils.getLastAssumptionLevel(pf);</span>
 <span class="fc bfc" id="L35" title="All 2 branches covered.">        if (assLevel == 0) {</span>
 <span class="fc" id="L36">            return false;</span>
         }
-<span class="fc" id="L38">        int lastAssumption = Action.getToLastAssumption(pf, assLevel);</span>
+<span class="fc" id="L38">        int lastAssumption = RuleUtils.getToLastAssumption(pf,assLevel);</span>
 <span class="fc" id="L39">        ProofStep&lt;T&gt; log = pf.getSteps().get(pf.getSteps().size() - lastAssumption);</span>
 <span class="fc" id="L40">        return log.getProof().getNameProof().equals(&quot;Ass&quot;);</span>
     }
 
     @Override
-    public void applyStepSupplier(Proof&lt;T, Q&gt; pf, ProofStepSupplier&lt;T, Q&gt; supp) {
-<span class="fc" id="L45">        int assLevel = Action.getLastAssumptionLevel(pf);</span>
-<span class="fc" id="L46">        int i = Action.disableUntilLastAssumption(pf, assLevel);</span>
+    public void applyStepSupplier(P pf, ProofStepSupplier&lt;T, Q&gt; supp) {
+<span class="fc" id="L45">        int assLevel = RuleUtils.getLastAssumptionLevel(pf);</span>
+<span class="fc" id="L46">        int i = RuleUtils.disableUntilLastAssumption(pf,assLevel);</span>
 <span class="fc" id="L47">        pf.getSteps().add(supp.generateProofStep(assLevel - 1,</span>
 <span class="fc" id="L48">                constructor.apply(pf.getSteps().get(pf.getSteps().size() - i).getStep(),</span>
 <span class="fc" id="L49">                        pf.getSteps().get(pf.getSteps().size() - 1).getStep()).castToLanguage(), new ProofReason(&quot;-&gt;I&quot;, List.of(pf.getSteps().size() - i + 1, pf.getSteps().size()))));</span>

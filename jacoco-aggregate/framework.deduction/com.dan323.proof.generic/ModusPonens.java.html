@@ -12,7 +12,7 @@ import java.util.List;
 /**
  * @author danco
  */
-public abstract class ModusPonens&lt;T extends LogicOperation, Q extends ProofStep&lt;T&gt;&gt; implements AbstractAction&lt;T, Q&gt; {
+public abstract class ModusPonens&lt;T extends LogicOperation, Q extends ProofStep&lt;T&gt;, P extends Proof&lt;T, Q&gt;&gt; implements AbstractAction&lt;T, Q, P&gt; {
 
     private final int applyAt1;
     private final int applyAt2;
@@ -24,7 +24,7 @@ public abstract class ModusPonens&lt;T extends LogicOperation, Q extends ProofSt
 
     public boolean equals(Object obj) {
 <span class="pc bpc" id="L26" title="1 of 4 branches missed.">        if (obj != null &amp;&amp; getClass().equals(obj.getClass())) {</span>
-<span class="pc bpc" id="L27" title="2 of 4 branches missed.">            return ((ModusPonens&lt;?, ?&gt;) obj).applyAt1 == applyAt1 &amp;&amp; ((ModusPonens&lt;?, ?&gt;) obj).applyAt2 == applyAt2;</span>
+<span class="pc bpc" id="L27" title="2 of 4 branches missed.">            return ((ModusPonens&lt;?, ?, ?&gt;) obj).applyAt1 == applyAt1 &amp;&amp; ((ModusPonens&lt;?, ?, ?&gt;) obj).applyAt2 == applyAt2;</span>
         } else {
 <span class="fc" id="L29">            return false;</span>
         }
@@ -43,14 +43,14 @@ public abstract class ModusPonens&lt;T extends LogicOperation, Q extends ProofSt
     }
 
     @Override
-    public boolean isValid(Proof&lt;T, Q&gt; pf) {
+    public boolean isValid(P pf) {
 <span class="fc" id="L47">        return RuleUtils.isValidModusPonens(pf, applyAt1, applyAt2);</span>
     }
 
     @Override
-    public void applyStepSupplier(Proof&lt;T, Q&gt; pf, ProofStepSupplier&lt;T, Q&gt; supp) {
+    public void applyStepSupplier(P pf, ProofStepSupplier&lt;T, Q&gt; supp) {
 <span class="fc" id="L52">        T sol = ((BinaryOperation&lt;T&gt;) pf.getSteps().get(applyAt1 - 1).getStep()).getRight();</span>
-<span class="fc" id="L53">        int assLevel = Action.getLastAssumptionLevel(pf);</span>
+<span class="fc" id="L53">        int assLevel = RuleUtils.getLastAssumptionLevel(pf);</span>
 <span class="fc" id="L54">        pf.getSteps().add(supp.generateProofStep(assLevel, sol, new ProofReason(&quot;-&gt;E&quot;, List.of(applyAt1, applyAt2))));</span>
 <span class="fc" id="L55">    }</span>
 }

@@ -3,14 +3,15 @@
 import com.dan323.expresions.classical.ClassicalLogicOperation;
 import com.dan323.expresions.classical.ConstantClassic;
 import com.dan323.expresions.classical.NegationClassic;
+import com.dan323.proof.classical.proof.NaturalDeduction;
 import com.dan323.proof.generic.FI;
 import com.dan323.proof.generic.proof.ProofStep;
 
-public final class ClassicFI extends FI&lt;ClassicalLogicOperation, ProofStep&lt;ClassicalLogicOperation&gt;&gt; implements ClassicalAction {
+public final class ClassicFI extends FI&lt;ClassicalLogicOperation, ProofStep&lt;ClassicalLogicOperation&gt;, NaturalDeduction&gt; implements ClassicalAction {
 
     public ClassicFI(int i, int j) {
-<span class="fc" id="L12">        super(i, j, NegationClassic::new, () -&gt; ConstantClassic.FALSE);</span>
-<span class="fc" id="L13">    }</span>
+<span class="fc" id="L13">        super(i, j, NegationClassic::new, () -&gt; ConstantClassic.FALSE);</span>
+<span class="fc" id="L14">    }</span>
 
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

@@ -15,7 +15,7 @@ import java.util.Objects;
 /**
  * @author danco
  */
-public abstract class OrE&lt;T extends LogicOperation, Q extends ProofStep&lt;T&gt;&gt; implements AbstractAction&lt;T, Q&gt; {
+public abstract class OrE&lt;T extends LogicOperation, Q extends ProofStep&lt;T&gt;, P extends Proof&lt;T, Q&gt;&gt; implements AbstractAction&lt;T, Q, P&gt; {
 
     private final int disj;
     private final int rule1;
@@ -40,7 +40,7 @@ public abstract class OrE&lt;T extends LogicOperation, Q extends ProofStep&lt;T&
     }
 
     @Override
-    public boolean isValid(Proof&lt;T, Q&gt; pf) {
+    public boolean isValid(P pf) {
 <span class="pc bpc" id="L44" title="2 of 6 branches missed.">        if (RuleUtils.isValidIndexAndProp(pf, disj) &amp;&amp; RuleUtils.isValidIndexAndProp(pf, rule1) &amp;&amp; RuleUtils.isValidIndexAndProp(pf, rule2)) {</span>
 <span class="fc" id="L45">            LogicOperation dis = pf.getSteps().get(disj - 1).getStep();</span>
 <span class="fc" id="L46">            LogicOperation r1 = pf.getSteps().get(rule1 - 1).getStep();</span>
@@ -64,7 +64,7 @@ public abstract class OrE&lt;T extends LogicOperation, Q extends ProofStep&lt;T&
 <span class="fc bfc" id="L64" title="All 2 branches covered.">        if (!(o instanceof OrE)) {</span>
 <span class="fc" id="L65">            return false;</span>
         }
-<span class="fc" id="L67">        OrE&lt;?, ?&gt; orE = (OrE&lt;?, ?&gt;) o;</span>
+<span class="fc" id="L67">        OrE&lt;?, ?, ?&gt; orE = (OrE&lt;?, ?, ?&gt;) o;</span>
 <span class="pc bpc" id="L68" title="2 of 6 branches missed.">        return disj == orE.disj &amp;&amp;</span>
                 rule1 == orE.rule1 &amp;&amp;
                 rule2 == orE.rule2;
@@ -76,7 +76,7 @@ public abstract class OrE&lt;T extends LogicOperation, Q extends ProofStep&lt;T&
     }
 
     @Override
-    public void applyStepSupplier(Proof&lt;T, Q&gt; pf, ProofStepSupplier&lt;T, Q&gt; supp) {
+    public void applyStepSupplier(P pf, ProofStepSupplier&lt;T, Q&gt; supp) {
 <span class="fc" id="L80">        T sol = ((BinaryOperation&lt;T&gt;) pf.getSteps().get(rule1 - 1).getStep()).getRight();</span>
 <span class="fc" id="L81">        int assLevel = pf.getSteps().get(pf.getSteps().size() - 1).getAssumptionLevel();</span>
 <span class="fc" id="L82">        pf.getSteps().add(supp.generateProofStep(assLevel, sol, new ProofReason(&quot;|E&quot;, List.of(disj, rule1, rule2))));</span>

@@ -4,22 +4,22 @@ import com.dan323.expresions.modal.ConjunctionModal;
 import com.dan323.expresions.modal.ModalLogicalOperation;
 import com.dan323.expresions.modal.ModalOperation;
 import com.dan323.proof.generic.AndI;
-import com.dan323.proof.generic.proof.Proof;
+import com.dan323.proof.modal.proof.ModalNaturalDeduction;
 import com.dan323.proof.modal.proof.ProofStepModal;
 
-public final class ModalAndI&lt;T&gt; extends AndI&lt;ModalOperation, ProofStepModal&lt;T&gt;&gt; implements ModalAction&lt;T&gt; {
+public final class ModalAndI&lt;T&gt; extends AndI&lt;ModalOperation, ProofStepModal&lt;T&gt;, ModalNaturalDeduction&lt;T&gt;&gt; implements ModalAction&lt;T&gt; {
 
     public ModalAndI(int i1, int i2) {
 <span class="fc" id="L13">        super(i1, i2, ConjunctionModal::new);</span>
 <span class="fc" id="L14">    }</span>
 
     @Override
-    public boolean isValid(Proof&lt;ModalOperation, ProofStepModal&lt;T&gt;&gt; pf) {
+    public boolean isValid(ModalNaturalDeduction&lt;T&gt; pf) {
 <span class="fc bfc" id="L18" title="All 4 branches covered.">        return super.isValid(pf) &amp;&amp; ModalAction.checkEqualState(pf, get1(), get2());</span>
     }
 
     @Override
-    public void apply(Proof&lt;ModalOperation, ProofStepModal&lt;T&gt;&gt; pf) {
+    public void apply(ModalNaturalDeduction&lt;T&gt; pf) {
 <span class="fc" id="L23">        applyStepSupplier(pf, ((assLevel, log, reason) -&gt; new ProofStepModal&lt;&gt;((pf.getSteps().get(get1() - 1)).getState(), assLevel, (ModalLogicalOperation) log, reason)));</span>
 <span class="fc" id="L24">    }</span>
 }

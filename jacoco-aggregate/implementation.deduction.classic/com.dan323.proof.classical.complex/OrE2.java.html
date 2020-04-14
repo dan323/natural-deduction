@@ -9,6 +9,7 @@ import com.dan323.proof.classical.ClassicAssume;
 import com.dan323.proof.classical.ClassicDeductionTheorem;
 import com.dan323.proof.classical.ClassicFE;
 import com.dan323.proof.classical.ClassicFI;
+import com.dan323.proof.classical.proof.NaturalDeduction;
 import com.dan323.proof.generic.RuleUtils;
 import com.dan323.proof.generic.proof.Proof;
 import com.dan323.proof.generic.proof.ProofStep;
@@ -18,39 +19,39 @@ public final class OrE2 extends CompositionRule {
     private int a;
     private int b;
 
-<span class="fc" id="L21">    public OrE2(int i, int j) {</span>
-<span class="fc" id="L22">        a = i;</span>
-<span class="fc" id="L23">        b = j;</span>
-<span class="fc" id="L24">    }</span>
+<span class="fc" id="L22">    public OrE2(int i, int j) {</span>
+<span class="fc" id="L23">        a = i;</span>
+<span class="fc" id="L24">        b = j;</span>
+<span class="fc" id="L25">    }</span>
 
     public boolean equals(Object ob) {
-<span class="nc bnc" id="L27" title="All 2 branches missed.">        if (ob instanceof OrE2) {</span>
-<span class="nc bnc" id="L28" title="All 4 branches missed.">            return ((OrE2) ob).a == a &amp;&amp; ((OrE2) ob).b == b;</span>
+<span class="nc bnc" id="L28" title="All 2 branches missed.">        if (ob instanceof OrE2) {</span>
+<span class="nc bnc" id="L29" title="All 4 branches missed.">            return ((OrE2) ob).a == a &amp;&amp; ((OrE2) ob).b == b;</span>
         }
-<span class="nc" id="L30">        return false;</span>
+<span class="nc" id="L31">        return false;</span>
     }
 
     public int hashCode() {
-<span class="nc" id="L34">        return super.hashCode() * a + b;</span>
+<span class="nc" id="L35">        return super.hashCode() * a + b;</span>
     }
 
     @Override
-    public boolean isValid(Proof&lt;ClassicalLogicOperation, ProofStep&lt;ClassicalLogicOperation&gt;&gt; pf) {
-<span class="pc bpc" id="L39" title="5 of 8 branches missed.">        if (RuleUtils.isValidIndexAndProp(pf, a) &amp;&amp; RuleUtils.isValidIndexAndProp(pf, b) &amp;&amp; RuleUtils.isOperation(pf, a, Disjunction.class) &amp;&amp; RuleUtils.isOperation(pf, b, Negation.class)) {</span>
-<span class="nc" id="L40">            return ((BinaryOperation&lt;ClassicalLogicOperation&gt;) pf.getSteps().get(a - 1).getStep()).getRight().equals(((NegationClassic) pf.getSteps().get(b - 1).getStep()).getElement());</span>
+    public boolean isValid(NaturalDeduction pf) {
+<span class="pc bpc" id="L40" title="5 of 8 branches missed.">        if (RuleUtils.isValidIndexAndProp(pf, a) &amp;&amp; RuleUtils.isValidIndexAndProp(pf, b) &amp;&amp; RuleUtils.isOperation(pf, a, Disjunction.class) &amp;&amp; RuleUtils.isOperation(pf, b, Negation.class)) {</span>
+<span class="nc" id="L41">            return ((BinaryOperation&lt;ClassicalLogicOperation&gt;) pf.getSteps().get(a - 1).getStep()).getRight().equals(((NegationClassic) pf.getSteps().get(b - 1).getStep()).getElement());</span>
         }
-<span class="fc" id="L42">        return false;</span>
+<span class="fc" id="L43">        return false;</span>
     }
 
     @Override
-    public void apply(Proof&lt;ClassicalLogicOperation, ProofStep&lt;ClassicalLogicOperation&gt;&gt; pf) {
-<span class="nc" id="L47">        (new ClassicAssume(((BinaryOperation&lt;ClassicalLogicOperation&gt;) pf.getSteps().get(a - 1).getStep()).getRight())).apply(pf);</span>
-<span class="nc" id="L48">        (new ClassicFI(pf.getSteps().size(), a)).apply(pf);</span>
-<span class="nc" id="L49">        (new ClassicFE(pf.getSteps().size(), ((BinaryOperation&lt;ClassicalLogicOperation&gt;) pf.getSteps().get(a - 1).getStep()).getLeft())).apply(pf);</span>
-<span class="nc" id="L50">        (new ClassicDeductionTheorem()).apply(pf);</span>
-<span class="nc" id="L51">        (new ClassicAssume(((BinaryOperation&lt;ClassicalLogicOperation&gt;) pf.getSteps().get(a - 1).getStep()).getLeft())).apply(pf);</span>
-<span class="nc" id="L52">        (new ClassicDeductionTheorem()).apply(pf);</span>
-<span class="nc" id="L53">    }</span>
+    public void apply(NaturalDeduction pf) {
+<span class="nc" id="L48">        (new ClassicAssume(((BinaryOperation&lt;ClassicalLogicOperation&gt;) pf.getSteps().get(a - 1).getStep()).getRight())).apply(pf);</span>
+<span class="nc" id="L49">        (new ClassicFI(pf.getSteps().size(), a)).apply(pf);</span>
+<span class="nc" id="L50">        (new ClassicFE(pf.getSteps().size(), ((BinaryOperation&lt;ClassicalLogicOperation&gt;) pf.getSteps().get(a - 1).getStep()).getLeft())).apply(pf);</span>
+<span class="nc" id="L51">        (new ClassicDeductionTheorem()).apply(pf);</span>
+<span class="nc" id="L52">        (new ClassicAssume(((BinaryOperation&lt;ClassicalLogicOperation&gt;) pf.getSteps().get(a - 1).getStep()).getLeft())).apply(pf);</span>
+<span class="nc" id="L53">        (new ClassicDeductionTheorem()).apply(pf);</span>
+<span class="nc" id="L54">    }</span>
 
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

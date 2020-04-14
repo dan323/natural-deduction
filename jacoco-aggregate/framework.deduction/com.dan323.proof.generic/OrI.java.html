@@ -14,7 +14,7 @@ import java.util.function.BiFunction;
 /**
  * @author danco
  */
-public abstract class OrI&lt;T extends LogicOperation, Q extends ProofStep&lt;T&gt;&gt; implements AbstractAction&lt;T, Q&gt; {
+public abstract class OrI&lt;T extends LogicOperation, Q extends ProofStep&lt;T&gt;, P extends Proof&lt;T, Q&gt;&gt; implements AbstractAction&lt;T, Q, P&gt; {
 
     private int applyAt;
     private T intro;
@@ -27,12 +27,12 @@ public abstract class OrI&lt;T extends LogicOperation, Q extends ProofStep&lt;T&
 <span class="fc" id="L27">    }</span>
 
     @Override
-    public boolean isValid(Proof&lt;T, Q&gt; pf) {
+    public boolean isValid(P pf) {
 <span class="fc" id="L31">        return RuleUtils.isValidIndexAndProp(pf, applyAt);</span>
     }
 
     @Override
-    public void applyStepSupplier(Proof&lt;T, Q&gt; pf, ProofStepSupplier&lt;T, Q&gt; supp) {
+    public void applyStepSupplier(P pf, ProofStepSupplier&lt;T, Q&gt; supp) {
 <span class="fc" id="L36">        int assLevel = 0;</span>
 <span class="pc bpc" id="L37" title="1 of 2 branches missed.">        if (!pf.getSteps().isEmpty()) {</span>
 <span class="fc" id="L38">            assLevel = pf.getSteps().get(pf.getSteps().size() - 1).getAssumptionLevel();</span>
@@ -53,8 +53,8 @@ public abstract class OrI&lt;T extends LogicOperation, Q extends ProofStep&lt;T&
     public boolean equals(Object o) {
 <span class="fc bfc" id="L54" title="All 2 branches covered.">        return o instanceof OrI &amp;&amp;</span>
 <span class="pc bpc" id="L55" title="2 of 4 branches missed.">                o.getClass().equals(getClass()) &amp;&amp;</span>
-                ((OrI&lt;?, ?&gt;) o).applyAt == applyAt &amp;&amp;
-<span class="pc bpc" id="L57" title="1 of 2 branches missed.">                Objects.equals(((OrI&lt;?, ?&gt;) o).intro, intro);</span>
+                ((OrI&lt;?, ?, ?&gt;) o).applyAt == applyAt &amp;&amp;
+<span class="pc bpc" id="L57" title="1 of 2 branches missed.">                Objects.equals(((OrI&lt;?, ?, ?&gt;) o).intro, intro);</span>
     }
 
     @Override

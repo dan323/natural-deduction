@@ -5,29 +5,30 @@ import com.dan323.expresions.modal.ModalOperation;
 import com.dan323.expresions.relation.RelationOperation;
 import com.dan323.proof.generic.Assume;
 import com.dan323.proof.generic.proof.Proof;
+import com.dan323.proof.modal.proof.ModalNaturalDeduction;
 import com.dan323.proof.modal.proof.ProofStepModal;
 
-public final class ModalAssume&lt;T&gt; extends Assume&lt;ModalOperation, ProofStepModal&lt;T&gt;&gt; implements ModalAction&lt;T&gt; {
+public final class ModalAssume&lt;T&gt; extends Assume&lt;ModalOperation, ProofStepModal&lt;T&gt;, ModalNaturalDeduction&lt;T&gt;&gt; implements ModalAction&lt;T&gt; {
 
     private final T state;
 
     public ModalAssume(ModalLogicalOperation clo, T st) {
-<span class="fc" id="L15">        super(clo);</span>
-<span class="fc" id="L16">        state = st;</span>
-<span class="fc" id="L17">    }</span>
+<span class="fc" id="L16">        super(clo);</span>
+<span class="fc" id="L17">        state = st;</span>
+<span class="fc" id="L18">    }</span>
 
     public ModalAssume(RelationOperation&lt;T&gt; operation) {
-<span class="fc" id="L20">        super(operation);</span>
-<span class="fc" id="L21">        state = null;</span>
-<span class="fc" id="L22">    }</span>
+<span class="fc" id="L21">        super(operation);</span>
+<span class="fc" id="L22">        state = null;</span>
+<span class="fc" id="L23">    }</span>
 
     @Override
-    public void apply(Proof&lt;ModalOperation, ProofStepModal&lt;T&gt;&gt; pf) {
-<span class="fc bfc" id="L26" title="All 2 branches covered.">        if (state == null) {</span>
-<span class="fc" id="L27">            applyStepSupplier(pf, (assLevel, log, reason) -&gt; new ProofStepModal&lt;&gt;(assLevel, (RelationOperation&lt;T&gt;) log, reason));</span>
+    public void apply(ModalNaturalDeduction&lt;T&gt; pf) {
+<span class="fc bfc" id="L27" title="All 2 branches covered.">        if (state == null) {</span>
+<span class="fc" id="L28">            applyStepSupplier(pf, (assLevel, log, reason) -&gt; new ProofStepModal&lt;&gt;(assLevel, (RelationOperation&lt;T&gt;) log, reason));</span>
         } else {
-<span class="fc" id="L29">            applyStepSupplier(pf, (assLevel, log, reason) -&gt; new ProofStepModal&lt;&gt;(state, assLevel, (ModalLogicalOperation) log, reason));</span>
+<span class="fc" id="L30">            applyStepSupplier(pf, (assLevel, log, reason) -&gt; new ProofStepModal&lt;&gt;(state, assLevel, (ModalLogicalOperation) log, reason));</span>
         }
-<span class="fc" id="L31">    }</span>
+<span class="fc" id="L32">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

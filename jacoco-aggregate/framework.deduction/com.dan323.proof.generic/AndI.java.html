@@ -13,7 +13,7 @@ import java.util.function.BiFunction;
 /**
  * @author danco
  */
-public abstract class AndI&lt;T extends LogicOperation, Q extends ProofStep&lt;T&gt;&gt; implements AbstractAction&lt;T, Q&gt; {
+public abstract class AndI&lt;T extends LogicOperation, Q extends ProofStep&lt;T&gt;, P extends Proof&lt;T, Q&gt;&gt; implements AbstractAction&lt;T, Q, P&gt; {
 
     private final int applyAt1;
     private final int applyAt2;
@@ -28,7 +28,7 @@ public abstract class AndI&lt;T extends LogicOperation, Q extends ProofStep&lt;T
     @Override
     public boolean equals(Object object) {
 <span class="pc bpc" id="L30" title="1 of 4 branches missed.">        if (object != null &amp;&amp; object.getClass().equals(getClass())) {</span>
-<span class="fc" id="L31">            AndI obj = (AndI) object;</span>
+<span class="fc" id="L31">            AndI&lt;?, ?, ?&gt; obj = (AndI&lt;?, ?, ?&gt;) object;</span>
 <span class="fc bfc" id="L32" title="All 4 branches covered.">            return applyAt1 == obj.applyAt1 &amp;&amp; applyAt2 == obj.applyAt2;</span>
         } else {
 <span class="fc" id="L34">            return false;</span>
@@ -41,13 +41,13 @@ public abstract class AndI&lt;T extends LogicOperation, Q extends ProofStep&lt;T
     }
 
     @Override
-    public boolean isValid(Proof&lt;T, Q&gt; pf) {
+    public boolean isValid(P pf) {
 <span class="pc bpc" id="L45" title="1 of 4 branches missed.">        return RuleUtils.isValidIndexAndProp(pf, applyAt1) &amp;&amp; RuleUtils.isValidIndexAndProp(pf, applyAt2);</span>
     }
 
     @Override
-    public void applyStepSupplier(Proof&lt;T, Q&gt; pf, ProofStepSupplier&lt;T, Q&gt; supp) {
-<span class="fc" id="L50">        int assLevel = Action.getLastAssumptionLevel(pf);</span>
+    public void applyStepSupplier(P pf, ProofStepSupplier&lt;T, Q&gt; supp) {
+<span class="fc" id="L50">        int assLevel = RuleUtils.getLastAssumptionLevel(pf);</span>
 <span class="fc" id="L51">        pf.getSteps().add(supp.generateProofStep(assLevel,</span>
 <span class="fc" id="L52">                conjunctionConstructor.apply(pf.getSteps().get(applyAt1 - 1).getStep(),</span>
 <span class="fc" id="L53">                        pf.getSteps().get(applyAt2 - 1).getStep()).castToLanguage(), getReason()));</span>

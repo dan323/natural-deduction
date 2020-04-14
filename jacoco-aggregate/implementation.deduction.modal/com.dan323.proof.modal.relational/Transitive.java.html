@@ -2,14 +2,15 @@
 
 import com.dan323.expresions.modal.ModalOperation;
 import com.dan323.expresions.relation.LessEqual;
-import com.dan323.expresions.relation.RelationOperation;
 import com.dan323.proof.generic.Action;
+import com.dan323.proof.generic.RuleUtils;
 import com.dan323.proof.generic.proof.Proof;
 import com.dan323.proof.generic.proof.ProofReason;
 import com.dan323.proof.generic.proof.ProofStepSupplier;
+import com.dan323.proof.modal.proof.ModalNaturalDeduction;
 import com.dan323.proof.modal.proof.ProofStepModal;
 
-import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author danco
@@ -19,27 +20,27 @@ public final class Transitive&lt;T&gt; extends RelationalAction&lt;T&gt; {
     private int first;
     private int second;
 
-<span class="nc" id="L22">    public Transitive(int first, int second) {</span>
-<span class="nc" id="L23">        this.first = first;</span>
-<span class="nc" id="L24">        this.second = second;</span>
-<span class="nc" id="L25">    }</span>
+<span class="nc" id="L23">    public Transitive(int first, int second) {</span>
+<span class="nc" id="L24">        this.first = first;</span>
+<span class="nc" id="L25">        this.second = second;</span>
+<span class="nc" id="L26">    }</span>
 
     @Override
-    public boolean isValid(Proof&lt;ModalOperation, ProofStepModal&lt;T&gt;&gt; pf) {
-<span class="nc bnc" id="L29" title="All 4 branches missed.">        if (!(pf.getSteps().get(first - 1).getStep() instanceof LessEqual) || !(pf.getSteps().get(second - 1).getStep() instanceof LessEqual)) {</span>
-<span class="nc" id="L30">            return false;</span>
+    public boolean isValid(ModalNaturalDeduction&lt;T&gt; pf) {
+<span class="nc bnc" id="L30" title="All 4 branches missed.">        if (!(pf.getSteps().get(first - 1).getStep() instanceof LessEqual) || !(pf.getSteps().get(second - 1).getStep() instanceof LessEqual)) {</span>
+<span class="nc" id="L31">            return false;</span>
         } else {
-<span class="nc" id="L32">            LessEqual&lt;T&gt; firstLog = (LessEqual&lt;T&gt;) pf.getSteps().get(first - 1).getStep();</span>
-<span class="nc" id="L33">            LessEqual&lt;T&gt; secondLog = (LessEqual&lt;T&gt;) pf.getSteps().get(second - 1).getStep();</span>
-<span class="nc" id="L34">            return firstLog.getRight().equals(secondLog.getLeft());</span>
+<span class="nc" id="L33">            LessEqual&lt;T&gt; firstLog = (LessEqual&lt;T&gt;) pf.getSteps().get(first - 1).getStep();</span>
+<span class="nc" id="L34">            LessEqual&lt;T&gt; secondLog = (LessEqual&lt;T&gt;) pf.getSteps().get(second - 1).getStep();</span>
+<span class="nc" id="L35">            return firstLog.getRight().equals(secondLog.getLeft());</span>
         }
     }
 
     @Override
-    public void applyStepSupplier(Proof&lt;ModalOperation, ProofStepModal&lt;T&gt;&gt; pf, ProofStepSupplier&lt;ModalOperation, ProofStepModal&lt;T&gt;&gt; supp) {
-<span class="nc" id="L40">        T s1 = ((LessEqual&lt;T&gt;) pf.getSteps().get(first - 1).getStep()).getLeft();</span>
-<span class="nc" id="L41">        T s3 = ((LessEqual&lt;T&gt;) pf.getSteps().get(first - 1).getStep()).getRight();</span>
-<span class="nc" id="L42">        pf.getSteps().add(supp.generateProofStep(Action.getLastAssumptionLevel(pf), new LessEqual&lt;&gt;(s1, s3), new ProofReason(&quot;Trans&quot;, new ArrayList&lt;&gt;())));</span>
-<span class="nc" id="L43">    }</span>
+    public void applyStepSupplier(ModalNaturalDeduction&lt;T&gt; pf, ProofStepSupplier&lt;ModalOperation, ProofStepModal&lt;T&gt;&gt; supp) {
+<span class="nc" id="L41">        T s1 = ((LessEqual&lt;T&gt;) pf.getSteps().get(first - 1).getStep()).getLeft();</span>
+<span class="nc" id="L42">        T s3 = ((LessEqual&lt;T&gt;) pf.getSteps().get(first - 1).getStep()).getRight();</span>
+<span class="nc" id="L43">        pf.getSteps().add(supp.generateProofStep(RuleUtils.getLastAssumptionLevel(pf), new LessEqual&lt;&gt;(s1, s3), new ProofReason(&quot;Trans&quot;, List.of())));</span>
+<span class="nc" id="L44">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>
