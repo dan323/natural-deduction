@@ -13,7 +13,7 @@ import java.util.function.BiFunction;
 /**
  * @author danco
  */
-public abstract class DeductionTheorem<T extends LogicOperation, Q extends ProofStep<T>> implements AbstractAction<T, Q> {
+public abstract class DeductionTheorem<T extends LogicOperation, Q extends ProofStep<T>, P extends Proof<T, Q>> implements AbstractAction<T, Q, P> {
 
     private BiFunction<T, T, Implication<T>> constructor;
 
@@ -30,20 +30,20 @@ public abstract class DeductionTheorem<T extends LogicOperation, Q extends Proof
     }
 
     @Override
-    public boolean isValid(Proof<T, Q> pf) {
-        int assLevel = Action.getLastAssumptionLevel(pf);
+    public boolean isValid(P pf) {
+        int assLevel = RuleUtils.getLastAssumptionLevel(pf);
         if (assLevel == 0) {
             return false;
         }
-        int lastAssumption = Action.getToLastAssumption(pf, assLevel);
+        int lastAssumption = RuleUtils.getToLastAssumption(pf,assLevel);
         ProofStep<T> log = pf.getSteps().get(pf.getSteps().size() - lastAssumption);
         return log.getProof().getNameProof().equals("Ass");
     }
 
     @Override
-    public void applyStepSupplier(Proof<T, Q> pf, ProofStepSupplier<T, Q> supp) {
-        int assLevel = Action.getLastAssumptionLevel(pf);
-        int i = Action.disableUntilLastAssumption(pf, assLevel);
+    public void applyStepSupplier(P pf, ProofStepSupplier<T, Q> supp) {
+        int assLevel = RuleUtils.getLastAssumptionLevel(pf);
+        int i = RuleUtils.disableUntilLastAssumption(pf,assLevel);
         pf.getSteps().add(supp.generateProofStep(assLevel - 1,
                 constructor.apply(pf.getSteps().get(pf.getSteps().size() - i).getStep(),
                         pf.getSteps().get(pf.getSteps().size() - 1).getStep()).castToLanguage(), new ProofReason("->I", List.of(pf.getSteps().size() - i + 1, pf.getSteps().size()))));

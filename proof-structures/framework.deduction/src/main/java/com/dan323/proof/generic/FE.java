@@ -13,7 +13,7 @@ import java.util.Objects;
 /**
  * @author danco
  */
-public abstract class FE<T extends LogicOperation, Q extends ProofStep<T>> implements AbstractAction<T, Q> {
+public abstract class FE<T extends LogicOperation, Q extends ProofStep<T>, P extends Proof<T, Q>> implements AbstractAction<T, Q, P> {
 
     private T intro;
     private int falseIndex;
@@ -27,7 +27,7 @@ public abstract class FE<T extends LogicOperation, Q extends ProofStep<T>> imple
     public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof FE)) return false;
-        FE<?, ?> fe = (FE<?, ?>) o;
+        FE<?, ?, ?> fe = (FE<?, ?, ?>) o;
         return o.getClass().equals(getClass()) && falseIndex == fe.falseIndex &&
                 Objects.equals(intro, fe.intro);
     }
@@ -38,7 +38,7 @@ public abstract class FE<T extends LogicOperation, Q extends ProofStep<T>> imple
     }
 
     @Override
-    public boolean isValid(Proof<T, Q> pf) {
+    public boolean isValid(P pf) {
         if (RuleUtils.isValidIndexAndProp(pf, falseIndex) && RuleUtils.isOperation(pf, falseIndex, Constant.class)) {
             Constant<?> cons = (Constant<?>) pf.getSteps().get(falseIndex - 1).getStep();
             return cons.isFalsehood();
@@ -47,8 +47,8 @@ public abstract class FE<T extends LogicOperation, Q extends ProofStep<T>> imple
     }
 
     @Override
-    public void applyStepSupplier(Proof<T, Q> pf, ProofStepSupplier<T, Q> supp) {
-        pf.getSteps().add(supp.generateProofStep(Action.getLastAssumptionLevel(pf), intro, getReason()));
+    public void applyStepSupplier(P pf, ProofStepSupplier<T, Q> supp) {
+        pf.getSteps().add(supp.generateProofStep(RuleUtils.getLastAssumptionLevel(pf), intro, getReason()));
     }
 
     private ProofReason getReason() {

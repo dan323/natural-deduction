@@ -6,6 +6,7 @@ import com.dan323.expresions.base.LogicOperation;
 import com.dan323.expresions.base.Variable;
 import com.dan323.proof.generic.proof.Proof;
 import com.dan323.proof.generic.proof.ProofStep;
+import com.dan323.proof.generic.proof.ProofTest;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -27,7 +28,7 @@ import static org.mockito.Mockito.*;
 public class RuleConjunctionTest {
 
     @Mock
-    public Proof<LogicOperation, ProofStep<LogicOperation>> pf;
+    public ProofTest.ProofStub pf;
 
     @Mock
     public List<ProofStep<LogicOperation>> list;
@@ -48,7 +49,7 @@ public class RuleConjunctionTest {
 
     @Test
     public void andIValidityTest() {
-        AndI<LogicOperation, ProofStep<LogicOperation>> andI = new AndIStub(1, 2);
+        AndIStub andI = new AndIStub(1, 2);
 
         Assertions.assertEquals(new AndIStub(1, 2), andI);
         Assertions.assertEquals(new AndIStub(1, 2).hashCode(), andI.hashCode());
@@ -73,7 +74,7 @@ public class RuleConjunctionTest {
 
     @Test
     public void andEValidityTest() {
-        AndE<LogicOperation, ProofStep<LogicOperation>> andE = new AndEStub(1);
+        AndEStub andE = new AndEStub(1);
 
         Assertions.assertEquals(new AndEStub(1), andE);
         Assertions.assertEquals(new AndEStub(1).hashCode(), andE.hashCode());
@@ -102,7 +103,7 @@ public class RuleConjunctionTest {
                 record.add(invocationOnMock.getArgument(0))
         ).when(list).add(any(ProofStep.class));
 
-        AndI<LogicOperation, ProofStep<LogicOperation>> andI = new AndIStub(1, 2);
+        AndIStub andI = new AndIStub(1, 2);
         andI.applyStepSupplier(pf, ProofStep::new);
 
         Assertions.assertEquals("P & P", record.get(0).getStep().toString());
@@ -124,7 +125,7 @@ public class RuleConjunctionTest {
         doReturn(mockConjunction(variable, variable)).when(pStep).getStep();
         doAnswer(invocationOnMock -> record.add(invocationOnMock.getArgument(0))).when(list).add(any(ProofStep.class));
 
-        AndE<LogicOperation, ProofStep<LogicOperation>> andE = new AndEStub(1);
+        AndEStub andE = new AndEStub(1);
         andE.applyStepSupplier(pf, ProofStep::new);
 
         Assertions.assertEquals("P", record.get(0).getStep().toString());
@@ -132,7 +133,7 @@ public class RuleConjunctionTest {
         Assertions.assertEquals("&E [1]", record.get(0).getProof().toString());
         Assertions.assertEquals("   P           &E [1]", record.get(0).toString());
 
-        AndE<LogicOperation, ProofStep<LogicOperation>> andE2 = new AndEStub2(1);
+        AndEStub2 andE2 = new AndEStub2(1);
         andE2.applyStepSupplier(pf, ProofStep::new);
 
         Assertions.assertEquals("P", record.get(1).getStep().toString());
@@ -141,19 +142,19 @@ public class RuleConjunctionTest {
         Assertions.assertEquals("   P           &E [1]", record.get(1).toString());
     }
 
-    public static class AndEStub extends AndE<LogicOperation, ProofStep<LogicOperation>> {
+    public static class AndEStub extends AndE<LogicOperation, ProofStep<LogicOperation>, ProofTest.ProofStub> {
         public AndEStub(int app) {
             super(app, Conjunction<LogicOperation>::getLeft);
         }
     }
 
-    public static class AndEStub2 extends AndE<LogicOperation, ProofStep<LogicOperation>> {
+    public static class AndEStub2 extends AndE<LogicOperation, ProofStep<LogicOperation>, ProofTest.ProofStub> {
         public AndEStub2(int app) {
             super(app, Conjunction<LogicOperation>::getRight);
         }
     }
 
-    public static class AndIStub extends AndI<LogicOperation, ProofStep<LogicOperation>> {
+    public static class AndIStub extends AndI<LogicOperation, ProofStep<LogicOperation>, ProofTest.ProofStub> {
         public AndIStub(int app1, int app2) {
             super(app1, app2, RuleConjunctionTest::mockConjunction);
         }

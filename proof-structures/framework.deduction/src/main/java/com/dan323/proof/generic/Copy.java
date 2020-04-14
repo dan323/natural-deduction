@@ -11,7 +11,7 @@ import java.util.Collections;
 /**
  * @author danco
  */
-public abstract class Copy<T extends LogicOperation, Q extends ProofStep<T>> implements AbstractAction<T, Q> {
+public abstract class Copy<T extends LogicOperation, Q extends ProofStep<T>, P extends Proof<T, Q>> implements AbstractAction<T, Q, P> {
 
     private final int source;
 
@@ -20,13 +20,13 @@ public abstract class Copy<T extends LogicOperation, Q extends ProofStep<T>> imp
     }
 
     @Override
-    public boolean isValid(Proof<T, Q> pf) {
+    public boolean isValid(P pf) {
         return RuleUtils.isValidIndexAndProp(pf, source);
     }
 
     @Override
-    public void applyStepSupplier(Proof<T, Q> pf, ProofStepSupplier<T, Q> supp) {
-        pf.getSteps().add(supp.generateProofStep(Action.getLastAssumptionLevel(pf), pf.getSteps().get(source - 1).getStep(), getReason()));
+    public void applyStepSupplier(P pf, ProofStepSupplier<T, Q> supp) {
+        pf.getSteps().add(supp.generateProofStep(RuleUtils.getLastAssumptionLevel(pf), pf.getSteps().get(source - 1).getStep(), getReason()));
     }
 
     public int getAppliedAt() {

@@ -8,6 +8,7 @@ import com.dan323.proof.generic.RuleUtils;
 import com.dan323.proof.generic.proof.Proof;
 import com.dan323.proof.generic.proof.ProofReason;
 import com.dan323.proof.generic.proof.ProofStepSupplier;
+import com.dan323.proof.modal.proof.ModalNaturalDeduction;
 import com.dan323.proof.modal.proof.ProofStepModal;
 
 import java.util.Arrays;
@@ -24,7 +25,7 @@ public final class ModalDiaI<T> implements ModalAction<T> {
     }
 
     @Override
-    public boolean isValid(Proof<ModalOperation, ProofStepModal<T>> pf) {
+    public boolean isValid(ModalNaturalDeduction<T> pf) {
         if (RuleUtils.isValidIndexAndProp(pf, i) && pf.getSteps().get(i - 1).getStep() instanceof ModalLogicalOperation &&
                 RuleUtils.isValidIndexAndProp(pf, j) && pf.getSteps().get(j - 1).getStep() instanceof LessEqual) {
             LessEqual<T> lessEqual = (LessEqual<T>) pf.getSteps().get(j - 1).getStep();
@@ -36,13 +37,13 @@ public final class ModalDiaI<T> implements ModalAction<T> {
     }
 
     @Override
-    public void applyStepSupplier(Proof<ModalOperation, ProofStepModal<T>> pf, ProofStepSupplier<ModalOperation, ProofStepModal<T>> supp) {
+    public void applyStepSupplier(ModalNaturalDeduction<T> pf, ProofStepSupplier<ModalOperation, ProofStepModal<T>> supp) {
         ModalLogicalOperation log = (ModalLogicalOperation) pf.getSteps().get(i - 1).getStep();
         pf.getSteps().add(supp.generateProofStep(pf.getSteps().get(pf.getSteps().size() - 1).getAssumptionLevel(), new Sometime(log), new ProofReason("<>I", Arrays.asList(i, j))));
     }
 
     @Override
-    public void apply(Proof<ModalOperation, ProofStepModal<T>> pf) {
+    public void apply(ModalNaturalDeduction<T> pf) {
         LessEqual<T> lessEqual = (LessEqual<T>) pf.getSteps().get(j - 1).getStep();
         applyStepSupplier(pf, ((assLevel, log, reason) -> new ProofStepModal<>(lessEqual.getLeft(), assLevel, (ModalLogicalOperation) log, reason)));
     }

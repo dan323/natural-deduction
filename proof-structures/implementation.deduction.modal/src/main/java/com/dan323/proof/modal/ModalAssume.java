@@ -5,9 +5,10 @@ import com.dan323.expresions.modal.ModalOperation;
 import com.dan323.expresions.relation.RelationOperation;
 import com.dan323.proof.generic.Assume;
 import com.dan323.proof.generic.proof.Proof;
+import com.dan323.proof.modal.proof.ModalNaturalDeduction;
 import com.dan323.proof.modal.proof.ProofStepModal;
 
-public final class ModalAssume<T> extends Assume<ModalOperation, ProofStepModal<T>> implements ModalAction<T> {
+public final class ModalAssume<T> extends Assume<ModalOperation, ProofStepModal<T>, ModalNaturalDeduction<T>> implements ModalAction<T> {
 
     private final T state;
 
@@ -22,7 +23,7 @@ public final class ModalAssume<T> extends Assume<ModalOperation, ProofStepModal<
     }
 
     @Override
-    public void apply(Proof<ModalOperation, ProofStepModal<T>> pf) {
+    public void apply(ModalNaturalDeduction<T> pf) {
         if (state == null) {
             applyStepSupplier(pf, (assLevel, log, reason) -> new ProofStepModal<>(assLevel, (RelationOperation<T>) log, reason));
         } else {

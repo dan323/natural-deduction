@@ -17,7 +17,7 @@ public class ProofTest {
 
     @Test
     public void setterGetterTest() {
-        Proof<LogicOperation, ProofStep<LogicOperation>> proof = new ProofStub();
+        ProofStub proof = new ProofStub();
         List<LogicOperation> assms = List.of(mock(LogicOperation.class));
         LogicOperation goal = mock(LogicOperation.class);
         proof.initializeProof(assms, goal);
@@ -28,7 +28,7 @@ public class ProofTest {
 
     @Test
     public void removeStepsTest() {
-        Proof<LogicOperation, ProofStep<LogicOperation>> proof = new ProofStub();
+        ProofStub proof = new ProofStub();
 
         ProofStep<LogicOperation> p1 = mock(ProofStep.class);
         ProofStep<LogicOperation> p2 = mock(ProofStep.class);
@@ -49,7 +49,7 @@ public class ProofTest {
 
     @Test
     public void isDoneTest() {
-        Proof<LogicOperation, ProofStep<LogicOperation>> pr = new ProofStub();
+        ProofStub pr = new ProofStub();
 
         assertFalse(pr.isDone());
 
@@ -78,14 +78,37 @@ public class ProofTest {
     public static class ProofStub extends Proof<LogicOperation, ProofStep<LogicOperation>> {
 
         @Override
-        public boolean isValid(Action<LogicOperation, ProofStep<LogicOperation>> act) {
-            return false;
+        public <A extends Action<LogicOperation, ProofStep<LogicOperation>, P>, P extends Proof<LogicOperation, ProofStep<LogicOperation>>> ParseAction<A, P> getParser() {
+            return null;
+        }
+
+        @Override
+        protected ProofStep<LogicOperation> generateAssm(LogicOperation logicExpresion) {
+            return new ProofStep<>(0, logicExpresion, mock(ProofReason.class));
         }
 
         @Override
         public void initializeProof(List<LogicOperation> assms, LogicOperation goal) {
             setAssms(assms);
             setGoal(goal);
+        }
+    }
+
+    public static class ActionStub implements Action<LogicOperation, ProofStep<LogicOperation>, ProofStub> {
+
+        @Override
+        public void apply(ProofStub pf) {
+
+        }
+
+        @Override
+        public boolean isValid(ProofStub pf) {
+            return false;
+        }
+
+        @Override
+        public void applyStepSupplier(ProofStub pf, ProofStepSupplier<LogicOperation, ProofStep<LogicOperation>> supp) {
+
         }
     }
 

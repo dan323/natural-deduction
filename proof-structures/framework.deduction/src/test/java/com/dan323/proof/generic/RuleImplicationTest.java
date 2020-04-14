@@ -7,6 +7,7 @@ import com.dan323.expresions.base.Variable;
 import com.dan323.proof.generic.proof.Proof;
 import com.dan323.proof.generic.proof.ProofReason;
 import com.dan323.proof.generic.proof.ProofStep;
+import com.dan323.proof.generic.proof.ProofTest;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -29,7 +30,7 @@ import static org.mockito.Mockito.*;
 public class RuleImplicationTest {
 
     @Mock
-    public Proof<LogicOperation, ProofStep<LogicOperation>> pf;
+    public ProofTest.ProofStub pf;
 
     @Mock
     public List<ProofStep<LogicOperation>> list;
@@ -56,7 +57,7 @@ public class RuleImplicationTest {
 
     @Test
     public void deductionThIsValidTest() {
-        DeductionTheorem<LogicOperation, ProofStep<LogicOperation>> ded = new DeductionTheoremStub();
+        DeductionTheoremStub ded = new DeductionTheoremStub();
 
         Assertions.assertEquals(new DeductionTheoremStub(), ded);
         Assertions.assertEquals(new DeductionTheoremStub().hashCode(), ded.hashCode());
@@ -90,7 +91,7 @@ public class RuleImplicationTest {
         doReturn(variable).when(pStep0).getStep();
         doAnswer(invocationOnMock -> record.add(invocationOnMock.getArgument(0))).when(list).add(any(ProofStep.class));
 
-        DeductionTheorem<LogicOperation, ProofStep<LogicOperation>> ded = new DeductionTheoremStub();
+        DeductionTheoremStub ded = new DeductionTheoremStub();
         ded.applyStepSupplier(pf, ProofStep::new);
 
         Assertions.assertEquals(new ProofReason("->I", List.of(1, 2)), record.get(0).getProof());
@@ -101,7 +102,7 @@ public class RuleImplicationTest {
 
     @Test
     public void modusPonensValidTest() {
-        ModusPonens<LogicOperation, ProofStep<LogicOperation>> ded = new ModusPonensStub(1, 2);
+        ModusPonensStub ded = new ModusPonensStub(1, 2);
 
         Assertions.assertEquals(new ModusPonensStub(1, 2), ded);
         Assertions.assertEquals(new ModusPonensStub(1, 2).hashCode(), ded.hashCode());
@@ -116,8 +117,8 @@ public class RuleImplicationTest {
 
         Assertions.assertFalse(ded.isValid(pf));
 
-        Variable P = mock(Variable.class);
-        Implication imp = mockImplication(P, P);
+        var P = mock(Variable.class);
+        var imp = mockImplication(P, P);
         doReturn(pStep1).when(list).get(eq(1));
         doReturn(true).when(pStep0).isValid();
         doReturn(true).when(pStep1).isValid();
@@ -139,7 +140,7 @@ public class RuleImplicationTest {
         doReturn(mockImplication(variable, variable)).when(pStep0).getStep();
         doAnswer(invocationOnMock -> record.add(invocationOnMock.getArgument(0))).when(list).add(any(ProofStep.class));
 
-        ModusPonens<LogicOperation, ProofStep<LogicOperation>> ded = new ModusPonensStub(1, 2);
+        ModusPonensStub ded = new ModusPonensStub(1, 2);
         ded.applyStepSupplier(pf, ProofStep::new);
 
         Assertions.assertEquals(new ProofReason("->E", List.of(1, 2)), record.get(0).getProof());
@@ -153,13 +154,13 @@ public class RuleImplicationTest {
         Assertions.assertNotEquals(new ModusPonensStub(1, 2), new DeductionTheoremStub());
     }
 
-    public static class DeductionTheoremStub extends DeductionTheorem<LogicOperation, ProofStep<LogicOperation>> {
+    public static class DeductionTheoremStub extends DeductionTheorem<LogicOperation, ProofStep<LogicOperation>, ProofTest.ProofStub> {
         public DeductionTheoremStub() {
             super(RuleImplicationTest::mockImplication);
         }
     }
 
-    public static class ModusPonensStub extends ModusPonens<LogicOperation, ProofStep<LogicOperation>> {
+    public static class ModusPonensStub extends ModusPonens<LogicOperation, ProofStep<LogicOperation>, ProofTest.ProofStub> {
         public ModusPonensStub(int i1, int i2) {
             super(i1, i2);
         }

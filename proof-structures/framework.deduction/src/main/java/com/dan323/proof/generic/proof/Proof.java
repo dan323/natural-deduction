@@ -17,15 +17,20 @@ public abstract class Proof<T extends LogicOperation, Q extends ProofStep<T>> {
         return assms;
     }
 
+    public abstract <A extends Action<T, Q, P>, P extends Proof<T, Q>> ParseAction<A, P> getParser();
+
     public void removeLastStep() {
         steps.remove(steps.size() - 1);
     }
 
     protected void setAssms(List<T> assms) {
         this.assms = assms;
+        for (T lo : assms) {
+            getSteps().add(generateAssm(lo));
+        }
     }
 
-    public abstract boolean isValid(Action<T, Q> act);
+    protected abstract Q generateAssm(T logicExpresion);
 
     public boolean isDone() {
         if (goal == null) {
@@ -38,12 +43,12 @@ public abstract class Proof<T extends LogicOperation, Q extends ProofStep<T>> {
     }
 
     protected void initializeProofSteps() {
-        steps = new ArrayList<>();
+        steps.clear();
     }
 
     public abstract void initializeProof(List<T> assms, T goal);
 
-    public LogicOperation getGoal() {
+    public T getGoal() {
         return goal;
     }
 

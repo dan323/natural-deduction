@@ -1,14 +1,12 @@
 package com.dan323.proof.classical.proof;
 
-import com.dan323.expresions.base.BinaryOperation;
 import com.dan323.expresions.base.LogicOperation;
-import com.dan323.expresions.base.UnaryOperation;
 import com.dan323.expresions.classical.*;
 import com.dan323.proof.classical.*;
 import com.dan323.proof.classical.complex.DeMorgan1;
 import com.dan323.proof.classical.complex.OrE1;
 import com.dan323.proof.classical.complex.OrE2;
-import com.dan323.proof.generic.Action;
+import com.dan323.proof.generic.proof.ParseAction;
 import com.dan323.proof.generic.proof.Proof;
 import com.dan323.proof.generic.proof.ProofReason;
 import com.dan323.proof.generic.proof.ProofStep;
@@ -18,7 +16,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-@SuppressWarnings("unchecked")
 public final class NaturalDeduction extends Proof<ClassicalLogicOperation, ProofStep<ClassicalLogicOperation>> {
 
     private List<ClassicalLogicOperation> goals;
@@ -35,20 +32,26 @@ public final class NaturalDeduction extends Proof<ClassicalLogicOperation, Proof
     }
 
     @Override
-    public boolean isValid(Action<ClassicalLogicOperation, ProofStep<ClassicalLogicOperation>> act) {
-        return (act instanceof ClassicalAction);
+    public void initializeProof(List<ClassicalLogicOperation> assms, ClassicalLogicOperation goal) {
+        initializeProofSteps();
+        setAssms(assms);
+        setGoal(goal);
     }
 
     @Override
-    public void initializeProof(List<ClassicalLogicOperation> assms, ClassicalLogicOperation goal) {
-        setAssms(assms);
-        initializeProofSteps();
-        setGoal(goal);
-        for (ClassicalLogicOperation lo : assms) {
-            getSteps().add(new ProofStep<>(0, lo, new ProofReason("Ass", new ArrayList<>())));
-        }
+    public ParseAction<ClassicalAction, NaturalDeduction> getParser() {
+        return ParseClassicalAction.PARSE_CLASSICAL_ACTION;
     }
 
+    @Override
+    protected ProofStep<ClassicalLogicOperation> generateAssm(ClassicalLogicOperation logicExpresion) {
+        return new ProofStep<>(0, logicExpresion, new ProofReason("Ass", List.of()));
+    }
+
+    /**
+     * Finish the proof it it can be done.
+     * It will stop without solving it if it cannot be solved
+     */
     public void automate() {
         boolean b = true;
         boolean c = true;
@@ -72,6 +75,11 @@ public final class NaturalDeduction extends Proof<ClassicalLogicOperation, Proof
         }
     }
 
+    /**
+     * Look for an elimination rule, and apply it.
+     *
+     * @return true iff a rule was found and was applied
+     */
     private boolean eliminateRules() {
         ClassicalAction ca = lookForElimRules();
         if (ca != null) {
@@ -97,6 +105,11 @@ public final class NaturalDeduction extends Proof<ClassicalLogicOperation, Proof
         usedForGoal.remove(goals.size() + 2);
     }
 
+    /**
+     * Check if last goal can be reached with an intro rule
+     *
+     * @return the action that must be applied to reach the goal
+     */
     private ClassicalAction introRuleForGoal() {
         if (getSteps().isEmpty()) {
             return null;
@@ -109,19 +122,24 @@ public final class NaturalDeduction extends Proof<ClassicalLogicOperation, Proof
         }
         ClassicalAction sol = null;
         if (goal instanceof ConjunctionClassic) {
-            sol = introRuleForGoalConjuntion((BinaryOperation<ClassicalLogicOperation>) goal);
+            sol = introRuleForGoalConjuntion((ConjunctionClassic) goal);
         } else if (goal instanceof ImplicationClassic) {
-            sol = introRuleForGoalImplication((BinaryOperation<ClassicalLogicOperation>) goal);
+            sol = introRuleForGoalImplication((ImplicationClassic) goal);
         } else if (goal instanceof DisjunctionClassic) {
-            sol = introRuleForGoalDisjunction((BinaryOperation<ClassicalLogicOperation>) goal);
+            sol = introRuleForGoalDisjunction((DisjunctionClassic) goal);
         } else if (goal instanceof NegationClassic) {
-            sol = introRuleForGoalNegation((UnaryOperation<ClassicalLogicOperation>) goal);
+            sol = introRuleForGoalNegation((NegationClassic) goal);
         } else if (goal.equals(ConstantClassic.FALSE)) {
             sol = introRuleForGoalContradiction();
         }
         return sol;
     }
 
+    /**
+     * Check if last goal can be reached with an intro rule in case it is {@link ConstantClassic#FALSE}
+     *
+     * @return the action {@link ClassicFI} that must be used or null
+     */
     private ClassicalAction introRuleForGoalContradiction() {
         for (int i = 0; i < getSteps().size(); i++) {
             if (getSteps().get(i).isValid() && getSteps().get(i).getStep() instanceof NegationClassic) {
@@ -136,7 +154,12 @@ public final class NaturalDeduction extends Proof<ClassicalLogicOperation, Proof
         return null;
     }
 
-    private ClassicalAction introRuleForGoalNegation(UnaryOperation<ClassicalLogicOperation> goal) {
+    /**
+     * Check if last goal can be reached with an intro rule in case it is {@link NegationClassic}
+     *
+     * @return the action {@link ClassicNotI} that must be used or null
+     */
+    private ClassicalAction introRuleForGoalNegation(NegationClassic goal) {
         ClassicalLogicOperation element = goal.getElement();
         int i = 0;
         int assmsLevel = getSteps().get(getSteps().size() - 1).getAssumptionLevel();
@@ -156,7 +179,12 @@ public final class NaturalDeduction extends Proof<ClassicalLogicOperation, Proof
         return null;
     }
 
-    private ClassicalAction introRuleForGoalDisjunction(BinaryOperation<ClassicalLogicOperation> goal) {
+    /**
+     * Check if last goal can be reached with an intro rule in case it is {@link DisjunctionClassic}
+     *
+     * @return the action {@link ClassicOrI1} or {@link ClassicOrI2} that must be used or null
+     */
+    private ClassicalAction introRuleForGoalDisjunction(DisjunctionClassic goal) {
         ClassicalLogicOperation left = (goal).getLeft();
         ClassicalLogicOperation right = (goal).getRight();
         for (int k = 0; k < getSteps().size(); k++) {
@@ -172,7 +200,12 @@ public final class NaturalDeduction extends Proof<ClassicalLogicOperation, Proof
         return null;
     }
 
-    private ClassicalAction introRuleForGoalConjuntion(BinaryOperation<ClassicalLogicOperation> goal) {
+    /**
+     * Check if last goal can be reached with an intro rule in case it is {@link ConjunctionClassic}
+     *
+     * @return the action {@link ClassicAndI} that must be used or null
+     */
+    private ClassicalAction introRuleForGoalConjuntion(ConjunctionClassic goal) {
         ClassicalLogicOperation left = (goal).getLeft();
         int a = -1;
         ClassicalLogicOperation right = (goal).getRight();
@@ -193,7 +226,12 @@ public final class NaturalDeduction extends Proof<ClassicalLogicOperation, Proof
         return null;
     }
 
-    private ClassicalAction introRuleForGoalImplication(BinaryOperation<ClassicalLogicOperation> goal) {
+    /**
+     * Check if last goal can be reached with an intro rule in case it is {@link ImplicationClassic}
+     *
+     * @return the action {@link ClassicDeductionTheorem} that must be used or null
+     */
+    private ClassicalAction introRuleForGoalImplication(ImplicationClassic goal) {
         ClassicalLogicOperation left = (goal).getLeft();
         ClassicalLogicOperation right = (goal).getRight();
         int i = 0;
@@ -288,17 +326,20 @@ public final class NaturalDeduction extends Proof<ClassicalLogicOperation, Proof
         } else {
             ClassicalLogicOperation goal = goals.get(goals.size() - 1);
             if (goal instanceof ConjunctionClassic) {
-                updateGoalConjuntion((BinaryOperation<ClassicalLogicOperation>) goal);
+                updateGoalConjuntion((ConjunctionClassic) goal);
             } else if (goal instanceof ImplicationClassic) {
-                updateGoalImplication((BinaryOperation<ClassicalLogicOperation>) goal);
+                updateGoalImplication((ImplicationClassic) goal);
             } else if (goal instanceof NegationClassic) {
-                updateGoalNegation((UnaryOperation<ClassicalLogicOperation>) goal);
+                updateGoalNegation((NegationClassic) goal);
             } else {
                 updateGoalContradiction(goal);
             }
         }
     }
 
+    /**
+     * Update the goal list in case the last goal is {@link ConstantClassic#FALSE}
+     */
     private void lastGoalFalse() {
         int j = -1;
         for (int i = 0; i < getSteps().size(); i++) {
@@ -306,11 +347,11 @@ public final class NaturalDeduction extends Proof<ClassicalLogicOperation, Proof
             if (!usedForGoal.containsValue(i) && getSteps().get(i).isValid()) {
                 LogicOperation log = getSteps().get(i).getStep();
                 if (log instanceof NegationClassic) {
-                    goals.add(((UnaryOperation<ClassicalLogicOperation>) log).getElement());
+                    goals.add(((NegationClassic) log).getElement());
                 } else if (log instanceof DisjunctionClassic) {
-                    goals.add(new NegationClassic(((BinaryOperation<ClassicalLogicOperation>) log).getLeft()));
+                    goals.add(new NegationClassic(((DisjunctionClassic) log).getLeft()));
                 } else if (log instanceof ImplicationClassic) {
-                    goals.add(((BinaryOperation<ClassicalLogicOperation>) log).getLeft());
+                    goals.add(((ImplicationClassic) log).getLeft());
                 } else {
                     b = false;
                 }
@@ -323,23 +364,44 @@ public final class NaturalDeduction extends Proof<ClassicalLogicOperation, Proof
         usedForGoal.put(goals.size(), j);
     }
 
+    /**
+     * Create new goal a assumption from the last goal. Assume the opposite
+     * and try to reach a contradiction
+     *
+     * @param goal last goal
+     */
     private void updateGoalContradiction(ClassicalLogicOperation goal) {
         goals.add(new NegationClassic(new NegationClassic(goal)));
         goals.add(ConstantClassic.FALSE);
         (new ClassicAssume(new NegationClassic(goal))).apply(this);
     }
 
-    private void updateGoalNegation(UnaryOperation<ClassicalLogicOperation> goal) {
+    /**
+     * Create new goal a assumption from the last goal of type -
+     *
+     * @param goal last goal of type -
+     */
+    private void updateGoalNegation(NegationClassic goal) {
         goals.add(ConstantClassic.FALSE);
         (new ClassicAssume((goal).getElement())).apply(this);
     }
 
-    private void updateGoalImplication(BinaryOperation<ClassicalLogicOperation> goal) {
+    /**
+     * Create new goal a assumption from the last goal of type ->
+     *
+     * @param goal last goal of type ->
+     */
+    private void updateGoalImplication(ImplicationClassic goal) {
         goals.add((goal).getRight());
         (new ClassicAssume((goal).getLeft())).apply(this);
     }
 
-    private void updateGoalConjuntion(BinaryOperation<ClassicalLogicOperation> goal) {
+    /**
+     * Create new goals from the last goal of type AND
+     *
+     * @param goal last goal of type AND
+     */
+    private void updateGoalConjuntion(ConjunctionClassic goal) {
         goals.add((goal).getLeft());
         goals.add((goal).getRight());
     }

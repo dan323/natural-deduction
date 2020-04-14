@@ -14,7 +14,6 @@ import com.dan323.proof.generic.proof.ProofStepSupplier;
 import com.dan323.proof.modal.proof.ModalNaturalDeduction;
 import com.dan323.proof.modal.proof.ProofStepModal;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public final class ModalDiaE<T> implements ModalAction<T> {
@@ -26,19 +25,19 @@ public final class ModalDiaE<T> implements ModalAction<T> {
     }
 
     @Override
-    public boolean isValid(Proof<ModalOperation, ProofStepModal<T>> pf) {
+    public boolean isValid(ModalNaturalDeduction<T> pf) {
 
         if (!(!pf.getSteps().isEmpty() && RuleUtils.isValidIndexAndProp(pf, j) && RuleUtils.isOperation(pf, j, Sometime.class))) {
             return false;
         }
 
         T origin = pf.getSteps().get(j - 1).getState();
-        int assLevel = Action.getLastAssumptionLevel(pf);
+        int assLevel = RuleUtils.getLastAssumptionLevel(pf);
         if (assLevel < 2) {
             return false;
         }
 
-        int i = Action.getToLastAssumption(pf, assLevel);
+        int i = RuleUtils.getToLastAssumption(pf, assLevel);
         ProofStepModal<T> log1 = pf.getSteps().get(pf.getSteps().size() - i);
         ProofStepModal<T> log2 = pf.getSteps().get(pf.getSteps().size() - i - 1);
 
@@ -84,18 +83,15 @@ public final class ModalDiaE<T> implements ModalAction<T> {
         }
     }
 
-    public void applyStepSupplier(Proof<ModalOperation, ProofStepModal<T>> pf, ProofStepSupplier<ModalOperation, ProofStepModal<T>> supp) {
+    public void applyStepSupplier(ModalNaturalDeduction<T> pf, ProofStepSupplier<ModalOperation, ProofStepModal<T>> supp) {
         ProofStepModal<T> psm = pf.getSteps().get(pf.getSteps().size() - 1);
-        List<Integer> lst = new ArrayList<>();
-        int i = Action.getToLastAssumption(pf, psm.getAssumptionLevel());
-        lst.add(j);
-        lst.add(pf.getSteps().size() - i);
-        lst.add(pf.getSteps().size());
+        int i = RuleUtils.getToLastAssumption(pf, psm.getAssumptionLevel());
+        List<Integer> lst = List.of(j, pf.getSteps().size() - i, pf.getSteps().size());
         pf.getSteps().add(supp.generateProofStep(psm.getAssumptionLevel() - 2, psm.getStep(), new ProofReason("<>E", lst)));
     }
 
     @Override
-    public void apply(Proof<ModalOperation, ProofStepModal<T>> pf) {
+    public void apply(ModalNaturalDeduction<T> pf) {
         ProofStepModal<T> psm = pf.getSteps().get(pf.getSteps().size() - 1);
         applyStepSupplier(pf, ((assLevel, log, reason) -> new ProofStepModal<>(psm.getState(), assLevel, (ModalLogicalOperation) log, reason)));
     }

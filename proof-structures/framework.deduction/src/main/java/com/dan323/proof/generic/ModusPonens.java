@@ -12,7 +12,7 @@ import java.util.List;
 /**
  * @author danco
  */
-public abstract class ModusPonens<T extends LogicOperation, Q extends ProofStep<T>> implements AbstractAction<T, Q> {
+public abstract class ModusPonens<T extends LogicOperation, Q extends ProofStep<T>, P extends Proof<T, Q>> implements AbstractAction<T, Q, P> {
 
     private final int applyAt1;
     private final int applyAt2;
@@ -24,7 +24,7 @@ public abstract class ModusPonens<T extends LogicOperation, Q extends ProofStep<
 
     public boolean equals(Object obj) {
         if (obj != null && getClass().equals(obj.getClass())) {
-            return ((ModusPonens<?, ?>) obj).applyAt1 == applyAt1 && ((ModusPonens<?, ?>) obj).applyAt2 == applyAt2;
+            return ((ModusPonens<?, ?, ?>) obj).applyAt1 == applyAt1 && ((ModusPonens<?, ?, ?>) obj).applyAt2 == applyAt2;
         } else {
             return false;
         }
@@ -43,14 +43,14 @@ public abstract class ModusPonens<T extends LogicOperation, Q extends ProofStep<
     }
 
     @Override
-    public boolean isValid(Proof<T, Q> pf) {
+    public boolean isValid(P pf) {
         return RuleUtils.isValidModusPonens(pf, applyAt1, applyAt2);
     }
 
     @Override
-    public void applyStepSupplier(Proof<T, Q> pf, ProofStepSupplier<T, Q> supp) {
+    public void applyStepSupplier(P pf, ProofStepSupplier<T, Q> supp) {
         T sol = ((BinaryOperation<T>) pf.getSteps().get(applyAt1 - 1).getStep()).getRight();
-        int assLevel = Action.getLastAssumptionLevel(pf);
+        int assLevel = RuleUtils.getLastAssumptionLevel(pf);
         pf.getSteps().add(supp.generateProofStep(assLevel, sol, new ProofReason("->E", List.of(applyAt1, applyAt2))));
     }
 }

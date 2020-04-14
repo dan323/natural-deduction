@@ -14,7 +14,7 @@ import java.util.function.BiFunction;
 /**
  * @author danco
  */
-public abstract class OrI<T extends LogicOperation, Q extends ProofStep<T>> implements AbstractAction<T, Q> {
+public abstract class OrI<T extends LogicOperation, Q extends ProofStep<T>, P extends Proof<T, Q>> implements AbstractAction<T, Q, P> {
 
     private int applyAt;
     private T intro;
@@ -27,12 +27,12 @@ public abstract class OrI<T extends LogicOperation, Q extends ProofStep<T>> impl
     }
 
     @Override
-    public boolean isValid(Proof<T, Q> pf) {
+    public boolean isValid(P pf) {
         return RuleUtils.isValidIndexAndProp(pf, applyAt);
     }
 
     @Override
-    public void applyStepSupplier(Proof<T, Q> pf, ProofStepSupplier<T, Q> supp) {
+    public void applyStepSupplier(P pf, ProofStepSupplier<T, Q> supp) {
         int assLevel = 0;
         if (!pf.getSteps().isEmpty()) {
             assLevel = pf.getSteps().get(pf.getSteps().size() - 1).getAssumptionLevel();
@@ -53,8 +53,8 @@ public abstract class OrI<T extends LogicOperation, Q extends ProofStep<T>> impl
     public boolean equals(Object o) {
         return o instanceof OrI &&
                 o.getClass().equals(getClass()) &&
-                ((OrI<?, ?>) o).applyAt == applyAt &&
-                Objects.equals(((OrI<?, ?>) o).intro, intro);
+                ((OrI<?, ?, ?>) o).applyAt == applyAt &&
+                Objects.equals(((OrI<?, ?, ?>) o).intro, intro);
     }
 
     @Override

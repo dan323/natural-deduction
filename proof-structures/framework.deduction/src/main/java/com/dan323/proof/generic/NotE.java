@@ -12,7 +12,7 @@ import java.util.Collections;
 /**
  * @author danco
  */
-public abstract class NotE<T extends LogicOperation, Q extends ProofStep<T>> implements AbstractAction<T, Q> {
+public abstract class NotE<T extends LogicOperation, Q extends ProofStep<T>, P extends Proof<T, Q>> implements AbstractAction<T, Q, P> {
 
     private final int neg;
 
@@ -23,7 +23,7 @@ public abstract class NotE<T extends LogicOperation, Q extends ProofStep<T>> imp
     @Override
     public boolean equals(Object obj) {
         if (obj != null && obj.getClass().equals(getClass())) {
-            return ((NotE<?, ?>) obj).neg == neg;
+            return ((NotE<?, ?, ?>) obj).neg == neg;
         } else {
             return false;
         }
@@ -35,7 +35,7 @@ public abstract class NotE<T extends LogicOperation, Q extends ProofStep<T>> imp
     }
 
     @Override
-    public boolean isValid(Proof<T, Q> pf) {
+    public boolean isValid(P pf) {
         if (RuleUtils.isValidIndexAndProp(pf, neg)) {
             T lo = pf.getSteps().get(neg - 1).getStep();
             return (lo instanceof Negation) && (((Negation<?>) lo).getElement() instanceof Negation);
@@ -44,9 +44,9 @@ public abstract class NotE<T extends LogicOperation, Q extends ProofStep<T>> imp
     }
 
     @Override
-    public void applyStepSupplier(Proof<T, Q> pf, ProofStepSupplier<T, Q> supp) {
+    public void applyStepSupplier(P pf, ProofStepSupplier<T, Q> supp) {
         int assLevel = pf.getSteps().get(pf.getSteps().size() - 1).getAssumptionLevel();
-        T sol = ((Negation<T>) ((Negation) (pf.getSteps().get(neg - 1).getStep())).getElement()).getElement();
+        T sol = ((Negation<T>) ((Negation<T>) (pf.getSteps().get(neg - 1).getStep())).getElement()).getElement();
         pf.getSteps().add(supp.generateProofStep(assLevel, sol, getReason()));
     }
 

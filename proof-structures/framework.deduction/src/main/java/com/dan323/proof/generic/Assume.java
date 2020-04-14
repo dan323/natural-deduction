@@ -11,7 +11,7 @@ import java.util.Collections;
 /**
  * @author danco
  */
-public abstract class Assume<T extends LogicOperation, Q extends ProofStep<T>> implements AbstractAction<T, Q> {
+public abstract class Assume<T extends LogicOperation, Q extends ProofStep<T>, P extends Proof<T, Q>> implements AbstractAction<T, Q, P> {
 
     private final T log;
 
@@ -20,13 +20,13 @@ public abstract class Assume<T extends LogicOperation, Q extends ProofStep<T>> i
     }
 
     @Override
-    public boolean isValid(Proof<T, Q> pf) {
+    public boolean isValid(P pf) {
         return true;
     }
 
     @Override
-    public void applyStepSupplier(Proof<T, Q> pf, ProofStepSupplier<T, Q> supp) {
-        int assLevel = Action.getLastAssumptionLevel(pf);
+    public void applyStepSupplier(P pf, ProofStepSupplier<T, Q> supp) {
+        int assLevel = RuleUtils.getLastAssumptionLevel(pf);
         pf.getSteps().add(supp.generateProofStep(assLevel + 1, log, getReason()));
     }
 

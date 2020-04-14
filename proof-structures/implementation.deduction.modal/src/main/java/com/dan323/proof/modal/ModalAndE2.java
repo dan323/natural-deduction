@@ -5,16 +5,17 @@ import com.dan323.expresions.modal.ModalLogicalOperation;
 import com.dan323.expresions.modal.ModalOperation;
 import com.dan323.proof.generic.AndE;
 import com.dan323.proof.generic.proof.Proof;
+import com.dan323.proof.modal.proof.ModalNaturalDeduction;
 import com.dan323.proof.modal.proof.ProofStepModal;
 
-public final class ModalAndE2<T> extends AndE<ModalOperation, ProofStepModal<T>> implements ModalAction<T> {
+public final class ModalAndE2<T> extends AndE<ModalOperation, ProofStepModal<T>,ModalNaturalDeduction<T>> implements ModalAction<T> {
 
     public ModalAndE2(int i) {
         super(i, BinaryOperation::getRight);
     }
 
     @Override
-    public void apply(Proof<ModalOperation, ProofStepModal<T>> pf) {
+    public void apply(ModalNaturalDeduction<T> pf) {
         applyStepSupplier(pf, ((assLevel, log, reason) -> new ProofStepModal<>(getState(pf), assLevel, (ModalLogicalOperation) log, reason)));
     }
 

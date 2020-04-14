@@ -4,6 +4,7 @@ import com.dan323.expresions.base.*;
 import com.dan323.proof.generic.proof.Proof;
 import com.dan323.proof.generic.proof.ProofReason;
 import com.dan323.proof.generic.proof.ProofStep;
+import com.dan323.proof.generic.proof.ProofTest;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -23,7 +24,7 @@ import static org.mockito.Mockito.*;
 public class RuleNotTest {
 
     @Mock
-    public Proof<LogicOperation, ProofStep<LogicOperation>> pf;
+    public ProofTest.ProofStub pf;
 
     @Mock
     public List<ProofStep<LogicOperation>> list;
@@ -49,7 +50,7 @@ public class RuleNotTest {
 
     @Test
     public void notIIsValidTest() {
-        NotI<LogicOperation, ProofStep<LogicOperation>> notI = new NotIStub();
+        NotIStub notI = new NotIStub();
 
         Assertions.assertEquals(new NotIStub(), notI);
         Assertions.assertEquals(new NotIStub().hashCode(), notI.hashCode());
@@ -88,12 +89,12 @@ public class RuleNotTest {
 
     @Test
     public void notEIsValidTest() {
-        NotE<LogicOperation, ProofStep<LogicOperation>> notE = new NotEStub(1);
+        NotEStub notE = new NotEStub(1);
 
         Assertions.assertEquals(1, notE.getNeg());
 
         Assertions.assertEquals(new NotEStub(1), notE);
-        Assertions.assertNotEquals(new NotE<>(1) {
+        Assertions.assertNotEquals(new NotEStub(1) {
         }, notE);
         Assertions.assertEquals(new NotEStub(1).hashCode(), notE.hashCode());
 
@@ -125,7 +126,7 @@ public class RuleNotTest {
         doReturn(negation).when(pStep0).getStep();
         doAnswer(invocationOnMock -> record.add(invocationOnMock.getArgument(0))).when(list).add(any(ProofStep.class));
 
-        NotE<LogicOperation, ProofStep<LogicOperation>> notE = new NotEStub(1);
+        NotEStub notE = new NotEStub(1);
         notE.applyStepSupplier(pf, ProofStep::new);
 
         Assertions.assertEquals(new ProofReason("-E", List.of(1)), record.get(0).getProof());
@@ -148,7 +149,7 @@ public class RuleNotTest {
         doReturn(variable).when(pStep0).getStep();
         doAnswer(invocationOnMock -> record.add(invocationOnMock.getArgument(0))).when(list).add(any(ProofStep.class));
 
-        NotI<LogicOperation, ProofStep<LogicOperation>> notI = new NotIStub();
+        NotIStub notI = new NotIStub();
         notI.applyStepSupplier(pf, ProofStep::new);
 
         Assertions.assertEquals(new ProofReason("-I", List.of(1, 2)), record.get(0).getProof());
@@ -157,15 +158,16 @@ public class RuleNotTest {
         Assertions.assertTrue(record.get(0).isValid());
     }
 
-    public static class NotIStub extends NotI<LogicOperation, ProofStep<LogicOperation>> {
+    public static class NotIStub extends NotI<LogicOperation, ProofStep<LogicOperation>, ProofTest.ProofStub> {
         public NotIStub() {
             super(RuleNotTest::mockNot);
         }
     }
 
-    public static class NotEStub extends NotE<LogicOperation, ProofStep<LogicOperation>> {
+    public static class NotEStub extends NotE<LogicOperation, ProofStep<LogicOperation>, ProofTest.ProofStub> {
         public NotEStub(int i) {
             super(i);
         }
     }
+
 }

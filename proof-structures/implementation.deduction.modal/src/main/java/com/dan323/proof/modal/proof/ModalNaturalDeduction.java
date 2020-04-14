@@ -2,15 +2,13 @@ package com.dan323.proof.modal.proof;
 
 import com.dan323.expresions.modal.ModalLogicalOperation;
 import com.dan323.expresions.modal.ModalOperation;
-import com.dan323.expresions.relation.LessEqual;
 import com.dan323.expresions.relation.RelationOperation;
 import com.dan323.proof.generic.Action;
+import com.dan323.proof.generic.proof.ParseAction;
 import com.dan323.proof.generic.proof.Proof;
 import com.dan323.proof.generic.proof.ProofReason;
 import com.dan323.proof.modal.ModalAction;
-import com.dan323.proof.modal.relational.RelationalAction;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public final class ModalNaturalDeduction<T> extends Proof<ModalOperation, ProofStepModal<T>> {
@@ -30,26 +28,28 @@ public final class ModalNaturalDeduction<T> extends Proof<ModalOperation, ProofS
         setGoal(goal);
         initializeProofSteps();
         setAssms(assms);
-        for (ModalOperation lo : assms) {
-            if (lo instanceof ModalLogicalOperation) {
-                getSteps().add(new ProofStepModal<>(state0, 0, (ModalLogicalOperation) lo, new ProofReason("Ass", new ArrayList<>())));
-            } else {
-                getSteps().add(new ProofStepModal<>(0, (RelationOperation<T>) lo, new ProofReason("Ass", new ArrayList<>())));
-            }
-        }
     }
 
     @Override
-    public boolean isValid(Action<ModalOperation, ProofStepModal<T>> act) {
-        return (act instanceof ModalAction) || (act instanceof RelationalAction);
+    public ParseAction<ModalAction<T>, ModalNaturalDeduction<T>> getParser() {
+        return ParseModalAction.getParser();
+    }
+
+    @Override
+    protected ProofStepModal<T> generateAssm(ModalOperation lo) {
+        if (lo instanceof ModalLogicalOperation) {
+            return new ProofStepModal<>(state0, 0, (ModalLogicalOperation) lo, new ProofReason("Ass", List.of()));
+        } else {
+            return new ProofStepModal<>(0, (RelationOperation<T>) lo, new ProofReason("Ass", List.of()));
+        }
     }
 
     /**
      * Function to assert that the state {@code state} is fresh at step {@code k}:
      * does not appear anywhere in a valid statement in any step before {@code k}
      *
-     * @param state  state checked for freshness
-     * @param k      initial step number where {@code state} must not be created
+     * @param state state checked for freshness
+     * @param k     initial step number where {@code state} must not be created
      * @return true iff {@code state} is used in {@code proof} before {@code k}
      */
     public boolean stateIsUsedBefore(T state, int k) {
@@ -57,16 +57,22 @@ public final class ModalNaturalDeduction<T> extends Proof<ModalOperation, ProofS
         for (int i = 0; i < k && !appears; i++) {
             ProofStepModal<T> step = getSteps().get(i);
             if (step.isValid()) {
-                if (step.getStep() instanceof RelationOperation){
-                    RelationOperation<T> operation = (RelationOperation<T>) step.getStep();
-                    if ((operation.getLeft().equals(state) || operation.getRight().equals(state)) && !(operation.getLeft().equals(state) && operation.getRight().equals(state))) {
-                        appears = true;
-                    }
-                } else{
-                    if (step.getState().equals(state)) {
-                        appears = true;
-                    }
-                }
+                appears = appears(state, step);
+            }
+        }
+        return appears;
+    }
+
+    private boolean appears(T state, ProofStepModal<T> step) {
+        boolean appears = false;
+        if (step.getStep() instanceof RelationOperation) {
+            RelationOperation<T> operation = (RelationOperation<T>) step.getStep();
+            if ((operation.getLeft().equals(state) || operation.getRight().equals(state)) && !(operation.getLeft().equals(state) && operation.getRight().equals(state))) {
+                appears = true;
+            }
+        } else {
+            if (step.getState().equals(state)) {
+                appears = true;
             }
         }
         return appears;

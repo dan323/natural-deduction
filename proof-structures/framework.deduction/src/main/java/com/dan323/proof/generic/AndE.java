@@ -13,7 +13,7 @@ import java.util.function.Function;
 /**
  * @author danco
  */
-public abstract class AndE<T extends LogicOperation, Q extends ProofStep<T>> implements AbstractAction<T, Q> {
+public abstract class AndE<T extends LogicOperation, Q extends ProofStep<T>, P extends Proof<T, Q>> implements AbstractAction<T, Q, P> {
 
     private final int applyAt;
     private Function<Conjunction<T>, T> side;
@@ -26,7 +26,7 @@ public abstract class AndE<T extends LogicOperation, Q extends ProofStep<T>> imp
     @Override
     public boolean equals(Object obj) {
         if (obj != null && getClass().equals(obj.getClass())) {
-            return ((AndE<?, ?>) obj).applyAt == applyAt;
+            return ((AndE<?, ?, ?>) obj).applyAt == applyAt;
         } else {
             return false;
         }
@@ -38,14 +38,14 @@ public abstract class AndE<T extends LogicOperation, Q extends ProofStep<T>> imp
     }
 
     @Override
-    public boolean isValid(Proof<T, Q> pf) {
+    public boolean isValid(P pf) {
         return RuleUtils.isValidIndexAndProp(pf, applyAt) && RuleUtils.isOperation(pf, applyAt, Conjunction.class);
     }
 
     @Override
-    public void applyStepSupplier(Proof<T, Q> pf, ProofStepSupplier<T, Q> supp) {
+    public void applyStepSupplier(P pf, ProofStepSupplier<T, Q> supp) {
         T log = pf.getSteps().get(applyAt - 1).getStep();
-        int assLevel = Action.getLastAssumptionLevel(pf);
+        int assLevel = RuleUtils.getLastAssumptionLevel(pf);
         pf.getSteps().add(supp.generateProofStep(assLevel, side.apply((Conjunction<T>) log), getReason()));
     }
 

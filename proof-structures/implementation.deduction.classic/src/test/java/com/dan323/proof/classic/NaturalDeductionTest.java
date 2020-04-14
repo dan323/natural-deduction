@@ -58,4 +58,24 @@ public class NaturalDeductionTest {
         naturalDeduction.automate();
         assertTrue(naturalDeduction.isDone());
     }
+
+    @Test
+    public void automateBasicFact() {
+        var p = new VariableClassic("P");
+        var q = new VariableClassic("Q");
+        var naturalDeduction = new NaturalDeduction();
+        naturalDeduction.initializeProof(List.of(), new ImplicationClassic(p, new ImplicationClassic(q, p)));
+        naturalDeduction.automate();
+        assertTrue(naturalDeduction.isDone());
+    }
+
+    @Test
+    public void automateFalseImpAnything() {
+        var p = new VariableClassic("P");
+        var q = new VariableClassic("Q");
+        var naturalDeduction = new NaturalDeduction();
+        naturalDeduction.initializeProof(List.of(p, new NegationClassic(p)), q);
+        naturalDeduction.automate();
+        assertTrue(naturalDeduction.isDone());
+    }
 }

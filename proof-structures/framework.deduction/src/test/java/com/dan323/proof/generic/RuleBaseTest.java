@@ -4,6 +4,7 @@ import com.dan323.expresions.base.LogicOperation;
 import com.dan323.proof.generic.proof.Proof;
 import com.dan323.proof.generic.proof.ProofReason;
 import com.dan323.proof.generic.proof.ProofStep;
+import com.dan323.proof.generic.proof.ProofTest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -21,7 +22,7 @@ import static org.mockito.Mockito.*;
 public class RuleBaseTest {
 
     @Mock
-    public Proof<LogicOperation, ProofStep<LogicOperation>> pf;
+    public ProofTest.ProofStub pf;
 
     @Mock
     public List<ProofStep<LogicOperation>> list;
@@ -37,13 +38,13 @@ public class RuleBaseTest {
 
     @Test
     public void assmsIsValid() {
-        Assume<LogicOperation, ProofStep<LogicOperation>> assms = new AssumeStub(mock(LogicOperation.class));
+        AssumeStub assms = new AssumeStub(mock(LogicOperation.class));
         assertTrue(assms.isValid(pf));
     }
 
     @Test
     public void copyIsValid() {
-        Copy<LogicOperation, ProofStep<LogicOperation>> copy = new CopyStub(1);
+        CopyStub copy = new CopyStub(1);
 
         assertEquals(1, copy.getAppliedAt());
 
@@ -63,7 +64,7 @@ public class RuleBaseTest {
     public void assmsApplyTest() {
         List<ProofStep<LogicOperation>> record = new ArrayList<>();
         LogicOperation log = mock(LogicOperation.class);
-        Assume<LogicOperation, ProofStep<LogicOperation>> assms = new AssumeStub(log);
+        AssumeStub assms = new AssumeStub(log);
         doAnswer(invocationOnMock -> record.add(invocationOnMock.getArgument(0))).when(list).add(any(ProofStep.class));
         doReturn(list).when(pf).getSteps();
         doReturn(true).when(list).isEmpty();
@@ -89,7 +90,7 @@ public class RuleBaseTest {
     public void copyApplyTest() {
         List<ProofStep<LogicOperation>> record = new ArrayList<>();
         doAnswer(invocationOnMock -> record.add(invocationOnMock.getArgument(0))).when(list).add(any(ProofStep.class));
-        Copy<LogicOperation, ProofStep<LogicOperation>> copy = new CopyStub(1);
+        CopyStub copy = new CopyStub(1);
         doReturn(list).when(pf).getSteps();
         doReturn(pStep0).when(list).get(0);
         doReturn(mock(LogicOperation.class)).when(pStep0).getStep();
@@ -103,13 +104,13 @@ public class RuleBaseTest {
         assertEquals("Rep [1]", record.get(0).getProof().toString());
     }
 
-    public static class AssumeStub extends Assume<LogicOperation, ProofStep<LogicOperation>> {
+    public static class AssumeStub extends Assume<LogicOperation, ProofStep<LogicOperation>, ProofTest.ProofStub> {
         public AssumeStub(LogicOperation clo) {
             super(clo);
         }
     }
 
-    public static class CopyStub extends Copy<LogicOperation, ProofStep<LogicOperation>> {
+    public static class CopyStub extends Copy<LogicOperation, ProofStep<LogicOperation>, ProofTest.ProofStub> {
         public CopyStub(int clo) {
             super(clo);
         }

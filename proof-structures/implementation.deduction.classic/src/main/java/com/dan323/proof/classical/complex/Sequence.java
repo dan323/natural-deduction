@@ -1,9 +1,7 @@
 package com.dan323.proof.classical.complex;
 
-import com.dan323.expresions.classical.ClassicalLogicOperation;
 import com.dan323.proof.classical.ClassicalAction;
-import com.dan323.proof.generic.proof.Proof;
-import com.dan323.proof.generic.proof.ProofStep;
+import com.dan323.proof.classical.proof.NaturalDeduction;
 
 import java.util.List;
 
@@ -16,23 +14,29 @@ public final class Sequence extends CompositionRule {
     }
 
     @Override
-    public boolean isValid(Proof<ClassicalLogicOperation, ProofStep<ClassicalLogicOperation>> pf) {
+    public boolean isValid(NaturalDeduction pf) {
         int size = pf.getSteps().size();
         for (ClassicalAction ca : lst) {
             if (!ca.isValid(pf)) {
+                resetProof(pf, size);
                 return false;
             }
             ca.apply(pf);
         }
-        int size2 = pf.getSteps().size();
-        for (int i = size; i < size2; i++) {
-            pf.removeLastStep();
-        }
+        resetProof(pf, size);
         return true;
     }
 
+    private void resetProof(NaturalDeduction pf, int size) {
+        List<ClassicalAction> actions = pf.getParser().translateToActions(pf);
+        pf.initializeProof(pf.getAssms(), pf.getGoal());
+        for (int i = 0; i < size; i++) {
+            actions.get(i).apply(pf);
+        }
+    }
+
     @Override
-    public void apply(Proof<ClassicalLogicOperation, ProofStep<ClassicalLogicOperation>> pf) {
+    public void apply(NaturalDeduction pf) {
         for (ClassicalAction ca : lst) {
             ca.apply(pf);
         }

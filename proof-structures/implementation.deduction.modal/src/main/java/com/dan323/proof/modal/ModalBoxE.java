@@ -9,6 +9,7 @@ import com.dan323.proof.generic.RuleUtils;
 import com.dan323.proof.generic.proof.Proof;
 import com.dan323.proof.generic.proof.ProofReason;
 import com.dan323.proof.generic.proof.ProofStepSupplier;
+import com.dan323.proof.modal.proof.ModalNaturalDeduction;
 import com.dan323.proof.modal.proof.ProofStepModal;
 
 import java.util.List;
@@ -24,7 +25,7 @@ public final class ModalBoxE<T> implements ModalAction<T> {
     }
 
     @Override
-    public boolean isValid(Proof<ModalOperation, ProofStepModal<T>> pf) {
+    public boolean isValid(ModalNaturalDeduction<T> pf) {
         if (RuleUtils.isValidIndexAndProp(pf, i) && RuleUtils.isValidIndexAndProp(pf, q) && RuleUtils.isOperation(pf, i, Always.class)) {
             ProofStepModal<T> ps = pf.getSteps().get(i - 1);
             ProofStepModal<T> ps2 = pf.getSteps().get(q - 1);
@@ -35,10 +36,10 @@ public final class ModalBoxE<T> implements ModalAction<T> {
     }
 
     @Override
-    public void applyStepSupplier(Proof<ModalOperation, ProofStepModal<T>> pf, ProofStepSupplier<ModalOperation, ProofStepModal<T>> supp) {
+    public void applyStepSupplier(ModalNaturalDeduction<T> pf, ProofStepSupplier<ModalOperation, ProofStepModal<T>> supp) {
         int assLevel = 0;
         if (!pf.getSteps().isEmpty()) {
-            assLevel = Action.getLastAssumptionLevel(pf);
+            assLevel = RuleUtils.getLastAssumptionLevel(pf);
         }
         ProofStepModal<T> ps = pf.getSteps().get(i - 1);
         Always al = (Always) ps.getStep();
@@ -46,7 +47,7 @@ public final class ModalBoxE<T> implements ModalAction<T> {
     }
 
     @Override
-    public void apply(Proof<ModalOperation, ProofStepModal<T>> pf) {
+    public void apply(ModalNaturalDeduction<T> pf) {
         T fl = ((LessEqual<T>) pf.getSteps().get(q - 1).getStep()).getRight();
         applyStepSupplier(pf, ((assLevel, log, reason) -> new ProofStepModal<>(fl, assLevel, (ModalLogicalOperation) log, reason)));
     }

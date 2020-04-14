@@ -9,6 +9,7 @@ import com.dan323.proof.classical.ClassicAssume;
 import com.dan323.proof.classical.ClassicDeductionTheorem;
 import com.dan323.proof.classical.ClassicFE;
 import com.dan323.proof.classical.ClassicFI;
+import com.dan323.proof.classical.proof.NaturalDeduction;
 import com.dan323.proof.generic.RuleUtils;
 import com.dan323.proof.generic.proof.Proof;
 import com.dan323.proof.generic.proof.ProofStep;
@@ -36,7 +37,7 @@ public final class OrE1 extends CompositionRule {
     }
 
     @Override
-    public boolean isValid(Proof<ClassicalLogicOperation, ProofStep<ClassicalLogicOperation>> pf) {
+    public boolean isValid(NaturalDeduction pf) {
         if (RuleUtils.isValidIndexAndProp(pf, a) && RuleUtils.isValidIndexAndProp(pf, b) && RuleUtils.isOperation(pf, a, Disjunction.class) && RuleUtils.isOperation(pf, b, Negation.class)) {
             return ((BinaryOperation<?>) pf.getSteps().get(a - 1).getStep()).getLeft().equals(((NegationClassic) pf.getSteps().get(b - 1).getStep()).getElement());
         }
@@ -44,7 +45,7 @@ public final class OrE1 extends CompositionRule {
     }
 
     @Override
-    public void apply(Proof<ClassicalLogicOperation, ProofStep<ClassicalLogicOperation>> pf) {
+    public void apply(NaturalDeduction pf) {
         (new ClassicAssume(((BinaryOperation<ClassicalLogicOperation>) pf.getSteps().get(a - 1).getStep()).getLeft())).apply(pf);
         (new ClassicFI(pf.getSteps().size(), a)).apply(pf);
         (new ClassicFE(pf.getSteps().size(), ((BinaryOperation<ClassicalLogicOperation>) pf.getSteps().get(a - 1).getStep()).getRight())).apply(pf);

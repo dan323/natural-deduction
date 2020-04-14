@@ -1,9 +1,9 @@
 package com.dan323.proof.generic;
 
 import com.dan323.expresions.base.*;
-import com.dan323.proof.generic.proof.Proof;
 import com.dan323.proof.generic.proof.ProofReason;
 import com.dan323.proof.generic.proof.ProofStep;
+import com.dan323.proof.generic.proof.ProofTest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Answers;
@@ -22,7 +22,7 @@ import static org.mockito.Mockito.*;
 public class RuleFalseTest {
 
     @Mock
-    public Proof<LogicOperation, ProofStep<LogicOperation>> pf;
+    public ProofTest.ProofStub pf;
 
     @Mock
     public List<ProofStep<LogicOperation>> list;
@@ -48,7 +48,7 @@ public class RuleFalseTest {
 
     @Test
     public void fIIsValidTest() {
-        FI<LogicOperation, ProofStep<LogicOperation>> fI = new RuleFalseTest.FIStub(1, 2);
+        FIStub fI = new RuleFalseTest.FIStub(1, 2);
 
         assertEquals(1, fI.getPos());
         assertEquals(2, fI.getNeg());
@@ -94,7 +94,7 @@ public class RuleFalseTest {
     @Test
     public void fEIsValidTest() {
         Variable<LogicOperation> var = mock(Variable.class);
-        FE<LogicOperation, ProofStep<LogicOperation>> fE = new RuleFalseTest.FEStub(var, 1);
+        FEStub fE = new RuleFalseTest.FEStub(var, 1);
 
         assertEquals(fE, fE);
         assertNotEquals(fE, new RuleFalseTest.FEStub(var, 2));
@@ -139,7 +139,7 @@ public class RuleFalseTest {
         Variable<LogicOperation> variable = mock(Variable.class, Answers.CALLS_REAL_METHODS);
         doReturn("P").when(variable).toString();
 
-        FE<LogicOperation, ProofStep<LogicOperation>> notE = new RuleFalseTest.FEStub(variable, 1);
+        FEStub notE = new RuleFalseTest.FEStub(variable, 1);
         notE.applyStepSupplier(pf, ProofStep::new);
 
         assertEquals(new ProofReason("FE", List.of(1)), record.get(0).getProof());
@@ -157,7 +157,7 @@ public class RuleFalseTest {
         doReturn(1).when(pStep1).getAssumptionLevel();
         doAnswer(invocationOnMock -> record.add(invocationOnMock.getArgument(0))).when(list).add(any(ProofStep.class));
 
-        FI<LogicOperation, ProofStep<LogicOperation>> notI = new RuleFalseTest.FIStub(1, 2);
+        FIStub notI = new RuleFalseTest.FIStub(1, 2);
         notI.applyStepSupplier(pf, ProofStep::new);
 
         assertEquals(new ProofReason("FI", List.of(1, 2)), record.get(0).getProof());
@@ -170,15 +170,16 @@ public class RuleFalseTest {
         return () -> true;
     }
 
-    public static class FIStub extends FI<LogicOperation, ProofStep<LogicOperation>> {
+    public static class FIStub extends FI<LogicOperation, ProofStep<LogicOperation>, ProofTest.ProofStub> {
         public FIStub(int a, int b) {
             super(a, b, RuleFalseTest::mockNot, RuleFalseTest::getFalse);
         }
     }
 
-    public static class FEStub extends FE<LogicOperation, ProofStep<LogicOperation>> {
+    public static class FEStub extends FE<LogicOperation, ProofStep<LogicOperation>, ProofTest.ProofStub> {
         public FEStub(LogicOperation op, int i) {
             super(op, i);
         }
     }
+
 }

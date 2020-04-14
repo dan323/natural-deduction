@@ -13,7 +13,7 @@ import java.util.function.BiFunction;
 /**
  * @author danco
  */
-public abstract class AndI<T extends LogicOperation, Q extends ProofStep<T>> implements AbstractAction<T, Q> {
+public abstract class AndI<T extends LogicOperation, Q extends ProofStep<T>, P extends Proof<T, Q>> implements AbstractAction<T, Q, P> {
 
     private final int applyAt1;
     private final int applyAt2;
@@ -28,7 +28,7 @@ public abstract class AndI<T extends LogicOperation, Q extends ProofStep<T>> imp
     @Override
     public boolean equals(Object object) {
         if (object != null && object.getClass().equals(getClass())) {
-            AndI obj = (AndI) object;
+            AndI<?, ?, ?> obj = (AndI<?, ?, ?>) object;
             return applyAt1 == obj.applyAt1 && applyAt2 == obj.applyAt2;
         } else {
             return false;
@@ -41,13 +41,13 @@ public abstract class AndI<T extends LogicOperation, Q extends ProofStep<T>> imp
     }
 
     @Override
-    public boolean isValid(Proof<T, Q> pf) {
+    public boolean isValid(P pf) {
         return RuleUtils.isValidIndexAndProp(pf, applyAt1) && RuleUtils.isValidIndexAndProp(pf, applyAt2);
     }
 
     @Override
-    public void applyStepSupplier(Proof<T, Q> pf, ProofStepSupplier<T, Q> supp) {
-        int assLevel = Action.getLastAssumptionLevel(pf);
+    public void applyStepSupplier(P pf, ProofStepSupplier<T, Q> supp) {
+        int assLevel = RuleUtils.getLastAssumptionLevel(pf);
         pf.getSteps().add(supp.generateProofStep(assLevel,
                 conjunctionConstructor.apply(pf.getSteps().get(applyAt1 - 1).getStep(),
                         pf.getSteps().get(applyAt2 - 1).getStep()).castToLanguage(), getReason()));

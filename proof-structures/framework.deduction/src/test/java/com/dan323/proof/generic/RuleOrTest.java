@@ -4,6 +4,7 @@ import com.dan323.expresions.base.*;
 import com.dan323.proof.generic.proof.Proof;
 import com.dan323.proof.generic.proof.ProofReason;
 import com.dan323.proof.generic.proof.ProofStep;
+import com.dan323.proof.generic.proof.ProofTest;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -26,7 +27,7 @@ import static org.mockito.Mockito.*;
 public class RuleOrTest {
 
     @Mock
-    public Proof<LogicOperation, ProofStep<LogicOperation>> pf;
+    public ProofTest.ProofStub pf;
 
     @Mock
     public List<ProofStep<LogicOperation>> list;
@@ -57,14 +58,14 @@ public class RuleOrTest {
 
     @Test
     public void basicTest() {
-        OrE<LogicOperation, ProofStep<LogicOperation>> orE = new RuleOrTest.OrEStub(1, 2, 3);
+        OrEStub orE = new RuleOrTest.OrEStub(1, 2, 3);
         assertEquals(1, orE.getDisj());
         assertEquals(2, orE.get1());
         assertEquals(3, orE.get2());
         assertNotEquals(orE, new Object());
         assertEquals(orE, orE);
 
-        OrI<LogicOperation,ProofStep<LogicOperation>> orI = new RuleOrTest.OrIStub(1, mock(LogicOperation.class));
+        OrIStub orI = new RuleOrTest.OrIStub(1, mock(LogicOperation.class));
         assertEquals(1,orI.getAt());
         assertNotEquals(orI,new Object());
         assertEquals(orI, orI);
@@ -72,7 +73,7 @@ public class RuleOrTest {
 
     @Test
     public void orEIsValidTest() {
-        OrE<LogicOperation, ProofStep<LogicOperation>> orE = new RuleOrTest.OrEStub(1, 2, 2);
+        OrEStub orE = new RuleOrTest.OrEStub(1, 2, 2);
 
         assertEquals(new RuleOrTest.OrEStub(1, 2, 2), orE);
         Assertions.assertNotEquals(new RuleOrTest.OrEStub(1, 3, 2), orE);
@@ -85,7 +86,7 @@ public class RuleOrTest {
 
         Assertions.assertFalse(orE.isValid(pf));
 
-        OrE<LogicOperation, ProofStep<LogicOperation>> orE2 = new RuleOrTest.OrEStub(1, 2, 3);
+        OrEStub orE2 = new RuleOrTest.OrEStub(1, 2, 3);
 
         Variable<LogicOperation> variable = mock(Variable.class);
         doReturn(3).when(list).size();
@@ -112,7 +113,7 @@ public class RuleOrTest {
     @Test
     public void orIIsValidTest() {
         LogicOperation logicOperation = mock(LogicOperation.class);
-        OrI<LogicOperation, ProofStep<LogicOperation>> orI = new RuleOrTest.OrIStub(2, logicOperation);
+        OrIStub orI = new RuleOrTest.OrIStub(2, logicOperation);
 
         assertEquals(new RuleOrTest.OrIStub(2, logicOperation), orI);
         assertEquals(new RuleOrTest.OrIStub(2, logicOperation).hashCode(), orI.hashCode());
@@ -151,7 +152,7 @@ public class RuleOrTest {
         doReturn(implication).when(pStep1).getStep();
         doAnswer(invocationOnMock -> record.add(invocationOnMock.getArgument(0))).when(list).add(any(ProofStep.class));
 
-        OrE<LogicOperation, ProofStep<LogicOperation>> orE = new RuleOrTest.OrEStub(1, 2, 2);
+        OrEStub orE = new RuleOrTest.OrEStub(1, 2, 2);
         orE.applyStepSupplier(pf, ProofStep::new);
 
         assertEquals(new ProofReason("|E", List.of(1, 2, 2)), record.get(0).getProof());
@@ -172,7 +173,7 @@ public class RuleOrTest {
         doReturn(variable).when(pStep0).getStep();
         doAnswer(invocationOnMock -> record.add(invocationOnMock.getArgument(0))).when(list).add(any(ProofStep.class));
 
-        OrI<LogicOperation, ProofStep<LogicOperation>> orI = new RuleOrTest.OrIStub(1, variable);
+        OrIStub orI = new RuleOrTest.OrIStub(1, variable);
         orI.applyStepSupplier(pf, ProofStep::new);
 
         assertEquals(new ProofReason("|I", List.of(1)), record.get(0).getProof());
@@ -181,14 +182,14 @@ public class RuleOrTest {
         Assertions.assertTrue(record.get(0).isValid());
     }
 
-    public static class OrIStub extends OrI<LogicOperation, ProofStep<LogicOperation>> {
+    public static class OrIStub extends OrI<LogicOperation, ProofStep<LogicOperation>, ProofTest.ProofStub> {
         public OrIStub(int app, LogicOperation lo) {
             super(app, lo, RuleOrTest::mockOr);
         }
 
     }
 
-    public static class OrEStub extends OrE<LogicOperation, ProofStep<LogicOperation>> {
+    public static class OrEStub extends OrE<LogicOperation, ProofStep<LogicOperation>, ProofTest.ProofStub> {
         public OrEStub(int dis, int r1, int r2) {
             super(dis, r1, r2);
         }

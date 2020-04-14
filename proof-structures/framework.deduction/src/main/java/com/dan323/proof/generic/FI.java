@@ -15,7 +15,7 @@ import java.util.function.Supplier;
 /**
  * @author danco
  */
-public abstract class FI<T extends LogicOperation, Q extends ProofStep<T>> implements AbstractAction<T, Q> {
+public abstract class FI<T extends LogicOperation, Q extends ProofStep<T>, P extends Proof<T, Q>> implements AbstractAction<T, Q, P> {
 
     private final int neg;
     private final int pos;
@@ -30,7 +30,7 @@ public abstract class FI<T extends LogicOperation, Q extends ProofStep<T>> imple
     }
 
     @Override
-    public boolean isValid(Proof<T, Q> pf) {
+    public boolean isValid(P pf) {
         if (RuleUtils.isValidIndexAndProp(pf, neg) && RuleUtils.isValidIndexAndProp(pf, pos) && RuleUtils.isOperation(pf, neg, Negation.class)) {
             Negation<?> negation = (Negation<?>) pf.getSteps().get(neg - 1).getStep();
             if (negation.getElement().equals(pf.getSteps().get(pos - 1).getStep())) {
@@ -49,7 +49,7 @@ public abstract class FI<T extends LogicOperation, Q extends ProofStep<T>> imple
     }
 
     @Override
-    public void applyStepSupplier(Proof<T, Q> pf, ProofStepSupplier<T, Q> supp) {
+    public void applyStepSupplier(P pf, ProofStepSupplier<T, Q> supp) {
         int assLevel = pf.getSteps().get(pf.getSteps().size() - 1).getAssumptionLevel();
         pf.getSteps().add(supp.generateProofStep(assLevel, constantFunction.get().castToLanguage(), new ProofReason("FI", List.of(pos, neg))));
     }
@@ -61,6 +61,6 @@ public abstract class FI<T extends LogicOperation, Q extends ProofStep<T>> imple
 
     @Override
     public boolean equals(Object obj) {
-        return obj != null && obj.getClass().equals(getClass()) && ((FI<?, ?>) obj).neg == neg && ((FI<?, ?>) obj).pos == pos;
+        return obj != null && obj.getClass().equals(getClass()) && ((FI<?, ?, ?>) obj).neg == neg && ((FI<?, ?, ?>) obj).pos == pos;
     }
 }

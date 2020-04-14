@@ -15,7 +15,7 @@ import java.util.Objects;
 /**
  * @author danco
  */
-public abstract class OrE<T extends LogicOperation, Q extends ProofStep<T>> implements AbstractAction<T, Q> {
+public abstract class OrE<T extends LogicOperation, Q extends ProofStep<T>, P extends Proof<T, Q>> implements AbstractAction<T, Q, P> {
 
     private final int disj;
     private final int rule1;
@@ -40,7 +40,7 @@ public abstract class OrE<T extends LogicOperation, Q extends ProofStep<T>> impl
     }
 
     @Override
-    public boolean isValid(Proof<T, Q> pf) {
+    public boolean isValid(P pf) {
         if (RuleUtils.isValidIndexAndProp(pf, disj) && RuleUtils.isValidIndexAndProp(pf, rule1) && RuleUtils.isValidIndexAndProp(pf, rule2)) {
             LogicOperation dis = pf.getSteps().get(disj - 1).getStep();
             LogicOperation r1 = pf.getSteps().get(rule1 - 1).getStep();
@@ -64,7 +64,7 @@ public abstract class OrE<T extends LogicOperation, Q extends ProofStep<T>> impl
         if (!(o instanceof OrE)) {
             return false;
         }
-        OrE<?, ?> orE = (OrE<?, ?>) o;
+        OrE<?, ?, ?> orE = (OrE<?, ?, ?>) o;
         return disj == orE.disj &&
                 rule1 == orE.rule1 &&
                 rule2 == orE.rule2;
@@ -76,7 +76,7 @@ public abstract class OrE<T extends LogicOperation, Q extends ProofStep<T>> impl
     }
 
     @Override
-    public void applyStepSupplier(Proof<T, Q> pf, ProofStepSupplier<T, Q> supp) {
+    public void applyStepSupplier(P pf, ProofStepSupplier<T, Q> supp) {
         T sol = ((BinaryOperation<T>) pf.getSteps().get(rule1 - 1).getStep()).getRight();
         int assLevel = pf.getSteps().get(pf.getSteps().size() - 1).getAssumptionLevel();
         pf.getSteps().add(supp.generateProofStep(assLevel, sol, new ProofReason("|E", List.of(disj, rule1, rule2))));
