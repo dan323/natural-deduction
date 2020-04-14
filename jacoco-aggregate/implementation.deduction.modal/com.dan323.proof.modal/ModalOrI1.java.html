@@ -4,20 +4,19 @@ import com.dan323.expresions.modal.DisjunctionModal;
 import com.dan323.expresions.modal.ModalLogicalOperation;
 import com.dan323.expresions.modal.ModalOperation;
 import com.dan323.proof.generic.OrI;
-import com.dan323.proof.generic.proof.Proof;
 import com.dan323.proof.modal.proof.ModalNaturalDeduction;
 import com.dan323.proof.modal.proof.ProofStepModal;
 
 public final class ModalOrI1&lt;T&gt; extends OrI&lt;ModalOperation, ProofStepModal&lt;T&gt;, ModalNaturalDeduction&lt;T&gt;&gt; implements ModalAction&lt;T&gt; {
 
     public ModalOrI1(int i, ModalLogicalOperation intro) {
-<span class="fc" id="L14">        super(i, intro, DisjunctionModal::new);</span>
-<span class="fc" id="L15">    }</span>
+<span class="fc" id="L13">        super(i, intro, DisjunctionModal::new);</span>
+<span class="fc" id="L14">    }</span>
 
     @Override
     public void apply(ModalNaturalDeduction&lt;T&gt; pf) {
-<span class="fc" id="L19">        applyStepSupplier(pf, ((assLevel, log, reason) -&gt;</span>
-<span class="fc" id="L20">                new ProofStepModal&lt;&gt;((pf.getSteps().get(getAt() - 1)).getState(), assLevel, (ModalLogicalOperation) log, reason)));</span>
-<span class="fc" id="L21">    }</span>
+<span class="fc" id="L18">        applyStepSupplier(pf, ((assLevel, log, reason) -&gt;</span>
+<span class="fc" id="L19">                new ProofStepModal&lt;&gt;((pf.getSteps().get(getAt() - 1)).getState(), assLevel, (ModalLogicalOperation) log, reason)));</span>
+<span class="fc" id="L20">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

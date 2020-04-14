@@ -8,43 +8,41 @@ import com.dan323.expresions.classical.DisjunctionClassic;
 import com.dan323.proof.classical.*;
 import com.dan323.proof.classical.proof.NaturalDeduction;
 import com.dan323.proof.generic.RuleUtils;
-import com.dan323.proof.generic.proof.Proof;
-import com.dan323.proof.generic.proof.ProofStep;
 
 public final class DeMorgan1 extends CompositionRule {
 
     private int i;
 
-<span class="fc" id="L18">    public DeMorgan1(int j) {</span>
-<span class="fc" id="L19">        i = j;</span>
-<span class="fc" id="L20">    }</span>
+<span class="fc" id="L16">    public DeMorgan1(int j) {</span>
+<span class="fc" id="L17">        i = j;</span>
+<span class="fc" id="L18">    }</span>
 
     public boolean equals(Object ob) {
-<span class="pc bpc" id="L23" title="2 of 4 branches missed.">        return (ob instanceof DeMorgan1) &amp;&amp; ((DeMorgan1) ob).i == i;</span>
+<span class="pc bpc" id="L21" title="2 of 4 branches missed.">        return (ob instanceof DeMorgan1) &amp;&amp; ((DeMorgan1) ob).i == i;</span>
     }
 
     public int hashCode() {
-<span class="nc" id="L27">        return i * 23;</span>
+<span class="nc" id="L25">        return i * 23;</span>
     }
 
     @Override
     public boolean isValid(NaturalDeduction pf) {
-<span class="pc bpc" id="L32" title="1 of 4 branches missed.">        return RuleUtils.isValidIndexAndProp(pf, i) &amp;&amp; RuleUtils.isOperation(pf, i, Negation.class)</span>
-<span class="fc bfc" id="L33" title="All 2 branches covered.">                &amp;&amp; (((UnaryOperation&lt;?&gt;) pf.getSteps().get(i - 1).getStep()).getElement() instanceof DisjunctionClassic);</span>
+<span class="pc bpc" id="L30" title="1 of 4 branches missed.">        return RuleUtils.isValidIndexAndProp(pf, i) &amp;&amp; RuleUtils.isOperation(pf, i, Negation.class)</span>
+<span class="fc bfc" id="L31" title="All 2 branches covered.">                &amp;&amp; (((UnaryOperation&lt;?&gt;) pf.getSteps().get(i - 1).getStep()).getElement() instanceof DisjunctionClassic);</span>
     }
 
     @Override
     public void apply(NaturalDeduction pf) {
-<span class="fc" id="L38">        ClassicalLogicOperation left = ((BinaryOperation&lt;ClassicalLogicOperation&gt;) ((UnaryOperation&lt;ClassicalLogicOperation&gt;) pf.getSteps().get(i - 1).getStep()).getElement()).getLeft();</span>
-<span class="fc" id="L39">        ClassicalLogicOperation right = ((BinaryOperation&lt;ClassicalLogicOperation&gt;) ((UnaryOperation&lt;ClassicalLogicOperation&gt;) pf.getSteps().get(i - 1).getStep()).getElement()).getRight();</span>
-<span class="fc" id="L40">        (new ClassicAssume(left)).apply(pf);</span>
-<span class="fc" id="L41">        (new ClassicOrI1(pf.getSteps().size(), right)).apply(pf);</span>
-<span class="fc" id="L42">        (new ClassicFI(pf.getSteps().size(), i)).apply(pf);</span>
-<span class="fc" id="L43">        (new ClassicNotI()).apply(pf);</span>
-<span class="fc" id="L44">        (new ClassicAssume(right)).apply(pf);</span>
-<span class="fc" id="L45">        (new ClassicOrI2(pf.getSteps().size(), left)).apply(pf);</span>
-<span class="fc" id="L46">        (new ClassicFI(pf.getSteps().size(), i)).apply(pf);</span>
-<span class="fc" id="L47">        (new ClassicNotI()).apply(pf);</span>
-<span class="fc" id="L48">    }</span>
+<span class="fc" id="L36">        ClassicalLogicOperation left = ((BinaryOperation&lt;ClassicalLogicOperation&gt;) ((UnaryOperation&lt;ClassicalLogicOperation&gt;) pf.getSteps().get(i - 1).getStep()).getElement()).getLeft();</span>
+<span class="fc" id="L37">        ClassicalLogicOperation right = ((BinaryOperation&lt;ClassicalLogicOperation&gt;) ((UnaryOperation&lt;ClassicalLogicOperation&gt;) pf.getSteps().get(i - 1).getStep()).getElement()).getRight();</span>
+<span class="fc" id="L38">        (new ClassicAssume(left)).apply(pf);</span>
+<span class="fc" id="L39">        (new ClassicOrI1(pf.getSteps().size(), right)).apply(pf);</span>
+<span class="fc" id="L40">        (new ClassicFI(pf.getSteps().size(), i)).apply(pf);</span>
+<span class="fc" id="L41">        (new ClassicNotI()).apply(pf);</span>
+<span class="fc" id="L42">        (new ClassicAssume(right)).apply(pf);</span>
+<span class="fc" id="L43">        (new ClassicOrI2(pf.getSteps().size(), left)).apply(pf);</span>
+<span class="fc" id="L44">        (new ClassicFI(pf.getSteps().size(), i)).apply(pf);</span>
+<span class="fc" id="L45">        (new ClassicNotI()).apply(pf);</span>
+<span class="fc" id="L46">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

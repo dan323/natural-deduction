@@ -3,30 +3,29 @@
 import com.dan323.expresions.modal.ModalLogicalOperation;
 import com.dan323.expresions.modal.ModalOperation;
 import com.dan323.proof.generic.OrE;
-import com.dan323.proof.generic.proof.Proof;
 import com.dan323.proof.modal.proof.ModalNaturalDeduction;
 import com.dan323.proof.modal.proof.ProofStepModal;
 
 import java.util.List;
 
-public final class ModalOrE&lt;T&gt; extends OrE&lt;ModalOperation, ProofStepModal&lt;T&gt;,ModalNaturalDeduction&lt;T&gt;&gt; implements ModalAction&lt;T&gt; {
+public final class ModalOrE&lt;T&gt; extends OrE&lt;ModalOperation, ProofStepModal&lt;T&gt;, ModalNaturalDeduction&lt;T&gt;&gt; implements ModalAction&lt;T&gt; {
 
     public ModalOrE(int dis, int r1, int r2) {
-<span class="fc" id="L15">        super(dis, r1, r2);</span>
-<span class="fc" id="L16">    }</span>
+<span class="fc" id="L14">        super(dis, r1, r2);</span>
+<span class="fc" id="L15">    }</span>
 
     @Override
     public boolean isValid(ModalNaturalDeduction&lt;T&gt; pf) {
-<span class="fc bfc" id="L20" title="All 2 branches covered.">        if (super.isValid(pf)) {</span>
-<span class="fc" id="L21">            return ModalAction.checkEqualState(pf, List.of(getDisj(), get1(), get2()));</span>
+<span class="fc bfc" id="L19" title="All 2 branches covered.">        if (super.isValid(pf)) {</span>
+<span class="fc" id="L20">            return ModalAction.checkEqualState(pf, List.of(getDisj(), get1(), get2()));</span>
         }
-<span class="fc" id="L23">        return false;</span>
+<span class="fc" id="L22">        return false;</span>
     }
 
     @Override
     public void apply(ModalNaturalDeduction&lt;T&gt; pf) {
-<span class="fc" id="L28">        T st = (pf.getSteps().get(get1() - 1)).getState();</span>
-<span class="fc" id="L29">        applyStepSupplier(pf, (assLevel, sol, reason) -&gt; new ProofStepModal&lt;&gt;(st, assLevel, (ModalLogicalOperation) sol, reason));</span>
-<span class="fc" id="L30">    }</span>
+<span class="fc" id="L27">        T st = (pf.getSteps().get(get1() - 1)).getState();</span>
+<span class="fc" id="L28">        applyStepSupplier(pf, (assLevel, sol, reason) -&gt; new ProofStepModal&lt;&gt;(st, assLevel, (ModalLogicalOperation) sol, reason));</span>
+<span class="fc" id="L29">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

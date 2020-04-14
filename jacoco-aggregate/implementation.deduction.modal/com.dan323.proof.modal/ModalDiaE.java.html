@@ -6,7 +6,6 @@ import com.dan323.expresions.modal.ModalOperation;
 import com.dan323.expresions.modal.Sometime;
 import com.dan323.expresions.relation.LessEqual;
 import com.dan323.expresions.relation.RelationOperation;
-import com.dan323.proof.generic.Action;
 import com.dan323.proof.generic.RuleUtils;
 import com.dan323.proof.generic.proof.Proof;
 import com.dan323.proof.generic.proof.ProofReason;
@@ -20,80 +19,80 @@ public final class ModalDiaE&lt;T&gt; implements ModalAction&lt;T&gt; {
 
     private int j;
 
-<span class="fc" id="L23">    public ModalDiaE(int i) {</span>
-<span class="fc" id="L24">        j = i;</span>
-<span class="fc" id="L25">    }</span>
+<span class="fc" id="L22">    public ModalDiaE(int i) {</span>
+<span class="fc" id="L23">        j = i;</span>
+<span class="fc" id="L24">    }</span>
 
     @Override
     public boolean isValid(ModalNaturalDeduction&lt;T&gt; pf) {
 
-<span class="pc bpc" id="L30" title="2 of 6 branches missed.">        if (!(!pf.getSteps().isEmpty() &amp;&amp; RuleUtils.isValidIndexAndProp(pf, j) &amp;&amp; RuleUtils.isOperation(pf, j, Sometime.class))) {</span>
-<span class="fc" id="L31">            return false;</span>
+<span class="pc bpc" id="L29" title="2 of 6 branches missed.">        if (!(!pf.getSteps().isEmpty() &amp;&amp; RuleUtils.isValidIndexAndProp(pf, j) &amp;&amp; RuleUtils.isOperation(pf, j, Sometime.class))) {</span>
+<span class="fc" id="L30">            return false;</span>
         }
 
-<span class="fc" id="L34">        T origin = pf.getSteps().get(j - 1).getState();</span>
-<span class="fc" id="L35">        int assLevel = RuleUtils.getLastAssumptionLevel(pf);</span>
-<span class="fc bfc" id="L36" title="All 2 branches covered.">        if (assLevel &lt; 2) {</span>
-<span class="fc" id="L37">            return false;</span>
+<span class="fc" id="L33">        T origin = pf.getSteps().get(j - 1).getState();</span>
+<span class="fc" id="L34">        int assLevel = RuleUtils.getLastAssumptionLevel(pf);</span>
+<span class="fc bfc" id="L35" title="All 2 branches covered.">        if (assLevel &lt; 2) {</span>
+<span class="fc" id="L36">            return false;</span>
         }
 
-<span class="fc" id="L40">        int i = RuleUtils.getToLastAssumption(pf, assLevel);</span>
-<span class="fc" id="L41">        ProofStepModal&lt;T&gt; log1 = pf.getSteps().get(pf.getSteps().size() - i);</span>
-<span class="fc" id="L42">        ProofStepModal&lt;T&gt; log2 = pf.getSteps().get(pf.getSteps().size() - i - 1);</span>
+<span class="fc" id="L39">        int i = RuleUtils.getToLastAssumption(pf, assLevel);</span>
+<span class="fc" id="L40">        ProofStepModal&lt;T&gt; log1 = pf.getSteps().get(pf.getSteps().size() - i);</span>
+<span class="fc" id="L41">        ProofStepModal&lt;T&gt; log2 = pf.getSteps().get(pf.getSteps().size() - i - 1);</span>
 
-<span class="fc bfc" id="L44" title="All 2 branches covered.">        if (!log2.isValid()) {</span>
-<span class="fc" id="L45">            return false;</span>
+<span class="fc bfc" id="L43" title="All 2 branches covered.">        if (!log2.isValid()) {</span>
+<span class="fc" id="L44">            return false;</span>
         }
 
-<span class="fc bfc" id="L48" title="All 2 branches covered.">        if (!(log2.getStep() instanceof LessEqual)) {</span>
-<span class="pc bpc" id="L49" title="1 of 4 branches missed.">            if (log1.getStep() instanceof LessEqual &amp;&amp; log2.getStep() instanceof ModalLogicalOperation) {</span>
-<span class="fc" id="L50">                log2 = log1;</span>
-<span class="fc" id="L51">                log1 = pf.getSteps().get(pf.getSteps().size() - i - 1);</span>
+<span class="fc bfc" id="L47" title="All 2 branches covered.">        if (!(log2.getStep() instanceof LessEqual)) {</span>
+<span class="pc bpc" id="L48" title="1 of 4 branches missed.">            if (log1.getStep() instanceof LessEqual &amp;&amp; log2.getStep() instanceof ModalLogicalOperation) {</span>
+<span class="fc" id="L49">                log2 = log1;</span>
+<span class="fc" id="L50">                log1 = pf.getSteps().get(pf.getSteps().size() - i - 1);</span>
             } else {
-<span class="fc" id="L53">                return false;</span>
+<span class="fc" id="L52">                return false;</span>
             }
-<span class="pc bpc" id="L55" title="1 of 2 branches missed.">        } else if (!(log1.getStep() instanceof ModalLogicalOperation)) {</span>
-<span class="fc" id="L56">            return false;</span>
+<span class="pc bpc" id="L54" title="1 of 2 branches missed.">        } else if (!(log1.getStep() instanceof ModalLogicalOperation)) {</span>
+<span class="fc" id="L55">            return false;</span>
         }
 
-<span class="fc" id="L59">        T leftState = ((LessEqual&lt;T&gt;) log2.getStep()).getLeft();</span>
-<span class="fc" id="L60">        T rightState = ((LessEqual&lt;T&gt;) log2.getStep()).getRight();</span>
+<span class="fc" id="L58">        T leftState = ((LessEqual&lt;T&gt;) log2.getStep()).getLeft();</span>
+<span class="fc" id="L59">        T rightState = ((LessEqual&lt;T&gt;) log2.getStep()).getRight();</span>
 
-<span class="pc bpc" id="L62" title="1 of 4 branches missed.">        if (!(log1.getState().equals(rightState) &amp;&amp; origin.equals(leftState))) {</span>
-<span class="fc" id="L63">            return false;</span>
+<span class="pc bpc" id="L61" title="1 of 4 branches missed.">        if (!(log1.getState().equals(rightState) &amp;&amp; origin.equals(leftState))) {</span>
+<span class="fc" id="L62">            return false;</span>
         }
-<span class="pc bpc" id="L65" title="1 of 2 branches missed.">        if (((ModalNaturalDeduction&lt;T&gt;) pf).stateIsUsedBefore(log1.getState(), pf.getSteps().size() - i - 1)) {</span>
-<span class="nc" id="L66">            return false;</span>
+<span class="pc bpc" id="L64" title="1 of 2 branches missed.">        if (((ModalNaturalDeduction&lt;T&gt;) pf).stateIsUsedBefore(log1.getState(), pf.getSteps().size() - i - 1)) {</span>
+<span class="nc" id="L65">            return false;</span>
         }
-<span class="fc bfc" id="L68" title="All 2 branches covered.">        if (!isNotFresh(pf, pf.getSteps().size() - i - 1)) {</span>
-<span class="fc" id="L69">            return false;</span>
+<span class="fc bfc" id="L67" title="All 2 branches covered.">        if (!isNotFresh(pf, pf.getSteps().size() - i - 1)) {</span>
+<span class="fc" id="L68">            return false;</span>
         }
 
-<span class="fc" id="L72">        return log1.getStep().equals(((UnaryOperation&lt;?&gt;) pf.getSteps().get(j - 1).getStep()).getElement());</span>
+<span class="fc" id="L71">        return log1.getStep().equals(((UnaryOperation&lt;?&gt;) pf.getSteps().get(j - 1).getStep()).getElement());</span>
     }
 
     private boolean isNotFresh(Proof&lt;ModalOperation, ProofStepModal&lt;T&gt;&gt; pf, int i) {
-<span class="fc bfc" id="L76" title="All 2 branches covered.">        if ((pf.getSteps().get(pf.getSteps().size() - 1).getStep()) instanceof ModalLogicalOperation) {</span>
-<span class="fc" id="L77">            T last = (pf.getSteps().get(pf.getSteps().size() - 1)).getState();</span>
-<span class="fc" id="L78">            return ((ModalNaturalDeduction&lt;T&gt;) pf).stateIsUsedBefore(last, i);</span>
+<span class="fc bfc" id="L75" title="All 2 branches covered.">        if ((pf.getSteps().get(pf.getSteps().size() - 1).getStep()) instanceof ModalLogicalOperation) {</span>
+<span class="fc" id="L76">            T last = (pf.getSteps().get(pf.getSteps().size() - 1)).getState();</span>
+<span class="fc" id="L77">            return ((ModalNaturalDeduction&lt;T&gt;) pf).stateIsUsedBefore(last, i);</span>
         } else {
-<span class="fc" id="L80">            RelationOperation&lt;T&gt; operation = (RelationOperation&lt;T&gt;) (pf.getSteps().get(pf.getSteps().size() - 1).getStep());</span>
-<span class="fc bfc" id="L81" title="All 2 branches covered.">            return ((ModalNaturalDeduction&lt;T&gt;) pf).stateIsUsedBefore(operation.getLeft(), i) &amp;&amp;</span>
-<span class="fc bfc" id="L82" title="All 2 branches covered.">                    ((ModalNaturalDeduction&lt;T&gt;) pf).stateIsUsedBefore(operation.getRight(), i);</span>
+<span class="fc" id="L79">            RelationOperation&lt;T&gt; operation = (RelationOperation&lt;T&gt;) (pf.getSteps().get(pf.getSteps().size() - 1).getStep());</span>
+<span class="fc bfc" id="L80" title="All 2 branches covered.">            return ((ModalNaturalDeduction&lt;T&gt;) pf).stateIsUsedBefore(operation.getLeft(), i) &amp;&amp;</span>
+<span class="fc bfc" id="L81" title="All 2 branches covered.">                    ((ModalNaturalDeduction&lt;T&gt;) pf).stateIsUsedBefore(operation.getRight(), i);</span>
         }
     }
 
     public void applyStepSupplier(ModalNaturalDeduction&lt;T&gt; pf, ProofStepSupplier&lt;ModalOperation, ProofStepModal&lt;T&gt;&gt; supp) {
-<span class="fc" id="L87">        ProofStepModal&lt;T&gt; psm = pf.getSteps().get(pf.getSteps().size() - 1);</span>
-<span class="fc" id="L88">        int i = RuleUtils.getToLastAssumption(pf, psm.getAssumptionLevel());</span>
-<span class="fc" id="L89">        List&lt;Integer&gt; lst = List.of(j, pf.getSteps().size() - i, pf.getSteps().size());</span>
-<span class="fc" id="L90">        pf.getSteps().add(supp.generateProofStep(psm.getAssumptionLevel() - 2, psm.getStep(), new ProofReason(&quot;&lt;&gt;E&quot;, lst)));</span>
-<span class="fc" id="L91">    }</span>
+<span class="fc" id="L86">        ProofStepModal&lt;T&gt; psm = pf.getSteps().get(pf.getSteps().size() - 1);</span>
+<span class="fc" id="L87">        int i = RuleUtils.getToLastAssumption(pf, psm.getAssumptionLevel());</span>
+<span class="fc" id="L88">        List&lt;Integer&gt; lst = List.of(j, pf.getSteps().size() - i, pf.getSteps().size());</span>
+<span class="fc" id="L89">        pf.getSteps().add(supp.generateProofStep(psm.getAssumptionLevel() - 2, psm.getStep(), new ProofReason(&quot;&lt;&gt;E&quot;, lst)));</span>
+<span class="fc" id="L90">    }</span>
 
     @Override
     public void apply(ModalNaturalDeduction&lt;T&gt; pf) {
-<span class="fc" id="L95">        ProofStepModal&lt;T&gt; psm = pf.getSteps().get(pf.getSteps().size() - 1);</span>
-<span class="fc" id="L96">        applyStepSupplier(pf, ((assLevel, log, reason) -&gt; new ProofStepModal&lt;&gt;(psm.getState(), assLevel, (ModalLogicalOperation) log, reason)));</span>
-<span class="fc" id="L97">    }</span>
+<span class="fc" id="L94">        ProofStepModal&lt;T&gt; psm = pf.getSteps().get(pf.getSteps().size() - 1);</span>
+<span class="fc" id="L95">        applyStepSupplier(pf, ((assLevel, log, reason) -&gt; new ProofStepModal&lt;&gt;(psm.getState(), assLevel, (ModalLogicalOperation) log, reason)));</span>
+<span class="fc" id="L96">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

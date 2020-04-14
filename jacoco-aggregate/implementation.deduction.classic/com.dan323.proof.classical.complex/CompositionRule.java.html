@@ -3,18 +3,17 @@
 import com.dan323.expresions.classical.ClassicalLogicOperation;
 import com.dan323.proof.classical.ClassicalAction;
 import com.dan323.proof.classical.proof.NaturalDeduction;
-import com.dan323.proof.generic.proof.Proof;
 import com.dan323.proof.generic.proof.ProofStep;
 import com.dan323.proof.generic.proof.ProofStepSupplier;
 
 /**
  * @author danco
  */
-<span class="fc" id="L13">public abstract class CompositionRule implements ClassicalAction {</span>
+<span class="fc" id="L12">public abstract class CompositionRule implements ClassicalAction {</span>
 
     @Override
     public void applyStepSupplier(NaturalDeduction pf, ProofStepSupplier&lt;ClassicalLogicOperation, ProofStep&lt;ClassicalLogicOperation&gt;&gt; supp) {
-<span class="nc" id="L17">        throw new UnsupportedOperationException(&quot;This rule is a composition, hence no abstraction&quot;);</span>
+<span class="nc" id="L16">        throw new UnsupportedOperationException(&quot;This rule is a composition, hence no abstraction&quot;);</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

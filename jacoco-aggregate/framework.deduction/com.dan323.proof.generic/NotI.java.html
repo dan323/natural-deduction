@@ -47,7 +47,7 @@ public abstract class NotI&lt;T extends LogicOperation, Q extends ProofStep&lt;T
 <span class="fc" id="L47">        } else {</span>
 <span class="fc" id="L48">            return false;</span>
         }
-<span class="fc" id="L50">        int lastAssumption = RuleUtils.getToLastAssumption(pf,assLevel);</span>
+<span class="fc" id="L50">        int lastAssumption = RuleUtils.getToLastAssumption(pf, assLevel);</span>
 <span class="fc" id="L51">        Q log = pf.getSteps().get(pf.getSteps().size() - lastAssumption);</span>
 <span class="fc" id="L52">        return log.getProof().getNameProof().equals(&quot;Ass&quot;);</span>
     }
@@ -55,7 +55,7 @@ public abstract class NotI&lt;T extends LogicOperation, Q extends ProofStep&lt;T
     @Override
     public void applyStepSupplier(P pf, ProofStepSupplier&lt;T, Q&gt; supp) {
 <span class="fc" id="L57">        int assLevel = RuleUtils.getLastAssumptionLevel(pf);</span>
-<span class="fc" id="L58">        int i = RuleUtils.disableUntilLastAssumption(pf,assLevel);</span>
+<span class="fc" id="L58">        int i = RuleUtils.disableUntilLastAssumption(pf, assLevel);</span>
 <span class="fc" id="L59">        List&lt;Integer&gt; lst = List.of(pf.getSteps().size() - i + 1, pf.getSteps().size());</span>
 <span class="fc" id="L60">        pf.getSteps().add(supp.generateProofStep(assLevel - 1, negate.apply(pf.getSteps().get(pf.getSteps().size() - i).getStep()).castToLanguage(), new ProofReason(&quot;-I&quot;, lst)));</span>
 <span class="fc" id="L61">    }</span>
