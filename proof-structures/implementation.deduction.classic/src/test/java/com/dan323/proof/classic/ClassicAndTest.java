@@ -46,7 +46,7 @@ public class ClassicAndTest {
 
     @Test
     public void classicAndIApply() {
-        ClassicAndI andI = new ClassicAndI(1,2);
+        ClassicAndI andI = new ClassicAndI(1, 2);
         ClassicAssume assume1 = new ClassicAssume(new VariableClassic("P"));
         ClassicAssume assume2 = new ClassicAssume(new VariableClassic("Q"));
         NaturalDeduction pf = new NaturalDeduction();

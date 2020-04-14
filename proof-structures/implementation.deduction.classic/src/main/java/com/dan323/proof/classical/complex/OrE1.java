@@ -11,8 +11,6 @@ import com.dan323.proof.classical.ClassicFE;
 import com.dan323.proof.classical.ClassicFI;
 import com.dan323.proof.classical.proof.NaturalDeduction;
 import com.dan323.proof.generic.RuleUtils;
-import com.dan323.proof.generic.proof.Proof;
-import com.dan323.proof.generic.proof.ProofStep;
 
 public final class OrE1 extends CompositionRule {
 

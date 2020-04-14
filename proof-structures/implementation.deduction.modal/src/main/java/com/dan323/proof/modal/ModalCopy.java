@@ -7,7 +7,7 @@ import com.dan323.proof.generic.proof.Proof;
 import com.dan323.proof.modal.proof.ModalNaturalDeduction;
 import com.dan323.proof.modal.proof.ProofStepModal;
 
-public final class ModalCopy<T> extends Copy<ModalOperation, ProofStepModal<T>,ModalNaturalDeduction<T>> implements ModalAction<T> {
+public final class ModalCopy<T> extends Copy<ModalOperation, ProofStepModal<T>, ModalNaturalDeduction<T>> implements ModalAction<T> {
 
     public ModalCopy(int i) {
         super(i);

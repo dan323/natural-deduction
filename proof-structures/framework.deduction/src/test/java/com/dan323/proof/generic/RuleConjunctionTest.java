@@ -4,14 +4,12 @@ import com.dan323.expresions.base.BinaryOperation;
 import com.dan323.expresions.base.Conjunction;
 import com.dan323.expresions.base.LogicOperation;
 import com.dan323.expresions.base.Variable;
-import com.dan323.proof.generic.proof.Proof;
 import com.dan323.proof.generic.proof.ProofStep;
 import com.dan323.proof.generic.proof.ProofTest;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Answers;
-import org.mockito.ArgumentMatchers;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 

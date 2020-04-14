@@ -47,7 +47,7 @@ public abstract class NotI<T extends LogicOperation, Q extends ProofStep<T>, P e
         } else {
             return false;
         }
-        int lastAssumption = RuleUtils.getToLastAssumption(pf,assLevel);
+        int lastAssumption = RuleUtils.getToLastAssumption(pf, assLevel);
         Q log = pf.getSteps().get(pf.getSteps().size() - lastAssumption);
         return log.getProof().getNameProof().equals("Ass");
     }
@@ -55,7 +55,7 @@ public abstract class NotI<T extends LogicOperation, Q extends ProofStep<T>, P e
     @Override
     public void applyStepSupplier(P pf, ProofStepSupplier<T, Q> supp) {
         int assLevel = RuleUtils.getLastAssumptionLevel(pf);
-        int i = RuleUtils.disableUntilLastAssumption(pf,assLevel);
+        int i = RuleUtils.disableUntilLastAssumption(pf, assLevel);
         List<Integer> lst = List.of(pf.getSteps().size() - i + 1, pf.getSteps().size());
         pf.getSteps().add(supp.generateProofStep(assLevel - 1, negate.apply(pf.getSteps().get(pf.getSteps().size() - i).getStep()).castToLanguage(), new ProofReason("-I", lst)));
     }

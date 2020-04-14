@@ -1,7 +1,6 @@
 package com.dan323.proof.generic;
 
 import com.dan323.expresions.base.*;
-import com.dan323.proof.generic.proof.Proof;
 import com.dan323.proof.generic.proof.ProofReason;
 import com.dan323.proof.generic.proof.ProofStep;
 import com.dan323.proof.generic.proof.ProofTest;
@@ -66,8 +65,8 @@ public class RuleOrTest {
         assertEquals(orE, orE);
 
         OrIStub orI = new RuleOrTest.OrIStub(1, mock(LogicOperation.class));
-        assertEquals(1,orI.getAt());
-        assertNotEquals(orI,new Object());
+        assertEquals(1, orI.getAt());
+        assertNotEquals(orI, new Object());
         assertEquals(orI, orI);
     }
 

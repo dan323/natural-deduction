@@ -3,11 +3,10 @@ package com.dan323.proof.modal;
 import com.dan323.expresions.modal.ModalLogicalOperation;
 import com.dan323.expresions.modal.ModalOperation;
 import com.dan323.proof.generic.FE;
-import com.dan323.proof.generic.proof.Proof;
 import com.dan323.proof.modal.proof.ModalNaturalDeduction;
 import com.dan323.proof.modal.proof.ProofStepModal;
 
-public final class ModalFE<T> extends FE<ModalOperation, ProofStepModal<T>,ModalNaturalDeduction<T>> implements ModalAction<T> {
+public final class ModalFE<T> extends FE<ModalOperation, ProofStepModal<T>, ModalNaturalDeduction<T>> implements ModalAction<T> {
 
     private final T state;
 

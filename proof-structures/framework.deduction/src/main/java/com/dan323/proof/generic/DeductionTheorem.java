@@ -35,7 +35,7 @@ public abstract class DeductionTheorem<T extends LogicOperation, Q extends Proof
         if (assLevel == 0) {
             return false;
         }
-        int lastAssumption = RuleUtils.getToLastAssumption(pf,assLevel);
+        int lastAssumption = RuleUtils.getToLastAssumption(pf, assLevel);
         ProofStep<T> log = pf.getSteps().get(pf.getSteps().size() - lastAssumption);
         return log.getProof().getNameProof().equals("Ass");
     }
@@ -43,7 +43,7 @@ public abstract class DeductionTheorem<T extends LogicOperation, Q extends Proof
     @Override
     public void applyStepSupplier(P pf, ProofStepSupplier<T, Q> supp) {
         int assLevel = RuleUtils.getLastAssumptionLevel(pf);
-        int i = RuleUtils.disableUntilLastAssumption(pf,assLevel);
+        int i = RuleUtils.disableUntilLastAssumption(pf, assLevel);
         pf.getSteps().add(supp.generateProofStep(assLevel - 1,
                 constructor.apply(pf.getSteps().get(pf.getSteps().size() - i).getStep(),
                         pf.getSteps().get(pf.getSteps().size() - 1).getStep()).castToLanguage(), new ProofReason("->I", List.of(pf.getSteps().size() - i + 1, pf.getSteps().size()))));

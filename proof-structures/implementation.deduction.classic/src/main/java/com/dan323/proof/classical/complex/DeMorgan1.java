@@ -8,8 +8,6 @@ import com.dan323.expresions.classical.DisjunctionClassic;
 import com.dan323.proof.classical.*;
 import com.dan323.proof.classical.proof.NaturalDeduction;
 import com.dan323.proof.generic.RuleUtils;
-import com.dan323.proof.generic.proof.Proof;
-import com.dan323.proof.generic.proof.ProofStep;
 
 public final class DeMorgan1 extends CompositionRule {
 

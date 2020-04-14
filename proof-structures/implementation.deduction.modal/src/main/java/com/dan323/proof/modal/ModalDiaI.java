@@ -5,7 +5,6 @@ import com.dan323.expresions.modal.ModalOperation;
 import com.dan323.expresions.modal.Sometime;
 import com.dan323.expresions.relation.LessEqual;
 import com.dan323.proof.generic.RuleUtils;
-import com.dan323.proof.generic.proof.Proof;
 import com.dan323.proof.generic.proof.ProofReason;
 import com.dan323.proof.generic.proof.ProofStepSupplier;
 import com.dan323.proof.modal.proof.ModalNaturalDeduction;

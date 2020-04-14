@@ -3,13 +3,12 @@ package com.dan323.proof.modal;
 import com.dan323.expresions.modal.ModalLogicalOperation;
 import com.dan323.expresions.modal.ModalOperation;
 import com.dan323.proof.generic.OrE;
-import com.dan323.proof.generic.proof.Proof;
 import com.dan323.proof.modal.proof.ModalNaturalDeduction;
 import com.dan323.proof.modal.proof.ProofStepModal;
 
 import java.util.List;
 
-public final class ModalOrE<T> extends OrE<ModalOperation, ProofStepModal<T>,ModalNaturalDeduction<T>> implements ModalAction<T> {
+public final class ModalOrE<T> extends OrE<ModalOperation, ProofStepModal<T>, ModalNaturalDeduction<T>> implements ModalAction<T> {
 
     public ModalOrE(int dis, int r1, int r2) {
         super(dis, r1, r2);
