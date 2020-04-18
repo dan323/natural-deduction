@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>DeMorgan1.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">jacoco-report-aggregate</a> &gt; <a href="../index.html" class="el_bundle">implementation.deduction.classic</a> &gt; <a href="index.source.html" class="el_package">com.dan323.classical.complex</a> &gt; <span class="el_source">DeMorgan1.java</span></div><h1>DeMorgan1.java</h1><pre class="source lang-java linenums">package com.dan323.classical.complex;
+
+import com.dan323.classical.*;
+import com.dan323.classical.proof.NaturalDeduction;
+import com.dan323.expresions.base.BinaryOperation;
+import com.dan323.expresions.base.Negation;
+import com.dan323.expresions.base.UnaryOperation;
+import com.dan323.expresions.classical.ClassicalLogicOperation;
+import com.dan323.expresions.classical.DisjunctionClassic;
+import com.dan323.proof.generic.RuleUtils;
+
+public final class DeMorgan1 extends CompositionRule {
+
+    private int i;
+
+<span class="fc" id="L16">    public DeMorgan1(int j) {</span>
+<span class="fc" id="L17">        i = j;</span>
+<span class="fc" id="L18">    }</span>
+
+    public boolean equals(Object ob) {
+<span class="pc bpc" id="L21" title="2 of 4 branches missed.">        return (ob instanceof DeMorgan1) &amp;&amp; ((DeMorgan1) ob).i == i;</span>
+    }
+
+    public int hashCode() {
+<span class="nc" id="L25">        return i * 23;</span>
+    }
+
+    @Override
+    public boolean isValid(NaturalDeduction pf) {
+<span class="pc bpc" id="L30" title="1 of 4 branches missed.">        return RuleUtils.isValidIndexAndProp(pf, i) &amp;&amp; RuleUtils.isOperation(pf, i, Negation.class)</span>
+<span class="fc bfc" id="L31" title="All 2 branches covered.">                &amp;&amp; (((UnaryOperation&lt;?&gt;) pf.getSteps().get(i - 1).getStep()).getElement() instanceof DisjunctionClassic);</span>
+    }
+
+    @Override
+    public void apply(NaturalDeduction pf) {
+<span class="fc" id="L36">        ClassicalLogicOperation left = ((BinaryOperation&lt;ClassicalLogicOperation&gt;) ((UnaryOperation&lt;ClassicalLogicOperation&gt;) pf.getSteps().get(i - 1).getStep()).getElement()).getLeft();</span>
+<span class="fc" id="L37">        ClassicalLogicOperation right = ((BinaryOperation&lt;ClassicalLogicOperation&gt;) ((UnaryOperation&lt;ClassicalLogicOperation&gt;) pf.getSteps().get(i - 1).getStep()).getElement()).getRight();</span>
+<span class="fc" id="L38">        (new ClassicAssume(left)).apply(pf);</span>
+<span class="fc" id="L39">        (new ClassicOrI1(pf.getSteps().size(), right)).apply(pf);</span>
+<span class="fc" id="L40">        (new ClassicFI(pf.getSteps().size(), i)).apply(pf);</span>
+<span class="fc" id="L41">        (new ClassicNotI()).apply(pf);</span>
+<span class="fc" id="L42">        (new ClassicAssume(right)).apply(pf);</span>
+<span class="fc" id="L43">        (new ClassicOrI2(pf.getSteps().size(), left)).apply(pf);</span>
+<span class="fc" id="L44">        (new ClassicFI(pf.getSteps().size(), i)).apply(pf);</span>
+<span class="fc" id="L45">        (new ClassicNotI()).apply(pf);</span>
+<span class="fc" id="L46">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>
