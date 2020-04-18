@@ -1,9 +1,9 @@
-package com.dan323.proof.classical.proof;
+package com.dan323.classical.proof;
 
+import com.dan323.classical.*;
 import com.dan323.expresions.classical.ClassicalLogicOperation;
 import com.dan323.expresions.classical.ConjunctionClassic;
 import com.dan323.expresions.classical.DisjunctionClassic;
-import com.dan323.proof.classical.*;
 import com.dan323.proof.generic.proof.ParseAction;
 import com.dan323.proof.generic.proof.ProofReason;
 

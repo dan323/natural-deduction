@@ -1,14 +1,12 @@
 package com.dan323.proof.classic;
 
-import com.dan323.expresions.classical.DisjunctionClassic;
-import com.dan323.expresions.classical.ImplicationClassic;
-import com.dan323.expresions.classical.NegationClassic;
-import com.dan323.expresions.classical.VariableClassic;
-import com.dan323.proof.classical.proof.NaturalDeduction;
+import com.dan323.expresions.classical.*;
+import com.dan323.classical.proof.NaturalDeduction;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class NaturalDeductionTest {
@@ -77,5 +75,25 @@ public class NaturalDeductionTest {
         naturalDeduction.initializeProof(List.of(p, new NegationClassic(p)), q);
         naturalDeduction.automate();
         assertTrue(naturalDeduction.isDone());
+    }
+
+    @Test
+    public void automateAND() {
+        var p = new VariableClassic("P");
+        var q = new VariableClassic("Q");
+        var naturalDeduction = new NaturalDeduction();
+        naturalDeduction.initializeProof(List.of(p, q), new ConjunctionClassic(p, q));
+        naturalDeduction.automate();
+        assertTrue(naturalDeduction.isDone());
+    }
+
+    @Test
+    public void automateImpossible() {
+        var p = new VariableClassic("P");
+        var q = new VariableClassic("Q");
+        var naturalDeduction = new NaturalDeduction();
+        naturalDeduction.initializeProof(List.of(p), new ConjunctionClassic(p, q));
+        naturalDeduction.automate();
+        assertFalse(naturalDeduction.isDone());
     }
 }

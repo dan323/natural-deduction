@@ -1,12 +1,12 @@
-package com.dan323.proof.classical.complex;
+package com.dan323.classical.complex;
 
+import com.dan323.classical.*;
+import com.dan323.classical.proof.NaturalDeduction;
 import com.dan323.expresions.base.BinaryOperation;
 import com.dan323.expresions.base.Negation;
 import com.dan323.expresions.base.UnaryOperation;
 import com.dan323.expresions.classical.ClassicalLogicOperation;
 import com.dan323.expresions.classical.DisjunctionClassic;
-import com.dan323.proof.classical.*;
-import com.dan323.proof.classical.proof.NaturalDeduction;
 import com.dan323.proof.generic.RuleUtils;
 
 public final class DeMorgan1 extends CompositionRule {

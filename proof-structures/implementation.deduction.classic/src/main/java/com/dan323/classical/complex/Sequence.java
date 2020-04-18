@@ -1,7 +1,7 @@
-package com.dan323.proof.classical.complex;
+package com.dan323.classical.complex;
 
-import com.dan323.proof.classical.ClassicalAction;
-import com.dan323.proof.classical.proof.NaturalDeduction;
+import com.dan323.classical.proof.NaturalDeduction;
+import com.dan323.classical.ClassicalAction;
 
 import java.util.List;
 
@@ -30,7 +30,7 @@ public final class Sequence extends CompositionRule {
     private void resetProof(NaturalDeduction pf, int size) {
         List<ClassicalAction> actions = pf.getParser().translateToActions(pf);
         pf.initializeProof(pf.getAssms(), pf.getGoal());
-        for (int i = 0; i < size; i++) {
+        for (int i = pf.getAssms().size(); i < size; i++) {
             actions.get(i).apply(pf);
         }
     }

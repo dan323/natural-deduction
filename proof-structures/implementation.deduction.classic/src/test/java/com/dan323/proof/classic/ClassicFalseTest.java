@@ -2,10 +2,10 @@ package com.dan323.proof.classic;
 
 import com.dan323.expresions.classical.NegationClassic;
 import com.dan323.expresions.classical.VariableClassic;
-import com.dan323.proof.classical.ClassicAssume;
-import com.dan323.proof.classical.ClassicFE;
-import com.dan323.proof.classical.ClassicFI;
-import com.dan323.proof.classical.proof.NaturalDeduction;
+import com.dan323.classical.ClassicAssume;
+import com.dan323.classical.ClassicFE;
+import com.dan323.classical.ClassicFI;
+import com.dan323.classical.proof.NaturalDeduction;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 

@@ -1,8 +1,8 @@
-package com.dan323.proof.classical.complex;
+package com.dan323.classical.complex;
 
 import com.dan323.expresions.classical.ClassicalLogicOperation;
-import com.dan323.proof.classical.ClassicalAction;
-import com.dan323.proof.classical.proof.NaturalDeduction;
+import com.dan323.classical.ClassicalAction;
+import com.dan323.classical.proof.NaturalDeduction;
 import com.dan323.proof.generic.proof.ProofStep;
 import com.dan323.proof.generic.proof.ProofStepSupplier;
 

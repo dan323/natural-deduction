@@ -1,15 +1,15 @@
-package com.dan323.proof.classical.complex;
+package com.dan323.classical.complex;
 
+import com.dan323.classical.ClassicDeductionTheorem;
+import com.dan323.classical.ClassicFE;
+import com.dan323.classical.ClassicFI;
 import com.dan323.expresions.base.BinaryOperation;
 import com.dan323.expresions.base.Disjunction;
 import com.dan323.expresions.base.Negation;
 import com.dan323.expresions.classical.ClassicalLogicOperation;
 import com.dan323.expresions.classical.NegationClassic;
-import com.dan323.proof.classical.ClassicAssume;
-import com.dan323.proof.classical.ClassicDeductionTheorem;
-import com.dan323.proof.classical.ClassicFE;
-import com.dan323.proof.classical.ClassicFI;
-import com.dan323.proof.classical.proof.NaturalDeduction;
+import com.dan323.classical.ClassicAssume;
+import com.dan323.classical.proof.NaturalDeduction;
 import com.dan323.proof.generic.RuleUtils;
 
 public final class OrE2 extends CompositionRule {

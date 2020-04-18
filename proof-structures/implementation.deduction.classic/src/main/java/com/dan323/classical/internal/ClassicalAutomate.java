@@ -1,78 +1,73 @@
-package com.dan323.proof.classical.proof;
+package com.dan323.classical.internal;
 
+import com.dan323.classical.*;
+import com.dan323.classical.complex.DeMorgan1;
+import com.dan323.classical.complex.OrE1;
+import com.dan323.classical.complex.OrE2;
+import com.dan323.classical.proof.NaturalDeduction;
 import com.dan323.expresions.base.LogicOperation;
 import com.dan323.expresions.classical.*;
-import com.dan323.proof.classical.*;
-import com.dan323.proof.classical.complex.DeMorgan1;
-import com.dan323.proof.classical.complex.OrE1;
-import com.dan323.proof.classical.complex.OrE2;
-import com.dan323.proof.generic.proof.ParseAction;
-import com.dan323.proof.generic.proof.Proof;
-import com.dan323.proof.generic.proof.ProofReason;
-import com.dan323.proof.generic.proof.ProofStep;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public final class NaturalDeduction extends Proof<ClassicalLogicOperation, ProofStep<ClassicalLogicOperation>> {
+public final class ClassicalAutomate {
 
+    private NaturalDeduction proof;
     private List<ClassicalLogicOperation> goals;
     private List<ClassicalAction> actionsDone;
     private Map<Integer, Integer> usedForGoal;
 
-    @Override
-    public void setGoal(ClassicalLogicOperation g) {
-        super.setGoal(g);
-        goals = new ArrayList<>();
-        actionsDone = new ArrayList<>();
-        usedForGoal = new HashMap<>();
-        goals.add(g);
+    private ClassicalAutomate() {
     }
 
-    @Override
-    public void initializeProof(List<ClassicalLogicOperation> assms, ClassicalLogicOperation goal) {
-        initializeProofSteps();
-        setAssms(assms);
-        setGoal(goal);
-    }
-
-    @Override
-    public ParseAction<ClassicalAction, NaturalDeduction> getParser() {
-        return ParseClassicalAction.PARSE_CLASSICAL_ACTION;
-    }
-
-    @Override
-    protected ProofStep<ClassicalLogicOperation> generateAssm(ClassicalLogicOperation logicExpresion) {
-        return new ProofStep<>(0, logicExpresion, new ProofReason("Ass", List.of()));
-    }
+    public static final ClassicalAutomate AUTOMATIC_SOLVER = new ClassicalAutomate();
 
     /**
      * Finish the proof it it can be done.
      * It will stop without solving it if it cannot be solved
+     *
+     * @param naturalDeduction the proof to solve
      */
-    public void automate() {
-        boolean b = true;
+    public void automate(NaturalDeduction naturalDeduction) {
+        // Init state
+        proof = naturalDeduction;
+        goals = new ArrayList<>();
+        actionsDone = new ArrayList<>();
+        usedForGoal = new HashMap<>();
+        goals.add(proof.getGoal());
+
         boolean c = true;
         while (c) {
-            while (b) {
-                ClassicalAction intro = introRuleForGoal();
-                if (intro != null || (!getSteps().isEmpty() && goals.get(goals.size() - 1).equals(getSteps().get(getSteps().size() - 1).getStep()))) {
-                    updateGoals(intro);
-                    if (goals.isEmpty()) {
-                        c = false;
-                        b = false;
-                    }
-                    continue;
-                }
-                b = eliminateRules();
-            }
+            int goalSize = goals.size();
+            int stepsSize = proof.getSteps().size();
+            c = applyIntroAndElimRules();
             if (c) {
                 updateGoal();
+                // If the state of the proof has not changed, stop. It has failed
+                c = goalSize != goals.size() || stepsSize != proof.getSteps().size();
             }
-            b = true;
         }
+    }
+
+    private boolean applyIntroAndElimRules() {
+        boolean b = true;
+        boolean c = true;
+        while (b) {
+            ClassicalAction intro = introRuleForGoal();
+            if (intro != null || (!proof.getSteps().isEmpty() && goals.get(goals.size() - 1).equals(proof.getSteps().get(proof.getSteps().size() - 1).getStep()))) {
+                updateGoals(intro);
+                if (goals.isEmpty()) {
+                    c = false;
+                    b = false;
+                }
+            } else {
+                b = eliminateRules();
+            }
+        }
+        return c;
     }
 
     /**
@@ -83,7 +78,7 @@ public final class NaturalDeduction extends Proof<ClassicalLogicOperation, Proof
     private boolean eliminateRules() {
         ClassicalAction ca = lookForElimRules();
         if (ca != null) {
-            ca.apply(this);
+            ca.apply(proof);
             return true;
         } else {
             return false;
@@ -92,12 +87,12 @@ public final class NaturalDeduction extends Proof<ClassicalLogicOperation, Proof
 
     private void updateGoals(ClassicalAction intro) {
         if (intro != null) {
-            intro.apply(this);
+            intro.apply(proof);
         }
         if (goals.size() > 1 && goals.get(goals.size() - 1).equals(ConstantClassic.FALSE)) {
             ClassicalAction cla = new ClassicNotI();
-            if (cla.isValid(this)) {
-                cla.apply(this);
+            if (cla.isValid(proof)) {
+                cla.apply(proof);
                 goals.remove(goals.size() - 1);
             }
         }
@@ -111,12 +106,12 @@ public final class NaturalDeduction extends Proof<ClassicalLogicOperation, Proof
      * @return the action that must be applied to reach the goal
      */
     private ClassicalAction introRuleForGoal() {
-        if (getSteps().isEmpty()) {
+        if (proof.getSteps().isEmpty()) {
             return null;
         }
         ClassicalLogicOperation goal = goals.get(goals.size() - 1);
-        for (int i = 0; i < getSteps().size(); i++) {
-            if (getSteps().get(i).isValid() && goal.equals(getSteps().get(i).getStep()) && i + 1 < getSteps().size()) {
+        for (int i = 0; i < proof.getSteps().size(); i++) {
+            if (proof.getSteps().get(i).isValid() && goal.equals(proof.getSteps().get(i).getStep()) && i + 1 < proof.getSteps().size()) {
                 return new ClassicCopy(i + 1);
             }
         }
@@ -141,11 +136,11 @@ public final class NaturalDeduction extends Proof<ClassicalLogicOperation, Proof
      * @return the action {@link ClassicFI} that must be used or null
      */
     private ClassicalAction introRuleForGoalContradiction() {
-        for (int i = 0; i < getSteps().size(); i++) {
-            if (getSteps().get(i).isValid() && getSteps().get(i).getStep() instanceof NegationClassic) {
-                ClassicalLogicOperation element = ((NegationClassic) getSteps().get(i).getStep()).getElement();
-                for (int j = 0; j < getSteps().size(); j++) {
-                    if (getSteps().get(j).isValid() && getSteps().get(j).getStep().equals(element)) {
+        for (int i = 0; i < proof.getSteps().size(); i++) {
+            if (proof.getSteps().get(i).isValid() && proof.getSteps().get(i).getStep() instanceof NegationClassic) {
+                ClassicalLogicOperation element = ((NegationClassic) proof.getSteps().get(i).getStep()).getElement();
+                for (int j = 0; j < proof.getSteps().size(); j++) {
+                    if (proof.getSteps().get(j).isValid() && proof.getSteps().get(j).getStep().equals(element)) {
                         return new ClassicFI(j + 1, i + 1);
                     }
                 }
@@ -162,15 +157,15 @@ public final class NaturalDeduction extends Proof<ClassicalLogicOperation, Proof
     private ClassicalAction introRuleForGoalNegation(NegationClassic goal) {
         ClassicalLogicOperation element = goal.getElement();
         int i = 0;
-        int assmsLevel = getSteps().get(getSteps().size() - 1).getAssumptionLevel();
-        while (getSteps().size() - 1 - i >= 0 && getSteps().get(getSteps().size() - 1 - i).getAssumptionLevel() >= assmsLevel) {
+        int assmsLevel = proof.getSteps().get(proof.getSteps().size() - 1).getAssumptionLevel();
+        while (proof.getSteps().size() - 1 - i >= 0 && proof.getSteps().get(proof.getSteps().size() - 1 - i).getAssumptionLevel() >= assmsLevel) {
             i++;
         }
-        if (getSteps().get(getSteps().size() - i).getStep().equals(element)) {
-            for (int k = 0; k < getSteps().size(); k++) {
-                if (getSteps().get(k).isValid() && getSteps().get(k).getStep().equals(ConstantClassic.FALSE)) {
-                    if (k + 1 < getSteps().size()) {
-                        (new ClassicCopy(k + 1)).apply(this);
+        if (proof.getSteps().get(proof.getSteps().size() - i).getStep().equals(element)) {
+            for (int k = 0; k < proof.getSteps().size(); k++) {
+                if (proof.getSteps().get(k).isValid() && proof.getSteps().get(k).getStep().equals(ConstantClassic.FALSE)) {
+                    if (k + 1 < proof.getSteps().size()) {
+                        (new ClassicCopy(k + 1)).apply(proof);
                     }
                     return new ClassicNotI();
                 }
@@ -187,12 +182,12 @@ public final class NaturalDeduction extends Proof<ClassicalLogicOperation, Proof
     private ClassicalAction introRuleForGoalDisjunction(DisjunctionClassic goal) {
         ClassicalLogicOperation left = (goal).getLeft();
         ClassicalLogicOperation right = (goal).getRight();
-        for (int k = 0; k < getSteps().size(); k++) {
-            if (getSteps().get(k).isValid()) {
-                if (getSteps().get(k).getStep().equals(left)) {
+        for (int k = 0; k < proof.getSteps().size(); k++) {
+            if (proof.getSteps().get(k).isValid()) {
+                if (proof.getSteps().get(k).getStep().equals(left)) {
                     return new ClassicOrI1(k + 1, right);
                 }
-                if (getSteps().get(k).getStep().equals(right)) {
+                if (proof.getSteps().get(k).getStep().equals(right)) {
                     return new ClassicOrI2(k + 1, left);
                 }
             }
@@ -210,12 +205,12 @@ public final class NaturalDeduction extends Proof<ClassicalLogicOperation, Proof
         int a = -1;
         ClassicalLogicOperation right = (goal).getRight();
         int b = -1;
-        for (int i = 0; i < getSteps().size(); i++) {
-            if (getSteps().get(i).isValid()) {
-                if (left.equals(getSteps().get(i).getStep())) {
+        for (int i = 0; i < proof.getSteps().size(); i++) {
+            if (proof.getSteps().get(i).isValid()) {
+                if (left.equals(proof.getSteps().get(i).getStep())) {
                     a = i + 1;
                 }
-                if (right.equals(getSteps().get(i).getStep())) {
+                if (right.equals(proof.getSteps().get(i).getStep())) {
                     b = i + 1;
                 }
             }
@@ -235,15 +230,15 @@ public final class NaturalDeduction extends Proof<ClassicalLogicOperation, Proof
         ClassicalLogicOperation left = (goal).getLeft();
         ClassicalLogicOperation right = (goal).getRight();
         int i = 0;
-        int assmsLevel = getSteps().get(getSteps().size() - 1).getAssumptionLevel();
-        while (getSteps().size() - 1 - i >= 0 && getSteps().get(getSteps().size() - 1 - i).getAssumptionLevel() >= assmsLevel) {
+        int assmsLevel = proof.getSteps().get(proof.getSteps().size() - 1).getAssumptionLevel();
+        while (proof.getSteps().size() - 1 - i >= 0 && proof.getSteps().get(proof.getSteps().size() - 1 - i).getAssumptionLevel() >= assmsLevel) {
             i++;
         }
-        if (getSteps().get(getSteps().size() - i).getStep().equals(left)) {
-            for (int k = 0; k < getSteps().size(); k++) {
-                if (getSteps().get(k).isValid() && getSteps().get(k).getStep().equals(right)) {
-                    if (k + 1 < getSteps().size() && !getSteps().get(getSteps().size() - 1).getStep().equals(getSteps().get(k).getStep())) {
-                        (new ClassicCopy(k + 1)).apply(this);
+        if (proof.getSteps().get(proof.getSteps().size() - i).getStep().equals(left)) {
+            for (int k = 0; k < proof.getSteps().size(); k++) {
+                if (proof.getSteps().get(k).isValid() && proof.getSteps().get(k).getStep().equals(right)) {
+                    if (k + 1 < proof.getSteps().size() && !proof.getSteps().get(proof.getSteps().size() - 1).getStep().equals(proof.getSteps().get(k).getStep())) {
+                        (new ClassicCopy(k + 1)).apply(proof);
                     }
                     return new ClassicDeductionTheorem();
                 }
@@ -253,8 +248,8 @@ public final class NaturalDeduction extends Proof<ClassicalLogicOperation, Proof
     }
 
     private ClassicalAction lookForElimRules() {
-        for (int i = 0; i < getSteps().size(); i++) {
-            if (getSteps().get(i).isValid()) {
+        for (int i = 0; i < proof.getSteps().size(); i++) {
+            if (proof.getSteps().get(i).isValid()) {
                 ClassicalAction act = new DeMorgan1(i + 1);
                 act = checkSingleAction(act);
                 if (act != null) {
@@ -290,7 +285,7 @@ public final class NaturalDeduction extends Proof<ClassicalLogicOperation, Proof
     }
 
     private ClassicalAction checkSingleAction(ClassicalAction act) {
-        if (!actionsDone.contains(act) && act.isValid(this)) {
+        if (!actionsDone.contains(act) && act.isValid(proof)) {
             actionsDone.add(act);
             return act;
         }
@@ -298,8 +293,8 @@ public final class NaturalDeduction extends Proof<ClassicalLogicOperation, Proof
     }
 
     private ClassicalAction checkAdditionOfDisjIModPonens(int i) {
-        for (int j = 0; j < getSteps().size(); j++) {
-            if (getSteps().get(j).isValid()) {
+        for (int j = 0; j < proof.getSteps().size(); j++) {
+            if (proof.getSteps().get(j).isValid()) {
                 ClassicalAction act = new ClassicModusPonens(i + 1, j + 1);
                 act = checkSingleAction(act);
                 if (act != null) {
@@ -342,10 +337,10 @@ public final class NaturalDeduction extends Proof<ClassicalLogicOperation, Proof
      */
     private void lastGoalFalse() {
         int j = -1;
-        for (int i = 0; i < getSteps().size(); i++) {
+        for (int i = 0; i < proof.getSteps().size(); i++) {
             boolean b = true;
-            if (!usedForGoal.containsValue(i) && getSteps().get(i).isValid()) {
-                LogicOperation log = getSteps().get(i).getStep();
+            if (!usedForGoal.containsValue(i) && proof.getSteps().get(i).isValid()) {
+                LogicOperation log = proof.getSteps().get(i).getStep();
                 if (log instanceof NegationClassic) {
                     goals.add(((NegationClassic) log).getElement());
                 } else if (log instanceof DisjunctionClassic) {
@@ -371,9 +366,19 @@ public final class NaturalDeduction extends Proof<ClassicalLogicOperation, Proof
      * @param goal last goal
      */
     private void updateGoalContradiction(ClassicalLogicOperation goal) {
-        goals.add(new NegationClassic(new NegationClassic(goal)));
-        goals.add(ConstantClassic.FALSE);
-        (new ClassicAssume(new NegationClassic(goal))).apply(this);
+        ClassicalLogicOperation neg = new NegationClassic(goal);
+        boolean alreadyExists = false;
+        for (int i = 0; i < proof.getSteps().size(); i++) {
+            if (proof.getSteps().get(i).isValid() && proof.getSteps().get(i).getStep().equals(neg)) {
+                alreadyExists = true;
+                break;
+            }
+        }
+        if (!alreadyExists) {
+            goals.add(new NegationClassic(new NegationClassic(goal)));
+            goals.add(ConstantClassic.FALSE);
+            (new ClassicAssume(new NegationClassic(goal))).apply(proof);
+        }
     }
 
     /**
@@ -383,7 +388,7 @@ public final class NaturalDeduction extends Proof<ClassicalLogicOperation, Proof
      */
     private void updateGoalNegation(NegationClassic goal) {
         goals.add(ConstantClassic.FALSE);
-        (new ClassicAssume((goal).getElement())).apply(this);
+        (new ClassicAssume((goal).getElement())).apply(proof);
     }
 
     /**
@@ -393,7 +398,7 @@ public final class NaturalDeduction extends Proof<ClassicalLogicOperation, Proof
      */
     private void updateGoalImplication(ImplicationClassic goal) {
         goals.add((goal).getRight());
-        (new ClassicAssume((goal).getLeft())).apply(this);
+        (new ClassicAssume((goal).getLeft())).apply(proof);
     }
 
     /**

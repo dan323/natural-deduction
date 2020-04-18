@@ -1,7 +1,7 @@
-package com.dan323.proof.classical;
+package com.dan323.classical;
 
+import com.dan323.classical.proof.NaturalDeduction;
 import com.dan323.expresions.classical.ClassicalLogicOperation;
-import com.dan323.proof.classical.proof.NaturalDeduction;
 import com.dan323.proof.generic.Action;
 import com.dan323.proof.generic.proof.ProofStep;
 
