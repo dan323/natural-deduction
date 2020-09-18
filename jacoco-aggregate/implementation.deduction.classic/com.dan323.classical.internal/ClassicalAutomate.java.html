@@ -377,7 +377,7 @@ public final class ClassicalAutomate {
 <span class="fc bfc" id="L377" title="All 2 branches covered.">        if (!alreadyExists) {</span>
 <span class="fc" id="L378">            goals.add(new NegationClassic(new NegationClassic(goal)));</span>
 <span class="fc" id="L379">            goals.add(ConstantClassic.FALSE);</span>
-<span class="fc" id="L380">            (new ClassicAssume(new NegationClassic(goal))).apply(proof);</span>
+<span class="fc" id="L380">            (new ClassicAssume(neg)).apply(proof);</span>
         }
 <span class="fc" id="L382">    }</span>
 
