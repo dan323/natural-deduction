@@ -1,8 +1,14 @@
+# Compiled code
 target/
 *.class
 *.jar
 *.war
 *.ear
+
+# Logging
+*.log
 *.logs
+
+# Intellij
 *.iml
 .idea/

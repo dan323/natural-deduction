@@ -377,7 +377,7 @@ public final class ClassicalAutomate {
         if (!alreadyExists) {
             goals.add(new NegationClassic(new NegationClassic(goal)));
             goals.add(ConstantClassic.FALSE);
-            (new ClassicAssume(new NegationClassic(goal))).apply(proof);
+            (new ClassicAssume(neg)).apply(proof);
         }
     }
 
