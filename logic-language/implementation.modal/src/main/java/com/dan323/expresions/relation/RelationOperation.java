@@ -7,9 +7,9 @@ import java.util.Objects;
 import java.util.function.Predicate;
 
 public abstract class RelationOperation<T> implements ModalOperation {
-    private T left;
-    private T right;
-    private String operation;
+    private final T left;
+    private final T right;
+    private final String operation;
 
     public RelationOperation(T left, T right, String operation) {
         this.left = left;

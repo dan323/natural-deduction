@@ -9,9 +9,9 @@ import static org.mockito.Mockito.mock;
 
 public class RelationOperationTest {
 
-    private LogicOperation logicOperation1 = mock(LogicOperation.class);
+    private final LogicOperation logicOperation1 = mock(LogicOperation.class);
 
-    private LogicOperation logicOperation2 = mock(LogicOperation.class);
+    private final LogicOperation logicOperation2 = mock(LogicOperation.class);
 
     @Test
     public void equalsTest() {

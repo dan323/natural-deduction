@@ -75,10 +75,10 @@ public class ProofTest {
         assertTrue(pr.isDone());
     }
 
-    public static class ProofStub extends Proof<LogicOperation, ProofStep<LogicOperation>> {
+    public static class ProofStub extends Proof<LogicOperation, ProofStep<LogicOperation>,ActionStub> {
 
         @Override
-        public <A extends Action<LogicOperation, ProofStep<LogicOperation>, P>, P extends Proof<LogicOperation, ProofStep<LogicOperation>>> ParseAction<A, P> getParser() {
+        public List<ActionStub> parse() {
             return null;
         }
 
@@ -98,7 +98,6 @@ public class ProofTest {
 
         @Override
         public void apply(ProofStub pf) {
-
         }
 
         @Override
@@ -108,7 +107,6 @@ public class ProofTest {
 
         @Override
         public void applyStepSupplier(ProofStub pf, ProofStepSupplier<LogicOperation, ProofStep<LogicOperation>> supp) {
-
         }
     }
 

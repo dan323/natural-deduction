@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.IntStream;
 
-public interface ParseAction<A extends Action<?, ?, P>, P extends Proof<?, ?>> {
+public interface ParseAction<A extends Action<?, ?, P>, P extends Proof<?, ?,A>> {
 
     A parse(P proof, int pos);
 

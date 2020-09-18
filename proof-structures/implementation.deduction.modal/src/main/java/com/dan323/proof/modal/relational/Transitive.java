@@ -15,8 +15,8 @@ import java.util.List;
  */
 public final class Transitive<T> extends RelationalAction<T> {
 
-    private int first;
-    private int second;
+    private final int first;
+    private final int second;
 
     public Transitive(int first, int second) {
         this.first = first;

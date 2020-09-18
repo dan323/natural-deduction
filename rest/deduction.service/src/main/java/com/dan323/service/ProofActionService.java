@@ -16,7 +16,7 @@ import java.util.Map;
 @Service
 public class ProofActionService {
 
-    private Map<String, List<Action>> map = new HashMap<>();
+    private final Map<String, List<Action>> map = new HashMap<>();
 
     public ProofActionService() {
         init(map);

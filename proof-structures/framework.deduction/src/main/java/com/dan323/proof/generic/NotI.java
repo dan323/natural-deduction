@@ -14,9 +14,9 @@ import java.util.function.Function;
 /**
  * @author danco
  */
-public abstract class NotI<T extends LogicOperation, Q extends ProofStep<T>, P extends Proof<T, Q>> implements AbstractAction<T, Q, P> {
+public abstract class NotI<T extends LogicOperation, Q extends ProofStep<T>, P extends Proof<T, Q, ?>> implements AbstractAction<T, Q, P> {
 
-    private Function<T, Negation<T>> negate;
+    private final Function<T, Negation<T>> negate;
 
     public NotI(Function<T, Negation<T>> negate) {
         this.negate = negate;

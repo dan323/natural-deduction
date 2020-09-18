@@ -13,10 +13,10 @@ import java.util.function.Function;
 /**
  * @author danco
  */
-public abstract class AndE<T extends LogicOperation, Q extends ProofStep<T>, P extends Proof<T, Q>> implements AbstractAction<T, Q, P> {
+public abstract class AndE<T extends LogicOperation, Q extends ProofStep<T>, P extends Proof<T, Q, ?>> implements AbstractAction<T, Q, P> {
 
     private final int applyAt;
-    private Function<Conjunction<T>, T> side;
+    private final Function<Conjunction<T>, T> side;
 
     public AndE(int app, Function<Conjunction<T>, T> fun) {
         applyAt = app;

@@ -17,7 +17,7 @@ import java.util.List;
 
 public final class ModalDiaE<T> implements ModalAction<T> {
 
-    private int j;
+    private final int j;
 
     public ModalDiaE(int i) {
         j = i;
@@ -71,7 +71,7 @@ public final class ModalDiaE<T> implements ModalAction<T> {
         return log1.getStep().equals(((UnaryOperation<?>) pf.getSteps().get(j - 1).getStep()).getElement());
     }
 
-    private boolean isNotFresh(Proof<ModalOperation, ProofStepModal<T>> pf, int i) {
+    private boolean isNotFresh(Proof<ModalOperation, ProofStepModal<T>, ModalAction<T>> pf, int i) {
         if ((pf.getSteps().get(pf.getSteps().size() - 1).getStep()) instanceof ModalLogicalOperation) {
             T last = (pf.getSteps().get(pf.getSteps().size() - 1)).getState();
             return ((ModalNaturalDeduction<T>) pf).stateIsUsedBefore(last, i);

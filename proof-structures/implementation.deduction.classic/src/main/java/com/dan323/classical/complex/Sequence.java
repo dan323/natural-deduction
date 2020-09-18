@@ -7,7 +7,7 @@ import java.util.List;
 
 public final class Sequence extends CompositionRule {
 
-    private List<ClassicalAction> lst;
+    private final List<ClassicalAction> lst;
 
     public Sequence(List<ClassicalAction> l) {
         lst = l;
@@ -28,7 +28,7 @@ public final class Sequence extends CompositionRule {
     }
 
     private void resetProof(NaturalDeduction pf, int size) {
-        List<ClassicalAction> actions = pf.getParser().translateToActions(pf);
+        List<ClassicalAction> actions = pf.parse();
         pf.initializeProof(pf.getAssms(), pf.getGoal());
         for (int i = pf.getAssms().size(); i < size; i++) {
             actions.get(i).apply(pf);

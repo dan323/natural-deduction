@@ -9,14 +9,12 @@ import com.dan323.proof.generic.proof.ProofReason;
 
 import java.util.Arrays;
 
-public final class ParseClassicalAction implements ParseAction<ClassicalAction, NaturalDeduction> {
+public final class ParseClassicalAction {
 
     private ParseClassicalAction() {
     }
 
-    public static final ParseClassicalAction PARSE_CLASSICAL_ACTION = new ParseClassicalAction();
-
-    public ClassicalAction parse(NaturalDeduction naturalDeduction, int pos) {
+    public static ClassicalAction parse(NaturalDeduction naturalDeduction, int pos) {
         ProofReason proofReason = naturalDeduction.getSteps().get(pos - 1).getProof();
         switch (proofReason.getNameProof()) {
             case "Ass":

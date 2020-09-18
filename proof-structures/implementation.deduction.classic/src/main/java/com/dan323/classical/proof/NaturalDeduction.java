@@ -10,12 +10,7 @@ import com.dan323.proof.generic.proof.ProofStep;
 
 import java.util.List;
 
-public final class NaturalDeduction extends Proof<ClassicalLogicOperation, ProofStep<ClassicalLogicOperation>> {
-
-    @Override
-    public void setGoal(ClassicalLogicOperation g) {
-        super.setGoal(g);
-    }
+public final class NaturalDeduction extends Proof<ClassicalLogicOperation, ProofStep<ClassicalLogicOperation>, ClassicalAction> {
 
     @Override
     public void initializeProof(List<ClassicalLogicOperation> assms, ClassicalLogicOperation goal) {
@@ -25,8 +20,8 @@ public final class NaturalDeduction extends Proof<ClassicalLogicOperation, Proof
     }
 
     @Override
-    public ParseAction<ClassicalAction, NaturalDeduction> getParser() {
-        return ParseClassicalAction.PARSE_CLASSICAL_ACTION;
+    public List<ClassicalAction> parse() {
+        return ((ParseAction<ClassicalAction, NaturalDeduction>) ParseClassicalAction::parse).translateToActions(this);
     }
 
     @Override

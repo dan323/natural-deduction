@@ -5,7 +5,7 @@
     <parent>
         <artifactId>rest</artifactId>
         <groupId>com.dan323</groupId>
-        <version>0.1</version>
+        <version>0.1-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -14,14 +14,12 @@
         <dependency>
             <groupId>com.dan323</groupId>
             <artifactId>deduction.model</artifactId>
-            <version>${rest.version}</version>
-            <scope>compile</scope>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>com.dan323</groupId>
             <artifactId>deduction.service</artifactId>
-            <version>${rest.version}</version>
-            <scope>compile</scope>
+            <version>${project.version}</version>
         </dependency>
     </dependencies>
 

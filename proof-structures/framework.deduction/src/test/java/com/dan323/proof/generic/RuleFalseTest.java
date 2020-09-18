@@ -74,17 +74,9 @@ public class RuleFalseTest {
 
         assertFalse(fI.isValid(pf));
 
-        LogicOperation log = mock(LogicOperation.class);
-        Negation<LogicOperation> notVar = new Negation<>(log) {
-        };
-        doReturn(notVar).when(pStep1).getStep();
-        doReturn(log).when(pStep0).getStep();
-
-        assertFalse(fI.isValid(pf));
-
         Variable<LogicOperation> var = new Variable<>("P") {
         };
-        notVar = mockNot(var);
+        Negation<LogicOperation> notVar = mockNot(var);
         doReturn(notVar).when(pStep1).getStep();
         doReturn(var).when(pStep0).getStep();
 
@@ -92,7 +84,7 @@ public class RuleFalseTest {
     }
 
     @Test
-    public void fEIsValidTest() {
+    public void equalsTest(){
         Variable<LogicOperation> var = mock(Variable.class);
         FEStub fE = new RuleFalseTest.FEStub(var, 1);
 
@@ -101,6 +93,12 @@ public class RuleFalseTest {
         assertEquals(new RuleFalseTest.FEStub(var, 1), fE);
         assertNotEquals(fE, new Object());
         assertEquals(new RuleFalseTest.FEStub(var, 1).hashCode(), fE.hashCode());
+    }
+
+    @Test
+    public void fEIsValidTest() {
+        Variable<LogicOperation> var = mock(Variable.class);
+        FEStub fE = new RuleFalseTest.FEStub(var, 1);
 
         doReturn(list).when(pf).getSteps();
         doReturn(1).when(list).size();
@@ -172,7 +170,7 @@ public class RuleFalseTest {
 
     public static class FIStub extends FI<LogicOperation, ProofStep<LogicOperation>, ProofTest.ProofStub> {
         public FIStub(int a, int b) {
-            super(a, b, RuleFalseTest::mockNot, RuleFalseTest::getFalse);
+            super(a, b, RuleFalseTest::getFalse);
         }
     }
 

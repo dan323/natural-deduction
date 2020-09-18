@@ -15,9 +15,9 @@ public abstract class BinaryOperation<T extends LogicOperation> implements Logic
         this.right = right;
     }
 
-    public T castToLanguage() {
+    /*public T castToLanguage() {
         return (T) this;
-    }
+    }*/
 
     public T getLeft() {
         return left;
@@ -41,8 +41,8 @@ public abstract class BinaryOperation<T extends LogicOperation> implements Logic
 
     @Override
     public boolean equals(Object log) {
-        if (log instanceof BinaryOperation && getOperator().equals(((BinaryOperation) log).getOperator())) {
-            return getLeft().equals(((BinaryOperation) log).getLeft()) && getRight().equals(((BinaryOperation) log).getRight());
+        if (log instanceof BinaryOperation && getOperator().equals(((BinaryOperation<?>) log).getOperator())) {
+            return getLeft().equals(((BinaryOperation<?>) log).getLeft()) && getRight().equals(((BinaryOperation<?>) log).getRight());
         }
         return false;
     }

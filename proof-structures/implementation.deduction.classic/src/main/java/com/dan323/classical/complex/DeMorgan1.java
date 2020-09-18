@@ -11,7 +11,7 @@ import com.dan323.proof.generic.RuleUtils;
 
 public final class DeMorgan1 extends CompositionRule {
 
-    private int i;
+    private final int i;
 
     public DeMorgan1(int j) {
         i = j;

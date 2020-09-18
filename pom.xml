@@ -7,7 +7,7 @@
     <groupId>com.dan323</groupId>
     <artifactId>natural-deduction</artifactId>
     <packaging>pom</packaging>
-    <version>0.1</version>
+    <version>0.1-SNAPSHOT</version>
     <modules>
         <module>logic-language</module>
         <module>proof-structures</module>
@@ -22,18 +22,15 @@
         <pitest.version>1.5.1</pitest.version>
         <pitest.junit5.version>0.12</pitest.junit5.version>
 
-        <proof.version>0.1</proof.version>
-        <rest.version>0.1</rest.version>
-        <logic.version>0.1</logic.version>
-
-        <reflections.version>0.9.11</reflections.version>
         <maven.javadoc.version>3.2.0</maven.javadoc.version>
         <maven.compiler.version>3.8.1</maven.compiler.version>
         <maven.surefire.version>3.0.0-M4</maven.surefire.version>
         <maven.sonar.version>3.7.0.1746</maven.sonar.version>
         <maven.jacoco.version>0.8.5</maven.jacoco.version>
-        <junit5.version>5.6.2</junit5.version>
-        <mockito.version>3.3.3</mockito.version>
+
+        <reflections.version>0.9.11</reflections.version>
+        <junit5.version>5.7.0</junit5.version>
+        <mockito.version>3.5.11</mockito.version>
         <maven.versions.version>2.7</maven.versions.version>
     </properties>
 
@@ -171,31 +168,6 @@
                     <source>${jdk.version}</source>
                     <target>${jdk.version}</target>
                 </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-javadoc-plugin</artifactId>
-                <configuration>
-                    <additionalOptions>
-                        -protected
-                        -html5
-                    </additionalOptions>
-                </configuration>
-                <executions>
-                    <execution>
-                        <id>attach-javadocs</id>
-                        <goals>
-                            <goal>jar</goal>
-                        </goals>
-                    </execution>
-                    <execution>
-                        <id>aggregate-javadocs</id>
-                        <phase>site</phase>
-                        <goals>
-                            <goal>aggregate</goal>
-                        </goals>
-                    </execution>
-                </executions>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

@@ -7,17 +7,17 @@ import com.dan323.proof.generic.Action;
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class Proof<T extends LogicOperation, Q extends ProofStep<T>> {
+public abstract class Proof<T extends LogicOperation, Q extends ProofStep<T>,A extends Action<T,Q,?>> {
 
     private List<T> assms;
     private T goal;
-    private List<Q> steps = new ArrayList<>();
+    private final List<Q> steps = new ArrayList<>();
 
     public List<T> getAssms() {
         return assms;
     }
 
-    public abstract <A extends Action<T, Q, P>, P extends Proof<T, Q>> ParseAction<A, P> getParser();
+    public abstract List<A> parse();
 
     public void removeLastStep() {
         steps.remove(steps.size() - 1);
@@ -62,10 +62,8 @@ public abstract class Proof<T extends LogicOperation, Q extends ProofStep<T>> {
 
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        if (steps != null) {
-            for (Q ps : steps) {
-                sb.append(ps.toString()).append("\n");
-            }
+        for (Q ps : steps) {
+            sb.append(ps.toString()).append("\n");
         }
         return sb.toString();
     }

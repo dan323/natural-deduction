@@ -15,8 +15,8 @@ import java.util.Objects;
 
 public final class ModalDiaI<T> implements ModalAction<T> {
 
-    private int i;
-    private int j;
+    private final int i;
+    private final int j;
 
     public ModalDiaI(int a, int b) {
         i = a;

@@ -12,7 +12,7 @@ import java.util.Collections;
 /**
  * @author danco
  */
-public abstract class NotE<T extends LogicOperation, Q extends ProofStep<T>, P extends Proof<T, Q>> implements AbstractAction<T, Q, P> {
+public abstract class NotE<T extends LogicOperation, Q extends ProofStep<T>, P extends Proof<T, Q, ?>> implements AbstractAction<T, Q, P> {
 
     private final int neg;
 
@@ -46,7 +46,7 @@ public abstract class NotE<T extends LogicOperation, Q extends ProofStep<T>, P e
     @Override
     public void applyStepSupplier(P pf, ProofStepSupplier<T, Q> supp) {
         int assLevel = pf.getSteps().get(pf.getSteps().size() - 1).getAssumptionLevel();
-        T sol = ((Negation<T>) ((Negation<T>) (pf.getSteps().get(neg - 1).getStep())).getElement()).getElement();
+        T sol = ((Negation<Negation<T>>) (pf.getSteps().get(neg - 1).getStep())).getElement().getElement();
         pf.getSteps().add(supp.generateProofStep(assLevel, sol, getReason()));
     }
 

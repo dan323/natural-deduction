@@ -13,7 +13,7 @@ import java.util.List;
 
 public final class Reflexive<T> extends RelationalAction<T> {
 
-    private int step;
+    private final int step;
 
     public Reflexive(int step) {
         this.step = step;

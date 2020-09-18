@@ -29,12 +29,6 @@ public class BinaryOperationTest {
     }
     
     @Test
-    public void castTest() {
-        assertNotNull(binaryOperation1.castToLanguage());
-        assertEquals(binaryOperation1, binaryOperation1.castToLanguage());
-    }
-
-    @Test
     public void equalsTest() {
         Assertions.assertEquals(binaryOperation1, binaryOperation1);
         Assertions.assertEquals(binaryOperation1, binaryOperation2);

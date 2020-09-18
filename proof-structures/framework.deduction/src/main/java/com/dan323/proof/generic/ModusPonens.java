@@ -12,7 +12,7 @@ import java.util.List;
 /**
  * @author danco
  */
-public abstract class ModusPonens<T extends LogicOperation, Q extends ProofStep<T>, P extends Proof<T, Q>> implements AbstractAction<T, Q, P> {
+public abstract class ModusPonens<T extends LogicOperation, Q extends ProofStep<T>, P extends Proof<T, Q, ?>> implements AbstractAction<T, Q, P> {
 
     private final int applyAt1;
     private final int applyAt2;

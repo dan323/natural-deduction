@@ -1,6 +1,5 @@
 package com.dan323.proof.generic;
 
-import com.dan323.expresions.base.Disjunction;
 import com.dan323.expresions.base.LogicOperation;
 import com.dan323.proof.generic.proof.Proof;
 import com.dan323.proof.generic.proof.ProofReason;
@@ -9,18 +8,18 @@ import com.dan323.proof.generic.proof.ProofStepSupplier;
 
 import java.util.Collections;
 import java.util.Objects;
-import java.util.function.BiFunction;
+import java.util.function.BinaryOperator;
 
 /**
  * @author danco
  */
-public abstract class OrI<T extends LogicOperation, Q extends ProofStep<T>, P extends Proof<T, Q>> implements AbstractAction<T, Q, P> {
+public abstract class OrI<T extends LogicOperation, Q extends ProofStep<T>, P extends Proof<T, Q, ?>> implements AbstractAction<T, Q, P> {
 
-    private int applyAt;
-    private T intro;
-    private BiFunction<T, T, Disjunction<T>> disjunction;
+    private final int applyAt;
+    private final T intro;
+    private final BinaryOperator<T> disjunction;
 
-    public OrI(int app, T lo, BiFunction<T, T, Disjunction<T>> disjunction) {
+    public OrI(int app, T lo, BinaryOperator<T> disjunction) {
         applyAt = app;
         intro = lo;
         this.disjunction = disjunction;
@@ -37,7 +36,7 @@ public abstract class OrI<T extends LogicOperation, Q extends ProofStep<T>, P ex
         if (!pf.getSteps().isEmpty()) {
             assLevel = pf.getSteps().get(pf.getSteps().size() - 1).getAssumptionLevel();
         }
-        T result = disjunction.apply(pf.getSteps().get(applyAt - 1).getStep(), intro).castToLanguage();
+        T result = disjunction.apply(pf.getSteps().get(applyAt - 1).getStep(), intro);
         pf.getSteps().add(supp.generateProofStep(assLevel, result, getReason()));
     }
 

@@ -14,8 +14,8 @@ import com.dan323.proof.generic.RuleUtils;
 
 public final class OrE1 extends CompositionRule {
 
-    private int a;
-    private int b;
+    private final int a;
+    private final int b;
 
     public OrE1(int i, int j) {
         a = i;

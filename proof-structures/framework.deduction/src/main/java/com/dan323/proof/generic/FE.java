@@ -13,10 +13,10 @@ import java.util.Objects;
 /**
  * @author danco
  */
-public abstract class FE<T extends LogicOperation, Q extends ProofStep<T>, P extends Proof<T, Q>> implements AbstractAction<T, Q, P> {
+public abstract class FE<T extends LogicOperation, Q extends ProofStep<T>, P extends Proof<T, Q, ?>> implements AbstractAction<T, Q, P> {
 
-    private T intro;
-    private int falseIndex;
+    private final T intro;
+    private final int falseIndex;
 
     public FE(T intro, int falseIndex) {
         this.intro = intro;

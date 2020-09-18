@@ -9,33 +9,30 @@ import com.dan323.proof.generic.proof.ProofStep;
 import com.dan323.proof.generic.proof.ProofStepSupplier;
 
 import java.util.List;
-import java.util.function.Function;
 import java.util.function.Supplier;
 
 /**
  * @author danco
  */
-public abstract class FI<T extends LogicOperation, Q extends ProofStep<T>, P extends Proof<T, Q>> implements AbstractAction<T, Q, P> {
+public abstract class FI<T extends LogicOperation, Q extends ProofStep<T>, P extends Proof<T, Q, ?>> implements AbstractAction<T, Q, P> {
 
     private final int neg;
     private final int pos;
-    private final Class<Negation<T>> negationClass;
     private final Supplier<Constant<T>> constantFunction;
 
-    public FI(int a, int b, Function<T, Negation<T>> negate, Supplier<Constant<T>> genConst) {
+    public FI(int a, int b, Supplier<Constant<T>> genConst) {
         pos = a;
         neg = b;
-        negationClass = (Class<Negation<T>>) negate.apply(null).getClass();
         constantFunction = genConst;
     }
 
     @Override
     public boolean isValid(P pf) {
-        if (RuleUtils.isValidIndexAndProp(pf, neg) && RuleUtils.isValidIndexAndProp(pf, pos) && RuleUtils.isOperation(pf, neg, Negation.class)) {
+        if (RuleUtils.isValidIndexAndProp(pf, neg) &&
+                RuleUtils.isValidIndexAndProp(pf, pos) &&
+                RuleUtils.isOperation(pf, neg, Negation.class)) {
             Negation<?> negation = (Negation<?>) pf.getSteps().get(neg - 1).getStep();
-            if (negation.getElement().equals(pf.getSteps().get(pos - 1).getStep())) {
-                return negationClass.equals(negation.getClass());
-            }
+            return negation.getElement().equals(pf.getSteps().get(pos - 1).getStep());
         }
         return false;
     }

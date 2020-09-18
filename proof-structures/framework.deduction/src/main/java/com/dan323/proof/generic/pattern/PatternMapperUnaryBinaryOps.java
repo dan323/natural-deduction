@@ -16,9 +16,9 @@ public class PatternMapperUnaryBinaryOps implements PatternMapper<LogicOperation
             sol.put(l1.toString(), l2);
             return sol;
         } else if (l1 instanceof UnaryOperation && l1.getClass().equals(l2.getClass())) {
-            return compareLogic(((UnaryOperation<LogicOperation>) l1).getElement(), ((UnaryOperation<LogicOperation>) l2).getElement());
+            return compareLogic(((UnaryOperation<?>) l1).getElement(), ((UnaryOperation<?>) l2).getElement());
         } else if (l1 instanceof BinaryOperation && l1.getClass().equals(l2.getClass())) {
-            return checkBinaryOperation((BinaryOperation<LogicOperation>) l1, (BinaryOperation<LogicOperation>) l2);
+            return checkBinaryOperation((BinaryOperation<?>) l1, (BinaryOperation<?>) l2);
         }
         return null;
     }

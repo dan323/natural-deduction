@@ -8,7 +8,7 @@ import java.util.List;
  */
 public class Proof {
 
-    private List<Rule> steps;
+    private final List<Rule> steps;
 
     public Proof() {
         steps = new ArrayList<>();

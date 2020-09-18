@@ -14,8 +14,8 @@ import java.util.List;
 
 public final class ModalBoxE<T> implements ModalAction<T> {
 
-    private int i;
-    private int q;
+    private final int i;
+    private final int q;
 
     public ModalBoxE(int j, int p) {
         i = j;

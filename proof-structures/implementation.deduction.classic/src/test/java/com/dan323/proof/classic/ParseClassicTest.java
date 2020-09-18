@@ -20,7 +20,7 @@ public class ParseClassicTest {
         naturalDeduction.initializeProof(List.of(), new ImplicationClassic(p, p));
         naturalDeduction.automate();
         String original = naturalDeduction.toString();
-        List<ClassicalAction> actions = naturalDeduction.getParser().translateToActions(naturalDeduction);
+        List<ClassicalAction> actions = naturalDeduction.parse();
         assertEquals(2, actions.size());
         naturalDeduction.initializeProof(List.of(), new ImplicationClassic(p, p));
         for (ClassicalAction action : actions) {
@@ -36,7 +36,7 @@ public class ParseClassicTest {
         naturalDeduction.initializeProof(List.of(p), new ConjunctionClassic(p, p));
         naturalDeduction.automate();
         String original = naturalDeduction.toString();
-        List<ClassicalAction> actions = naturalDeduction.getParser().translateToActions(naturalDeduction);
+        List<ClassicalAction> actions = naturalDeduction.parse();
         assertEquals(2, actions.size());
         naturalDeduction.initializeProof(List.of(p), new ConjunctionClassic(p, p));
         int i = 0;

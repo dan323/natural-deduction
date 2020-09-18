@@ -8,7 +8,7 @@ import com.dan323.proof.generic.proof.ProofStep;
 
 public class ProofStepModal<T> extends ProofStep<ModalOperation> {
 
-    private T state;
+    private final T state;
 
     public ProofStepModal(T state, int ass, ModalLogicalOperation log, ProofReason proofReason) {
         super(ass, log, proofReason);
