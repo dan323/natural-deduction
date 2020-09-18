@@ -9,118 +9,116 @@ import com.dan323.proof.generic.proof.ProofReason;
 
 import java.util.Arrays;
 
-public final class ParseClassicalAction implements ParseAction&lt;ClassicalAction, NaturalDeduction&gt; {
+public final class ParseClassicalAction {
 
     private ParseClassicalAction() {
     }
 
-<span class="fc" id="L17">    public static final ParseClassicalAction PARSE_CLASSICAL_ACTION = new ParseClassicalAction();</span>
-
-    public ClassicalAction parse(NaturalDeduction naturalDeduction, int pos) {
-<span class="fc" id="L20">        ProofReason proofReason = naturalDeduction.getSteps().get(pos - 1).getProof();</span>
-<span class="pc bpc" id="L21" title="10 of 13 branches missed.">        switch (proofReason.getNameProof()) {</span>
+    public static ClassicalAction parse(NaturalDeduction naturalDeduction, int pos) {
+<span class="fc" id="L18">        ProofReason proofReason = naturalDeduction.getSteps().get(pos - 1).getProof();</span>
+<span class="pc bpc" id="L19" title="10 of 13 branches missed.">        switch (proofReason.getNameProof()) {</span>
             case &quot;Ass&quot;:
-<span class="fc" id="L23">                return parseAss(naturalDeduction, pos);</span>
+<span class="fc" id="L21">                return parseAss(naturalDeduction, pos);</span>
             case &quot;|I&quot;:
-<span class="nc" id="L25">                return parseOrI(naturalDeduction, pos, proofReason);</span>
+<span class="nc" id="L23">                return parseOrI(naturalDeduction, pos, proofReason);</span>
             case &quot;|E&quot;:
-<span class="nc" id="L27">                return parseOrE(proofReason);</span>
+<span class="nc" id="L25">                return parseOrE(proofReason);</span>
             case &quot;&amp;I&quot;:
-<span class="fc" id="L29">                return parseAndI(proofReason);</span>
+<span class="fc" id="L27">                return parseAndI(proofReason);</span>
             case &quot;&amp;E&quot;:
-<span class="nc" id="L31">                return parseAndE(naturalDeduction, pos, proofReason);</span>
+<span class="nc" id="L29">                return parseAndE(naturalDeduction, pos, proofReason);</span>
             case &quot;Rep&quot;:
-<span class="nc" id="L33">                return parseCopy(proofReason);</span>
+<span class="nc" id="L31">                return parseCopy(proofReason);</span>
             case &quot;-E&quot;:
-<span class="nc" id="L35">                return parseNotE(proofReason);</span>
+<span class="nc" id="L33">                return parseNotE(proofReason);</span>
             case &quot;-I&quot;:
-<span class="nc" id="L37">                return parseNotI();</span>
+<span class="nc" id="L35">                return parseNotI();</span>
             case &quot;-&gt;I&quot;:
-<span class="fc" id="L39">                return parseImpI();</span>
+<span class="fc" id="L37">                return parseImpI();</span>
             case &quot;-&gt;E&quot;:
-<span class="nc" id="L41">                return parseImpE(proofReason);</span>
+<span class="nc" id="L39">                return parseImpE(proofReason);</span>
             case &quot;FE&quot;:
-<span class="nc" id="L43">                return parseFE(naturalDeduction, pos, proofReason);</span>
+<span class="nc" id="L41">                return parseFE(naturalDeduction, pos, proofReason);</span>
             case &quot;FI&quot;:
-<span class="nc" id="L45">                return parseFI(proofReason);</span>
+<span class="nc" id="L43">                return parseFI(proofReason);</span>
             default:
-<span class="nc" id="L47">                throw new IllegalStateException();</span>
+<span class="nc" id="L45">                throw new IllegalStateException();</span>
         }
     }
 
     private static ClassicFI parseFI(ProofReason proofReason) {
-<span class="nc" id="L52">        int[] ints = parseArray(proofReason);</span>
-<span class="nc" id="L53">        return new ClassicFI(ints[0], ints[1]);</span>
+<span class="nc" id="L50">        int[] ints = parseArray(proofReason);</span>
+<span class="nc" id="L51">        return new ClassicFI(ints[0], ints[1]);</span>
     }
 
     private static ClassicFE parseFE(NaturalDeduction naturalDeduction, int pos, ProofReason proofReason) {
-<span class="nc" id="L57">        int[] ints = parseArray(proofReason);</span>
-<span class="nc" id="L58">        ClassicalLogicOperation operation = naturalDeduction.getSteps().get(pos - 1).getStep();</span>
-<span class="nc" id="L59">        return new ClassicFE(ints[0], operation);</span>
+<span class="nc" id="L55">        int[] ints = parseArray(proofReason);</span>
+<span class="nc" id="L56">        ClassicalLogicOperation operation = naturalDeduction.getSteps().get(pos - 1).getStep();</span>
+<span class="nc" id="L57">        return new ClassicFE(ints[0], operation);</span>
     }
 
     private static ClassicModusPonens parseImpE(ProofReason proofReason) {
-<span class="nc" id="L63">        int[] ints = parseArray(proofReason);</span>
-<span class="nc" id="L64">        return new ClassicModusPonens(ints[0], ints[1]);</span>
+<span class="nc" id="L61">        int[] ints = parseArray(proofReason);</span>
+<span class="nc" id="L62">        return new ClassicModusPonens(ints[0], ints[1]);</span>
     }
 
     private static ClassicDeductionTheorem parseImpI() {
-<span class="fc" id="L68">        return new ClassicDeductionTheorem();</span>
+<span class="fc" id="L66">        return new ClassicDeductionTheorem();</span>
     }
 
     private static ClassicNotI parseNotI() {
-<span class="nc" id="L72">        return new ClassicNotI();</span>
+<span class="nc" id="L70">        return new ClassicNotI();</span>
     }
 
     private static ClassicalAction parseOrI(NaturalDeduction naturalDeduction, int pos, ProofReason proofReason) {
-<span class="nc" id="L76">        int[] ints = parseArray(proofReason);</span>
-<span class="nc" id="L77">        ClassicalLogicOperation origin = naturalDeduction.getSteps().get(ints[0] - 1).getStep();</span>
-<span class="nc" id="L78">        DisjunctionClassic disj = (DisjunctionClassic) naturalDeduction.getSteps().get(pos - 1).getStep();</span>
-<span class="nc bnc" id="L79" title="All 2 branches missed.">        if (disj.getLeft().equals(origin)) {</span>
-<span class="nc" id="L80">            return new ClassicOrI1(ints[0], disj.getRight());</span>
+<span class="nc" id="L74">        int[] ints = parseArray(proofReason);</span>
+<span class="nc" id="L75">        ClassicalLogicOperation origin = naturalDeduction.getSteps().get(ints[0] - 1).getStep();</span>
+<span class="nc" id="L76">        DisjunctionClassic disj = (DisjunctionClassic) naturalDeduction.getSteps().get(pos - 1).getStep();</span>
+<span class="nc bnc" id="L77" title="All 2 branches missed.">        if (disj.getLeft().equals(origin)) {</span>
+<span class="nc" id="L78">            return new ClassicOrI1(ints[0], disj.getRight());</span>
         } else {
-<span class="nc" id="L82">            return new ClassicOrI2(ints[0], disj.getLeft());</span>
+<span class="nc" id="L80">            return new ClassicOrI2(ints[0], disj.getLeft());</span>
         }
     }
 
     private static ClassicalAction parseAndE(NaturalDeduction naturalDeduction, int pos, ProofReason proofReason) {
-<span class="nc" id="L87">        int[] ints = parseArray(proofReason);</span>
-<span class="nc" id="L88">        ConjunctionClassic conj = (ConjunctionClassic) naturalDeduction.getSteps().get(ints[0] - 1).getStep();</span>
-<span class="nc" id="L89">        ClassicalLogicOperation conclusion = naturalDeduction.getSteps().get(pos - 1).getStep();</span>
-<span class="nc bnc" id="L90" title="All 2 branches missed.">        if (conclusion.equals(conj.getLeft())) {</span>
-<span class="nc" id="L91">            return new ClassicAndE1(ints[0]);</span>
+<span class="nc" id="L85">        int[] ints = parseArray(proofReason);</span>
+<span class="nc" id="L86">        ConjunctionClassic conj = (ConjunctionClassic) naturalDeduction.getSteps().get(ints[0] - 1).getStep();</span>
+<span class="nc" id="L87">        ClassicalLogicOperation conclusion = naturalDeduction.getSteps().get(pos - 1).getStep();</span>
+<span class="nc bnc" id="L88" title="All 2 branches missed.">        if (conclusion.equals(conj.getLeft())) {</span>
+<span class="nc" id="L89">            return new ClassicAndE1(ints[0]);</span>
         } else {
-<span class="nc" id="L93">            return new ClassicAndE2(ints[0]);</span>
+<span class="nc" id="L91">            return new ClassicAndE2(ints[0]);</span>
         }
     }
 
     private static ClassicNotE parseNotE(ProofReason proofReason) {
-<span class="nc" id="L98">        int[] ints = parseArray(proofReason);</span>
-<span class="nc" id="L99">        return new ClassicNotE(ints[0]);</span>
+<span class="nc" id="L96">        int[] ints = parseArray(proofReason);</span>
+<span class="nc" id="L97">        return new ClassicNotE(ints[0]);</span>
     }
 
     private static ClassicCopy parseCopy(ProofReason proofReason) {
-<span class="nc" id="L103">        int[] ints = parseArray(proofReason);</span>
-<span class="nc" id="L104">        return new ClassicCopy(ints[0]);</span>
+<span class="nc" id="L101">        int[] ints = parseArray(proofReason);</span>
+<span class="nc" id="L102">        return new ClassicCopy(ints[0]);</span>
     }
 
     private static ClassicAndI parseAndI(ProofReason proofReason) {
-<span class="fc" id="L108">        int[] ints = parseArray(proofReason);</span>
-<span class="fc" id="L109">        return new ClassicAndI(ints[0], ints[1]);</span>
+<span class="fc" id="L106">        int[] ints = parseArray(proofReason);</span>
+<span class="fc" id="L107">        return new ClassicAndI(ints[0], ints[1]);</span>
     }
 
     private static int[] parseArray(ProofReason proofReason) {
-<span class="fc" id="L113">        return Arrays.stream(proofReason.toString().substring(proofReason.getNameProof().length() + 2, proofReason.toString().length() - 1).split(&quot;,&quot;))</span>
-<span class="fc" id="L114">                .map(String::trim).mapToInt(Integer::parseInt).toArray();</span>
+<span class="fc" id="L111">        return Arrays.stream(proofReason.toString().substring(proofReason.getNameProof().length() + 2, proofReason.toString().length() - 1).split(&quot;,&quot;))</span>
+<span class="fc" id="L112">                .map(String::trim).mapToInt(Integer::parseInt).toArray();</span>
     }
 
     private static ClassicAssume parseAss(NaturalDeduction naturalDeduction, int pos) {
-<span class="fc" id="L118">        return new ClassicAssume(naturalDeduction.getSteps().get(pos - 1).getStep());</span>
+<span class="fc" id="L116">        return new ClassicAssume(naturalDeduction.getSteps().get(pos - 1).getStep());</span>
     }
 
     private static ClassicOrE parseOrE(ProofReason reason) {
-<span class="nc" id="L122">        int[] ints = parseArray(reason);</span>
-<span class="nc" id="L123">        return new ClassicOrE(ints[0], ints[1], ints[2]);</span>
+<span class="nc" id="L120">        int[] ints = parseArray(reason);</span>
+<span class="nc" id="L121">        return new ClassicOrE(ints[0], ints[1], ints[2]);</span>
     }
 
 }

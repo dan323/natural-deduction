@@ -17,7 +17,7 @@ import java.util.List;
 
 public final class ModalDiaE&lt;T&gt; implements ModalAction&lt;T&gt; {
 
-    private int j;
+    private final int j;
 
 <span class="fc" id="L22">    public ModalDiaE(int i) {</span>
 <span class="fc" id="L23">        j = i;</span>
@@ -71,7 +71,7 @@ public final class ModalDiaE&lt;T&gt; implements ModalAction&lt;T&gt; {
 <span class="fc" id="L71">        return log1.getStep().equals(((UnaryOperation&lt;?&gt;) pf.getSteps().get(j - 1).getStep()).getElement());</span>
     }
 
-    private boolean isNotFresh(Proof&lt;ModalOperation, ProofStepModal&lt;T&gt;&gt; pf, int i) {
+    private boolean isNotFresh(Proof&lt;ModalOperation, ProofStepModal&lt;T&gt;, ModalAction&lt;T&gt;&gt; pf, int i) {
 <span class="fc bfc" id="L75" title="All 2 branches covered.">        if ((pf.getSteps().get(pf.getSteps().size() - 1).getStep()) instanceof ModalLogicalOperation) {</span>
 <span class="fc" id="L76">            T last = (pf.getSteps().get(pf.getSteps().size() - 1)).getState();</span>
 <span class="fc" id="L77">            return ((ModalNaturalDeduction&lt;T&gt;) pf).stateIsUsedBefore(last, i);</span>

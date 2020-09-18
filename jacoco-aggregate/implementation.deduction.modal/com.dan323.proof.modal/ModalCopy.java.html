@@ -18,7 +18,7 @@ public final class ModalCopy&lt;T&gt; extends Copy&lt;ModalOperation, ProofStepM
 <span class="fc" id="L18">        applyStepSupplier(pf, (assLevel, log, reason) -&gt; new ProofStepModal&lt;&gt;(getState(pf, getAppliedAt()), assLevel, (ModalLogicalOperation) log, reason));</span>
 <span class="fc" id="L19">    }</span>
 
-    private T getState(Proof&lt;ModalOperation, ProofStepModal&lt;T&gt;&gt; pf, int k) {
+    private T getState(Proof&lt;ModalOperation, ProofStepModal&lt;T&gt;, ModalAction&lt;T&gt;&gt; pf, int k) {
 <span class="fc" id="L22">        return (pf.getSteps().get(k - 1)).getState();</span>
     }
 }

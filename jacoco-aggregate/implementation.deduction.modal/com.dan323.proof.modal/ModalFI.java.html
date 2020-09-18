@@ -10,10 +10,10 @@ import com.dan323.proof.modal.proof.ProofStepModal;
 
 public final class ModalFI&lt;T&gt; extends FI&lt;ModalOperation, ProofStepModal&lt;T&gt;, ModalNaturalDeduction&lt;T&gt;&gt; implements ModalAction&lt;T&gt; {
 
-    private T state;
+    private final T state;
 
     public ModalFI(T state, int i, int j) {
-<span class="fc" id="L16">        super(i, j, NegationModal::new, () -&gt; ConstantModal.FALSE);</span>
+<span class="fc" id="L16">        super(i, j, () -&gt; ConstantModal.FALSE);</span>
 <span class="fc" id="L17">        this.state = state;</span>
 <span class="fc" id="L18">    }</span>
 

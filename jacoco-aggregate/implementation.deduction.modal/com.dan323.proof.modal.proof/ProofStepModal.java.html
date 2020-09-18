@@ -8,7 +8,7 @@ import com.dan323.proof.generic.proof.ProofStep;
 
 public class ProofStepModal&lt;T&gt; extends ProofStep&lt;ModalOperation&gt; {
 
-    private T state;
+    private final T state;
 
     public ProofStepModal(T state, int ass, ModalLogicalOperation log, ProofReason proofReason) {
 <span class="fc" id="L14">        super(ass, log, proofReason);</span>

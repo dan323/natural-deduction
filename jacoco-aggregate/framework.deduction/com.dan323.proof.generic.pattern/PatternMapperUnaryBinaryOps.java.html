@@ -16,9 +16,9 @@ import java.util.Map;
 <span class="nc" id="L16">            sol.put(l1.toString(), l2);</span>
 <span class="nc" id="L17">            return sol;</span>
 <span class="nc bnc" id="L18" title="All 4 branches missed.">        } else if (l1 instanceof UnaryOperation &amp;&amp; l1.getClass().equals(l2.getClass())) {</span>
-<span class="nc" id="L19">            return compareLogic(((UnaryOperation&lt;LogicOperation&gt;) l1).getElement(), ((UnaryOperation&lt;LogicOperation&gt;) l2).getElement());</span>
+<span class="nc" id="L19">            return compareLogic(((UnaryOperation&lt;?&gt;) l1).getElement(), ((UnaryOperation&lt;?&gt;) l2).getElement());</span>
 <span class="nc bnc" id="L20" title="All 4 branches missed.">        } else if (l1 instanceof BinaryOperation &amp;&amp; l1.getClass().equals(l2.getClass())) {</span>
-<span class="nc" id="L21">            return checkBinaryOperation((BinaryOperation&lt;LogicOperation&gt;) l1, (BinaryOperation&lt;LogicOperation&gt;) l2);</span>
+<span class="nc" id="L21">            return checkBinaryOperation((BinaryOperation&lt;?&gt;) l1, (BinaryOperation&lt;?&gt;) l2);</span>
         }
 <span class="nc" id="L23">        return null;</span>
     }

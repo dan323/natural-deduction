@@ -13,10 +13,10 @@ import java.util.Objects;
 /**
  * @author danco
  */
-public abstract class FE&lt;T extends LogicOperation, Q extends ProofStep&lt;T&gt;, P extends Proof&lt;T, Q&gt;&gt; implements AbstractAction&lt;T, Q, P&gt; {
+public abstract class FE&lt;T extends LogicOperation, Q extends ProofStep&lt;T&gt;, P extends Proof&lt;T, Q, ?&gt;&gt; implements AbstractAction&lt;T, Q, P&gt; {
 
-    private T intro;
-    private int falseIndex;
+    private final T intro;
+    private final int falseIndex;
 
 <span class="fc" id="L21">    public FE(T intro, int falseIndex) {</span>
 <span class="fc" id="L22">        this.intro = intro;</span>

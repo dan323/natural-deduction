@@ -15,9 +15,9 @@ public abstract class BinaryOperation&lt;T extends LogicOperation&gt; implements
 <span class="fc" id="L15">        this.right = right;</span>
 <span class="fc" id="L16">    }</span>
 
-    public T castToLanguage() {
-<span class="fc" id="L19">        return (T) this;</span>
-    }
+    /*public T castToLanguage() {
+        return (T) this;
+    }*/
 
     public T getLeft() {
 <span class="fc" id="L23">        return left;</span>
@@ -41,8 +41,8 @@ public abstract class BinaryOperation&lt;T extends LogicOperation&gt; implements
 
     @Override
     public boolean equals(Object log) {
-<span class="pc bpc" id="L44" title="1 of 4 branches missed.">        if (log instanceof BinaryOperation &amp;&amp; getOperator().equals(((BinaryOperation) log).getOperator())) {</span>
-<span class="fc bfc" id="L45" title="All 4 branches covered.">            return getLeft().equals(((BinaryOperation) log).getLeft()) &amp;&amp; getRight().equals(((BinaryOperation) log).getRight());</span>
+<span class="pc bpc" id="L44" title="1 of 4 branches missed.">        if (log instanceof BinaryOperation &amp;&amp; getOperator().equals(((BinaryOperation&lt;?&gt;) log).getOperator())) {</span>
+<span class="fc bfc" id="L45" title="All 4 branches covered.">            return getLeft().equals(((BinaryOperation&lt;?&gt;) log).getLeft()) &amp;&amp; getRight().equals(((BinaryOperation&lt;?&gt;) log).getRight());</span>
         }
 <span class="fc" id="L47">        return false;</span>
     }

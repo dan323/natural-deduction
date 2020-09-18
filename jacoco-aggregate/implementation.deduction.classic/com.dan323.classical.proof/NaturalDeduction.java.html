@@ -10,33 +10,28 @@ import com.dan323.proof.generic.proof.ProofStep;
 
 import java.util.List;
 
-<span class="fc" id="L13">public final class NaturalDeduction extends Proof&lt;ClassicalLogicOperation, ProofStep&lt;ClassicalLogicOperation&gt;&gt; {</span>
-
-    @Override
-    public void setGoal(ClassicalLogicOperation g) {
-<span class="fc" id="L17">        super.setGoal(g);</span>
-<span class="fc" id="L18">    }</span>
+<span class="fc" id="L13">public final class NaturalDeduction extends Proof&lt;ClassicalLogicOperation, ProofStep&lt;ClassicalLogicOperation&gt;, ClassicalAction&gt; {</span>
 
     @Override
     public void initializeProof(List&lt;ClassicalLogicOperation&gt; assms, ClassicalLogicOperation goal) {
-<span class="fc" id="L22">        initializeProofSteps();</span>
-<span class="fc" id="L23">        setAssms(assms);</span>
-<span class="fc" id="L24">        setGoal(goal);</span>
-<span class="fc" id="L25">    }</span>
+<span class="fc" id="L17">        initializeProofSteps();</span>
+<span class="fc" id="L18">        setAssms(assms);</span>
+<span class="fc" id="L19">        setGoal(goal);</span>
+<span class="fc" id="L20">    }</span>
 
     @Override
-    public ParseAction&lt;ClassicalAction, NaturalDeduction&gt; getParser() {
-<span class="fc" id="L29">        return ParseClassicalAction.PARSE_CLASSICAL_ACTION;</span>
+    public List&lt;ClassicalAction&gt; parse() {
+<span class="fc" id="L24">        return ((ParseAction&lt;ClassicalAction, NaturalDeduction&gt;) ParseClassicalAction::parse).translateToActions(this);</span>
     }
 
     @Override
     protected ProofStep&lt;ClassicalLogicOperation&gt; generateAssm(ClassicalLogicOperation logicExpresion) {
-<span class="fc" id="L34">        return new ProofStep&lt;&gt;(0, logicExpresion, new ProofReason(&quot;Ass&quot;, List.of()));</span>
+<span class="fc" id="L29">        return new ProofStep&lt;&gt;(0, logicExpresion, new ProofReason(&quot;Ass&quot;, List.of()));</span>
     }
 
     public void automate() {
-<span class="fc" id="L38">        ClassicalAutomate.AUTOMATIC_SOLVER.automate(this);</span>
-<span class="fc" id="L39">    }</span>
+<span class="fc" id="L33">        ClassicalAutomate.AUTOMATIC_SOLVER.automate(this);</span>
+<span class="fc" id="L34">    }</span>
 
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>
