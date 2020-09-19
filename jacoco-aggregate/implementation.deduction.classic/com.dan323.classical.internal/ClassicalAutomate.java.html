@@ -158,7 +158,7 @@ public final class ClassicalAutomate {
 <span class="fc" id="L158">        ClassicalLogicOperation element = goal.getElement();</span>
 <span class="fc" id="L159">        int i = 0;</span>
 <span class="fc" id="L160">        int assmsLevel = proof.getSteps().get(proof.getSteps().size() - 1).getAssumptionLevel();</span>
-<span class="pc bpc" id="L161" title="1 of 4 branches missed.">        while (proof.getSteps().size() - 1 - i &gt;= 0 &amp;&amp; proof.getSteps().get(proof.getSteps().size() - 1 - i).getAssumptionLevel() &gt;= assmsLevel) {</span>
+<span class="fc bfc" id="L161" title="All 4 branches covered.">        while (proof.getSteps().size() - 1 - i &gt;= 0 &amp;&amp; proof.getSteps().get(proof.getSteps().size() - 1 - i).getAssumptionLevel() &gt;= assmsLevel) {</span>
 <span class="fc" id="L162">            i++;</span>
         }
 <span class="pc bpc" id="L164" title="1 of 2 branches missed.">        if (proof.getSteps().get(proof.getSteps().size() - i).getStep().equals(element)) {</span>
@@ -184,8 +184,8 @@ public final class ClassicalAutomate {
 <span class="fc" id="L184">        ClassicalLogicOperation right = (goal).getRight();</span>
 <span class="fc bfc" id="L185" title="All 2 branches covered.">        for (int k = 0; k &lt; proof.getSteps().size(); k++) {</span>
 <span class="fc bfc" id="L186" title="All 2 branches covered.">            if (proof.getSteps().get(k).isValid()) {</span>
-<span class="pc bpc" id="L187" title="1 of 2 branches missed.">                if (proof.getSteps().get(k).getStep().equals(left)) {</span>
-<span class="nc" id="L188">                    return new ClassicOrI1(k + 1, right);</span>
+<span class="fc bfc" id="L187" title="All 2 branches covered.">                if (proof.getSteps().get(k).getStep().equals(left)) {</span>
+<span class="fc" id="L188">                    return new ClassicOrI1(k + 1, right);</span>
                 }
 <span class="pc bpc" id="L190" title="1 of 2 branches missed.">                if (proof.getSteps().get(k).getStep().equals(right)) {</span>
 <span class="nc" id="L191">                    return new ClassicOrI2(k + 1, left);</span>
@@ -261,8 +261,8 @@ public final class ClassicalAutomate {
 <span class="fc" id="L261">                    return act;</span>
                 }
 <span class="fc" id="L263">                act = checkAdditionOfAndI(i);</span>
-<span class="pc bpc" id="L264" title="1 of 2 branches missed.">                if (act != null) {</span>
-<span class="nc" id="L265">                    return act;</span>
+<span class="fc bfc" id="L264" title="All 2 branches covered.">                if (act != null) {</span>
+<span class="fc" id="L265">                    return act;</span>
                 }
 <span class="fc" id="L267">                act = checkAdditionOfDisjIModPonens(i);</span>
 <span class="fc bfc" id="L268" title="All 2 branches covered.">                if (act != null) {</span>
@@ -276,8 +276,8 @@ public final class ClassicalAutomate {
     private ClassicalAction checkAdditionOfAndI(int i) {
 <span class="fc" id="L277">        ClassicalAction act = new ClassicAndE1(i + 1);</span>
 <span class="fc" id="L278">        act = checkSingleAction(act);</span>
-<span class="pc bpc" id="L279" title="1 of 2 branches missed.">        if (act != null) {</span>
-<span class="nc" id="L280">            return act;</span>
+<span class="fc bfc" id="L279" title="All 2 branches covered.">        if (act != null) {</span>
+<span class="fc" id="L280">            return act;</span>
         }
 <span class="fc" id="L282">        act = new ClassicAndE2(i + 1);</span>
 <span class="fc" id="L283">        act = checkSingleAction(act);</span>
@@ -285,7 +285,7 @@ public final class ClassicalAutomate {
     }
 
     private ClassicalAction checkSingleAction(ClassicalAction act) {
-<span class="pc bpc" id="L288" title="1 of 4 branches missed.">        if (!actionsDone.contains(act) &amp;&amp; act.isValid(proof)) {</span>
+<span class="fc bfc" id="L288" title="All 4 branches covered.">        if (!actionsDone.contains(act) &amp;&amp; act.isValid(proof)) {</span>
 <span class="fc" id="L289">            actionsDone.add(act);</span>
 <span class="fc" id="L290">            return act;</span>
         }
@@ -302,8 +302,8 @@ public final class ClassicalAutomate {
                 }
 <span class="fc" id="L303">                act = new OrE1(i + 1, j + 1);</span>
 <span class="fc" id="L304">                act = checkSingleAction(act);</span>
-<span class="pc bpc" id="L305" title="1 of 2 branches missed.">                if (act != null) {</span>
-<span class="nc" id="L306">                    return act;</span>
+<span class="fc bfc" id="L305" title="All 2 branches covered.">                if (act != null) {</span>
+<span class="fc" id="L306">                    return act;</span>
                 }
 <span class="fc" id="L308">                act = new OrE2(i + 1, j + 1);</span>
 <span class="fc" id="L309">                act = checkSingleAction(act);</span>
@@ -343,8 +343,8 @@ public final class ClassicalAutomate {
 <span class="fc" id="L343">                LogicOperation log = proof.getSteps().get(i).getStep();</span>
 <span class="fc bfc" id="L344" title="All 2 branches covered.">                if (log instanceof NegationClassic) {</span>
 <span class="fc" id="L345">                    goals.add(((NegationClassic) log).getElement());</span>
-<span class="pc bpc" id="L346" title="1 of 2 branches missed.">                } else if (log instanceof DisjunctionClassic) {</span>
-<span class="nc" id="L347">                    goals.add(new NegationClassic(((DisjunctionClassic) log).getLeft()));</span>
+<span class="fc bfc" id="L346" title="All 2 branches covered.">                } else if (log instanceof DisjunctionClassic) {</span>
+<span class="fc" id="L347">                    goals.add(new NegationClassic(((DisjunctionClassic) log).getLeft()));</span>
 <span class="pc bpc" id="L348" title="1 of 2 branches missed.">                } else if (log instanceof ImplicationClassic) {</span>
 <span class="nc" id="L349">                    goals.add(((ImplicationClassic) log).getLeft());</span>
                 } else {

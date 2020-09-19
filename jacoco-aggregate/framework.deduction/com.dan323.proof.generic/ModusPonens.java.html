@@ -24,7 +24,7 @@ public abstract class ModusPonens&lt;T extends LogicOperation, Q extends ProofSt
 
     public boolean equals(Object obj) {
 <span class="pc bpc" id="L26" title="1 of 4 branches missed.">        if (obj != null &amp;&amp; getClass().equals(obj.getClass())) {</span>
-<span class="pc bpc" id="L27" title="2 of 4 branches missed.">            return ((ModusPonens&lt;?, ?, ?&gt;) obj).applyAt1 == applyAt1 &amp;&amp; ((ModusPonens&lt;?, ?, ?&gt;) obj).applyAt2 == applyAt2;</span>
+<span class="fc bfc" id="L27" title="All 4 branches covered.">            return ((ModusPonens&lt;?, ?, ?&gt;) obj).applyAt1 == applyAt1 &amp;&amp; ((ModusPonens&lt;?, ?, ?&gt;) obj).applyAt2 == applyAt2;</span>
         } else {
 <span class="fc" id="L29">            return false;</span>
         }
