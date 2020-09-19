@@ -87,10 +87,10 @@ public final class ParseClassicalAction {
 <span class="fc" id="L87">        int[] ints = parseArray(proofReason);</span>
 <span class="fc" id="L88">        ClassicalLogicOperation origin = naturalDeduction.getSteps().get(ints[0] - 1).getStep();</span>
 <span class="fc" id="L89">        DisjunctionClassic disj = (DisjunctionClassic) naturalDeduction.getSteps().get(pos - 1).getStep();</span>
-<span class="pc bpc" id="L90" title="1 of 2 branches missed.">        if (disj.getLeft().equals(origin)) {</span>
+<span class="fc bfc" id="L90" title="All 2 branches covered.">        if (disj.getLeft().equals(origin)) {</span>
 <span class="fc" id="L91">            return new ClassicOrI1(ints[0], disj.getRight());</span>
         } else {
-<span class="nc" id="L93">            return new ClassicOrI2(ints[0], disj.getLeft());</span>
+<span class="fc" id="L93">            return new ClassicOrI2(ints[0], disj.getLeft());</span>
         }
     }
 
