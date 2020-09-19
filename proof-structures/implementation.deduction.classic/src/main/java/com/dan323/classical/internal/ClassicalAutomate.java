@@ -33,7 +33,6 @@ public final class ClassicalAutomate {
     private Map<Integer, Integer> usedForGoal;
 
     private ClassicalAutomate() {
-        throw new UnsupportedOperationException();
     }
 
     public static final ClassicalAutomate AUTOMATIC_SOLVER = new ClassicalAutomate();
