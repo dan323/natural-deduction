@@ -56,7 +56,7 @@ public class RuleOrTest {
     }
 
     @Test
-    public void basicTest() {
+    public void equalsTest() {
         OrEStub orE = new RuleOrTest.OrEStub(1, 2, 3);
         assertEquals(1, orE.getDisj());
         assertEquals(2, orE.get1());

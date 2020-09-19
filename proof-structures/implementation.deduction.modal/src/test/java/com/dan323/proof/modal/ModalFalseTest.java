@@ -12,7 +12,7 @@ import static org.junit.jupiter.api.Assertions.*;
 public class ModalFalseTest {
 
     @Test
-    public void basicTest() {
+    public void equalsTest() {
         ModalFI<String> modalFI = new ModalFI<>("j", 1, 2);
         ModalFI<String> modalFI2 = new ModalFI<>("i", 1, 2);
         ModalFI<String> modalFI3 = new ModalFI<>("j", 1, 3);

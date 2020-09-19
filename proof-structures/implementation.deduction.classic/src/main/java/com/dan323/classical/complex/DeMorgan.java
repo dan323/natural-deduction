@@ -9,16 +9,16 @@ import com.dan323.expresions.classical.ClassicalLogicOperation;
 import com.dan323.expresions.classical.DisjunctionClassic;
 import com.dan323.proof.generic.RuleUtils;
 
-public final class DeMorgan1 extends CompositionRule {
+public final class DeMorgan extends CompositionRule {
 
     private final int i;
 
-    public DeMorgan1(int j) {
+    public DeMorgan(int j) {
         i = j;
     }
 
     public boolean equals(Object ob) {
-        return (ob instanceof DeMorgan1) && ((DeMorgan1) ob).i == i;
+        return (ob instanceof DeMorgan) && ((DeMorgan) ob).i == i;
     }
 
     public int hashCode() {

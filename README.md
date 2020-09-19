@@ -4,14 +4,19 @@ A system for [natural deduction](https://en.wikipedia.org/wiki/Natural_deduction
 ## Status
 
 [![Main Workflow](https://github.com/dan323/natural-deduction/workflows/Main%20Workflow/badge.svg?branch=master&event=push)](https://https://github.com/dan323/natural-deduction/actions?query=branch%3Amaster+event%3Apush)
-
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=com.dan323%3Anatural-deduction&metric=alert_status)](https://sonarcloud.io/dashboard?id=com.dan323%3Anatural-deduction)
-
 [![Bugs](https://sonarcloud.io/api/project_badges/measure?project=com.dan323%3Anatural-deduction&metric=bugs)](https://sonarcloud.io/dashboard?id=com.dan323%3Anatural-deduction)
-
 [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=com.dan323%3Anatural-deduction&metric=coverage)](https://sonarcloud.io/dashboard?id=com.dan323%3Anatural-deduction)
 
 ## Logical language
 
 The project is based on a common basic framework with plug-ins added to handle different logics. Right now, it can handle classical propositional logic
  and modal propositional logic with labelled states.
+ 
+# Languages
+## Classical
+We use the language of [propositional calculus](https://en.wikipedia.org/wiki/Propositional_calculus) and rules
+and classical rules for the natural deduction.
+
+## Modal
+We extend the language of propositions to [modal logic](https://en.wikipedia.org/wiki/Modal_logic). Then natural deduction is extended with labes.

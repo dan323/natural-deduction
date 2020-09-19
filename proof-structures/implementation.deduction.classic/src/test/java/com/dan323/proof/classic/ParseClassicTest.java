@@ -3,6 +3,7 @@ package com.dan323.proof.classic;
 import com.dan323.classical.ClassicCopy;
 import com.dan323.classical.ClassicFE;
 import com.dan323.classical.ClassicalAction;
+import com.dan323.classical.complex.DeMorgan;
 import com.dan323.classical.proof.NaturalDeduction;
 import com.dan323.expresions.classical.*;
 import org.junit.jupiter.api.Assertions;
@@ -71,6 +72,27 @@ public class ParseClassicTest {
             }
         }
         Assertions.assertEquals(original, naturalDeduction.toString());
+    }
+
+    @Test
+    public void parseDeMorgan() {
+        var p = new VariableClassic("P");
+        var q = new VariableClassic("Q");
+        var naturalDeduction = new NaturalDeduction();
+        naturalDeduction.initializeProof(List.of(new NegationClassic(new DisjunctionClassic(p,q))),new NegationClassic(p));
+        (new DeMorgan(1)).apply(naturalDeduction);
+        List<ClassicalAction> actions = naturalDeduction.parse();
+        naturalDeduction.initializeProof(List.of(new NegationClassic(new DisjunctionClassic(p,q))),new NegationClassic(p));
+        assertEquals(9, actions.size());
+        naturalDeduction.initializeProof(List.of(p), p);
+        int i = 0;
+        for (ClassicalAction action : actions) {
+            if (i < naturalDeduction.getAssms().size()) {
+                i++;
+            } else {
+                action.apply(naturalDeduction);
+            }
+        }
     }
 
     @Test

@@ -1,7 +1,19 @@
 package com.dan323.classical.internal;
 
-import com.dan323.classical.*;
-import com.dan323.classical.complex.DeMorgan1;
+import com.dan323.classical.ClassicAndE1;
+import com.dan323.classical.ClassicAndE2;
+import com.dan323.classical.ClassicAndI;
+import com.dan323.classical.ClassicAssume;
+import com.dan323.classical.ClassicCopy;
+import com.dan323.classical.ClassicDeductionTheorem;
+import com.dan323.classical.ClassicFI;
+import com.dan323.classical.ClassicModusPonens;
+import com.dan323.classical.ClassicNotE;
+import com.dan323.classical.ClassicNotI;
+import com.dan323.classical.ClassicOrI1;
+import com.dan323.classical.ClassicOrI2;
+import com.dan323.classical.ClassicalAction;
+import com.dan323.classical.complex.DeMorgan;
 import com.dan323.classical.complex.OrE1;
 import com.dan323.classical.complex.OrE2;
 import com.dan323.classical.proof.NaturalDeduction;
@@ -250,7 +262,7 @@ public final class ClassicalAutomate {
     private ClassicalAction lookForElimRules() {
         for (int i = 0; i < proof.getSteps().size(); i++) {
             if (proof.getSteps().get(i).isValid()) {
-                ClassicalAction act = new DeMorgan1(i + 1);
+                ClassicalAction act = new DeMorgan(i + 1);
                 act = checkSingleAction(act);
                 if (act != null) {
                     return act;
