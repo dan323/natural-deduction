@@ -33,6 +33,7 @@ public final class ClassicalAutomate {
     private Map<Integer, Integer> usedForGoal;
 
     private ClassicalAutomate() {
+        throw new UnsupportedOperationException();
     }
 
     public static final ClassicalAutomate AUTOMATIC_SOLVER = new ClassicalAutomate();
@@ -69,7 +70,7 @@ public final class ClassicalAutomate {
         boolean c = true;
         while (b) {
             ClassicalAction intro = introRuleForGoal();
-            if (intro != null || (!proof.getSteps().isEmpty() && goals.get(goals.size() - 1).equals(proof.getSteps().get(proof.getSteps().size() - 1).getStep()))) {
+            if (intro != null || attainGoal()) {
                 updateGoals(intro);
                 if (goals.isEmpty()) {
                     c = false;
@@ -80,6 +81,11 @@ public final class ClassicalAutomate {
             }
         }
         return c;
+    }
+
+    private boolean attainGoal(){
+        return !proof.getSteps().isEmpty() &&
+                goals.get(goals.size() - 1).equals(proof.getSteps().get(proof.getSteps().size() - 1).getStep());
     }
 
     /**
@@ -97,10 +103,25 @@ public final class ClassicalAutomate {
         }
     }
 
+    /**
+     * Apply the rule that attains the next goal
+     *
+     * @param intro action that will attain the goal
+     */
     private void updateGoals(ClassicalAction intro) {
         if (intro != null) {
             intro.apply(proof);
         }
+        attainFalseGoal();
+        goals.remove(goals.size() - 1);
+        usedForGoal.remove(goals.size() + 2);
+    }
+
+    /**
+     * If the next goal is {@literal False} and the rule NotI is valid,
+     * we use it to reach the goal
+     */
+    private void attainFalseGoal() {
         if (goals.size() > 1 && goals.get(goals.size() - 1).equals(ConstantClassic.FALSE)) {
             ClassicalAction cla = new ClassicNotI();
             if (cla.isValid(proof)) {
@@ -108,8 +129,6 @@ public final class ClassicalAutomate {
                 goals.remove(goals.size() - 1);
             }
         }
-        goals.remove(goals.size() - 1);
-        usedForGoal.remove(goals.size() + 2);
     }
 
     /**
@@ -123,7 +142,9 @@ public final class ClassicalAutomate {
         }
         ClassicalLogicOperation goal = goals.get(goals.size() - 1);
         for (int i = 0; i < proof.getSteps().size(); i++) {
-            if (proof.getSteps().get(i).isValid() && goal.equals(proof.getSteps().get(i).getStep()) && i + 1 < proof.getSteps().size()) {
+            if (proof.getSteps().get(i).isValid() &&
+                    goal.equals(proof.getSteps().get(i).getStep()) &&
+                    i + 1 < proof.getSteps().size()) {
                 return new ClassicCopy(i + 1);
             }
         }

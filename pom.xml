@@ -17,7 +17,7 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-        <jdk.version>13</jdk.version>
+        <jdk.version>14</jdk.version>
 
         <pitest.version>1.5.1</pitest.version>
         <pitest.junit5.version>0.12</pitest.junit5.version>

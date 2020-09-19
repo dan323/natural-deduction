@@ -32,7 +32,7 @@ public class ClassicalComplexTest {
         assertNotEquals(orE11, orE12);
         assertNotEquals(orE11, orE13);
         assertNotEquals(orE12, orE13);
-        assertNotEquals(orE13, orE14);
+        assertEquals(orE13, orE14);
         assertNotEquals(orE11, log);
 
         var orE21 = new OrE2(1,2);
@@ -44,7 +44,7 @@ public class ClassicalComplexTest {
         assertNotEquals(orE21, orE22);
         assertNotEquals(orE21, orE23);
         assertNotEquals(orE22, orE23);
-        assertNotEquals(orE23, orE24);
+        assertEquals(orE23, orE24);
         assertNotEquals(orE21, log);
     }
 }
