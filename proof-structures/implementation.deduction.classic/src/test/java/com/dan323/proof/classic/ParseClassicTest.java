@@ -1,6 +1,7 @@
 package com.dan323.proof.classic;
 
 import com.dan323.classical.ClassicCopy;
+import com.dan323.classical.ClassicFE;
 import com.dan323.classical.ClassicalAction;
 import com.dan323.classical.proof.NaturalDeduction;
 import com.dan323.expresions.classical.*;
@@ -11,10 +12,10 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-class ParseClassicTest {
+public class ParseClassicTest {
 
     @Test
-    void parseProofPImpP() {
+    public void parseProofPImpP() {
         var p = new VariableClassic("P");
         var naturalDeduction = new NaturalDeduction();
         naturalDeduction.initializeProof(List.of(), new ImplicationClassic(p, p));
@@ -30,7 +31,7 @@ class ParseClassicTest {
     }
 
     @Test
-    void parseProofPorP() {
+    public void parseProofPorP() {
         var p = new VariableClassic("P");
         var naturalDeduction = new NaturalDeduction();
         var goal = new DisjunctionClassic(p, p);
@@ -52,11 +53,11 @@ class ParseClassicTest {
     }
 
     @Test
-    void parseProofFE() {
+    public void parseProofFE() {
         var p = new VariableClassic("P");
         var naturalDeduction = new NaturalDeduction();
         naturalDeduction.initializeProof(List.of(ConstantClassic.FALSE), p);
-        naturalDeduction.automate();
+        (new ClassicFE(1,p)).apply(naturalDeduction);
         String original = naturalDeduction.toString();
         List<ClassicalAction> actions = naturalDeduction.parse();
         assertEquals(2, actions.size());
@@ -73,7 +74,7 @@ class ParseClassicTest {
     }
 
     @Test
-    void parseProofCopy() {
+    public void parseProofCopy() {
         var p = new VariableClassic("P");
         var naturalDeduction = new NaturalDeduction();
         naturalDeduction.initializeProof(List.of(p), p);
@@ -95,7 +96,7 @@ class ParseClassicTest {
 
 
     @Test
-    void parseProofAndE() {
+    public void parseProofAndE() {
         var p = new VariableClassic("P");
         var q = new VariableClassic("Q");
         var naturalDeduction = new NaturalDeduction();
@@ -104,7 +105,7 @@ class ParseClassicTest {
         String original = naturalDeduction.toString();
         List<ClassicalAction> actions = naturalDeduction.parse();
         assertEquals(2, actions.size());
-        naturalDeduction.initializeProof(List.of(p), p);
+        naturalDeduction.initializeProof(List.of(new ConjunctionClassic(p,q)), p);
         int i = 0;
         for (ClassicalAction action : actions) {
             if (i < naturalDeduction.getAssms().size()) {
@@ -117,7 +118,7 @@ class ParseClassicTest {
     }
 
     @Test
-    void parseProofPAndP() {
+    public void parseProofPAndP() {
         var p = new VariableClassic("P");
         var naturalDeduction = new NaturalDeduction();
         naturalDeduction.initializeProof(List.of(p), new ConjunctionClassic(p, p));
@@ -138,7 +139,7 @@ class ParseClassicTest {
     }
 
     @Test
-    void parseProofOrE() {
+    public void parseProofOrE() {
         var p = new VariableClassic("P");
         var q = new VariableClassic("Q");
         var r = new VariableClassic("R");

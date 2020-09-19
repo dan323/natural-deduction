@@ -1,10 +1,23 @@
 package com.dan323.classical.proof;
 
-import com.dan323.classical.*;
+import com.dan323.classical.ClassicAndE1;
+import com.dan323.classical.ClassicAndE2;
+import com.dan323.classical.ClassicAndI;
+import com.dan323.classical.ClassicAssume;
+import com.dan323.classical.ClassicCopy;
+import com.dan323.classical.ClassicDeductionTheorem;
+import com.dan323.classical.ClassicFE;
+import com.dan323.classical.ClassicFI;
+import com.dan323.classical.ClassicModusPonens;
+import com.dan323.classical.ClassicNotE;
+import com.dan323.classical.ClassicNotI;
+import com.dan323.classical.ClassicOrE;
+import com.dan323.classical.ClassicOrI1;
+import com.dan323.classical.ClassicOrI2;
+import com.dan323.classical.ClassicalAction;
 import com.dan323.expresions.classical.ClassicalLogicOperation;
 import com.dan323.expresions.classical.ConjunctionClassic;
 import com.dan323.expresions.classical.DisjunctionClassic;
-import com.dan323.proof.generic.proof.ParseAction;
 import com.dan323.proof.generic.proof.ProofReason;
 
 import java.util.Arrays;
