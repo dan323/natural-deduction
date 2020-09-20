@@ -27,14 +27,15 @@ public final class DeMorgan extends CompositionRule {
 
     @Override
     public boolean isValid(NaturalDeduction pf) {
-        return RuleUtils.isValidIndexAndProp(pf, i) && RuleUtils.isOperation(pf, i, Negation.class)
-                && (((UnaryOperation<?>) pf.getSteps().get(i - 1).getStep()).getElement() instanceof DisjunctionClassic);
+        return RuleUtils.isValidIndexAndProp(pf, i) &&
+                RuleUtils.isOperation(pf, i, Negation.class) &&
+                (((UnaryOperation<?>) pf.getSteps().get(i - 1).getStep()).getElement() instanceof DisjunctionClassic);
     }
 
     @Override
     public void apply(NaturalDeduction pf) {
-        ClassicalLogicOperation left = ((BinaryOperation<ClassicalLogicOperation>) ((UnaryOperation<ClassicalLogicOperation>) pf.getSteps().get(i - 1).getStep()).getElement()).getLeft();
-        ClassicalLogicOperation right = ((BinaryOperation<ClassicalLogicOperation>) ((UnaryOperation<ClassicalLogicOperation>) pf.getSteps().get(i - 1).getStep()).getElement()).getRight();
+        ClassicalLogicOperation left = ((BinaryOperation<ClassicalLogicOperation>) ((UnaryOperation<?>) pf.getSteps().get(i - 1).getStep()).getElement()).getLeft();
+        ClassicalLogicOperation right = ((BinaryOperation<ClassicalLogicOperation>) ((UnaryOperation<?>) pf.getSteps().get(i - 1).getStep()).getElement()).getRight();
         (new ClassicAssume(left)).apply(pf);
         (new ClassicOrI1(pf.getSteps().size(), right)).apply(pf);
         (new ClassicFI(pf.getSteps().size(), i)).apply(pf);

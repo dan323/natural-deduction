@@ -1,18 +1,6 @@
 package com.dan323.classical.internal;
 
-import com.dan323.classical.ClassicAndE1;
-import com.dan323.classical.ClassicAndE2;
-import com.dan323.classical.ClassicAndI;
-import com.dan323.classical.ClassicAssume;
-import com.dan323.classical.ClassicCopy;
-import com.dan323.classical.ClassicDeductionTheorem;
-import com.dan323.classical.ClassicFI;
-import com.dan323.classical.ClassicModusPonens;
-import com.dan323.classical.ClassicNotE;
-import com.dan323.classical.ClassicNotI;
-import com.dan323.classical.ClassicOrI1;
-import com.dan323.classical.ClassicOrI2;
-import com.dan323.classical.ClassicalAction;
+import com.dan323.classical.*;
 import com.dan323.classical.complex.DeMorgan;
 import com.dan323.classical.complex.OrE1;
 import com.dan323.classical.complex.OrE2;
@@ -59,17 +47,33 @@ public final class ClassicalAutomate {
             if (c) {
                 updateGoal();
                 // If the state of the proof has not changed, stop. It has failed
-                c = goalSize != goals.size() || stepsSize != proof.getSteps().size();
+                c = isStateChanged(goalSize, stepsSize);
             }
         }
     }
 
+    /**
+     * Checks if the state of the proof has changed according to previous sizes
+     *
+     * @param previousGoalSize number of goals before the actions
+     * @param previousStepSize size of the proof before the actions
+     * @return true iff the number of goals of the proof has more steps
+     */
+    private boolean isStateChanged(int previousGoalSize, int previousStepSize) {
+        return previousGoalSize != goals.size() || previousStepSize != proof.getSteps().size();
+    }
+
+    /**
+     * Look for intro rules for the last goal, if none found look and apply eliminate rules
+     *
+     * @return false iff the proof is finished
+     */
     private boolean applyIntroAndElimRules() {
         boolean b = true;
         boolean c = true;
         while (b) {
             ClassicalAction intro = introRuleForGoal();
-            if (intro != null || attainGoal()) {
+            if (intro != null || isGoalReached()) {
                 updateGoals(intro);
                 if (goals.isEmpty()) {
                     c = false;
@@ -82,7 +86,12 @@ public final class ClassicalAutomate {
         return c;
     }
 
-    private boolean attainGoal(){
+    /**
+     * Check if the goal was reabhed
+     *
+     * @return true if the last goal is equal to the last statement in the proof
+     */
+    private boolean isGoalReached() {
         return !proof.getSteps().isEmpty() &&
                 goals.get(goals.size() - 1).equals(proof.getSteps().get(proof.getSteps().size() - 1).getStep());
     }
@@ -234,9 +243,9 @@ public final class ClassicalAutomate {
      */
     private ClassicalAction introRuleForGoalConjuntion(ConjunctionClassic goal) {
         ClassicalLogicOperation left = (goal).getLeft();
-        int a = -1;
+        int a = 0;
         ClassicalLogicOperation right = (goal).getRight();
-        int b = -1;
+        int b = 0;
         for (int i = 0; i < proof.getSteps().size(); i++) {
             if (proof.getSteps().get(i).isValid()) {
                 if (left.equals(proof.getSteps().get(i).getStep())) {
@@ -308,14 +317,19 @@ public final class ClassicalAutomate {
     private ClassicalAction checkAdditionOfAndI(int i) {
         ClassicalAction act = new ClassicAndE1(i + 1);
         act = checkSingleAction(act);
-        if (act != null) {
-            return act;
+        if (act == null) {
+            act = new ClassicAndE2(i + 1);
+            act = checkSingleAction(act);
         }
-        act = new ClassicAndE2(i + 1);
-        act = checkSingleAction(act);
         return act;
     }
 
+    /**
+     * Check that the action has not already done ant it is valid
+     *
+     * @param act action to be checked for validity
+     * @return the action if it valid, null if not
+     */
     private ClassicalAction checkSingleAction(ClassicalAction act) {
         if (!actionsDone.contains(act) && act.isValid(proof)) {
             actionsDone.add(act);
@@ -347,6 +361,9 @@ public final class ClassicalAutomate {
         return null;
     }
 
+    /**
+     * Add a new goal to make easier to reach the current goal, if possible
+     */
     private void updateGoal() {
         if (goals.get(goals.size() - 1).equals(ConstantClassic.FALSE)) {
             lastGoalFalse();
@@ -439,7 +456,7 @@ public final class ClassicalAutomate {
      * @param goal last goal of type AND
      */
     private void updateGoalConjuntion(ConjunctionClassic goal) {
-        goals.add((goal).getLeft());
-        goals.add((goal).getRight());
+        goals.add(goal.getLeft());
+        goals.add(goal.getRight());
     }
 }
