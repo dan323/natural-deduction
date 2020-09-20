@@ -21,7 +21,7 @@ public abstract class UnaryOperation&lt;T extends LogicOperation&gt; implements 
 
     @Override
     public boolean equals(Object log) {
-<span class="pc bpc" id="L24" title="1 of 6 branches missed.">        return log instanceof UnaryOperation &amp;&amp; getOperator().equals(((UnaryOperation&lt;T&gt;) log).getOperator()) &amp;&amp; getElement().equals(((UnaryOperation&lt;T&gt;) log).getElement());</span>
+<span class="pc bpc" id="L24" title="1 of 6 branches missed.">        return log instanceof UnaryOperation &amp;&amp; getOperator().equals(((UnaryOperation&lt;?&gt;) log).getOperator()) &amp;&amp; getElement().equals(((UnaryOperation&lt;?&gt;) log).getElement());</span>
     }
 
     @Override

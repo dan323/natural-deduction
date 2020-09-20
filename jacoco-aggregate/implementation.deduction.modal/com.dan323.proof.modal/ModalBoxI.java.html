@@ -45,7 +45,7 @@ import java.util.Objects;
 <span class="fc bfc" id="L45" title="All 2 branches covered.">        if (!(pf.getSteps().get(pf.getSteps().size() - 1)).getState().equals(stateGreater)) {</span>
 <span class="fc" id="L46">            return false;</span>
         }
-<span class="fc bfc" id="L48" title="All 2 branches covered.">        return !((ModalNaturalDeduction&lt;T&gt;) pf).stateIsUsedBefore(stateGreater, pf.getSteps().size() - lastAssumption);</span>
+<span class="fc bfc" id="L48" title="All 2 branches covered.">        return !pf.stateIsUsedBefore(stateGreater, pf.getSteps().size() - lastAssumption);</span>
     }
 
     @Override

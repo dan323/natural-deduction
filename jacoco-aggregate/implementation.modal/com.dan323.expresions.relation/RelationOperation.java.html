@@ -3,43 +3,40 @@
 import com.dan323.expresions.base.LogicOperation;
 import com.dan323.expresions.modal.ModalOperation;
 
-import java.util.Objects;
-import java.util.function.Predicate;
-
 public abstract class RelationOperation&lt;T&gt; implements ModalOperation {
     private final T left;
     private final T right;
     private final String operation;
 
-<span class="fc" id="L14">    public RelationOperation(T left, T right, String operation) {</span>
-<span class="fc" id="L15">        this.left = left;</span>
-<span class="fc" id="L16">        this.right = right;</span>
-<span class="fc" id="L17">        this.operation = operation;</span>
-<span class="fc" id="L18">    }</span>
+<span class="fc" id="L11">    public RelationOperation(T left, T right, String operation) {</span>
+<span class="fc" id="L12">        this.left = left;</span>
+<span class="fc" id="L13">        this.right = right;</span>
+<span class="fc" id="L14">        this.operation = operation;</span>
+<span class="fc" id="L15">    }</span>
 
     public T getLeft() {
-<span class="fc" id="L21">        return left;</span>
+<span class="fc" id="L18">        return left;</span>
     }
 
     public T getRight() {
-<span class="fc" id="L25">        return right;</span>
+<span class="fc" id="L22">        return right;</span>
     }
 
     public String toString() {
-<span class="nc" id="L29">        return left.toString() + &quot; &quot; + operation + &quot; &quot; + right.toString();</span>
+<span class="nc" id="L26">        return left.toString() + &quot; &quot; + operation + &quot; &quot; + right.toString();</span>
     }
 
-    static boolean areRelation(LogicOperation... logs) {
-<span class="fc bfc" id="L33" title="All 2 branches covered.">        for (LogicOperation log : logs) {</span>
-<span class="fc bfc" id="L34" title="All 2 branches covered.">            if (!isRelation(log)) {</span>
-<span class="fc" id="L35">                return false;</span>
+    public static boolean areRelation(LogicOperation... logs) {
+<span class="fc bfc" id="L30" title="All 2 branches covered.">        for (LogicOperation log : logs) {</span>
+<span class="fc bfc" id="L31" title="All 2 branches covered.">            if (!isRelation(log)) {</span>
+<span class="fc" id="L32">                return false;</span>
             }
         }
-<span class="fc" id="L38">        return true;</span>
+<span class="fc" id="L35">        return true;</span>
     }
 
     static boolean isRelation(LogicOperation log) {
-<span class="fc" id="L42">        return log instanceof RelationOperation;</span>
+<span class="fc" id="L39">        return log instanceof RelationOperation;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

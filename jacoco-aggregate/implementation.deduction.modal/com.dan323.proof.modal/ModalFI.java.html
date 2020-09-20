@@ -3,7 +3,6 @@
 import com.dan323.expresions.modal.ConstantModal;
 import com.dan323.expresions.modal.ModalLogicalOperation;
 import com.dan323.expresions.modal.ModalOperation;
-import com.dan323.expresions.modal.NegationModal;
 import com.dan323.proof.generic.FI;
 import com.dan323.proof.modal.proof.ModalNaturalDeduction;
 import com.dan323.proof.modal.proof.ProofStepModal;
@@ -13,28 +12,28 @@ public final class ModalFI&lt;T&gt; extends FI&lt;ModalOperation, ProofStepModal
     private final T state;
 
     public ModalFI(T state, int i, int j) {
-<span class="fc" id="L16">        super(i, j, () -&gt; ConstantModal.FALSE);</span>
-<span class="fc" id="L17">        this.state = state;</span>
-<span class="fc" id="L18">    }</span>
+<span class="fc" id="L15">        super(i, j, () -&gt; ConstantModal.FALSE);</span>
+<span class="fc" id="L16">        this.state = state;</span>
+<span class="fc" id="L17">    }</span>
 
     @Override
     public boolean isValid(ModalNaturalDeduction&lt;T&gt; pf) {
-<span class="fc bfc" id="L22" title="All 4 branches covered.">        return super.isValid(pf) &amp;&amp; ModalAction.checkEqualState(pf, getPos(), getNeg());</span>
+<span class="fc bfc" id="L21" title="All 4 branches covered.">        return super.isValid(pf) &amp;&amp; ModalAction.checkEqualState(pf, getPos(), getNeg());</span>
     }
 
     @Override
     public void apply(ModalNaturalDeduction&lt;T&gt; pf) {
-<span class="fc" id="L27">        applyStepSupplier(pf, (assLevel, log, reason) -&gt; new ProofStepModal&lt;&gt;(state, assLevel, (ModalLogicalOperation) log, reason));</span>
-<span class="fc" id="L28">    }</span>
+<span class="fc" id="L26">        applyStepSupplier(pf, (assLevel, log, reason) -&gt; new ProofStepModal&lt;&gt;(state, assLevel, (ModalLogicalOperation) log, reason));</span>
+<span class="fc" id="L27">    }</span>
 
     @Override
     public int hashCode() {
-<span class="fc" id="L32">        return super.hashCode() * 7 + state.hashCode() * 5;</span>
+<span class="fc" id="L31">        return super.hashCode() * 7 + state.hashCode() * 5;</span>
     }
 
     @Override
     public boolean equals(Object obj) {
-<span class="fc bfc" id="L37" title="All 4 branches covered.">        return super.equals(obj) &amp;&amp; ((ModalFI&lt;?&gt;) obj).state.equals(state);</span>
+<span class="fc bfc" id="L36" title="All 4 branches covered.">        return super.equals(obj) &amp;&amp; ((ModalFI&lt;?&gt;) obj).state.equals(state);</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

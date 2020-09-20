@@ -10,7 +10,7 @@ public final class LessEqual&lt;T&gt; extends RelationOperation&lt;T&gt; {
 
     @Override
     public boolean equals(Object object) {
-<span class="fc bfc" id="L13" title="All 2 branches covered.">        return object != null</span>
+<span class="pc bpc" id="L13" title="1 of 2 branches missed.">        return object != null</span>
 <span class="fc bfc" id="L14" title="All 2 branches covered.">                &amp;&amp; object.getClass().equals(getClass())</span>
 <span class="fc bfc" id="L15" title="All 2 branches covered.">                &amp;&amp; getLeft().equals(((RelationOperation&lt;?&gt;) object).getLeft())</span>
 <span class="pc bpc" id="L16" title="1 of 2 branches missed.">                &amp;&amp; getRight().equals(((RelationOperation&lt;?&gt;) object).getRight());</span>
