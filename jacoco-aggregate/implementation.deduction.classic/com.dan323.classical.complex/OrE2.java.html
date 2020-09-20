@@ -44,14 +44,14 @@ public final class OrE2 extends CompositionRule {
 
     @Override
     public void apply(NaturalDeduction pf) {
-<span class="nc" id="L47">        (new ClassicAssume(((BinaryOperation&lt;ClassicalLogicOperation&gt;) pf.getSteps().get(a - 1).getStep()).getRight())).apply(pf);</span>
-<span class="nc" id="L48">        (new ClassicFI(pf.getSteps().size(), a)).apply(pf);</span>
-<span class="nc" id="L49">        (new ClassicFE(pf.getSteps().size(), ((BinaryOperation&lt;ClassicalLogicOperation&gt;) pf.getSteps().get(a - 1).getStep()).getLeft())).apply(pf);</span>
-<span class="nc" id="L50">        (new ClassicDeductionTheorem()).apply(pf);</span>
-<span class="nc" id="L51">        (new ClassicAssume(((BinaryOperation&lt;ClassicalLogicOperation&gt;) pf.getSteps().get(a - 1).getStep()).getLeft())).apply(pf);</span>
-<span class="nc" id="L52">        (new ClassicDeductionTheorem()).apply(pf);</span>
-<span class="nc" id="L53">        (new ClassicOrE(a, pf.getSteps().size(), pf.getSteps().size() - 2)).apply(pf);</span>
-<span class="nc" id="L54">    }</span>
+<span class="fc" id="L47">        (new ClassicAssume(((BinaryOperation&lt;ClassicalLogicOperation&gt;) pf.getSteps().get(a - 1).getStep()).getRight())).apply(pf);</span>
+<span class="fc" id="L48">        (new ClassicFI(pf.getSteps().size(), a)).apply(pf);</span>
+<span class="fc" id="L49">        (new ClassicFE(pf.getSteps().size(), ((BinaryOperation&lt;ClassicalLogicOperation&gt;) pf.getSteps().get(a - 1).getStep()).getLeft())).apply(pf);</span>
+<span class="fc" id="L50">        (new ClassicDeductionTheorem()).apply(pf);</span>
+<span class="fc" id="L51">        (new ClassicAssume(((BinaryOperation&lt;ClassicalLogicOperation&gt;) pf.getSteps().get(a - 1).getStep()).getLeft())).apply(pf);</span>
+<span class="fc" id="L52">        (new ClassicDeductionTheorem()).apply(pf);</span>
+<span class="fc" id="L53">        (new ClassicOrE(a, pf.getSteps().size(), pf.getSteps().size() - 2)).apply(pf);</span>
+<span class="fc" id="L54">    }</span>
 
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>
