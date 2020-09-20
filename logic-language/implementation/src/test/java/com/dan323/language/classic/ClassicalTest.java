@@ -1,8 +1,13 @@
 package com.dan323.language.classic;
 
-import com.dan323.expresions.base.Implication;
 import com.dan323.expresions.base.LogicOperation;
-import com.dan323.expresions.classical.*;
+import com.dan323.expresions.classical.ClassicalLogicOperation;
+import com.dan323.expresions.classical.ConjunctionClassic;
+import com.dan323.expresions.classical.ConstantClassic;
+import com.dan323.expresions.classical.DisjunctionClassic;
+import com.dan323.expresions.classical.ImplicationClassic;
+import com.dan323.expresions.classical.NegationClassic;
+import com.dan323.expresions.classical.VariableClassic;
 import com.dan323.expresions.classical.exceptions.InvalidMapValuesException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;

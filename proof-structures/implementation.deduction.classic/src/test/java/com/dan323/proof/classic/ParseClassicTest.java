@@ -183,4 +183,27 @@ public class ParseClassicTest {
         }
         assertEquals(original, naturalDeduction.toString());
     }
+
+    @Test
+    public void parseProofOrE2() {
+        var p = new VariableClassic("P");
+        var q = new VariableClassic("Q");
+        var naturalDeduction = new NaturalDeduction();
+        List<ClassicalLogicOperation> assms = List.of(new DisjunctionClassic(p, q), new NegationClassic(q));
+        naturalDeduction.initializeProof(assms, p);
+        naturalDeduction.automate();
+        String original = naturalDeduction.toString();
+        List<ClassicalAction> actions = naturalDeduction.parse();
+        assertEquals(9, actions.size());
+        naturalDeduction.initializeProof(assms, p);
+        int i = 0;
+        for (ClassicalAction action : actions) {
+            if (i < naturalDeduction.getAssms().size()) {
+                i++;
+            } else {
+                action.apply(naturalDeduction);
+            }
+        }
+        assertEquals(original, naturalDeduction.toString());
+    }
 }
