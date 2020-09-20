@@ -10,5 +10,4 @@ public final class Sometime extends UnaryModal {
     protected String getOperator() {
         return "<>";
     }
-
 }

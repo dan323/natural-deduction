@@ -10,5 +10,4 @@ public final class Always extends UnaryModal {
     protected String getOperator() {
         return "[]";
     }
-
 }
