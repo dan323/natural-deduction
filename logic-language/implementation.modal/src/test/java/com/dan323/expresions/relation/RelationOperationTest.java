@@ -28,7 +28,7 @@ public class RelationOperationTest {
     }
 
     @Test
-    public void lessTest() {
+    public void lessEqualTest() {
         LessEqual<LogicOperation> lessEqual = new LessEqual<>(logicOperation1, logicOperation2);
         assertEquals(logicOperation1, lessEqual.getLeft());
         assertEquals(logicOperation2, lessEqual.getRight());
@@ -37,7 +37,6 @@ public class RelationOperationTest {
         assertEquals(lessEqual, lessEqual2);
         assertNotSame(lessEqual, lessEqual2);
         assertNotEquals(null, lessEqual);
-        assertNotEquals(lessEqual, null);
         LessEqual<LogicOperation> lessEqual3 = new LessEqual<>(logicOperation2, logicOperation1);
         assertNotEquals(lessEqual3, lessEqual2);
         assertTrue(RelationOperation.areRelation(lessEqual, lessEqual2));

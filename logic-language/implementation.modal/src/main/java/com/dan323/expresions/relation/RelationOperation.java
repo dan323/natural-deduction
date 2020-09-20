@@ -3,9 +3,6 @@ package com.dan323.expresions.relation;
 import com.dan323.expresions.base.LogicOperation;
 import com.dan323.expresions.modal.ModalOperation;
 
-import java.util.Objects;
-import java.util.function.Predicate;
-
 public abstract class RelationOperation<T> implements ModalOperation {
     private final T left;
     private final T right;
@@ -29,7 +26,7 @@ public abstract class RelationOperation<T> implements ModalOperation {
         return left.toString() + " " + operation + " " + right.toString();
     }
 
-    static boolean areRelation(LogicOperation... logs) {
+    public static boolean areRelation(LogicOperation... logs) {
         for (LogicOperation log : logs) {
             if (!isRelation(log)) {
                 return false;

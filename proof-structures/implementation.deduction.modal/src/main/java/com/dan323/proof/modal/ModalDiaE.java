@@ -61,7 +61,7 @@ public final class ModalDiaE<T> implements ModalAction<T> {
         if (!(log1.getState().equals(rightState) && origin.equals(leftState))) {
             return false;
         }
-        if (((ModalNaturalDeduction<T>) pf).stateIsUsedBefore(log1.getState(), pf.getSteps().size() - i - 1)) {
+        if (pf.stateIsUsedBefore(log1.getState(), pf.getSteps().size() - i - 1)) {
             return false;
         }
         if (!isNotFresh(pf, pf.getSteps().size() - i - 1)) {
