@@ -18,7 +18,6 @@ public final class ModalNotI&lt;T&gt; extends NotI&lt;ModalOperation, ProofStepM
     public void apply(ModalNaturalDeduction&lt;T&gt; pf) {
 <span class="fc" id="L19">        applyStepSupplier(pf, ((assLevel, log, reason) -&gt;</span>
 <span class="fc" id="L20">                new ProofStepModal&lt;&gt;((pf.getSteps().get(pf.getSteps().size() - RuleUtils.getToLastAssumption(pf, assLevel + 1) + 1)).getState(), assLevel, (ModalLogicalOperation) log, reason)));</span>
-
-<span class="fc" id="L22">    }</span>
+<span class="fc" id="L21">    }</span>
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>
