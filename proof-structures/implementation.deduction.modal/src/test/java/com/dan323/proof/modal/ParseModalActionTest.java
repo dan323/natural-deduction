@@ -32,7 +32,6 @@ public class ParseModalActionTest {
         assertEquals(2, lst.size());
         mnd.initializeProof(List.of(new ConjunctionModal(p, q)), q);
         assertEquals(conj2, lst.get(1));
-        assertEquals(new ModalAssume<>(new ConjunctionModal(p, q), "s0"), lst.get(0));
     }
 
     @Test
@@ -41,7 +40,11 @@ public class ParseModalActionTest {
         var p = new VariableModal("P");
         var q = new VariableModal("Q");
         mnd.initializeProof(List.of(p,q), new ConjunctionModal(p,q));
-        var conj = new ModalAndI(1,2);
-
+        var conj = new ModalAndI<String>(1,2);
+        conj.apply(mnd);
+        List<ModalAction<String>> lst = mnd.parse();
+        assertEquals(2, lst.size());
+        mnd.initializeProof(List.of(new ConjunctionModal(p, q)), p);
+        assertEquals(conj, lst.get(1));
     }
 }
