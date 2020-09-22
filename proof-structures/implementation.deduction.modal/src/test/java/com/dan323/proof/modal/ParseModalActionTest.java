@@ -43,8 +43,8 @@ public class ParseModalActionTest {
         var conj = new ModalAndI<String>(1,2);
         conj.apply(mnd);
         List<ModalAction<String>> lst = mnd.parse();
-        assertEquals(2, lst.size());
+        assertEquals(3, lst.size());
         mnd.initializeProof(List.of(new ConjunctionModal(p, q)), p);
-        assertEquals(conj, lst.get(1));
+        assertEquals(conj, lst.get(2));
     }
 }
