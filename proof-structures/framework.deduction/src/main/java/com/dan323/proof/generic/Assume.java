@@ -13,7 +13,7 @@ import java.util.Collections;
  */
 public abstract class Assume<T extends LogicOperation, Q extends ProofStep<T>, P extends Proof<T, Q, ?>> implements AbstractAction<T, Q, P> {
 
-    private final T log;
+    protected final T log;
 
     public Assume(T clo) {
         log = clo;

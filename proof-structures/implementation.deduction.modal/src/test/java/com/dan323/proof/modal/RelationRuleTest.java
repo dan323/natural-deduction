@@ -40,6 +40,10 @@ public class RelationRuleTest {
         assertTrue(transitive.isValid(mnd));
         transitive.apply(mnd);
         assertEquals(3, mnd.getSteps().size());
+        (new ModalAssume<>(p,"s1")).apply(mnd);
+        reflexive = new Reflexive<>(4);
+        reflexive.apply(mnd);
         assertFalse((new Transitive<String>(1,1)).isValid(mnd));
+        assertFalse((new Transitive<String>(2,5)).isValid(mnd));
     }
 }

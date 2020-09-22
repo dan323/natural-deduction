@@ -26,7 +26,9 @@ public final class ModalDiaE<T> implements ModalAction<T> {
     @Override
     public boolean isValid(ModalNaturalDeduction<T> pf) {
 
-        if (!(!pf.getSteps().isEmpty() && RuleUtils.isValidIndexAndProp(pf, j) && RuleUtils.isOperation(pf, j, Sometime.class))) {
+        if (!(!pf.getSteps().isEmpty() &&
+                RuleUtils.isValidIndexAndProp(pf, j) &&
+                RuleUtils.isOperation(pf, j, Sometime.class))) {
             return false;
         }
 

@@ -144,7 +144,7 @@ public final class ParseModalAction {
         if (step.getStep() instanceof RelationOperation) {
             return new ModalAssume<>((RelationOperation<T>) step.getStep());
         } else {
-            return new ModalAssume<>((ModalLogicalOperation) step.getState(), step.getState());
+            return new ModalAssume<>((ModalLogicalOperation) step.getStep(), step.getState());
         }
     }
 
