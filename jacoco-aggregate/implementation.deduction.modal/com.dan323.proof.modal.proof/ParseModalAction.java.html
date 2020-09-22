@@ -16,7 +16,7 @@ public final class ParseModalAction {
     }
 
     public static &lt;T&gt; ModalAction&lt;T&gt; parse(ModalNaturalDeduction&lt;T&gt; proof, int pos) {
-<span class="pc bpc" id="L19" title="15 of 17 branches missed.">        switch (proof.getSteps().get(pos - 1).getProof().getNameProof()) {</span>
+<span class="pc bpc" id="L19" title="14 of 17 branches missed.">        switch (proof.getSteps().get(pos - 1).getProof().getNameProof()) {</span>
             case &quot;Ass&quot;:
 <span class="fc" id="L21">                return parseAss(proof, pos);</span>
             case &quot;|I&quot;:
@@ -24,7 +24,7 @@ public final class ParseModalAction {
             case &quot;|E&quot;:
 <span class="nc" id="L25">                return parseOrE(proof.getSteps().get(pos - 1).getProof());</span>
             case &quot;&amp;I&quot;:
-<span class="nc" id="L27">                return parseAndI(proof.getSteps().get(pos - 1).getProof());</span>
+<span class="fc" id="L27">                return parseAndI(proof.getSteps().get(pos - 1).getProof());</span>
             case &quot;&amp;E&quot;:
 <span class="fc" id="L29">                return parseAndE(proof, pos);</span>
             case &quot;Rep&quot;:
@@ -130,8 +130,8 @@ public final class ParseModalAction {
     }
 
     private static &lt;T&gt; ModalAndI&lt;T&gt; parseAndI(ProofReason proofReason) {
-<span class="nc" id="L133">        int[] ints = parseArray(proofReason);</span>
-<span class="nc" id="L134">        return new ModalAndI&lt;&gt;(ints[0], ints[1]);</span>
+<span class="fc" id="L133">        int[] ints = parseArray(proofReason);</span>
+<span class="fc" id="L134">        return new ModalAndI&lt;&gt;(ints[0], ints[1]);</span>
     }
 
     private static int[] parseArray(ProofReason proofReason) {

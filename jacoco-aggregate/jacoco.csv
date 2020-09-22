@@ -50,7 +50,7 @@ jacoco-report-aggregate/implementation.deduction.modal,com.dan323.proof.modal,Mo
 jacoco-report-aggregate/implementation.deduction.modal,com.dan323.proof.modal,ModalModusPonens,0,47,0,4,0,7,0,6,0,4
 jacoco-report-aggregate/implementation.deduction.modal,com.dan323.proof.modal,ModalCopy,0,33,0,0,0,5,0,4,0,4
 jacoco-report-aggregate/implementation.deduction.modal,com.dan323.proof.modal.proof,ModalNaturalDeduction,27,96,10,10,4,23,6,11,0,7
-jacoco-report-aggregate/implementation.deduction.modal,com.dan323.proof.modal.proof,ParseModalAction,342,118,18,5,46,14,31,6,14,4
+jacoco-report-aggregate/implementation.deduction.modal,com.dan323.proof.modal.proof,ParseModalAction,319,141,17,6,43,17,29,8,13,5
 jacoco-report-aggregate/implementation.deduction.modal,com.dan323.proof.modal.proof,ProofStepModal,3,31,1,1,1,9,1,4,0,4
 jacoco-report-aggregate/implementation.deduction.modal,com.dan323.proof.modal.relational,RelationalAction,0,16,0,0,0,3,0,3,0,3
 jacoco-report-aggregate/implementation.deduction.modal,com.dan323.proof.modal.relational,Reflexive,0,47,0,0,0,7,0,3,0,3
