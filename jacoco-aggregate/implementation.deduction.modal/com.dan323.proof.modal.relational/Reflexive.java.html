@@ -15,19 +15,19 @@ public final class Reflexive&lt;T&gt; extends RelationalAction&lt;T&gt; {
 
     private final int step;
 
-<span class="nc" id="L18">    public Reflexive(int step) {</span>
-<span class="nc" id="L19">        this.step = step;</span>
-<span class="nc" id="L20">    }</span>
+<span class="fc" id="L18">    public Reflexive(int step) {</span>
+<span class="fc" id="L19">        this.step = step;</span>
+<span class="fc" id="L20">    }</span>
 
     @Override
     public void applyStepSupplier(ModalNaturalDeduction&lt;T&gt; pf, ProofStepSupplier&lt;ModalOperation, ProofStepModal&lt;T&gt;&gt; supp) {
-<span class="nc" id="L24">        T state = pf.getSteps().get(step - 1).getState();</span>
-<span class="nc" id="L25">        pf.getSteps().add(supp.generateProofStep(RuleUtils.getLastAssumptionLevel(pf), new LessEqual&lt;&gt;(state, state), new ProofReason(&quot;Refl&quot;, List.of())));</span>
-<span class="nc" id="L26">    }</span>
+<span class="fc" id="L24">        T state = pf.getSteps().get(step - 1).getState();</span>
+<span class="fc" id="L25">        pf.getSteps().add(supp.generateProofStep(RuleUtils.getLastAssumptionLevel(pf), new LessEqual&lt;&gt;(state, state), new ProofReason(&quot;Refl&quot;, List.of())));</span>
+<span class="fc" id="L26">    }</span>
 
     @Override
     public boolean isValid(ModalNaturalDeduction&lt;T&gt; pf) {
-<span class="nc" id="L30">        return pf.getSteps().get(step - 1).getStep() instanceof ModalLogicalOperation;</span>
+<span class="fc" id="L30">        return pf.getSteps().get(step - 1).getStep() instanceof ModalLogicalOperation;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

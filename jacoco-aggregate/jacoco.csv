@@ -52,9 +52,9 @@ jacoco-report-aggregate/implementation.deduction.modal,com.dan323.proof.modal,Mo
 jacoco-report-aggregate/implementation.deduction.modal,com.dan323.proof.modal.proof,ModalNaturalDeduction,34,89,10,10,6,21,8,9,2,5
 jacoco-report-aggregate/implementation.deduction.modal,com.dan323.proof.modal.proof,ParseModalAction,460,0,23,0,60,0,37,0,18,0
 jacoco-report-aggregate/implementation.deduction.modal,com.dan323.proof.modal.proof,ProofStepModal,3,31,1,1,1,9,1,4,0,4
-jacoco-report-aggregate/implementation.deduction.modal,com.dan323.proof.modal.relational,RelationalAction,16,0,0,0,3,0,3,0,3,0
-jacoco-report-aggregate/implementation.deduction.modal,com.dan323.proof.modal.relational,Reflexive,47,0,0,0,7,0,3,0,3,0
-jacoco-report-aggregate/implementation.deduction.modal,com.dan323.proof.modal.relational,Transitive,105,0,4,0,13,0,5,0,3,0
+jacoco-report-aggregate/implementation.deduction.modal,com.dan323.proof.modal.relational,RelationalAction,0,16,0,0,0,3,0,3,0,3
+jacoco-report-aggregate/implementation.deduction.modal,com.dan323.proof.modal.relational,Reflexive,0,47,0,0,0,7,0,3,0,3
+jacoco-report-aggregate/implementation.deduction.modal,com.dan323.proof.modal.relational,Transitive,0,105,1,3,0,13,1,4,0,3
 jacoco-report-aggregate/framework.deduction,com.dan323.proof.generic,DeductionTheorem,1,106,2,4,0,17,2,6,0,5
 jacoco-report-aggregate/framework.deduction,com.dan323.proof.generic,RuleUtils,6,153,2,20,2,20,3,21,1,12
 jacoco-report-aggregate/framework.deduction,com.dan323.proof.generic,OrI,0,119,4,6,0,18,4,8,0,7
