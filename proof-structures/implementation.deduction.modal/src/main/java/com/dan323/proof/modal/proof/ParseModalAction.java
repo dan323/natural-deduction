@@ -104,7 +104,7 @@ public final class ParseModalAction {
         if (disj.getLeft().equals(origin)) {
             return new ModalOrI1<>(ints[0], (ModalLogicalOperation) disj.getRight());
         } else {
-            return new ModalOrI1<>(ints[0], (ModalLogicalOperation) disj.getLeft());
+            return new ModalOrI2<>(ints[0], (ModalLogicalOperation) disj.getLeft());
         }
     }
 

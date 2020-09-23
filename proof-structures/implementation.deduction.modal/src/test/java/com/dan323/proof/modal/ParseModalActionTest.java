@@ -1,6 +1,8 @@
 package com.dan323.proof.modal;
 
 import com.dan323.expresions.modal.ConjunctionModal;
+import com.dan323.expresions.modal.DisjunctionModal;
+import com.dan323.expresions.modal.ImplicationModal;
 import com.dan323.expresions.modal.VariableModal;
 import com.dan323.proof.modal.proof.ModalNaturalDeduction;
 import org.junit.jupiter.api.Test;
@@ -39,12 +41,49 @@ public class ParseModalActionTest {
         var mnd = new ModalNaturalDeduction<>("s0");
         var p = new VariableModal("P");
         var q = new VariableModal("Q");
-        mnd.initializeProof(List.of(p,q), new ConjunctionModal(p,q));
-        var conj = new ModalAndI<String>(1,2);
+        mnd.initializeProof(List.of(p, q), new ConjunctionModal(p, q));
+        var conj = new ModalAndI<String>(1, 2);
         conj.apply(mnd);
         List<ModalAction<String>> lst = mnd.parse();
         assertEquals(3, lst.size());
         mnd.initializeProof(List.of(new ConjunctionModal(p, q)), p);
         assertEquals(conj, lst.get(2));
+    }
+
+    @Test
+    public void parseOrITest() {
+        var mnd = new ModalNaturalDeduction<>("s0");
+        var p = new VariableModal("P");
+        var q = new VariableModal("Q");
+        mnd.initializeProof(List.of(p), new DisjunctionModal(p, q));
+        var conj1 = new ModalOrI1<String>(1, q);
+        conj1.apply(mnd);
+        List<ModalAction<String>> lst = mnd.parse();
+        assertEquals(2, lst.size());
+        mnd.initializeProof(List.of(p), new DisjunctionModal(p, q));
+        assertEquals(conj1, lst.get(1));
+
+        mnd.initializeProof(List.of(p), new DisjunctionModal(q, p));
+        var conj2 = new ModalOrI2<String>(1, q);
+        conj2.apply(mnd);
+        lst = mnd.parse();
+        assertEquals(2, lst.size());
+        mnd.initializeProof(List.of(p), new DisjunctionModal(q, p));
+        assertEquals(conj2, lst.get(1));
+    }
+
+    @Test
+    public void parseOrETest() {
+        var mnd = new ModalNaturalDeduction<>("s0");
+        var p = new VariableModal("P");
+        var q = new VariableModal("Q");
+        var r = new VariableModal("R");
+        mnd.initializeProof(List.of(new DisjunctionModal(p, q), new ImplicationModal(p, r), new ImplicationModal(q, r)), r);
+        var conj1 = new ModalOrE<String>(1, 2, 3);
+        conj1.apply(mnd);
+        List<ModalAction<String>> lst = mnd.parse();
+        assertEquals(4, lst.size());
+        mnd.initializeProof(List.of(new DisjunctionModal(p, q), new ImplicationModal(p, r), new ImplicationModal(q, r)), r);
+        assertEquals(conj1, lst.get(3));
     }
 }
