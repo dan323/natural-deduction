@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>RuleUtils.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">jacoco-report-aggregate</a> &gt; <a href="../index.html" class="el_bundle">framework.deduction</a> &gt; <a href="index.source.html" class="el_package">com.dan323.proof.generic</a> &gt; <span class="el_source">RuleUtils.java</span></div><h1>RuleUtils.java</h1><pre class="source lang-java linenums">package com.dan323.proof.generic;
+
+import com.dan323.expresions.base.Implication;
+import com.dan323.expresions.base.LogicOperation;
+import com.dan323.proof.generic.proof.Proof;
+
+import java.util.function.IntConsumer;
+
+/**
+ * @author danco
+ */
+public final class RuleUtils {
+
+<span class="nc" id="L14">    private RuleUtils() {</span>
+<span class="nc" id="L15">        throw new UnsupportedOperationException();</span>
+    }
+
+
+    public static &lt;P extends Proof&lt;?, ?, ?&gt;&gt; int getLastAssumptionLevel(P proof) {
+<span class="fc bfc" id="L20" title="All 2 branches covered.">        return proof.getSteps().isEmpty() ? 0 : proof.getSteps().get(proof.getSteps().size() - 1).getAssumptionLevel();</span>
+    }
+
+    public static &lt;P extends Proof&lt;?, ?, ?&gt;&gt; int disableUntilLastAssumption(P proof, int assLevel) {
+<span class="fc" id="L24">        return getToLastAssumptionWhileComplex(proof, assLevel, x -&gt; disable(proof, x));</span>
+    }
+
+    private static &lt;P extends Proof&lt;?, ?, ?&gt;&gt; void disable(P proof, int i) {
+<span class="fc" id="L28">        proof.getSteps().get(proof.getSteps().size() - i).disable();</span>
+<span class="fc" id="L29">    }</span>
+
+    /**
+     * @param &lt;P&gt;      type of proof
+     * @param proof    proof to check
+     * @param assLevel assumption level
+     * @param complex  given the proof, the assumption level and the number of a line in the proof, it does an action.
+     * @return the index of the last assumption made
+     */
+    public static &lt;P extends Proof&lt;?, ?, ?&gt;&gt; int getToLastAssumptionWhileComplex(P proof, int assLevel, IntConsumer complex) {
+<span class="fc" id="L39">        int i = 1;</span>
+<span class="fc bfc" id="L40" title="All 4 branches covered.">        while (i &lt;= proof.getSteps().size() &amp;&amp; proof.getSteps().get(proof.getSteps().size() - i).getAssumptionLevel() &gt;= assLevel) {</span>
+<span class="fc" id="L41">            complex.accept(i);</span>
+<span class="fc" id="L42">            i++;</span>
+        }
+<span class="fc" id="L44">        return i - 1;</span>
+    }
+
+    public static &lt;P extends Proof&lt;?, ?, ?&gt;&gt; int getToLastAssumption(P proof, int assLevel) {
+<span class="fc" id="L48">        return getToLastAssumptionWhileComplex(proof, assLevel, x -&gt; {</span>
+<span class="fc" id="L49">        });</span>
+    }
+
+
+    public static &lt;P extends Proof&lt;?, ?, ?&gt;&gt; boolean isValidModusPonens(P pf, int applyAt1, int applyAt2) {
+<span class="fc bfc" id="L54" title="All 2 branches covered.">        return isValidIndexAndProp(pf, applyAt1) &amp;&amp;  // applyAt1 is an valid index</span>
+                // applyAt1 gives result to an active proposition
+<span class="pc bpc" id="L56" title="1 of 2 branches missed.">                isValidIndexAndProp(pf, applyAt2) &amp;&amp; // applyAt2 is a valid index</span>
+                // applyAt2 gives result to an active proposition
+<span class="fc bfc" id="L58" title="All 2 branches covered.">                isOperation(pf, applyAt1, Implication.class) &amp;&amp; // applyAt1 is an implication</span>
+<span class="fc" id="L59">                ((Implication&lt;?&gt;) pf.getSteps().get(applyAt1 - 1).getStep()).getLeft()</span>
+<span class="fc bfc" id="L60" title="All 2 branches covered.">                        .equals(pf.getSteps().get(applyAt2 - 1).getStep()); // applyAt2 -&gt; something == applyAt1</span>
+    }
+
+    public static &lt;P extends Proof&lt;?, ?, ?&gt;&gt; boolean isValidIndex(P pf, int index) {
+<span class="pc bpc" id="L64" title="1 of 4 branches missed.">        return 1 &lt;= index &amp;&amp; pf.getSteps().size() &gt;= index;</span>
+    }
+
+    public static &lt;P extends Proof&lt;?, ?, ?&gt;&gt; boolean isValidPropAtIndex(P pf, int index) {
+<span class="fc" id="L68">        return pf.getSteps().get(index - 1).isValid();</span>
+    }
+
+    public static &lt;P extends Proof&lt;?, ?, ?&gt;&gt; boolean isValidIndexAndProp(P pf, int index) {
+<span class="fc bfc" id="L72" title="All 4 branches covered.">        return isValidIndex(pf, index) &amp;&amp; isValidPropAtIndex(pf, index);</span>
+    }
+
+    public static &lt;P extends Proof&lt;?, ?, ?&gt;&gt; boolean isOperation(P pf, int index, Class&lt;? extends LogicOperation&gt; c) {
+<span class="fc" id="L76">        return c.isInstance(pf.getSteps().get(index - 1).getStep());</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>
