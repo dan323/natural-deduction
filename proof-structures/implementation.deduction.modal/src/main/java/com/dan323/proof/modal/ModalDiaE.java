@@ -13,6 +13,7 @@ import com.dan323.proof.modal.proof.ModalNaturalDeduction;
 import com.dan323.proof.modal.proof.ProofStepModal;
 
 import java.util.List;
+import java.util.Objects;
 
 public final class ModalDiaE<T> implements ModalAction<T> {
 
@@ -94,5 +95,19 @@ public final class ModalDiaE<T> implements ModalAction<T> {
     public void apply(ModalNaturalDeduction<T> pf) {
         ProofStepModal<T> psm = pf.getSteps().get(pf.getSteps().size() - 1);
         applyStepSupplier(pf, ((assLevel, log, reason) -> new ProofStepModal<>(psm.getState(), assLevel, (ModalLogicalOperation) log, reason)));
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o instanceof ModalDiaE) {
+            return j == ((ModalDiaE<T>) o).j;
+        } else {
+            return false;
+        }
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getClass(), j);
     }
 }

@@ -1,6 +1,8 @@
 package com.dan323.proof.modal;
 
 import com.dan323.expresions.modal.*;
+import com.dan323.expresions.relation.LessEqual;
+import com.dan323.proof.generic.Copy;
 import com.dan323.proof.modal.proof.ModalNaturalDeduction;
 import com.dan323.proof.modal.relational.Reflexive;
 import com.dan323.proof.modal.relational.Transitive;
@@ -153,6 +155,41 @@ public class ParseModalActionTest {
         (new ModalCopy<String>(3)).apply(mnd);
         (new ModalDeductionTheorem<String>()).apply(mnd);
         lst = mnd.parse();
-        assertEquals(new ModalDeductionTheorem<String>(),lst.get(5));
+        assertEquals(new ModalDeductionTheorem<String>(), lst.get(5));
+    }
+
+    @Test
+    public void parseBox() {
+        var mnd = new ModalNaturalDeduction<>("s0");
+        var p = new VariableModal("P");
+        mnd.initializeProof(List.of(new Always(p)), p);
+        (new Reflexive<String>(1)).apply(mnd);
+        (new ModalBoxE<String>(1, 2)).apply(mnd);
+        var lst = mnd.parse();
+        assertEquals(new ModalBoxE<String>(1, 2), lst.get(2));
+        (new ModalAssume<>(new LessEqual<>("s0", "s1"))).apply(mnd);
+        (new ModalCopy<String>(3)).apply(mnd);
+        (new ModalBoxI<String>()).apply(mnd);
+        lst = mnd.parse();
+        assertEquals(new ModalAssume<>(new LessEqual<>("s0", "s1")), lst.get(3));
+        assertEquals(new ModalBoxI<String>(), lst.get(5));
+    }
+
+    @Test
+    public void parseDia() {
+        var mnd = new ModalNaturalDeduction<>("s0");
+        var p = new VariableModal("P");
+        mnd.initializeProof(List.of(new Always(p)), p);
+        (new Reflexive<String>(1)).apply(mnd);
+        (new ModalBoxE<String>(1, 2)).apply(mnd);
+        (new ModalDiaI<String>(3, 2)).apply(mnd);
+        var lst = mnd.parse();
+        assertEquals(new ModalDiaI<String>(3, 2), lst.get(3));
+        (new ModalAssume<>(new LessEqual<>("s0", "s1"))).apply(mnd);
+        (new ModalAssume<>(p, "s1")).apply(mnd);
+        (new ModalCopy<String>(1)).apply(mnd);
+        (new ModalDiaE<String>(4)).apply(mnd);
+        lst = mnd.parse();
+        assertEquals(new ModalDiaE<String>(4), lst.get(7));
     }
 }
