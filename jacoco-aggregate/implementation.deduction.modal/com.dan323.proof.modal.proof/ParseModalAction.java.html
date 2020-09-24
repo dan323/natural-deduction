@@ -18,7 +18,7 @@ public final class ParseModalAction {
     }
 
     public static &lt;T&gt; AbstractModalAction&lt;T&gt; parse(ModalNaturalDeduction&lt;T&gt; proof, int pos) {
-<span class="pc bpc" id="L21" title="5 of 19 branches missed.">        return switch (proof.getSteps().get(pos - 1).getProof().getNameProof()) {</span>
+<span class="pc bpc" id="L21" title="1 of 19 branches missed.">        return switch (proof.getSteps().get(pos - 1).getProof().getNameProof()) {</span>
 <span class="fc" id="L22">            case &quot;Ass&quot; -&gt; parseAss(proof, pos);</span>
 <span class="fc" id="L23">            case &quot;|I&quot; -&gt; parseOrI(proof, pos);</span>
 <span class="fc" id="L24">            case &quot;|E&quot; -&gt; parseOrE(proof.getSteps().get(pos - 1).getProof());</span>
@@ -31,10 +31,10 @@ public final class ParseModalAction {
 <span class="fc" id="L31">            case &quot;-&gt;E&quot; -&gt; parseImpE(proof.getSteps().get(pos - 1).getProof());</span>
 <span class="fc" id="L32">            case &quot;FE&quot; -&gt; parseFE(proof, pos);</span>
 <span class="fc" id="L33">            case &quot;FI&quot; -&gt; parseFI(proof, pos);</span>
-<span class="nc" id="L34">            case &quot;[]I&quot; -&gt; parseBoxI();</span>
-<span class="nc" id="L35">            case &quot;[]E&quot; -&gt; parseBoxE(proof.getSteps().get(pos - 1).getProof());</span>
-<span class="nc" id="L36">            case &quot;&lt;&gt;I&quot; -&gt; parseDiaI(proof.getSteps().get(pos - 1).getProof());</span>
-<span class="nc" id="L37">            case &quot;&lt;&gt;E&quot; -&gt; parseDiaE(proof.getSteps().get(pos - 1).getProof());</span>
+<span class="fc" id="L34">            case &quot;[]I&quot; -&gt; parseBoxI();</span>
+<span class="fc" id="L35">            case &quot;[]E&quot; -&gt; parseBoxE(proof.getSteps().get(pos - 1).getProof());</span>
+<span class="fc" id="L36">            case &quot;&lt;&gt;I&quot; -&gt; parseDiaI(proof.getSteps().get(pos - 1).getProof());</span>
+<span class="fc" id="L37">            case &quot;&lt;&gt;E&quot; -&gt; parseDiaE(proof.getSteps().get(pos - 1).getProof());</span>
 <span class="fc" id="L38">            case &quot;Refl&quot; -&gt; parseRefl(proof.getSteps().get(pos - 1).getProof());</span>
 <span class="fc" id="L39">            case &quot;Trans&quot; -&gt; parseTrans(proof.getSteps().get(pos - 1).getProof());</span>
 <span class="nc" id="L40">            default -&gt; throw new IllegalStateException();</span>
@@ -52,22 +52,22 @@ public final class ParseModalAction {
     }
 
     private static &lt;T&gt; ModalAction&lt;T&gt; parseDiaE(ProofReason proofReason) {
-<span class="nc" id="L55">        int[] ints = parseArray(proofReason);</span>
-<span class="nc" id="L56">        return new ModalDiaE&lt;&gt;(ints[0]);</span>
+<span class="fc" id="L55">        int[] ints = parseArray(proofReason);</span>
+<span class="fc" id="L56">        return new ModalDiaE&lt;&gt;(ints[0]);</span>
     }
 
     private static &lt;T&gt; ModalDiaI&lt;T&gt; parseDiaI(ProofReason proofReason) {
-<span class="nc" id="L60">        int[] ints = parseArray(proofReason);</span>
-<span class="nc" id="L61">        return new ModalDiaI&lt;&gt;(ints[0], ints[1]);</span>
+<span class="fc" id="L60">        int[] ints = parseArray(proofReason);</span>
+<span class="fc" id="L61">        return new ModalDiaI&lt;&gt;(ints[0], ints[1]);</span>
     }
 
     private static &lt;T&gt; ModalBoxE&lt;T&gt; parseBoxE(ProofReason proofReason) {
-<span class="nc" id="L65">        int[] ints = parseArray(proofReason);</span>
-<span class="nc" id="L66">        return new ModalBoxE&lt;&gt;(ints[0], ints[1]);</span>
+<span class="fc" id="L65">        int[] ints = parseArray(proofReason);</span>
+<span class="fc" id="L66">        return new ModalBoxE&lt;&gt;(ints[0], ints[1]);</span>
     }
 
     private static &lt;T&gt; ModalBoxI&lt;T&gt; parseBoxI() {
-<span class="nc" id="L70">        return new ModalBoxI&lt;&gt;();</span>
+<span class="fc" id="L70">        return new ModalBoxI&lt;&gt;();</span>
     }
 
     private static &lt;T&gt; ModalFI&lt;T&gt; parseFI(ModalNaturalDeduction&lt;T&gt; naturalDeduction, int pos) {
@@ -138,8 +138,8 @@ public final class ParseModalAction {
 
     private static &lt;T&gt; ModalAssume&lt;T&gt; parseAss(ModalNaturalDeduction&lt;T&gt; naturalDeduction, int pos) {
 <span class="fc" id="L140">        ProofStepModal&lt;T&gt; step = naturalDeduction.getSteps().get(pos - 1);</span>
-<span class="pc bpc" id="L141" title="1 of 2 branches missed.">        if (step.getStep() instanceof RelationOperation) {</span>
-<span class="nc" id="L142">            return new ModalAssume&lt;&gt;((RelationOperation&lt;T&gt;) step.getStep());</span>
+<span class="fc bfc" id="L141" title="All 2 branches covered.">        if (step.getStep() instanceof RelationOperation) {</span>
+<span class="fc" id="L142">            return new ModalAssume&lt;&gt;((RelationOperation&lt;T&gt;) step.getStep());</span>
         } else {
 <span class="fc" id="L144">            return new ModalAssume&lt;&gt;((ModalLogicalOperation) step.getStep(), step.getState());</span>
         }
