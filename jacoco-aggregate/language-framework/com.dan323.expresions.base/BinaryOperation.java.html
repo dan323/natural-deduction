@@ -15,41 +15,37 @@ public abstract class BinaryOperation&lt;T extends LogicOperation&gt; implements
 <span class="fc" id="L15">        this.right = right;</span>
 <span class="fc" id="L16">    }</span>
 
-    /*public T castToLanguage() {
-        return (T) this;
-    }*/
-
     public T getLeft() {
-<span class="fc" id="L23">        return left;</span>
+<span class="fc" id="L19">        return left;</span>
     }
 
     public T getRight() {
-<span class="fc" id="L27">        return right;</span>
+<span class="fc" id="L23">        return right;</span>
     }
 
     public String toString() {
-<span class="fc" id="L31">        String leftS = getLeft().toString();</span>
-<span class="fc bfc" id="L32" title="All 4 branches covered.">        if (getLeft() instanceof BinaryOperation || getLeft() instanceof UnaryOperation) {</span>
-<span class="fc" id="L33">            leftS = &quot;(&quot; + leftS + &quot;)&quot;;</span>
+<span class="fc" id="L27">        String leftS = getLeft().toString();</span>
+<span class="fc bfc" id="L28" title="All 4 branches covered.">        if (getLeft() instanceof BinaryOperation || getLeft() instanceof UnaryOperation) {</span>
+<span class="fc" id="L29">            leftS = &quot;(&quot; + leftS + &quot;)&quot;;</span>
         }
-<span class="fc" id="L35">        String rightS = getRight().toString();</span>
-<span class="fc bfc" id="L36" title="All 4 branches covered.">        if (getRight() instanceof BinaryOperation || getRight() instanceof UnaryOperation) {</span>
-<span class="fc" id="L37">            rightS = &quot;(&quot; + rightS + &quot;)&quot;;</span>
+<span class="fc" id="L31">        String rightS = getRight().toString();</span>
+<span class="fc bfc" id="L32" title="All 4 branches covered.">        if (getRight() instanceof BinaryOperation || getRight() instanceof UnaryOperation) {</span>
+<span class="fc" id="L33">            rightS = &quot;(&quot; + rightS + &quot;)&quot;;</span>
         }
-<span class="fc" id="L39">        return leftS + &quot; &quot; + getOperator() + &quot; &quot; + rightS;</span>
+<span class="fc" id="L35">        return leftS + &quot; &quot; + getOperator() + &quot; &quot; + rightS;</span>
     }
 
     @Override
     public boolean equals(Object log) {
-<span class="pc bpc" id="L44" title="1 of 4 branches missed.">        if (log instanceof BinaryOperation &amp;&amp; getOperator().equals(((BinaryOperation&lt;?&gt;) log).getOperator())) {</span>
-<span class="fc bfc" id="L45" title="All 4 branches covered.">            return getLeft().equals(((BinaryOperation&lt;?&gt;) log).getLeft()) &amp;&amp; getRight().equals(((BinaryOperation&lt;?&gt;) log).getRight());</span>
+<span class="pc bpc" id="L40" title="1 of 4 branches missed.">        if (log instanceof BinaryOperation &amp;&amp; getOperator().equals(((BinaryOperation&lt;?&gt;) log).getOperator())) {</span>
+<span class="fc bfc" id="L41" title="All 4 branches covered.">            return getLeft().equals(((BinaryOperation&lt;?&gt;) log).getLeft()) &amp;&amp; getRight().equals(((BinaryOperation&lt;?&gt;) log).getRight());</span>
         }
-<span class="fc" id="L47">        return false;</span>
+<span class="fc" id="L43">        return false;</span>
     }
 
     @Override
     public int hashCode() {
-<span class="fc" id="L52">        return left.hashCode() * 17 + right.hashCode() * 13 + getOperator().hashCode() * 11;</span>
+<span class="fc" id="L48">        return left.hashCode() * 17 + right.hashCode() * 13 + getOperator().hashCode() * 11;</span>
     }
 
 
