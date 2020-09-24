@@ -25,15 +25,15 @@ jobs:
       - name: compile
         run: mvn -B -f pom.xml clean compile
       - name: run test suits
-        run: mvn -B -f pom.xml test
+        run: mvn -B -f pom.xml verify
       - name: jacoco report
-        run: mvn -B -f pom.xml -Dmaven.test.skip=true verify jacoco:report-aggregate
+        run: mvn -B -f pom.xml -Dmaven.test.skip=true package
       - name: sonar cloud
         env:
           SONAR_ORGANIZATION: ${{ secrets.SONAR_ORGANIZATION }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: mvn -B -f pom.xml package sonar:sonar -Dsonar.java.source=14 -Dsonar.java.target=14 -Dsonar.login=$SONAR_TOKEN -Dsonar.host.url=https://sonarcloud.io/ -Dsonar.organization=$SONAR_ORGANIZATION
+        run: mvn -B -f pom.xml sonar:sonar -Dsonar.java.source=14 -Dsonar.java.target=14 -Dsonar.login=$SONAR_TOKEN -Dsonar.host.url=https://sonarcloud.io/ -Dsonar.organization=$SONAR_ORGANIZATION
       - name: set PR number
         if: github.event_name == 'pull_request'
         run: |
