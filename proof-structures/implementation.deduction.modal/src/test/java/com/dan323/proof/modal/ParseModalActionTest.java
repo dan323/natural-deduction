@@ -139,4 +139,20 @@ public class ParseModalActionTest {
         assertEquals(new ModalFE<>(4, p, "s0"), lst.get(4));
         assertEquals(new ModalFI<>("s0", 1, 3), lst.get(3));
     }
+
+    @Test
+    public void parseImp() {
+        var mnd = new ModalNaturalDeduction<>("s0");
+        var p = new VariableModal("P");
+        var q = new VariableModal("Q");
+        mnd.initializeProof(List.of(new ImplicationModal(p, q), p), q);
+        (new ModalModusPonens<String>(1, 2)).apply(mnd);
+        var lst = mnd.parse();
+        assertEquals(new ModalModusPonens<String>(1, 2), lst.get(2));
+        (new ModalAssume<>(p, "s0")).apply(mnd);
+        (new ModalCopy<String>(3)).apply(mnd);
+        (new ModalDeductionTheorem<String>()).apply(mnd);
+        lst = mnd.parse();
+        assertEquals(new ModalDeductionTheorem<String>(),lst.get(5));
+    }
 }
