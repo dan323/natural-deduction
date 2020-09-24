@@ -55,7 +55,7 @@ import java.util.Objects;
 <span class="fc" id="L55">                List.of(pf.getSteps().size() - getLastAssumption(pf) + 1, pf.getSteps().size()))));</span>
 <span class="fc" id="L56">    }</span>
 
-    private int getLastAssumption(Proof&lt;ModalOperation, ProofStepModal&lt;T&gt;, ModalAction&lt;T&gt;&gt; pf) {
+    private int getLastAssumption(ModalNaturalDeduction&lt;T&gt; pf) {
 <span class="fc" id="L59">        int assLevel = RuleUtils.getLastAssumptionLevel(pf);</span>
 <span class="fc" id="L60">        return RuleUtils.getToLastAssumption(pf, assLevel);</span>
     }

@@ -10,24 +10,39 @@ import com.dan323.proof.modal.proof.ModalNaturalDeduction;
 import com.dan323.proof.modal.proof.ProofStepModal;
 
 import java.util.List;
+import java.util.Objects;
 
 public final class Reflexive&lt;T&gt; extends RelationalAction&lt;T&gt; {
 
     private final int step;
 
-<span class="fc" id="L18">    public Reflexive(int step) {</span>
-<span class="fc" id="L19">        this.step = step;</span>
-<span class="fc" id="L20">    }</span>
+<span class="fc" id="L19">    public Reflexive(int step) {</span>
+<span class="fc" id="L20">        this.step = step;</span>
+<span class="fc" id="L21">    }</span>
 
     @Override
     public void applyStepSupplier(ModalNaturalDeduction&lt;T&gt; pf, ProofStepSupplier&lt;ModalOperation, ProofStepModal&lt;T&gt;&gt; supp) {
-<span class="fc" id="L24">        T state = pf.getSteps().get(step - 1).getState();</span>
-<span class="fc" id="L25">        pf.getSteps().add(supp.generateProofStep(RuleUtils.getLastAssumptionLevel(pf), new LessEqual&lt;&gt;(state, state), new ProofReason(&quot;Refl&quot;, List.of())));</span>
-<span class="fc" id="L26">    }</span>
+<span class="fc" id="L25">        T state = pf.getSteps().get(step - 1).getState();</span>
+<span class="fc" id="L26">        pf.getSteps().add(supp.generateProofStep(RuleUtils.getLastAssumptionLevel(pf), new LessEqual&lt;&gt;(state, state), new ProofReason(&quot;Refl&quot;, List.of(step))));</span>
+<span class="fc" id="L27">    }</span>
 
     @Override
     public boolean isValid(ModalNaturalDeduction&lt;T&gt; pf) {
-<span class="fc" id="L30">        return pf.getSteps().get(step - 1).getStep() instanceof ModalLogicalOperation;</span>
+<span class="fc" id="L31">        return pf.getSteps().get(step - 1).getStep() instanceof ModalLogicalOperation;</span>
+    }
+
+    @Override
+    public boolean equals(Object o){
+<span class="pc bpc" id="L36" title="1 of 2 branches missed.">        if (o instanceof Reflexive){</span>
+<span class="pc bpc" id="L37" title="1 of 2 branches missed.">            return step == ((Reflexive&lt;?&gt;)o).step;</span>
+        } else {
+<span class="nc" id="L39">            return false;</span>
+        }
+    }
+
+    @Override
+    public int hashCode(){
+<span class="nc" id="L45">        return Objects.hash(getClass(), step);</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

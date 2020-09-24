@@ -3,43 +3,45 @@
 import com.dan323.expresions.modal.ModalLogicalOperation;
 import com.dan323.expresions.modal.ModalOperation;
 import com.dan323.expresions.relation.RelationOperation;
+import com.dan323.proof.generic.Action;
 import com.dan323.proof.generic.proof.ParseAction;
 import com.dan323.proof.generic.proof.Proof;
 import com.dan323.proof.generic.proof.ProofReason;
+import com.dan323.proof.modal.AbstractModalAction;
 import com.dan323.proof.modal.ModalAction;
 
 import java.util.List;
 
-public final class ModalNaturalDeduction&lt;T&gt; extends Proof&lt;ModalOperation, ProofStepModal&lt;T&gt;, ModalAction&lt;T&gt;&gt; {
+public final class ModalNaturalDeduction&lt;T&gt; extends Proof&lt;ModalOperation, ProofStepModal&lt;T&gt;, AbstractModalAction&lt;T&gt;&gt; {
 
     private final T state0;
 
-<span class="fc" id="L17">    public ModalNaturalDeduction(T state0) {</span>
-<span class="fc" id="L18">        this.state0 = state0;</span>
-<span class="fc" id="L19">    }</span>
+<span class="fc" id="L19">    public ModalNaturalDeduction(T state0) {</span>
+<span class="fc" id="L20">        this.state0 = state0;</span>
+<span class="fc" id="L21">    }</span>
 
     public T getState0() {
-<span class="fc" id="L22">        return state0;</span>
+<span class="fc" id="L24">        return state0;</span>
     }
 
     @Override
     public void initializeProof(List&lt;ModalOperation&gt; assms, ModalOperation goal) {
-<span class="fc" id="L27">        setGoal(goal);</span>
-<span class="fc" id="L28">        initializeProofSteps();</span>
-<span class="fc" id="L29">        setAssms(assms);</span>
-<span class="fc" id="L30">    }</span>
+<span class="fc" id="L29">        setGoal(goal);</span>
+<span class="fc" id="L30">        initializeProofSteps();</span>
+<span class="fc" id="L31">        setAssms(assms);</span>
+<span class="fc" id="L32">    }</span>
 
     @Override
-    public List&lt;ModalAction&lt;T&gt;&gt; parse() {
-<span class="fc" id="L34">        return ((ParseAction&lt;ModalAction&lt;T&gt;,ModalNaturalDeduction&lt;T&gt;&gt;)ParseModalAction::parse).translateToActions(this);</span>
+    public List&lt;AbstractModalAction&lt;T&gt;&gt; parse() {
+<span class="fc" id="L36">        return ((ParseAction&lt;AbstractModalAction&lt;T&gt;,ModalNaturalDeduction&lt;T&gt;&gt;)ParseModalAction::parse).translateToActions(this);</span>
     }
 
     @Override
     protected ProofStepModal&lt;T&gt; generateAssm(ModalOperation lo) {
-<span class="fc bfc" id="L39" title="All 2 branches covered.">        if (lo instanceof ModalLogicalOperation) {</span>
-<span class="fc" id="L40">            return new ProofStepModal&lt;&gt;(state0, 0, (ModalLogicalOperation) lo, new ProofReason(&quot;Ass&quot;, List.of()));</span>
+<span class="fc bfc" id="L41" title="All 2 branches covered.">        if (lo instanceof ModalLogicalOperation) {</span>
+<span class="fc" id="L42">            return new ProofStepModal&lt;&gt;(state0, 0, (ModalLogicalOperation) lo, new ProofReason(&quot;Ass&quot;, List.of()));</span>
         } else {
-<span class="fc" id="L42">            return new ProofStepModal&lt;&gt;(0, (RelationOperation&lt;T&gt;) lo, new ProofReason(&quot;Ass&quot;, List.of()));</span>
+<span class="fc" id="L44">            return new ProofStepModal&lt;&gt;(0, (RelationOperation&lt;T&gt;) lo, new ProofReason(&quot;Ass&quot;, List.of()));</span>
         }
     }
 
@@ -52,29 +54,29 @@ public final class ModalNaturalDeduction&lt;T&gt; extends Proof&lt;ModalOperatio
      * @return true iff {@code state} is used in {@code proof} before {@code k}
      */
     public boolean stateIsUsedBefore(T state, int k) {
-<span class="fc" id="L55">        boolean appears = state.equals(state0);</span>
-<span class="fc bfc" id="L56" title="All 4 branches covered.">        for (int i = 0; i &lt; k &amp;&amp; !appears; i++) {</span>
-<span class="fc" id="L57">            ProofStepModal&lt;T&gt; step = getSteps().get(i);</span>
-<span class="pc bpc" id="L58" title="1 of 2 branches missed.">            if (step.isValid()) {</span>
-<span class="fc" id="L59">                appears = appears(state, step);</span>
+<span class="fc" id="L57">        boolean appears = state.equals(state0);</span>
+<span class="fc bfc" id="L58" title="All 4 branches covered.">        for (int i = 0; i &lt; k &amp;&amp; !appears; i++) {</span>
+<span class="fc" id="L59">            ProofStepModal&lt;T&gt; step = getSteps().get(i);</span>
+<span class="pc bpc" id="L60" title="1 of 2 branches missed.">            if (step.isValid()) {</span>
+<span class="fc" id="L61">                appears = appears(state, step);</span>
             }
         }
-<span class="fc" id="L62">        return appears;</span>
+<span class="fc" id="L64">        return appears;</span>
     }
 
     private boolean appears(T state, ProofStepModal&lt;T&gt; step) {
-<span class="fc" id="L66">        boolean appears = false;</span>
-<span class="pc bpc" id="L67" title="1 of 2 branches missed.">        if (step.getStep() instanceof RelationOperation) {</span>
-<span class="nc" id="L68">            RelationOperation&lt;T&gt; operation = (RelationOperation&lt;T&gt;) step.getStep();</span>
-<span class="nc bnc" id="L69" title="All 8 branches missed.">            if ((operation.getLeft().equals(state) || operation.getRight().equals(state)) &amp;&amp; !(operation.getLeft().equals(state) &amp;&amp; operation.getRight().equals(state))) {</span>
-<span class="nc" id="L70">                appears = true;</span>
+<span class="fc" id="L68">        boolean appears = false;</span>
+<span class="pc bpc" id="L69" title="1 of 2 branches missed.">        if (step.getStep() instanceof RelationOperation) {</span>
+<span class="nc" id="L70">            RelationOperation&lt;T&gt; operation = (RelationOperation&lt;T&gt;) step.getStep();</span>
+<span class="nc bnc" id="L71" title="All 8 branches missed.">            if ((operation.getLeft().equals(state) || operation.getRight().equals(state)) &amp;&amp; !(operation.getLeft().equals(state) &amp;&amp; operation.getRight().equals(state))) {</span>
+<span class="nc" id="L72">                appears = true;</span>
             }
-<span class="nc" id="L72">        } else {</span>
-<span class="fc bfc" id="L73" title="All 2 branches covered.">            if (step.getState().equals(state)) {</span>
-<span class="fc" id="L74">                appears = true;</span>
+<span class="nc" id="L74">        } else {</span>
+<span class="fc bfc" id="L75" title="All 2 branches covered.">            if (step.getState().equals(state)) {</span>
+<span class="fc" id="L76">                appears = true;</span>
             }
         }
-<span class="fc" id="L77">        return appears;</span>
+<span class="fc" id="L79">        return appears;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

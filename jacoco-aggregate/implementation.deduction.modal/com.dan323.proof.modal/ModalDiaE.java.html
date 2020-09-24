@@ -73,14 +73,14 @@ public final class ModalDiaE&lt;T&gt; implements ModalAction&lt;T&gt; {
 <span class="fc" id="L73">        return log1.getStep().equals(((UnaryOperation&lt;?&gt;) pf.getSteps().get(j - 1).getStep()).getElement());</span>
     }
 
-    private boolean isNotFresh(Proof&lt;ModalOperation, ProofStepModal&lt;T&gt;, ModalAction&lt;T&gt;&gt; pf, int i) {
+    private boolean isNotFresh(ModalNaturalDeduction&lt;T&gt; pf, int i) {
 <span class="fc bfc" id="L77" title="All 2 branches covered.">        if ((pf.getSteps().get(pf.getSteps().size() - 1).getStep()) instanceof ModalLogicalOperation) {</span>
 <span class="fc" id="L78">            T last = (pf.getSteps().get(pf.getSteps().size() - 1)).getState();</span>
-<span class="fc" id="L79">            return ((ModalNaturalDeduction&lt;T&gt;) pf).stateIsUsedBefore(last, i);</span>
+<span class="fc" id="L79">            return pf.stateIsUsedBefore(last, i);</span>
         } else {
 <span class="fc" id="L81">            RelationOperation&lt;T&gt; operation = (RelationOperation&lt;T&gt;) (pf.getSteps().get(pf.getSteps().size() - 1).getStep());</span>
-<span class="fc bfc" id="L82" title="All 2 branches covered.">            return ((ModalNaturalDeduction&lt;T&gt;) pf).stateIsUsedBefore(operation.getLeft(), i) &amp;&amp;</span>
-<span class="fc bfc" id="L83" title="All 2 branches covered.">                    ((ModalNaturalDeduction&lt;T&gt;) pf).stateIsUsedBefore(operation.getRight(), i);</span>
+<span class="fc bfc" id="L82" title="All 2 branches covered.">            return pf.stateIsUsedBefore(operation.getLeft(), i) &amp;&amp;</span>
+<span class="fc bfc" id="L83" title="All 2 branches covered.">                    pf.stateIsUsedBefore(operation.getRight(), i);</span>
         }
     }
 

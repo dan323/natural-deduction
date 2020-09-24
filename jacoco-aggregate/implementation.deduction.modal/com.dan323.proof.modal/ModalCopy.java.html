@@ -3,23 +3,38 @@
 import com.dan323.expresions.modal.ModalLogicalOperation;
 import com.dan323.expresions.modal.ModalOperation;
 import com.dan323.proof.generic.Copy;
-import com.dan323.proof.generic.proof.Proof;
 import com.dan323.proof.modal.proof.ModalNaturalDeduction;
 import com.dan323.proof.modal.proof.ProofStepModal;
+
+import java.util.Objects;
 
 public final class ModalCopy&lt;T&gt; extends Copy&lt;ModalOperation, ProofStepModal&lt;T&gt;, ModalNaturalDeduction&lt;T&gt;&gt; implements ModalAction&lt;T&gt; {
 
     public ModalCopy(int i) {
-<span class="fc" id="L13">        super(i);</span>
-<span class="fc" id="L14">    }</span>
+<span class="fc" id="L14">        super(i);</span>
+<span class="fc" id="L15">    }</span>
 
     @Override
     public void apply(ModalNaturalDeduction&lt;T&gt; pf) {
-<span class="fc" id="L18">        applyStepSupplier(pf, (assLevel, log, reason) -&gt; new ProofStepModal&lt;&gt;(getState(pf, getAppliedAt()), assLevel, (ModalLogicalOperation) log, reason));</span>
-<span class="fc" id="L19">    }</span>
+<span class="fc" id="L19">        applyStepSupplier(pf, (assLevel, log, reason) -&gt; new ProofStepModal&lt;&gt;(getState(pf, getAppliedAt()), assLevel, (ModalLogicalOperation) log, reason));</span>
+<span class="fc" id="L20">    }</span>
 
-    private T getState(Proof&lt;ModalOperation, ProofStepModal&lt;T&gt;, ModalAction&lt;T&gt;&gt; pf, int k) {
-<span class="fc" id="L22">        return (pf.getSteps().get(k - 1)).getState();</span>
+    private T getState(ModalNaturalDeduction&lt;T&gt; pf, int k) {
+<span class="fc" id="L23">        return (pf.getSteps().get(k - 1)).getState();</span>
+    }
+
+    @Override
+    public boolean equals(Object o){
+<span class="pc bpc" id="L28" title="1 of 2 branches missed.">        if (o instanceof ModalCopy){</span>
+<span class="pc bpc" id="L29" title="1 of 2 branches missed.">            return getAppliedAt() == ((ModalCopy&lt;?&gt;)o).getAppliedAt();</span>
+        } else {
+<span class="nc" id="L31">            return false;</span>
+        }
+    }
+
+    @Override
+    public int hashCode(){
+<span class="nc" id="L37">        return Objects.hash(getClass(), getAppliedAt());</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>
