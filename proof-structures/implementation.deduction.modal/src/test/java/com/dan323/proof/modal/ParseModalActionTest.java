@@ -5,6 +5,8 @@ import com.dan323.expresions.modal.DisjunctionModal;
 import com.dan323.expresions.modal.ImplicationModal;
 import com.dan323.expresions.modal.VariableModal;
 import com.dan323.proof.modal.proof.ModalNaturalDeduction;
+import com.dan323.proof.modal.relational.Reflexive;
+import com.dan323.proof.modal.relational.Transitive;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -21,7 +23,7 @@ public class ParseModalActionTest {
         mnd.initializeProof(List.of(new ConjunctionModal(p, q)), p);
         var conj1 = new ModalAndE1<String>(1);
         conj1.apply(mnd);
-        List<ModalAction<String>> lst = mnd.parse();
+        List<AbstractModalAction<String>> lst = mnd.parse();
         assertEquals(2, lst.size());
         mnd.initializeProof(List.of(new ConjunctionModal(p, q)), p);
         assertEquals(conj1, lst.get(1));
@@ -44,7 +46,7 @@ public class ParseModalActionTest {
         mnd.initializeProof(List.of(p, q), new ConjunctionModal(p, q));
         var conj = new ModalAndI<String>(1, 2);
         conj.apply(mnd);
-        List<ModalAction<String>> lst = mnd.parse();
+        List<AbstractModalAction<String>> lst = mnd.parse();
         assertEquals(3, lst.size());
         mnd.initializeProof(List.of(new ConjunctionModal(p, q)), p);
         assertEquals(conj, lst.get(2));
@@ -58,7 +60,7 @@ public class ParseModalActionTest {
         mnd.initializeProof(List.of(p), new DisjunctionModal(p, q));
         var conj1 = new ModalOrI1<String>(1, q);
         conj1.apply(mnd);
-        List<ModalAction<String>> lst = mnd.parse();
+        List<AbstractModalAction<String>> lst = mnd.parse();
         assertEquals(2, lst.size());
         mnd.initializeProof(List.of(p), new DisjunctionModal(p, q));
         assertEquals(conj1, lst.get(1));
@@ -81,9 +83,28 @@ public class ParseModalActionTest {
         mnd.initializeProof(List.of(new DisjunctionModal(p, q), new ImplicationModal(p, r), new ImplicationModal(q, r)), r);
         var conj1 = new ModalOrE<String>(1, 2, 3);
         conj1.apply(mnd);
-        List<ModalAction<String>> lst = mnd.parse();
+        List<AbstractModalAction<String>> lst = mnd.parse();
         assertEquals(4, lst.size());
         mnd.initializeProof(List.of(new DisjunctionModal(p, q), new ImplicationModal(p, r), new ImplicationModal(q, r)), r);
         assertEquals(conj1, lst.get(3));
+    }
+
+    @Test
+    public void parseCopyRelations() {
+        var mnd = new ModalNaturalDeduction<>("s0");
+        var p = new VariableModal("P");
+        var q = new VariableModal("Q");
+        var refl = new Reflexive<String>(1);
+        var trans = new Transitive<String>(4,5);
+        mnd.initializeProof(List.of(p,q), q);
+        var copy = new ModalCopy<String>(1);
+        copy.apply(mnd);
+        refl.apply(mnd);
+        refl.apply(mnd);
+        trans.apply(mnd);
+        var lst = mnd.parse();
+        assertEquals(copy, lst.get(2));
+        assertEquals(refl, lst.get(3));
+        assertEquals(trans, lst.get(5));
     }
 }

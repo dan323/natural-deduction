@@ -3,14 +3,16 @@ package com.dan323.proof.modal.proof;
 import com.dan323.expresions.modal.ModalLogicalOperation;
 import com.dan323.expresions.modal.ModalOperation;
 import com.dan323.expresions.relation.RelationOperation;
+import com.dan323.proof.generic.Action;
 import com.dan323.proof.generic.proof.ParseAction;
 import com.dan323.proof.generic.proof.Proof;
 import com.dan323.proof.generic.proof.ProofReason;
+import com.dan323.proof.modal.AbstractModalAction;
 import com.dan323.proof.modal.ModalAction;
 
 import java.util.List;
 
-public final class ModalNaturalDeduction<T> extends Proof<ModalOperation, ProofStepModal<T>, ModalAction<T>> {
+public final class ModalNaturalDeduction<T> extends Proof<ModalOperation, ProofStepModal<T>, AbstractModalAction<T>> {
 
     private final T state0;
 
@@ -30,8 +32,8 @@ public final class ModalNaturalDeduction<T> extends Proof<ModalOperation, ProofS
     }
 
     @Override
-    public List<ModalAction<T>> parse() {
-        return ((ParseAction<ModalAction<T>,ModalNaturalDeduction<T>>)ParseModalAction::parse).translateToActions(this);
+    public List<AbstractModalAction<T>> parse() {
+        return ((ParseAction<AbstractModalAction<T>,ModalNaturalDeduction<T>>)ParseModalAction::parse).translateToActions(this);
     }
 
     @Override

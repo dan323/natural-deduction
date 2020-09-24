@@ -9,6 +9,7 @@ import com.dan323.proof.modal.proof.ModalNaturalDeduction;
 import com.dan323.proof.modal.proof.ProofStepModal;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author danco
@@ -38,6 +39,21 @@ public final class Transitive<T> extends RelationalAction<T> {
     public void applyStepSupplier(ModalNaturalDeduction<T> pf, ProofStepSupplier<ModalOperation, ProofStepModal<T>> supp) {
         T s1 = ((LessEqual<T>) pf.getSteps().get(first - 1).getStep()).getLeft();
         T s3 = ((LessEqual<T>) pf.getSteps().get(first - 1).getStep()).getRight();
-        pf.getSteps().add(supp.generateProofStep(RuleUtils.getLastAssumptionLevel(pf), new LessEqual<>(s1, s3), new ProofReason("Trans", List.of())));
+        pf.getSteps().add(supp.generateProofStep(RuleUtils.getLastAssumptionLevel(pf), new LessEqual<>(s1, s3), new ProofReason("Trans", List.of(first, second))));
+    }
+
+    @Override
+    public boolean equals(Object o){
+        if (o instanceof Transitive){
+            Transitive<?> t = (Transitive<?>)o;
+            return t.first == first && t.second == second;
+        } else {
+            return false;
+        }
+    }
+
+    @Override
+    public int hashCode(){
+        return Objects.hash(getClass(), first, second);
     }
 }

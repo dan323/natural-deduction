@@ -3,9 +3,10 @@ package com.dan323.proof.modal;
 import com.dan323.expresions.modal.ModalLogicalOperation;
 import com.dan323.expresions.modal.ModalOperation;
 import com.dan323.proof.generic.Copy;
-import com.dan323.proof.generic.proof.Proof;
 import com.dan323.proof.modal.proof.ModalNaturalDeduction;
 import com.dan323.proof.modal.proof.ProofStepModal;
+
+import java.util.Objects;
 
 public final class ModalCopy<T> extends Copy<ModalOperation, ProofStepModal<T>, ModalNaturalDeduction<T>> implements ModalAction<T> {
 
@@ -18,7 +19,21 @@ public final class ModalCopy<T> extends Copy<ModalOperation, ProofStepModal<T>, 
         applyStepSupplier(pf, (assLevel, log, reason) -> new ProofStepModal<>(getState(pf, getAppliedAt()), assLevel, (ModalLogicalOperation) log, reason));
     }
 
-    private T getState(Proof<ModalOperation, ProofStepModal<T>, ModalAction<T>> pf, int k) {
+    private T getState(ModalNaturalDeduction<T> pf, int k) {
         return (pf.getSteps().get(k - 1)).getState();
+    }
+
+    @Override
+    public boolean equals(Object o){
+        if (o instanceof ModalCopy){
+            return getAppliedAt() == ((ModalCopy<?>)o).getAppliedAt();
+        } else {
+            return false;
+        }
+    }
+
+    @Override
+    public int hashCode(){
+        return Objects.hash(getClass(), getAppliedAt());
     }
 }

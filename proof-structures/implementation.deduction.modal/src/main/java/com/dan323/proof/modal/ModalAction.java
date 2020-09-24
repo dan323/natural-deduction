@@ -1,13 +1,10 @@
 package com.dan323.proof.modal;
 
-import com.dan323.expresions.modal.ModalOperation;
-import com.dan323.proof.generic.Action;
 import com.dan323.proof.modal.proof.ModalNaturalDeduction;
-import com.dan323.proof.modal.proof.ProofStepModal;
 
 import java.util.List;
 
-public interface ModalAction<T> extends Action<ModalOperation, ProofStepModal<T>, ModalNaturalDeduction<T>> {
+public interface ModalAction<T> extends AbstractModalAction<T> {
 
     static <T> boolean checkEqualState(ModalNaturalDeduction<T> pf, List<Integer> list) {
         if (list.isEmpty()) {

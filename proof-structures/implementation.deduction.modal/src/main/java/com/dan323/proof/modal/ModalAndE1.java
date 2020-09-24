@@ -19,7 +19,7 @@ public final class ModalAndE1<T> extends AndE<ModalOperation, ProofStepModal<T>,
         applyStepSupplier(pf, ((assLevel, log, reason) -> new ProofStepModal<>(getState(pf), assLevel, (ModalLogicalOperation) log, reason)));
     }
 
-    private T getState(Proof<ModalOperation, ProofStepModal<T>, ModalAction<T>> pf) {
+    private T getState(ModalNaturalDeduction<T> pf) {
         return (pf.getSteps().get(getAppliedAt() - 1)).getState();
     }
 }

@@ -55,7 +55,7 @@ public final class ModalBoxI<T> implements ModalAction<T> {
                 List.of(pf.getSteps().size() - getLastAssumption(pf) + 1, pf.getSteps().size()))));
     }
 
-    private int getLastAssumption(Proof<ModalOperation, ProofStepModal<T>, ModalAction<T>> pf) {
+    private int getLastAssumption(ModalNaturalDeduction<T> pf) {
         int assLevel = RuleUtils.getLastAssumptionLevel(pf);
         return RuleUtils.getToLastAssumption(pf, assLevel);
     }

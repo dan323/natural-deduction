@@ -73,14 +73,14 @@ public final class ModalDiaE<T> implements ModalAction<T> {
         return log1.getStep().equals(((UnaryOperation<?>) pf.getSteps().get(j - 1).getStep()).getElement());
     }
 
-    private boolean isNotFresh(Proof<ModalOperation, ProofStepModal<T>, ModalAction<T>> pf, int i) {
+    private boolean isNotFresh(ModalNaturalDeduction<T> pf, int i) {
         if ((pf.getSteps().get(pf.getSteps().size() - 1).getStep()) instanceof ModalLogicalOperation) {
             T last = (pf.getSteps().get(pf.getSteps().size() - 1)).getState();
-            return ((ModalNaturalDeduction<T>) pf).stateIsUsedBefore(last, i);
+            return pf.stateIsUsedBefore(last, i);
         } else {
             RelationOperation<T> operation = (RelationOperation<T>) (pf.getSteps().get(pf.getSteps().size() - 1).getStep());
-            return ((ModalNaturalDeduction<T>) pf).stateIsUsedBefore(operation.getLeft(), i) &&
-                    ((ModalNaturalDeduction<T>) pf).stateIsUsedBefore(operation.getRight(), i);
+            return pf.stateIsUsedBefore(operation.getLeft(), i) &&
+                    pf.stateIsUsedBefore(operation.getRight(), i);
         }
     }
 

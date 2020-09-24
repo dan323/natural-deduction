@@ -7,6 +7,8 @@ import com.dan323.expresions.modal.ModalOperation;
 import com.dan323.expresions.relation.RelationOperation;
 import com.dan323.proof.generic.proof.ProofReason;
 import com.dan323.proof.modal.*;
+import com.dan323.proof.modal.relational.Reflexive;
+import com.dan323.proof.modal.relational.Transitive;
 
 import java.util.Arrays;
 
@@ -15,43 +17,38 @@ public final class ParseModalAction {
     private ParseModalAction() {
     }
 
-    public static <T> ModalAction<T> parse(ModalNaturalDeduction<T> proof, int pos) {
-        switch (proof.getSteps().get(pos - 1).getProof().getNameProof()) {
-            case "Ass":
-                return parseAss(proof, pos);
-            case "|I":
-                return parseOrI(proof, pos);
-            case "|E":
-                return parseOrE(proof.getSteps().get(pos - 1).getProof());
-            case "&I":
-                return parseAndI(proof.getSteps().get(pos - 1).getProof());
-            case "&E":
-                return parseAndE(proof, pos);
-            case "Rep":
-                return parseCopy(proof.getSteps().get(pos - 1).getProof());
-            case "-E":
-                return parseNotE(proof.getSteps().get(pos - 1).getProof());
-            case "-I":
-                return parseNotI();
-            case "->I":
-                return parseImpI();
-            case "->E":
-                return parseImpE(proof.getSteps().get(pos - 1).getProof());
-            case "FE":
-                return parseFE(proof, pos);
-            case "FI":
-                return parseFI(proof, pos);
-            case "[]I":
-                return parseBoxI();
-            case "[]E":
-                return parseBoxE(proof.getSteps().get(pos - 1).getProof());
-            case "<>I":
-                return parseDiaI(proof.getSteps().get(pos - 1).getProof());
-            case "<>E":
-                return parseDiaE(proof.getSteps().get(pos - 1).getProof());
-            default:
-                throw new IllegalStateException();
-        }
+    public static <T> AbstractModalAction<T> parse(ModalNaturalDeduction<T> proof, int pos) {
+        return switch (proof.getSteps().get(pos - 1).getProof().getNameProof()) {
+            case "Ass" -> parseAss(proof, pos);
+            case "|I" -> parseOrI(proof, pos);
+            case "|E" -> parseOrE(proof.getSteps().get(pos - 1).getProof());
+            case "&I" -> parseAndI(proof.getSteps().get(pos - 1).getProof());
+            case "&E" -> parseAndE(proof, pos);
+            case "Rep" -> parseCopy(proof.getSteps().get(pos - 1).getProof());
+            case "-E" -> parseNotE(proof.getSteps().get(pos - 1).getProof());
+            case "-I" -> parseNotI();
+            case "->I" -> parseImpI();
+            case "->E" -> parseImpE(proof.getSteps().get(pos - 1).getProof());
+            case "FE" -> parseFE(proof, pos);
+            case "FI" -> parseFI(proof, pos);
+            case "[]I" -> parseBoxI();
+            case "[]E" -> parseBoxE(proof.getSteps().get(pos - 1).getProof());
+            case "<>I" -> parseDiaI(proof.getSteps().get(pos - 1).getProof());
+            case "<>E" -> parseDiaE(proof.getSteps().get(pos - 1).getProof());
+            case "Refl" -> parseRefl(proof.getSteps().get(pos - 1).getProof());
+            case "Trans" -> parseTrans(proof.getSteps().get(pos - 1).getProof());
+            default -> throw new IllegalStateException();
+        };
+    }
+
+    private static <T> AbstractModalAction<T> parseTrans(ProofReason proofReason) {
+        int[] ints = parseArray(proofReason);
+        return new Transitive<>(ints[0], ints[1]);
+    }
+
+    private static <T> AbstractModalAction<T> parseRefl(ProofReason proofReason) {
+        int[] ints = parseArray(proofReason);
+        return new Reflexive<>(ints[0]);
     }
 
     private static <T> ModalAction<T> parseDiaE(ProofReason proofReason) {

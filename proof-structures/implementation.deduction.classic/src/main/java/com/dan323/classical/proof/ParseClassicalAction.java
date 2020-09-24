@@ -29,34 +29,21 @@ public final class ParseClassicalAction {
 
     public static ClassicalAction parse(NaturalDeduction naturalDeduction, int pos) {
         ProofReason proofReason = naturalDeduction.getSteps().get(pos - 1).getProof();
-        switch (proofReason.getNameProof()) {
-            case "Ass":
-                return parseAss(naturalDeduction, pos);
-            case "|I":
-                return parseOrI(naturalDeduction, pos, proofReason);
-            case "|E":
-                return parseOrE(proofReason);
-            case "&I":
-                return parseAndI(proofReason);
-            case "&E":
-                return parseAndE(naturalDeduction, pos, proofReason);
-            case "Rep":
-                return parseCopy(proofReason);
-            case "-E":
-                return parseNotE(proofReason);
-            case "-I":
-                return parseNotI();
-            case "->I":
-                return parseImpI();
-            case "->E":
-                return parseImpE(proofReason);
-            case "FE":
-                return parseFE(naturalDeduction, pos, proofReason);
-            case "FI":
-                return parseFI(proofReason);
-            default:
-                throw new IllegalStateException();
-        }
+        return switch (proofReason.getNameProof()) {
+            case "Ass" -> parseAss(naturalDeduction, pos);
+            case "|I" -> parseOrI(naturalDeduction, pos, proofReason);
+            case "|E" -> parseOrE(proofReason);
+            case "&I" -> parseAndI(proofReason);
+            case "&E" -> parseAndE(naturalDeduction, pos, proofReason);
+            case "Rep" -> parseCopy(proofReason);
+            case "-E" -> parseNotE(proofReason);
+            case "-I" -> parseNotI();
+            case "->I" -> parseImpI();
+            case "->E" -> parseImpE(proofReason);
+            case "FE" -> parseFE(naturalDeduction, pos, proofReason);
+            case "FI" -> parseFI(proofReason);
+            default -> throw new IllegalStateException();
+        };
     }
 
     private static ClassicFI parseFI(ProofReason proofReason) {
