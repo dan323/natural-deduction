@@ -15,10 +15,6 @@ public abstract class BinaryOperation<T extends LogicOperation> implements Logic
         this.right = right;
     }
 
-    /*public T castToLanguage() {
-        return (T) this;
-    }*/
-
     public T getLeft() {
         return left;
     }

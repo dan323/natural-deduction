@@ -96,11 +96,12 @@ public class ParseModalActionTest {
         mnd.initializeProof(List.of(p, q), q);
         var copy = new ModalCopy<String>(1);
         copy.apply(mnd);
+        var lst = mnd.parse();
+        assertEquals(copy, lst.get(2));
         refl.apply(mnd);
         refl.apply(mnd);
         trans.apply(mnd);
-        var lst = mnd.parse();
-        assertEquals(copy, lst.get(2));
+        lst = mnd.parse();
         assertEquals(refl, lst.get(3));
         assertEquals(trans, lst.get(5));
     }
@@ -121,5 +122,21 @@ public class ParseModalActionTest {
         assertEquals(7, lst.size());
         assertEquals(new ModalNotE<String>(6), lst.get(6));
         assertEquals(new ModalNotI<>(), lst.get(4));
+    }
+
+    @Test
+    public void parseFalse() {
+        var mnd = new ModalNaturalDeduction<>("s0");
+        var p = new VariableModal("P");
+        mnd.initializeProof(List.of(), new ImplicationModal(p, new NegationModal(new NegationModal(p))));
+        (new ModalAssume<>(p, "s0")).apply(mnd);
+        (new ModalAssume<>(new NegationModal(new NegationModal(new NegationModal(p))), "s0")).apply(mnd);
+        (new ModalNotE<String>(2)).apply(mnd);
+        (new ModalFI<>("s0", 1, 3)).apply(mnd);
+        (new ModalFE<>(4, p, "s0")).apply(mnd);
+        var lst = mnd.parse();
+        assertEquals(5, lst.size());
+        assertEquals(new ModalFE<>(4, p, "s0"), lst.get(4));
+        assertEquals(new ModalFI<>("s0", 1, 3), lst.get(3));
     }
 }
