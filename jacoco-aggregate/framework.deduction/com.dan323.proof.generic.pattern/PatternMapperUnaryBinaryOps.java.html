@@ -15,24 +15,24 @@ import java.util.Map;
 <span class="fc" id="L15">            Map&lt;String, LogicOperation&gt; sol = new HashMap&lt;&gt;();</span>
 <span class="fc" id="L16">            sol.put(l1.toString(), l2);</span>
 <span class="fc" id="L17">            return sol;</span>
-<span class="pc bpc" id="L18" title="3 of 4 branches missed.">        } else if (l1 instanceof UnaryOperation &amp;&amp; l1.getClass().equals(l2.getClass())) {</span>
-<span class="nc" id="L19">            return compareLogic(((UnaryOperation&lt;?&gt;) l1).getElement(), ((UnaryOperation&lt;?&gt;) l2).getElement());</span>
-<span class="pc bpc" id="L20" title="3 of 4 branches missed.">        } else if (l1 instanceof BinaryOperation &amp;&amp; l1.getClass().equals(l2.getClass())) {</span>
-<span class="nc" id="L21">            return checkBinaryOperation((BinaryOperation&lt;?&gt;) l1, (BinaryOperation&lt;?&gt;) l2);</span>
+<span class="pc bpc" id="L18" title="1 of 4 branches missed.">        } else if (l1 instanceof UnaryOperation &amp;&amp; l1.getClass().equals(l2.getClass())) {</span>
+<span class="fc" id="L19">            return compareLogic(((UnaryOperation&lt;?&gt;) l1).getElement(), ((UnaryOperation&lt;?&gt;) l2).getElement());</span>
+<span class="pc bpc" id="L20" title="1 of 4 branches missed.">        } else if (l1 instanceof BinaryOperation &amp;&amp; l1.getClass().equals(l2.getClass())) {</span>
+<span class="fc" id="L21">            return checkBinaryOperation((BinaryOperation&lt;?&gt;) l1, (BinaryOperation&lt;?&gt;) l2);</span>
         }
 <span class="fc" id="L23">        return null;</span>
     }
 
     private Map&lt;String, LogicOperation&gt; checkBinaryOperation(BinaryOperation&lt;? extends LogicOperation&gt; l1, BinaryOperation&lt;? extends LogicOperation&gt; l2) {
-<span class="nc" id="L27">        Map&lt;String, LogicOperation&gt; m1 = compareLogic(l1.getLeft(), l2.getLeft());</span>
-<span class="nc" id="L28">        Map&lt;String, LogicOperation&gt; m2 = compareLogic(l1.getRight(), l2.getRight());</span>
-<span class="nc bnc" id="L29" title="All 2 branches missed.">        for (Map.Entry&lt;String, LogicOperation&gt; key1 : m1.entrySet()) {</span>
-<span class="nc bnc" id="L30" title="All 4 branches missed.">            if (m2.containsKey(key1.getKey()) &amp;&amp; !key1.getValue().equals(m2.get(key1.getKey()))) {</span>
+<span class="fc" id="L27">        Map&lt;String, LogicOperation&gt; m1 = compareLogic(l1.getLeft(), l2.getLeft());</span>
+<span class="fc" id="L28">        Map&lt;String, LogicOperation&gt; m2 = compareLogic(l1.getRight(), l2.getRight());</span>
+<span class="fc bfc" id="L29" title="All 2 branches covered.">        for (Map.Entry&lt;String, LogicOperation&gt; key1 : m1.entrySet()) {</span>
+<span class="pc bpc" id="L30" title="3 of 4 branches missed.">            if (m2.containsKey(key1.getKey()) &amp;&amp; !key1.getValue().equals(m2.get(key1.getKey()))) {</span>
 <span class="nc" id="L31">                return null;</span>
             }
-<span class="nc" id="L33">        }</span>
-<span class="nc" id="L34">        m1.putAll(m2);</span>
-<span class="nc" id="L35">        return m1;</span>
+<span class="fc" id="L33">        }</span>
+<span class="fc" id="L34">        m1.putAll(m2);</span>
+<span class="fc" id="L35">        return m1;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>
