@@ -87,7 +87,7 @@ public class RuleOrTest {
 
         OrEStub orE2 = new RuleOrTest.OrEStub(1, 2, 3);
 
-        Variable<LogicOperation> variable = mock(Variable.class);
+        Variable variable = mock(Variable.class);
         doReturn(3).when(list).size();
         Disjunction<LogicOperation> disjunction = mockOr(variable, variable);
         Implication<LogicOperation> implication1 = mockImplication(variable, mock(LogicOperation.class));
@@ -142,7 +142,7 @@ public class RuleOrTest {
     public void orEApplyTest() {
         List<ProofStep<LogicOperation>> record = new ArrayList<>();
         doReturn(list).when(pf).getSteps();
-        Variable<LogicOperation> variable = mock(Variable.class);
+        Variable variable = mock(Variable.class);
         doReturn(2).when(list).size();
         Implication<LogicOperation> implication = mockImplication(variable, variable);
         doReturn("P").when(variable).toString();
@@ -167,7 +167,7 @@ public class RuleOrTest {
         doReturn(1).when(list).size();
         doReturn(pStep0).when(list).get(eq(0));
         doReturn(1).when(pStep0).getAssumptionLevel();
-        Variable<LogicOperation> variable = mock(Variable.class, Answers.CALLS_REAL_METHODS);
+        Variable variable = mock(Variable.class, Answers.CALLS_REAL_METHODS);
         doReturn("P").when(variable).toString();
         doReturn(variable).when(pStep0).getStep();
         doAnswer(invocationOnMock -> record.add(invocationOnMock.getArgument(0))).when(list).add(any(ProofStep.class));

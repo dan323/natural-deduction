@@ -7,8 +7,4 @@ public interface Constant<T extends LogicOperation> extends LogicOperation {
 
     boolean isFalsehood();
 
-    default T castToLanguage() {
-        return (T) this;
-    }
-
 }

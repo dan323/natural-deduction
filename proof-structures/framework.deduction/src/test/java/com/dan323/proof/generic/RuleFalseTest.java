@@ -74,7 +74,7 @@ public class RuleFalseTest {
 
         assertFalse(fI.isValid(pf));
 
-        Variable<LogicOperation> var = new Variable<>("P") {
+        Variable var = new Variable("P") {
         };
         Negation<LogicOperation> notVar = mockNot(var);
         doReturn(notVar).when(pStep1).getStep();
@@ -85,7 +85,7 @@ public class RuleFalseTest {
 
     @Test
     public void equalsTest(){
-        Variable<LogicOperation> var = mock(Variable.class);
+        Variable var = mock(Variable.class);
         FEStub fE = new RuleFalseTest.FEStub(var, 1);
 
         assertEquals(fE, fE);
@@ -97,7 +97,7 @@ public class RuleFalseTest {
 
     @Test
     public void fEIsValidTest() {
-        Variable<LogicOperation> var = mock(Variable.class);
+        Variable var = mock(Variable.class);
         FEStub fE = new RuleFalseTest.FEStub(var, 1);
 
         doReturn(list).when(pf).getSteps();
@@ -108,7 +108,7 @@ public class RuleFalseTest {
         assertFalse(fE.isValid(pf));
 
         doReturn(true).when(pStep0).isValid();
-        Variable<LogicOperation> variable = mock(Variable.class);
+        Variable variable = mock(Variable.class);
         Negation<LogicOperation> negation = mockNot(mockNot(variable));
         doReturn(negation).when(pStep0).getStep();
 
@@ -134,7 +134,7 @@ public class RuleFalseTest {
         doReturn(pStep0).when(list).get(eq(0));
         doReturn(1).when(pStep0).getAssumptionLevel();
         doAnswer(invocationOnMock -> record.add(invocationOnMock.getArgument(0))).when(list).add(any(ProofStep.class));
-        Variable<LogicOperation> variable = mock(Variable.class, Answers.CALLS_REAL_METHODS);
+        Variable variable = mock(Variable.class, Answers.CALLS_REAL_METHODS);
         doReturn("P").when(variable).toString();
 
         FEStub notE = new RuleFalseTest.FEStub(variable, 1);

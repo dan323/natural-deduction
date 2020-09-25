@@ -85,7 +85,7 @@ public class RuleImplicationTest {
         doReturn(2).when(list).size();
         doReturn(pStep0).when(list).get(intThat(i -> 0 <= i && i < 2));
         doReturn(1).when(pStep0).getAssumptionLevel();
-        Variable<LogicOperation> variable = mock(Variable.class, Answers.CALLS_REAL_METHODS);
+        Variable variable = mock(Variable.class, Answers.CALLS_REAL_METHODS);
         doReturn("P").when(variable).toString();
         doReturn(variable).when(pStep0).getStep();
         doAnswer(invocationOnMock -> record.add(invocationOnMock.getArgument(0))).when(list).add(any(ProofStep.class));
@@ -134,7 +134,7 @@ public class RuleImplicationTest {
         doReturn(2).when(list).size();
         doReturn(pStep0).when(list).get(eq(0));
         doReturn(pStep1).when(list).get(eq(1));
-        Variable<LogicOperation> variable = mock(Variable.class, Answers.CALLS_REAL_METHODS);
+        Variable variable = mock(Variable.class, Answers.CALLS_REAL_METHODS);
         doReturn("P").when(variable).toString();
         doReturn(mockImplication(variable, variable)).when(pStep0).getStep();
         doAnswer(invocationOnMock -> record.add(invocationOnMock.getArgument(0))).when(list).add(any(ProofStep.class));

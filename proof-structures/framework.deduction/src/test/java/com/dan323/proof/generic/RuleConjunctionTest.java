@@ -94,7 +94,7 @@ public class RuleConjunctionTest {
         doReturn(false).when(list).isEmpty();
         doReturn(pStep).when(list).get(intThat(i -> 0 <= i && i < 2));
         doReturn(1).when(pStep).getAssumptionLevel();
-        Variable<LogicOperation> variable = mock(Variable.class, Answers.CALLS_REAL_METHODS);
+        Variable variable = mock(Variable.class, Answers.CALLS_REAL_METHODS);
         doReturn("P").when(variable).toString();
         doReturn(variable).when(pStep).getStep();
         doAnswer(invocationOnMock ->
@@ -118,7 +118,7 @@ public class RuleConjunctionTest {
         doReturn(false).when(list).isEmpty();
         doReturn(pStep).when(list).get(intThat(i -> i == 0));
         doReturn(1).when(pStep).getAssumptionLevel();
-        Variable<LogicOperation> variable = mock(Variable.class, Answers.CALLS_REAL_METHODS);
+        Variable variable = mock(Variable.class, Answers.CALLS_REAL_METHODS);
         doReturn("P").when(variable).toString();
         doReturn(mockConjunction(variable, variable)).when(pStep).getStep();
         doAnswer(invocationOnMock -> record.add(invocationOnMock.getArgument(0))).when(list).add(any(ProofStep.class));

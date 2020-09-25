@@ -48,7 +48,7 @@ public abstract class FI<T extends LogicOperation, Q extends ProofStep<T>, P ext
     @Override
     public void applyStepSupplier(P pf, ProofStepSupplier<T, Q> supp) {
         int assLevel = pf.getSteps().get(pf.getSteps().size() - 1).getAssumptionLevel();
-        pf.getSteps().add(supp.generateProofStep(assLevel, constantFunction.get().castToLanguage(), new ProofReason("FI", List.of(pos, neg))));
+        pf.getSteps().add(supp.generateProofStep(assLevel, (T)constantFunction.get(), new ProofReason("FI", List.of(pos, neg))));
     }
 
     @Override

@@ -3,13 +3,9 @@ package com.dan323.expresions.base;
 /**
  * @author danco
  */
-public abstract class Variable<T> implements LogicOperation {
+public abstract class Variable implements LogicOperation {
 
     private final String var;
-
-    public T castToLanguage() {
-        return (T) this;
-    }
 
     public Variable(String var) {
         this.var = var;
@@ -22,7 +18,7 @@ public abstract class Variable<T> implements LogicOperation {
 
     @Override
     public boolean equals(Object log) {
-        return log != null && log.getClass().equals(getClass()) && ((Variable<?>) log).var.equals(var);
+        return log != null && log.getClass().equals(getClass()) && ((Variable) log).var.equals(var);
     }
 
     @Override

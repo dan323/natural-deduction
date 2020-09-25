@@ -105,7 +105,7 @@ public class RuleNotTest {
         Assertions.assertFalse(notE.isValid(pf));
 
         doReturn(true).when(pStep0).isValid();
-        Variable<LogicOperation> variable = mock(Variable.class);
+        Variable variable = mock(Variable.class);
         Negation<LogicOperation> negation = mockNot(mockNot(variable));
         doReturn(negation).when(pStep0).getStep();
 
@@ -119,7 +119,7 @@ public class RuleNotTest {
         doReturn(1).when(list).size();
         doReturn(pStep0).when(list).get(eq(0));
         doReturn(0).when(pStep0).getAssumptionLevel();
-        Variable<LogicOperation> variable = mock(Variable.class, Answers.CALLS_REAL_METHODS);
+        Variable variable = mock(Variable.class, Answers.CALLS_REAL_METHODS);
         doReturn("P").when(variable).toString();
         Negation<LogicOperation> negation = mockNot(mockNot(variable));
         doReturn(negation).when(pStep0).getStep();
@@ -143,7 +143,7 @@ public class RuleNotTest {
         doReturn(pStep1).when(list).get(eq(1));
         doReturn(1).when(pStep1).getAssumptionLevel();
         doReturn(1).when(pStep0).getAssumptionLevel();
-        Variable<LogicOperation> variable = mock(Variable.class, Answers.CALLS_REAL_METHODS);
+        Variable variable = mock(Variable.class, Answers.CALLS_REAL_METHODS);
         doReturn("P").when(variable).toString();
         doReturn(variable).when(pStep0).getStep();
         doAnswer(invocationOnMock -> record.add(invocationOnMock.getArgument(0))).when(list).add(any(ProofStep.class));
