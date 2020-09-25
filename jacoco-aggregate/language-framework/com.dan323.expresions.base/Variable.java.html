@@ -3,31 +3,27 @@
 /**
  * @author danco
  */
-public abstract class Variable&lt;T&gt; implements LogicOperation {
+public abstract class Variable implements LogicOperation {
 
     private final String var;
 
-    public T castToLanguage() {
-<span class="fc" id="L11">        return (T) this;</span>
-    }
-
-<span class="fc" id="L14">    public Variable(String var) {</span>
-<span class="fc" id="L15">        this.var = var;</span>
-<span class="fc" id="L16">    }</span>
+<span class="fc" id="L10">    public Variable(String var) {</span>
+<span class="fc" id="L11">        this.var = var;</span>
+<span class="fc" id="L12">    }</span>
 
     @Override
     public String toString() {
-<span class="fc" id="L20">        return var;</span>
+<span class="fc" id="L16">        return var;</span>
     }
 
     @Override
     public boolean equals(Object log) {
-<span class="pc bpc" id="L25" title="1 of 6 branches missed.">        return log != null &amp;&amp; log.getClass().equals(getClass()) &amp;&amp; ((Variable&lt;?&gt;) log).var.equals(var);</span>
+<span class="pc bpc" id="L21" title="1 of 6 branches missed.">        return log != null &amp;&amp; log.getClass().equals(getClass()) &amp;&amp; ((Variable) log).var.equals(var);</span>
     }
 
     @Override
     public int hashCode() {
-<span class="fc" id="L30">        return var.hashCode();</span>
+<span class="fc" id="L26">        return var.hashCode();</span>
     }
 
 }

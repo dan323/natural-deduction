@@ -5,22 +5,22 @@ import com.dan323.expresions.base.*;
 import java.util.HashMap;
 import java.util.Map;
 
-<span class="nc" id="L8">public class PatternMapperUnaryBinaryOps implements PatternMapper&lt;LogicOperation&gt; {</span>
+<span class="fc" id="L8">public class PatternMapperUnaryBinaryOps implements PatternMapper&lt;LogicOperation&gt; {</span>
 
     @Override
     public Map&lt;String, LogicOperation&gt; compareLogic(LogicOperation l1, LogicOperation l2) {
-<span class="nc bnc" id="L12" title="All 6 branches missed.">        if (l1 instanceof Constant &amp;&amp; l2 instanceof Constant &amp;&amp; l1.equals(l2)) {</span>
-<span class="nc" id="L13">            return new HashMap&lt;&gt;();</span>
-<span class="nc bnc" id="L14" title="All 2 branches missed.">        } else if (l1 instanceof Variable) {</span>
-<span class="nc" id="L15">            Map&lt;String, LogicOperation&gt; sol = new HashMap&lt;&gt;();</span>
-<span class="nc" id="L16">            sol.put(l1.toString(), l2);</span>
-<span class="nc" id="L17">            return sol;</span>
-<span class="nc bnc" id="L18" title="All 4 branches missed.">        } else if (l1 instanceof UnaryOperation &amp;&amp; l1.getClass().equals(l2.getClass())) {</span>
+<span class="fc bfc" id="L12" title="All 6 branches covered.">        if (l1 instanceof Constant &amp;&amp; l2 instanceof Constant &amp;&amp; l1.equals(l2)) {</span>
+<span class="fc" id="L13">            return new HashMap&lt;&gt;();</span>
+<span class="fc bfc" id="L14" title="All 2 branches covered.">        } else if (l1 instanceof Variable) {</span>
+<span class="fc" id="L15">            Map&lt;String, LogicOperation&gt; sol = new HashMap&lt;&gt;();</span>
+<span class="fc" id="L16">            sol.put(l1.toString(), l2);</span>
+<span class="fc" id="L17">            return sol;</span>
+<span class="pc bpc" id="L18" title="3 of 4 branches missed.">        } else if (l1 instanceof UnaryOperation &amp;&amp; l1.getClass().equals(l2.getClass())) {</span>
 <span class="nc" id="L19">            return compareLogic(((UnaryOperation&lt;?&gt;) l1).getElement(), ((UnaryOperation&lt;?&gt;) l2).getElement());</span>
-<span class="nc bnc" id="L20" title="All 4 branches missed.">        } else if (l1 instanceof BinaryOperation &amp;&amp; l1.getClass().equals(l2.getClass())) {</span>
+<span class="pc bpc" id="L20" title="3 of 4 branches missed.">        } else if (l1 instanceof BinaryOperation &amp;&amp; l1.getClass().equals(l2.getClass())) {</span>
 <span class="nc" id="L21">            return checkBinaryOperation((BinaryOperation&lt;?&gt;) l1, (BinaryOperation&lt;?&gt;) l2);</span>
         }
-<span class="nc" id="L23">        return null;</span>
+<span class="fc" id="L23">        return null;</span>
     }
 
     private Map&lt;String, LogicOperation&gt; checkBinaryOperation(BinaryOperation&lt;? extends LogicOperation&gt; l1, BinaryOperation&lt;? extends LogicOperation&gt; l2) {
