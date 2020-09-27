@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>ModalModusPonens.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">jacoco-report-aggregate</a> &gt; <a href="../index.html" class="el_bundle">implementation.deduction.modal</a> &gt; <a href="index.source.html" class="el_package">com.dan323.proof.modal</a> &gt; <span class="el_source">ModalModusPonens.java</span></div><h1>ModalModusPonens.java</h1><pre class="source lang-java linenums">package com.dan323.proof.modal;
+
+import com.dan323.expresions.modal.ModalLogicalOperation;
+import com.dan323.expresions.modal.ModalOperation;
+import com.dan323.proof.generic.ModusPonens;
+import com.dan323.proof.modal.proof.ModalNaturalDeduction;
+import com.dan323.proof.modal.proof.ProofStepModal;
+
+public final class ModalModusPonens&lt;T&gt; extends ModusPonens&lt;ModalOperation, ProofStepModal&lt;T&gt;, ModalNaturalDeduction&lt;T&gt;&gt; implements ModalAction&lt;T&gt; {
+
+    public ModalModusPonens(int i1, int i2) {
+<span class="fc" id="L12">        super(i1, i2);</span>
+<span class="fc" id="L13">    }</span>
+
+    @Override
+    public boolean isValid(ModalNaturalDeduction&lt;T&gt; pf) {
+<span class="fc bfc" id="L17" title="All 4 branches covered.">        return super.isValid(pf) &amp;&amp; ModalAction.checkEqualState(pf, get1(), get2());</span>
+    }
+
+    @Override
+    public void apply(ModalNaturalDeduction&lt;T&gt; pf) {
+<span class="fc" id="L22">        ProofStepModal&lt;T&gt; imp = pf.getSteps().get(get1() - 1);</span>
+<span class="fc" id="L23">        T st = imp.getState();</span>
+<span class="fc" id="L24">        applyStepSupplier(pf, ((assLevel, log, reason) -&gt; new ProofStepModal&lt;&gt;(st, assLevel, (ModalLogicalOperation) log, reason)));</span>
+<span class="fc" id="L25">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>
