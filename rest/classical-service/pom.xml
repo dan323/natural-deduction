@@ -14,20 +14,13 @@
     <dependencies>
         <dependency>
             <groupId>com.dan323</groupId>
-            <artifactId>deduction.service</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.dan323</groupId>
             <artifactId>framework</artifactId>
             <version>0.1-SNAPSHOT</version>
-            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>com.dan323</groupId>
             <artifactId>implementation.deduction.classic</artifactId>
             <version>0.1-SNAPSHOT</version>
-            <scope>compile</scope>
         </dependency>
     </dependencies>
 
