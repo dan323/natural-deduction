@@ -4,7 +4,7 @@ import com.dan323.expresions.base.Constant;
 
 import java.util.Map;
 
-public enum ConstantClassic implements ClassicalLogicOperation, Constant<ClassicalLogicOperation> {
+public enum ConstantClassic implements ClassicalLogicOperation, Constant {
 
     FALSE(false),TRUE(true);
 

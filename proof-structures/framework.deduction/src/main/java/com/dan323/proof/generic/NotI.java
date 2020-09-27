@@ -40,7 +40,7 @@ public abstract class NotI<T extends LogicOperation, Q extends ProofStep<T>, P e
         }
         LogicOperation lo = pf.getSteps().get(pf.getSteps().size() - 1).getStep();
         if (lo instanceof Constant) {
-            Constant<?> cons = (Constant<?>) lo;
+            Constant cons = (Constant) lo;
             if (!cons.isFalsehood()) {
                 return false;
             }

@@ -18,9 +18,9 @@ public abstract class FI<T extends LogicOperation, Q extends ProofStep<T>, P ext
 
     private final int neg;
     private final int pos;
-    private final Supplier<Constant<T>> constantFunction;
+    private final Supplier<Constant> constantFunction;
 
-    public FI(int a, int b, Supplier<Constant<T>> genConst) {
+    public FI(int a, int b, Supplier<Constant> genConst) {
         pos = a;
         neg = b;
         constantFunction = genConst;

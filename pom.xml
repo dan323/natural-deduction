@@ -30,7 +30,7 @@
 
         <reflections.version>0.9.11</reflections.version>
         <junit5.version>5.7.0</junit5.version>
-        <mockito.version>3.5.11</mockito.version>
+        <mockito.version>3.5.13</mockito.version>
         <maven.versions.version>2.8.1</maven.versions.version>
     </properties>
 

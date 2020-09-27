@@ -67,7 +67,7 @@ public class RuleNotTest {
 
         Assertions.assertFalse(notI.isValid(pf));
 
-        Constant<LogicOperation> last = mock(Constant.class);
+        Constant last = mock(Constant.class);
         doReturn(false).when(last).isFalsehood();
         doReturn(1).when(pStep1).getAssumptionLevel();
         doReturn(1).when(pStep0).getAssumptionLevel();

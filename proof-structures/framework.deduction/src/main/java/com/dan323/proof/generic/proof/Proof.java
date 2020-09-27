@@ -7,7 +7,7 @@ import com.dan323.proof.generic.Action;
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class Proof<T extends LogicOperation, Q extends ProofStep<T>,A extends Action<T,Q,?>> {
+public abstract class Proof<T extends LogicOperation, Q extends ProofStep<T>, A extends Action<T,Q,?>> {
 
     private List<T> assms;
     private T goal;

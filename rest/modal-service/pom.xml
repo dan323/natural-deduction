@@ -9,17 +9,25 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>deduction.controller</artifactId>
+    <artifactId>modal-service</artifactId>
     <dependencies>
         <dependency>
             <groupId>com.dan323</groupId>
-            <artifactId>deduction.model</artifactId>
-            <version>${project.version}</version>
+            <artifactId>framework</artifactId>
+            <version>0.1-SNAPSHOT</version>
+            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>com.dan323</groupId>
-            <artifactId>deduction.service</artifactId>
-            <version>${project.version}</version>
+            <artifactId>framework</artifactId>
+            <version>0.1-SNAPSHOT</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.dan323</groupId>
+            <artifactId>implementation.deduction.modal</artifactId>
+            <version>0.1-SNAPSHOT</version>
+            <scope>compile</scope>
         </dependency>
     </dependencies>
 

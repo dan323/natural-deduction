@@ -17,6 +17,7 @@ public class NaturalDeductionTest {
         var naturalDeduction = new NaturalDeduction();
         naturalDeduction.initializeProof(List.of(), new ImplicationClassic(p, p));
         naturalDeduction.automate();
+        System.out.println(naturalDeduction);
         assertTrue(naturalDeduction.isDone());
     }
 
@@ -26,6 +27,7 @@ public class NaturalDeductionTest {
         var naturalDeduction = new NaturalDeduction();
         naturalDeduction.initializeProof(List.of(), new ImplicationClassic(new NegationClassic(new NegationClassic(p)), p));
         naturalDeduction.automate();
+        System.out.println(naturalDeduction);
         assertTrue(naturalDeduction.isDone());
     }
 
@@ -54,6 +56,7 @@ public class NaturalDeductionTest {
         var naturalDeduction = new NaturalDeduction();
         naturalDeduction.initializeProof(List.of(new ImplicationClassic(p, q), p), q);
         naturalDeduction.automate();
+        System.out.println(naturalDeduction);
         assertTrue(naturalDeduction.isDone());
     }
 
@@ -74,6 +77,7 @@ public class NaturalDeductionTest {
         var naturalDeduction = new NaturalDeduction();
         naturalDeduction.initializeProof(List.of(p, new NegationClassic(p)), q);
         naturalDeduction.automate();
+        System.out.println(naturalDeduction);
         assertTrue(naturalDeduction.isDone());
     }
 
