@@ -1,6 +1,7 @@
 package com.dan323.model;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 /**
  * @author danco
@@ -49,5 +50,23 @@ public class Step<T extends Serializable> implements Serializable {
 
     public void setExtraInformation(T extraInformation) {
         this.extraInformation = extraInformation;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Step)) return false;
+
+        Step<?> step = (Step<?>) o;
+
+        return Objects.equals(extraInformation, step.extraInformation) &&
+                Objects.equals(ruleString, step.ruleString) &&
+                Objects.equals(expression, step.expression) &&
+                assmsLevel == step.assmsLevel;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(assmsLevel, ruleString, expression, extraInformation);
     }
 }

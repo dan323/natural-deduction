@@ -64,5 +64,4 @@ public class ClassicalService implements ProofService<ClassicalService.Nothing, 
 
     protected static class Nothing implements Serializable {
     }
-
 }

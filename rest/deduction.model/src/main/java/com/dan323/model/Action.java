@@ -2,6 +2,7 @@ package com.dan323.model;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author danco
@@ -35,5 +36,20 @@ public class Action<T extends Serializable> implements Serializable {
 
     public void setExtraInformation(T extraInformation) {
         this.extraInformation = extraInformation;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Action)) return false;
+        Action<?> action = (Action<?>) o;
+        return Objects.equals(name, action.name) &&
+                Objects.equals(sources, action.sources) &&
+                Objects.equals(extraInformation, action.extraInformation);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(name, sources, extraInformation);
     }
 }
