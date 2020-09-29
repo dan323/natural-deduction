@@ -35,7 +35,7 @@ public class ProofReason {
     }
 
     public static ProofReason parseReason(String ruleString, Map&lt;String, Function&lt;String, ProofReason&gt;&gt; extra) {
-<span class="pc bpc" id="L38" title="9 of 13 branches missed.">        ProofReason proofReason = switch (ruleString.substring(0, 3)) {</span>
+<span class="pc bpc" id="L38" title="8 of 13 branches missed.">        ProofReason proofReason = switch (ruleString.substring(0, 3)) {</span>
 <span class="nc" id="L39">            case &quot;Ass&quot; -&gt; new ProofReason(&quot;Ass&quot;, List.of());</span>
 <span class="nc" id="L40">            case &quot;|I &quot; -&gt; new ProofReason(&quot;|I&quot;, Arrays.stream(parseArray(ruleString, 2)).boxed().collect(Collectors.toUnmodifiableList()));</span>
 <span class="nc" id="L41">            case &quot;|E &quot; -&gt; new ProofReason(&quot;|E&quot;, Arrays.stream(parseArray(ruleString, 2)).boxed().collect(Collectors.toUnmodifiableList()));</span>
@@ -48,10 +48,10 @@ public class ProofReason {
 <span class="fc" id="L48">            case &quot;-&gt;E&quot; -&gt; new ProofReason(&quot;-&gt;E&quot;, Arrays.stream(parseArray(ruleString, 3)).boxed().collect(Collectors.toUnmodifiableList()));</span>
 <span class="nc" id="L49">            case &quot;FE &quot; -&gt; new ProofReason(&quot;FE&quot;, Arrays.stream(parseArray(ruleString, 2)).boxed().collect(Collectors.toUnmodifiableList()));</span>
 <span class="nc" id="L50">            case &quot;FI &quot; -&gt; new ProofReason(&quot;FI&quot;, Arrays.stream(parseArray(ruleString, 2)).boxed().collect(Collectors.toUnmodifiableList()));</span>
-<span class="pc" id="L51">            default -&gt; null;</span>
+<span class="fc" id="L51">            default -&gt; null;</span>
         };
-<span class="pc bpc" id="L53" title="3 of 4 branches missed.">        if (proofReason == null &amp;&amp; extra.containsKey(ruleString.substring(0, 3))) {</span>
-<span class="nc" id="L54">            return Optional.ofNullable(extra.get(ruleString.substring(0, 3)).apply(ruleString)).orElseThrow(() -&gt; new IllegalArgumentException(&quot;Not a valid rule&quot;));</span>
+<span class="pc bpc" id="L53" title="1 of 4 branches missed.">        if (proofReason == null &amp;&amp; extra.containsKey(ruleString.substring(0, 3))) {</span>
+<span class="pc" id="L54">            return Optional.ofNullable(extra.get(ruleString.substring(0, 3)).apply(ruleString)).orElseThrow(() -&gt; new IllegalArgumentException(&quot;Not a valid rule&quot;));</span>
         } else {
 <span class="fc" id="L56">            return proofReason;</span>
         }
