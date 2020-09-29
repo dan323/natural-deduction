@@ -9,6 +9,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.sql.rowset.serial.SerialJavaObject;
 import java.io.Serializable;
 import java.util.List;
 
@@ -29,8 +30,8 @@ public class ControllerInterface {
     }
 
     @PostMapping("{logic}/add/proof")
-    public ResponseEntity<Action<SequenceRule>> processProofFile(@RequestParam MultipartFile file, @PathVariable String logic) {
-        var action = service.processFile(file, logic);
+    public <Q extends Serializable> ResponseEntity<Action<SequenceRule<Q>>> processProofFile(@RequestParam MultipartFile file, @PathVariable String logic) {
+        var action = service.<Q>processFile(file, logic);
         if (action != null) {
             service.addCustomRule(action, logic);
             return ResponseEntity.status(HttpStatus.CREATED).body(action);

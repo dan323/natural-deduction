@@ -5,8 +5,8 @@ import com.dan323.classical.complex.DeMorgan;
 import com.dan323.classical.complex.OrE1;
 import com.dan323.classical.complex.OrE2;
 import com.dan323.classical.proof.NaturalDeduction;
-import com.dan323.expresions.base.LogicOperation;
-import com.dan323.expresions.classical.*;
+import com.dan323.expressions.base.LogicOperation;
+import com.dan323.expressions.classical.*;
 
 import java.util.ArrayList;
 import java.util.HashMap;

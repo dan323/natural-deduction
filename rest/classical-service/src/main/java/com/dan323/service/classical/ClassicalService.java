@@ -2,7 +2,7 @@ package com.dan323.service.classical;
 
 import com.dan323.classical.ClassicalAction;
 import com.dan323.classical.proof.NaturalDeduction;
-import com.dan323.expresions.classical.ClassicalLogicOperation;
+import com.dan323.expressions.classical.ClassicalLogicOperation;
 import com.dan323.model.Action;
 import com.dan323.model.Proof;
 import com.dan323.model.Step;

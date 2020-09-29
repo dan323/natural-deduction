@@ -1,9 +1,9 @@
 package com.dan323.proof.generic;
 
-import com.dan323.expresions.base.BinaryOperation;
-import com.dan323.expresions.base.Conjunction;
-import com.dan323.expresions.base.LogicOperation;
-import com.dan323.expresions.base.Variable;
+import com.dan323.expressions.base.BinaryOperation;
+import com.dan323.expressions.base.Conjunction;
+import com.dan323.expressions.base.LogicOperation;
+import com.dan323.expressions.base.Variable;
 import com.dan323.proof.generic.proof.ProofStep;
 import com.dan323.proof.generic.proof.ProofTest;
 import org.junit.jupiter.api.Assertions;

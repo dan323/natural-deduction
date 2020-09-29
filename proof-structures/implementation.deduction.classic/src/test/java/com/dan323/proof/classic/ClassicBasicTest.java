@@ -1,7 +1,7 @@
 package com.dan323.proof.classic;
 
-import com.dan323.expresions.classical.ClassicalLogicOperation;
-import com.dan323.expresions.classical.VariableClassic;
+import com.dan323.expressions.classical.ClassicalLogicOperation;
+import com.dan323.expressions.classical.VariableClassic;
 import com.dan323.classical.ClassicAssume;
 import com.dan323.classical.ClassicCopy;
 import com.dan323.classical.proof.NaturalDeduction;

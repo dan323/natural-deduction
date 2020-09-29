@@ -1,8 +1,8 @@
 package com.dan323.proof.modal;
 
-import com.dan323.expresions.modal.ConjunctionModal;
-import com.dan323.expresions.modal.ModalLogicalOperation;
-import com.dan323.expresions.modal.ModalOperation;
+import com.dan323.expressions.modal.ConjunctionModal;
+import com.dan323.expressions.modal.ModalLogicalOperation;
+import com.dan323.expressions.modal.ModalOperation;
 import com.dan323.proof.generic.AndI;
 import com.dan323.proof.modal.proof.ModalNaturalDeduction;
 import com.dan323.proof.modal.proof.ProofStepModal;

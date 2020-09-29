@@ -1,6 +1,6 @@
 package com.dan323.service.modal;
 
-import com.dan323.expresions.modal.ModalOperation;
+import com.dan323.expressions.modal.ModalOperation;
 import com.dan323.model.Action;
 import com.dan323.model.Proof;
 import com.dan323.model.Step;

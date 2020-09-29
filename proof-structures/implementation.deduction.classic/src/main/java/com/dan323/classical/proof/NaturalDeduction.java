@@ -2,7 +2,7 @@ package com.dan323.classical.proof;
 
 import com.dan323.classical.ClassicalAction;
 import com.dan323.classical.internal.ClassicalAutomate;
-import com.dan323.expresions.classical.ClassicalLogicOperation;
+import com.dan323.expressions.classical.ClassicalLogicOperation;
 import com.dan323.proof.generic.proof.ParseAction;
 import com.dan323.proof.generic.proof.Proof;
 import com.dan323.proof.generic.proof.ProofReason;
@@ -25,8 +25,8 @@ public final class NaturalDeduction extends Proof<ClassicalLogicOperation, Proof
     }
 
     @Override
-    protected ProofStep<ClassicalLogicOperation> generateAssm(ClassicalLogicOperation logicExpresion) {
-        return new ProofStep<>(0, logicExpresion, new ProofReason("Ass", List.of()));
+    protected ProofStep<ClassicalLogicOperation> generateAssm(ClassicalLogicOperation logicexpression) {
+        return new ProofStep<>(0, logicexpression, new ProofReason("Ass", List.of()));
     }
 
     public void automate() {

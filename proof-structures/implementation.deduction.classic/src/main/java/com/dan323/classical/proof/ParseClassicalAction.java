@@ -1,10 +1,10 @@
 package com.dan323.classical.proof;
 
 import com.dan323.classical.*;
-import com.dan323.expresions.classical.ClassicalLogicOperation;
-import com.dan323.expresions.classical.ClassicalParser;
-import com.dan323.expresions.classical.ConjunctionClassic;
-import com.dan323.expresions.classical.DisjunctionClassic;
+import com.dan323.expressions.classical.ClassicalLogicOperation;
+import com.dan323.expressions.classical.ClassicalParser;
+import com.dan323.expressions.classical.ConjunctionClassic;
+import com.dan323.expressions.classical.DisjunctionClassic;
 import com.dan323.proof.generic.proof.ProofReason;
 
 import java.util.Arrays;
@@ -124,14 +124,6 @@ public final class ParseClassicalAction {
 
     public static ProofReason parseReason(String ruleString) {
         return ProofReason.parseReason(ruleString, new HashMap<>());
-    }
-
-    private static int[] parseArray(String proofReason, int reasonLength) {
-        return Arrays.stream(proofReason.substring(reasonLength + 2, proofReason.length() - 1)
-                .split(","))
-                .map(String::trim)
-                .mapToInt(Integer::parseInt)
-                .toArray();
     }
 
     public static ClassicalAction parseAction(String name, List<Integer> sources, ClassicalLogicOperation extraInfo){

@@ -8,9 +8,9 @@ import com.dan323.classical.complex.OrE1;
 import com.dan323.classical.complex.OrE2;
 import com.dan323.classical.complex.Sequence;
 import com.dan323.classical.proof.NaturalDeduction;
-import com.dan323.expresions.classical.ConstantClassic;
-import com.dan323.expresions.classical.ImplicationClassic;
-import com.dan323.expresions.classical.VariableClassic;
+import com.dan323.expressions.classical.ConstantClassic;
+import com.dan323.expressions.classical.ImplicationClassic;
+import com.dan323.expressions.classical.VariableClassic;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;

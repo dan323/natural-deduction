@@ -23,11 +23,11 @@ public class ProofActionService {
     private final Map<String, List<String>> map = new HashMap<>();
 
     @Autowired
-    private List<ProofService> servicesByLogic;
+    private List<ProofService<?, ?>> servicesByLogic;
 
     @PostConstruct
     private void init() {
-        for (ProofService service : servicesByLogic) {
+        for (ProofService<?, ?> service : servicesByLogic) {
             map.put(service.getLogicName(), service.initPossibleActions());
         }
     }
@@ -37,11 +37,11 @@ public class ProofActionService {
     }
 
     //TODO
-    public Action<SequenceRule> processFile(MultipartFile file, String logic) {
+    public <Q extends Serializable> Action<SequenceRule<Q>> processFile(MultipartFile file, String logic) {
         return new Action<>();
     }
 
-    public void addCustomRule(Action<SequenceRule> action, String logic) {
+    public <Q extends Serializable> void addCustomRule(Action<SequenceRule<Q>> action, String logic) {
         if (map.containsKey(logic)) {
             map.get(logic).add(action.getName());
         } else {
@@ -53,7 +53,7 @@ public class ProofActionService {
 
     public <T extends Serializable, Q extends Serializable> Proof<Q> applyActionToProof(Proof<Q> proof, Action<T> action) {
         if (map.get(proof.getLogic()).contains(action.getName())) {
-            ProofService<Q,T> service = servicesByLogic.stream()
+            ProofService<Q, T> service = (ProofService<Q, T>) servicesByLogic.stream()
                     .filter(ser -> ser.getLogicName().equals(proof.getLogic()))
                     .findFirst()
                     .orElseThrow(IllegalArgumentException::new);

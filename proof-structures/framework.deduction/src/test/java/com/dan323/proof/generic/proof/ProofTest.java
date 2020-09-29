@@ -1,6 +1,6 @@
 package com.dan323.proof.generic.proof;
 
-import com.dan323.expresions.base.LogicOperation;
+import com.dan323.expressions.base.LogicOperation;
 import com.dan323.proof.generic.Action;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -83,8 +83,8 @@ public class ProofTest {
         }
 
         @Override
-        protected ProofStep<LogicOperation> generateAssm(LogicOperation logicExpresion) {
-            return new ProofStep<>(0, logicExpresion, mock(ProofReason.class));
+        protected ProofStep<LogicOperation> generateAssm(LogicOperation logicexpression) {
+            return new ProofStep<>(0, logicexpression, mock(ProofReason.class));
         }
 
         @Override

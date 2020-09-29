@@ -1,6 +1,6 @@
 package com.dan323.proof.generic.pattern;
 
-import com.dan323.expresions.base.*;
+import com.dan323.expressions.base.*;
 
 import java.util.HashMap;
 import java.util.Map;

@@ -1,8 +1,8 @@
 package com.dan323.proof.classic;
 
-import com.dan323.expresions.classical.ConstantClassic;
-import com.dan323.expresions.classical.NegationClassic;
-import com.dan323.expresions.classical.VariableClassic;
+import com.dan323.expressions.classical.ConstantClassic;
+import com.dan323.expressions.classical.NegationClassic;
+import com.dan323.expressions.classical.VariableClassic;
 import com.dan323.classical.ClassicAssume;
 import com.dan323.classical.ClassicNotE;
 import com.dan323.classical.ClassicNotI;

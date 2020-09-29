@@ -1,7 +1,7 @@
 package com.dan323.proof.generic;
 
-import com.dan323.expresions.base.Implication;
-import com.dan323.expresions.base.LogicOperation;
+import com.dan323.expressions.base.Implication;
+import com.dan323.expressions.base.LogicOperation;
 import com.dan323.proof.generic.proof.Proof;
 
 import java.util.function.IntConsumer;

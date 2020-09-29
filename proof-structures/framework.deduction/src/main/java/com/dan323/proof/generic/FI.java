@@ -1,8 +1,8 @@
 package com.dan323.proof.generic;
 
-import com.dan323.expresions.base.Constant;
-import com.dan323.expresions.base.LogicOperation;
-import com.dan323.expresions.base.Negation;
+import com.dan323.expressions.base.Constant;
+import com.dan323.expressions.base.LogicOperation;
+import com.dan323.expressions.base.Negation;
 import com.dan323.proof.generic.proof.Proof;
 import com.dan323.proof.generic.proof.ProofReason;
 import com.dan323.proof.generic.proof.ProofStep;

@@ -1,11 +1,11 @@
 package com.dan323.proof.modal.proof;
 
-import com.dan323.expresions.ModalLogicParser;
-import com.dan323.expresions.modal.ConjunctionModal;
-import com.dan323.expresions.modal.DisjunctionModal;
-import com.dan323.expresions.modal.ModalLogicalOperation;
-import com.dan323.expresions.modal.ModalOperation;
-import com.dan323.expresions.relation.RelationOperation;
+import com.dan323.expressions.ModalLogicParser;
+import com.dan323.expressions.modal.ConjunctionModal;
+import com.dan323.expressions.modal.DisjunctionModal;
+import com.dan323.expressions.modal.ModalLogicalOperation;
+import com.dan323.expressions.modal.ModalOperation;
+import com.dan323.expressions.relation.RelationOperation;
 import com.dan323.proof.generic.proof.ProofReason;
 import com.dan323.proof.modal.*;
 import com.dan323.proof.modal.relational.Reflexive;
@@ -33,8 +33,8 @@ public final class ParseModalAction {
             case "-I" -> parseNotI();
             case "->I" -> parseImpI();
             case "->E" -> parseImpE(proofReason);
-            case "FE" -> parseFE(proof, proofReason, atPos, state);
-            case "FI" -> parseFI(proof, proofReason, state);
+            case "FE" -> parseFE(proofReason, atPos, state);
+            case "FI" -> parseFI(proofReason, state);
             case "[]I" -> parseBoxI();
             case "[]E" -> parseBoxE(proofReason);
             case "<>I" -> parseDiaI(proofReason);
@@ -78,12 +78,12 @@ public final class ParseModalAction {
         return new ModalBoxI<>();
     }
 
-    private static <T> ModalFI<T> parseFI(ModalNaturalDeduction<T> naturalDeduction, ProofReason reason, T state) {
+    private static <T> ModalFI<T> parseFI(ProofReason reason, T state) {
         int[] ints = parseArray(reason);
         return new ModalFI<>(state, ints[0], ints[1]);
     }
 
-    private static <T> ModalFE<T> parseFE(ModalNaturalDeduction<T> naturalDeduction, ProofReason reason, ModalOperation atPos, T state) {
+    private static <T> ModalFE<T> parseFE(ProofReason reason, ModalOperation atPos, T state) {
         int[] ints = parseArray(reason);
         return new ModalFE<>(ints[0], (ModalLogicalOperation) atPos, state);
     }
