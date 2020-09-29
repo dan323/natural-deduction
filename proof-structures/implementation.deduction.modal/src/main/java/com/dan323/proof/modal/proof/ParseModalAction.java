@@ -23,7 +23,7 @@ public final class ParseModalAction {
 
     public static <T> AbstractModalAction<T> parseWithReason(ModalNaturalDeduction<T> proof, ModalOperation atPos, ProofReason proofReason, T state) {
         return switch (proofReason.getNameProof()) {
-            case "Ass" -> parseAss(proof, atPos, state);
+            case "Ass" -> parseAss(atPos, state);
             case "|I" -> parseOrI(proof, proofReason, atPos);
             case "|E" -> parseOrE(proofReason);
             case "&I" -> parseAndI(proofReason);
@@ -141,7 +141,7 @@ public final class ParseModalAction {
                 .map(String::trim).mapToInt(Integer::parseInt).toArray();
     }
 
-    private static <T> ModalAssume<T> parseAss(ModalNaturalDeduction<T> naturalDeduction, ModalOperation atPos, T state) {
+    private static <T> ModalAssume<T> parseAss(ModalOperation atPos, T state) {
         if (atPos instanceof RelationOperation) {
             return new ModalAssume<>((RelationOperation<T>) atPos);
         } else {
