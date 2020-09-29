@@ -8,8 +8,8 @@ import com.dan323.expresions.classical.DisjunctionClassic;
 import com.dan323.proof.generic.proof.ProofReason;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public final class ParseClassicalAction {
 
@@ -20,7 +20,7 @@ public final class ParseClassicalAction {
 
     public static ClassicalAction parseWithReason(NaturalDeduction naturalDeduction, ClassicalLogicOperation atPos, ProofReason proofReason) {
 <span class="pc bpc" id="L22" title="1 of 13 branches missed.">        return switch (proofReason.getNameProof()) {</span>
-<span class="fc" id="L23">            case &quot;Ass&quot; -&gt; parseAss(naturalDeduction, atPos);</span>
+<span class="fc" id="L23">            case &quot;Ass&quot; -&gt; parseAss(atPos);</span>
 <span class="fc" id="L24">            case &quot;|I&quot; -&gt; parseOrI(naturalDeduction, atPos, proofReason);</span>
 <span class="fc" id="L25">            case &quot;|E&quot; -&gt; parseOrE(proofReason);</span>
 <span class="fc" id="L26">            case &quot;&amp;I&quot; -&gt; parseAndI(proofReason);</span>
@@ -30,7 +30,7 @@ public final class ParseClassicalAction {
 <span class="fc" id="L30">            case &quot;-I&quot; -&gt; parseNotI();</span>
 <span class="fc" id="L31">            case &quot;-&gt;I&quot; -&gt; parseImpI();</span>
 <span class="fc" id="L32">            case &quot;-&gt;E&quot; -&gt; parseImpE(proofReason);</span>
-<span class="fc" id="L33">            case &quot;FE&quot; -&gt; parseFE(naturalDeduction, atPos, proofReason);</span>
+<span class="fc" id="L33">            case &quot;FE&quot; -&gt; parseFE(atPos, proofReason);</span>
 <span class="fc" id="L34">            case &quot;FI&quot; -&gt; parseFI(proofReason);</span>
 <span class="nc" id="L35">            default -&gt; throw new IllegalStateException();</span>
         };
@@ -47,7 +47,7 @@ public final class ParseClassicalAction {
 <span class="fc" id="L47">        return new ClassicFI(ints[0], ints[1]);</span>
     }
 
-    private static ClassicFE parseFE(NaturalDeduction naturalDeduction, ClassicalLogicOperation operation, ProofReason proofReason) {
+    private static ClassicFE parseFE(ClassicalLogicOperation operation, ProofReason proofReason) {
 <span class="fc" id="L51">        int[] ints = parseArray(proofReason);</span>
 <span class="fc" id="L52">        return new ClassicFE(ints[0], operation);</span>
     }
@@ -109,62 +109,48 @@ public final class ParseClassicalAction {
 <span class="fc" id="L109">                .toArray();</span>
     }
 
-    private static int[] parseArray(String proofReason, int reasonLength) {
-<span class="nc" id="L113">        return Arrays.stream(proofReason.substring(reasonLength + 2, proofReason.length() - 1)</span>
-<span class="nc" id="L114">                .split(&quot;,&quot;))</span>
-<span class="nc" id="L115">                .map(String::trim)</span>
-<span class="nc" id="L116">                .mapToInt(Integer::parseInt)</span>
-<span class="nc" id="L117">                .toArray();</span>
-    }
-
-    private static ClassicAssume parseAss(NaturalDeduction naturalDeduction, ClassicalLogicOperation atPos) {
-<span class="fc" id="L121">        return new ClassicAssume(atPos);</span>
+    private static ClassicAssume parseAss(ClassicalLogicOperation atPos) {
+<span class="fc" id="L113">        return new ClassicAssume(atPos);</span>
     }
 
     private static ClassicOrE parseOrE(ProofReason reason) {
-<span class="fc" id="L125">        int[] ints = parseArray(reason);</span>
-<span class="fc" id="L126">        return new ClassicOrE(ints[0], ints[1], ints[2]);</span>
+<span class="fc" id="L117">        int[] ints = parseArray(reason);</span>
+<span class="fc" id="L118">        return new ClassicOrE(ints[0], ints[1], ints[2]);</span>
     }
 
     public static ClassicalLogicOperation parseExpression(String expression) {
-<span class="nc" id="L130">        return classicalParser.evaluate(expression);</span>
+<span class="nc" id="L122">        return classicalParser.evaluate(expression);</span>
     }
 
     public static ProofReason parseReason(String ruleString) {
-<span class="nc bnc" id="L134" title="All 13 branches missed.">        return switch (ruleString.substring(0, 3)) {</span>
-<span class="nc" id="L135">            case &quot;Ass&quot; -&gt; new ProofReason(&quot;Ass&quot;, List.of());</span>
-<span class="nc" id="L136">            case &quot;|I &quot; -&gt; new ProofReason(&quot;|I&quot;, Arrays.stream(parseArray(ruleString, 2)).boxed().collect(Collectors.toUnmodifiableList()));</span>
-<span class="nc" id="L137">            case &quot;|E &quot; -&gt; new ProofReason(&quot;|E&quot;, Arrays.stream(parseArray(ruleString, 2)).boxed().collect(Collectors.toUnmodifiableList()));</span>
-<span class="nc" id="L138">            case &quot;&amp;I &quot; -&gt; new ProofReason(&quot;&amp;I&quot;, Arrays.stream(parseArray(ruleString, 2)).boxed().collect(Collectors.toUnmodifiableList()));</span>
-<span class="nc" id="L139">            case &quot;&amp;E &quot; -&gt; new ProofReason(&quot;&amp;E&quot;, Arrays.stream(parseArray(ruleString, 2)).boxed().collect(Collectors.toUnmodifiableList()));</span>
-<span class="nc" id="L140">            case &quot;Rep&quot; -&gt; new ProofReason(&quot;Rep&quot;, Arrays.stream(parseArray(ruleString, 3)).boxed().collect(Collectors.toUnmodifiableList()));</span>
-<span class="nc" id="L141">            case &quot;-E &quot; -&gt; new ProofReason(&quot;-E&quot;, Arrays.stream(parseArray(ruleString, 2)).boxed().collect(Collectors.toUnmodifiableList()));</span>
-<span class="nc" id="L142">            case &quot;-I &quot; -&gt; new ProofReason(&quot;-I&quot;, List.of());</span>
-<span class="nc" id="L143">            case &quot;-&gt;I&quot; -&gt; new ProofReason(&quot;-&gt;I&quot;, List.of());</span>
-<span class="nc" id="L144">            case &quot;-&gt;E&quot; -&gt; new ProofReason(&quot;-&gt;E&quot;, Arrays.stream(parseArray(ruleString, 3)).boxed().collect(Collectors.toUnmodifiableList()));</span>
-<span class="nc" id="L145">            case &quot;FE &quot; -&gt; new ProofReason(&quot;FE&quot;, Arrays.stream(parseArray(ruleString, 2)).boxed().collect(Collectors.toUnmodifiableList()));</span>
-<span class="nc" id="L146">            case &quot;FI &quot; -&gt; new ProofReason(&quot;FI&quot;, Arrays.stream(parseArray(ruleString, 2)).boxed().collect(Collectors.toUnmodifiableList()));</span>
-<span class="nc" id="L147">            default -&gt; throw new IllegalArgumentException();</span>
-        };
+<span class="nc" id="L126">        return ProofReason.parseReason(ruleString, new HashMap&lt;&gt;());</span>
+    }
+
+    private static int[] parseArray(String proofReason, int reasonLength) {
+<span class="nc" id="L130">        return Arrays.stream(proofReason.substring(reasonLength + 2, proofReason.length() - 1)</span>
+<span class="nc" id="L131">                .split(&quot;,&quot;))</span>
+<span class="nc" id="L132">                .map(String::trim)</span>
+<span class="nc" id="L133">                .mapToInt(Integer::parseInt)</span>
+<span class="nc" id="L134">                .toArray();</span>
     }
 
     public static ClassicalAction parseAction(String name, List&lt;Integer&gt; sources, ClassicalLogicOperation extraInfo){
-<span class="nc bnc" id="L152" title="All 15 branches missed.">        return switch (name) {</span>
-<span class="nc" id="L153">            case &quot;Ass&quot; -&gt; new ClassicAssume(extraInfo);</span>
-<span class="nc" id="L154">            case &quot;|I1&quot; -&gt; new ClassicOrI1(sources.get(0), extraInfo);</span>
-<span class="nc" id="L155">            case &quot;|I2&quot; -&gt; new ClassicOrI2(sources.get(0), extraInfo);</span>
-<span class="nc" id="L156">            case &quot;|E&quot; -&gt; new ClassicOrE(sources.get(0), sources.get(1), sources.get(2));</span>
-<span class="nc" id="L157">            case &quot;&amp;I&quot; -&gt; new ClassicAndI(sources.get(0), sources.get(1));</span>
-<span class="nc" id="L158">            case &quot;&amp;E1&quot; -&gt; new ClassicAndE1(sources.get(0));</span>
-<span class="nc" id="L159">            case &quot;&amp;E2&quot; -&gt; new ClassicAndE2(sources.get(0));</span>
-<span class="nc" id="L160">            case &quot;Rep&quot; -&gt; new ClassicCopy(sources.get(0));</span>
-<span class="nc" id="L161">            case &quot;-E&quot; -&gt; new ClassicNotE(sources.get(0));</span>
-<span class="nc" id="L162">            case &quot;-I&quot; -&gt; new ClassicNotI();</span>
-<span class="nc" id="L163">            case &quot;-&gt;I&quot; -&gt; new ClassicDeductionTheorem();</span>
-<span class="nc" id="L164">            case &quot;-&gt;E&quot; -&gt; new ClassicModusPonens(sources.get(0), sources.get(1));</span>
-<span class="nc" id="L165">            case &quot;FE&quot; -&gt; new ClassicFE(sources.get(0), extraInfo);</span>
-<span class="nc" id="L166">            case &quot;FI&quot; -&gt; new ClassicFI(sources.get(0), sources.get(1));</span>
-<span class="nc" id="L167">            default -&gt; throw new IllegalArgumentException();</span>
+<span class="nc bnc" id="L138" title="All 15 branches missed.">        return switch (name) {</span>
+<span class="nc" id="L139">            case &quot;Ass&quot; -&gt; new ClassicAssume(extraInfo);</span>
+<span class="nc" id="L140">            case &quot;|I1&quot; -&gt; new ClassicOrI1(sources.get(0), extraInfo);</span>
+<span class="nc" id="L141">            case &quot;|I2&quot; -&gt; new ClassicOrI2(sources.get(0), extraInfo);</span>
+<span class="nc" id="L142">            case &quot;|E&quot; -&gt; new ClassicOrE(sources.get(0), sources.get(1), sources.get(2));</span>
+<span class="nc" id="L143">            case &quot;&amp;I&quot; -&gt; new ClassicAndI(sources.get(0), sources.get(1));</span>
+<span class="nc" id="L144">            case &quot;&amp;E1&quot; -&gt; new ClassicAndE1(sources.get(0));</span>
+<span class="nc" id="L145">            case &quot;&amp;E2&quot; -&gt; new ClassicAndE2(sources.get(0));</span>
+<span class="nc" id="L146">            case &quot;Rep&quot; -&gt; new ClassicCopy(sources.get(0));</span>
+<span class="nc" id="L147">            case &quot;-E&quot; -&gt; new ClassicNotE(sources.get(0));</span>
+<span class="nc" id="L148">            case &quot;-I&quot; -&gt; new ClassicNotI();</span>
+<span class="nc" id="L149">            case &quot;-&gt;I&quot; -&gt; new ClassicDeductionTheorem();</span>
+<span class="nc" id="L150">            case &quot;-&gt;E&quot; -&gt; new ClassicModusPonens(sources.get(0), sources.get(1));</span>
+<span class="nc" id="L151">            case &quot;FE&quot; -&gt; new ClassicFE(sources.get(0), extraInfo);</span>
+<span class="nc" id="L152">            case &quot;FI&quot; -&gt; new ClassicFI(sources.get(0), sources.get(1));</span>
+<span class="nc" id="L153">            default -&gt; throw new IllegalArgumentException();</span>
         };
     }
 }
