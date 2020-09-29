@@ -12,7 +12,8 @@ import com.dan323.proof.modal.relational.Reflexive;
 import com.dan323.proof.modal.relational.Transitive;
 
 import java.util.Arrays;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -163,27 +164,14 @@ public final class ParseModalAction {
     }
 
     public static ProofReason parseReason(String ruleString) {
-        return switch (ruleString.substring(0, 3)) {
-            case "Ass" -> new ProofReason("Ass", List.of());
-            case "|I " -> new ProofReason("|I", Arrays.stream(parseArray(ruleString, 2)).boxed().collect(Collectors.toUnmodifiableList()));
-            case "|E " -> new ProofReason("|E", Arrays.stream(parseArray(ruleString, 2)).boxed().collect(Collectors.toUnmodifiableList()));
-            case "&I " -> new ProofReason("&I", Arrays.stream(parseArray(ruleString, 2)).boxed().collect(Collectors.toUnmodifiableList()));
-            case "&E " -> new ProofReason("&E", Arrays.stream(parseArray(ruleString, 2)).boxed().collect(Collectors.toUnmodifiableList()));
-            case "Rep" -> new ProofReason("Rep", Arrays.stream(parseArray(ruleString, 3)).boxed().collect(Collectors.toUnmodifiableList()));
-            case "-E " -> new ProofReason("-E", Arrays.stream(parseArray(ruleString, 2)).boxed().collect(Collectors.toUnmodifiableList()));
-            case "-I " -> new ProofReason("-I", List.of());
-            case "->I" -> new ProofReason("->I", List.of());
-            case "->E" -> new ProofReason("->E", Arrays.stream(parseArray(ruleString, 3)).boxed().collect(Collectors.toUnmodifiableList()));
-            case "FE " -> new ProofReason("FE", Arrays.stream(parseArray(ruleString, 2)).boxed().collect(Collectors.toUnmodifiableList()));
-            case "FI " -> new ProofReason("FI", Arrays.stream(parseArray(ruleString, 2)).boxed().collect(Collectors.toUnmodifiableList()));
-            case "[]I" -> new ProofReason("[]I", Arrays.stream(parseArray(ruleString, 3)).boxed().collect(Collectors.toUnmodifiableList()));
-            case "[]E" -> new ProofReason("[]E", Arrays.stream(parseArray(ruleString, 3)).boxed().collect(Collectors.toUnmodifiableList()));
-            case "<>I" -> new ProofReason("<>I", Arrays.stream(parseArray(ruleString, 3)).boxed().collect(Collectors.toUnmodifiableList()));
-            case "<>E" -> new ProofReason("<>E", Arrays.stream(parseArray(ruleString, 3)).boxed().collect(Collectors.toUnmodifiableList()));
-            case "Ref" -> new ProofReason("Refl", Arrays.stream(parseArray(ruleString, 4)).boxed().collect(Collectors.toUnmodifiableList()));
-            case "Tra" -> new ProofReason("Trans", Arrays.stream(parseArray(ruleString, 5)).boxed().collect(Collectors.toUnmodifiableList()));
-            default -> throw new IllegalArgumentException();
-        };
+        Map<String, Function<String, ProofReason>> map = new HashMap<>();
+        map.put("[]I", st -> new ProofReason("[]I", Arrays.stream(parseArray(st, 3)).boxed().collect(Collectors.toUnmodifiableList())));
+        map.put("[]E", st -> new ProofReason("[]E", Arrays.stream(parseArray(st, 3)).boxed().collect(Collectors.toUnmodifiableList())));
+        map.put("<>I", st -> new ProofReason("<>I", Arrays.stream(parseArray(st, 3)).boxed().collect(Collectors.toUnmodifiableList())));
+        map.put("<>E", st -> new ProofReason("<>E", Arrays.stream(parseArray(st, 3)).boxed().collect(Collectors.toUnmodifiableList())));
+        map.put("Ref", st -> new ProofReason("Refl", Arrays.stream(parseArray(st, 4)).boxed().collect(Collectors.toUnmodifiableList())));
+        map.put("Tra", st -> new ProofReason("Trans", Arrays.stream(parseArray(st, 5)).boxed().collect(Collectors.toUnmodifiableList())));
+        return ProofReason.parseReason(ruleString, map);
     }
 
     private static final ModalLogicParser<String> modalParser = new ModalLogicParser<>(Function.identity());

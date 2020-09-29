@@ -8,8 +8,8 @@ import com.dan323.expresions.classical.DisjunctionClassic;
 import com.dan323.proof.generic.proof.ProofReason;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public final class ParseClassicalAction {
 
@@ -20,7 +20,7 @@ public final class ParseClassicalAction {
 
     public static ClassicalAction parseWithReason(NaturalDeduction naturalDeduction, ClassicalLogicOperation atPos, ProofReason proofReason) {
         return switch (proofReason.getNameProof()) {
-            case "Ass" -> parseAss(naturalDeduction, atPos);
+            case "Ass" -> parseAss(atPos);
             case "|I" -> parseOrI(naturalDeduction, atPos, proofReason);
             case "|E" -> parseOrE(proofReason);
             case "&I" -> parseAndI(proofReason);
@@ -30,7 +30,7 @@ public final class ParseClassicalAction {
             case "-I" -> parseNotI();
             case "->I" -> parseImpI();
             case "->E" -> parseImpE(proofReason);
-            case "FE" -> parseFE(naturalDeduction, atPos, proofReason);
+            case "FE" -> parseFE(atPos, proofReason);
             case "FI" -> parseFI(proofReason);
             default -> throw new IllegalStateException();
         };
@@ -47,7 +47,7 @@ public final class ParseClassicalAction {
         return new ClassicFI(ints[0], ints[1]);
     }
 
-    private static ClassicFE parseFE(NaturalDeduction naturalDeduction, ClassicalLogicOperation operation, ProofReason proofReason) {
+    private static ClassicFE parseFE(ClassicalLogicOperation operation, ProofReason proofReason) {
         int[] ints = parseArray(proofReason);
         return new ClassicFE(ints[0], operation);
     }
@@ -109,15 +109,7 @@ public final class ParseClassicalAction {
                 .toArray();
     }
 
-    private static int[] parseArray(String proofReason, int reasonLength) {
-        return Arrays.stream(proofReason.substring(reasonLength + 2, proofReason.length() - 1)
-                .split(","))
-                .map(String::trim)
-                .mapToInt(Integer::parseInt)
-                .toArray();
-    }
-
-    private static ClassicAssume parseAss(NaturalDeduction naturalDeduction, ClassicalLogicOperation atPos) {
+    private static ClassicAssume parseAss(ClassicalLogicOperation atPos) {
         return new ClassicAssume(atPos);
     }
 
@@ -131,21 +123,15 @@ public final class ParseClassicalAction {
     }
 
     public static ProofReason parseReason(String ruleString) {
-        return switch (ruleString.substring(0, 3)) {
-            case "Ass" -> new ProofReason("Ass", List.of());
-            case "|I " -> new ProofReason("|I", Arrays.stream(parseArray(ruleString, 2)).boxed().collect(Collectors.toUnmodifiableList()));
-            case "|E " -> new ProofReason("|E", Arrays.stream(parseArray(ruleString, 2)).boxed().collect(Collectors.toUnmodifiableList()));
-            case "&I " -> new ProofReason("&I", Arrays.stream(parseArray(ruleString, 2)).boxed().collect(Collectors.toUnmodifiableList()));
-            case "&E " -> new ProofReason("&E", Arrays.stream(parseArray(ruleString, 2)).boxed().collect(Collectors.toUnmodifiableList()));
-            case "Rep" -> new ProofReason("Rep", Arrays.stream(parseArray(ruleString, 3)).boxed().collect(Collectors.toUnmodifiableList()));
-            case "-E " -> new ProofReason("-E", Arrays.stream(parseArray(ruleString, 2)).boxed().collect(Collectors.toUnmodifiableList()));
-            case "-I " -> new ProofReason("-I", List.of());
-            case "->I" -> new ProofReason("->I", List.of());
-            case "->E" -> new ProofReason("->E", Arrays.stream(parseArray(ruleString, 3)).boxed().collect(Collectors.toUnmodifiableList()));
-            case "FE " -> new ProofReason("FE", Arrays.stream(parseArray(ruleString, 2)).boxed().collect(Collectors.toUnmodifiableList()));
-            case "FI " -> new ProofReason("FI", Arrays.stream(parseArray(ruleString, 2)).boxed().collect(Collectors.toUnmodifiableList()));
-            default -> throw new IllegalArgumentException();
-        };
+        return ProofReason.parseReason(ruleString, new HashMap<>());
+    }
+
+    private static int[] parseArray(String proofReason, int reasonLength) {
+        return Arrays.stream(proofReason.substring(reasonLength + 2, proofReason.length() - 1)
+                .split(","))
+                .map(String::trim)
+                .mapToInt(Integer::parseInt)
+                .toArray();
     }
 
     public static ClassicalAction parseAction(String name, List<Integer> sources, ClassicalLogicOperation extraInfo){

@@ -45,5 +45,4 @@ public final class ClassicalParser extends AbstractEvaluator<ClassicalLogicOpera
     protected ClassicalLogicOperation toValue(String s, Object o) {
         return new VariableClassic(s.trim());
     }
-
 }
