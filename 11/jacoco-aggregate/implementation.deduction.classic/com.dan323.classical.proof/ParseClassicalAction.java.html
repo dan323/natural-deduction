@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>ParseClassicalAction.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">jacoco-report-aggregate</a> &gt; <a href="../index.html" class="el_bundle">implementation.deduction.classic</a> &gt; <a href="index.source.html" class="el_package">com.dan323.classical.proof</a> &gt; <span class="el_source">ParseClassicalAction.java</span></div><h1>ParseClassicalAction.java</h1><pre class="source lang-java linenums">package com.dan323.classical.proof;
 
 import com.dan323.classical.*;
-import com.dan323.expresions.classical.ClassicalLogicOperation;
-import com.dan323.expresions.classical.ClassicalParser;
-import com.dan323.expresions.classical.ConjunctionClassic;
-import com.dan323.expresions.classical.DisjunctionClassic;
+import com.dan323.expressions.classical.ClassicalLogicOperation;
+import com.dan323.expressions.classical.ClassicalParser;
+import com.dan323.expressions.classical.ConjunctionClassic;
+import com.dan323.expressions.classical.DisjunctionClassic;
 import com.dan323.proof.generic.proof.ProofReason;
 
 import java.util.Arrays;
@@ -126,31 +126,23 @@ public final class ParseClassicalAction {
 <span class="fc" id="L126">        return ProofReason.parseReason(ruleString, new HashMap&lt;&gt;());</span>
     }
 
-    private static int[] parseArray(String proofReason, int reasonLength) {
-<span class="nc" id="L130">        return Arrays.stream(proofReason.substring(reasonLength + 2, proofReason.length() - 1)</span>
-<span class="nc" id="L131">                .split(&quot;,&quot;))</span>
-<span class="nc" id="L132">                .map(String::trim)</span>
-<span class="nc" id="L133">                .mapToInt(Integer::parseInt)</span>
-<span class="nc" id="L134">                .toArray();</span>
-    }
-
     public static ClassicalAction parseAction(String name, List&lt;Integer&gt; sources, ClassicalLogicOperation extraInfo){
-<span class="nc bnc" id="L138" title="All 15 branches missed.">        return switch (name) {</span>
-<span class="nc" id="L139">            case &quot;Ass&quot; -&gt; new ClassicAssume(extraInfo);</span>
-<span class="nc" id="L140">            case &quot;|I1&quot; -&gt; new ClassicOrI1(sources.get(0), extraInfo);</span>
-<span class="nc" id="L141">            case &quot;|I2&quot; -&gt; new ClassicOrI2(sources.get(0), extraInfo);</span>
-<span class="nc" id="L142">            case &quot;|E&quot; -&gt; new ClassicOrE(sources.get(0), sources.get(1), sources.get(2));</span>
-<span class="nc" id="L143">            case &quot;&amp;I&quot; -&gt; new ClassicAndI(sources.get(0), sources.get(1));</span>
-<span class="nc" id="L144">            case &quot;&amp;E1&quot; -&gt; new ClassicAndE1(sources.get(0));</span>
-<span class="nc" id="L145">            case &quot;&amp;E2&quot; -&gt; new ClassicAndE2(sources.get(0));</span>
-<span class="nc" id="L146">            case &quot;Rep&quot; -&gt; new ClassicCopy(sources.get(0));</span>
-<span class="nc" id="L147">            case &quot;-E&quot; -&gt; new ClassicNotE(sources.get(0));</span>
-<span class="nc" id="L148">            case &quot;-I&quot; -&gt; new ClassicNotI();</span>
-<span class="nc" id="L149">            case &quot;-&gt;I&quot; -&gt; new ClassicDeductionTheorem();</span>
-<span class="nc" id="L150">            case &quot;-&gt;E&quot; -&gt; new ClassicModusPonens(sources.get(0), sources.get(1));</span>
-<span class="nc" id="L151">            case &quot;FE&quot; -&gt; new ClassicFE(sources.get(0), extraInfo);</span>
-<span class="nc" id="L152">            case &quot;FI&quot; -&gt; new ClassicFI(sources.get(0), sources.get(1));</span>
-<span class="nc" id="L153">            default -&gt; throw new IllegalArgumentException();</span>
+<span class="nc bnc" id="L130" title="All 15 branches missed.">        return switch (name) {</span>
+<span class="nc" id="L131">            case &quot;Ass&quot; -&gt; new ClassicAssume(extraInfo);</span>
+<span class="nc" id="L132">            case &quot;|I1&quot; -&gt; new ClassicOrI1(sources.get(0), extraInfo);</span>
+<span class="nc" id="L133">            case &quot;|I2&quot; -&gt; new ClassicOrI2(sources.get(0), extraInfo);</span>
+<span class="nc" id="L134">            case &quot;|E&quot; -&gt; new ClassicOrE(sources.get(0), sources.get(1), sources.get(2));</span>
+<span class="nc" id="L135">            case &quot;&amp;I&quot; -&gt; new ClassicAndI(sources.get(0), sources.get(1));</span>
+<span class="nc" id="L136">            case &quot;&amp;E1&quot; -&gt; new ClassicAndE1(sources.get(0));</span>
+<span class="nc" id="L137">            case &quot;&amp;E2&quot; -&gt; new ClassicAndE2(sources.get(0));</span>
+<span class="nc" id="L138">            case &quot;Rep&quot; -&gt; new ClassicCopy(sources.get(0));</span>
+<span class="nc" id="L139">            case &quot;-E&quot; -&gt; new ClassicNotE(sources.get(0));</span>
+<span class="nc" id="L140">            case &quot;-I&quot; -&gt; new ClassicNotI();</span>
+<span class="nc" id="L141">            case &quot;-&gt;I&quot; -&gt; new ClassicDeductionTheorem();</span>
+<span class="nc" id="L142">            case &quot;-&gt;E&quot; -&gt; new ClassicModusPonens(sources.get(0), sources.get(1));</span>
+<span class="nc" id="L143">            case &quot;FE&quot; -&gt; new ClassicFE(sources.get(0), extraInfo);</span>
+<span class="nc" id="L144">            case &quot;FI&quot; -&gt; new ClassicFI(sources.get(0), sources.get(1));</span>
+<span class="nc" id="L145">            default -&gt; throw new IllegalArgumentException();</span>
         };
     }
 }
