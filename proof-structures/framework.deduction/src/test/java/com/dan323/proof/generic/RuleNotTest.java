@@ -1,6 +1,6 @@
 package com.dan323.proof.generic;
 
-import com.dan323.expresions.base.*;
+import com.dan323.expressions.base.*;
 import com.dan323.proof.generic.proof.ProofReason;
 import com.dan323.proof.generic.proof.ProofStep;
 import com.dan323.proof.generic.proof.ProofTest;
@@ -67,7 +67,7 @@ public class RuleNotTest {
 
         Assertions.assertFalse(notI.isValid(pf));
 
-        Constant<LogicOperation> last = mock(Constant.class);
+        Constant last = mock(Constant.class);
         doReturn(false).when(last).isFalsehood();
         doReturn(1).when(pStep1).getAssumptionLevel();
         doReturn(1).when(pStep0).getAssumptionLevel();

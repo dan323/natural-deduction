@@ -11,11 +11,11 @@
 
     <artifactId>rest</artifactId>
     <packaging>pom</packaging>
-    <version>0.1-SNAPSHOT</version>
     <modules>
         <module>deduction.model</module>
-        <module>deduction.service</module>
-        <module>deduction.controller</module>
+        <module>framework</module>
+        <module>classical-service</module>
+        <module>modal-service</module>
     </modules>
 
     <dependencies>

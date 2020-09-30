@@ -1,8 +1,8 @@
 package com.dan323.proof.generic;
 
-import com.dan323.expresions.base.Constant;
-import com.dan323.expresions.base.LogicOperation;
-import com.dan323.expresions.base.Negation;
+import com.dan323.expressions.base.Constant;
+import com.dan323.expressions.base.LogicOperation;
+import com.dan323.expressions.base.Negation;
 import com.dan323.proof.generic.proof.Proof;
 import com.dan323.proof.generic.proof.ProofReason;
 import com.dan323.proof.generic.proof.ProofStep;
@@ -18,9 +18,9 @@ public abstract class FI<T extends LogicOperation, Q extends ProofStep<T>, P ext
 
     private final int neg;
     private final int pos;
-    private final Supplier<Constant<T>> constantFunction;
+    private final Supplier<Constant> constantFunction;
 
-    public FI(int a, int b, Supplier<Constant<T>> genConst) {
+    public FI(int a, int b, Supplier<Constant> genConst) {
         pos = a;
         neg = b;
         constantFunction = genConst;

@@ -1,25 +1,26 @@
 package com.dan323.model;
 
+import java.io.Serializable;
+
 /**
  * @author danco
  */
-public class ProofResponse {
+public class ProofResponse<Q extends Serializable> {
 
-    private Proof proof;
+    private Proof<Q> proof;
     private boolean success;
     private String message;
 
-    public ProofResponse(Proof proof, boolean success, String message) {
+    public ProofResponse(Proof<Q> proof, boolean success) {
         this.proof = proof;
         this.success = success;
-        this.message = message;
     }
 
-    public Proof getProof() {
+    public Proof<Q> getProof() {
         return proof;
     }
 
-    public void setProof(Proof proof) {
+    public void setProof(Proof<Q> proof) {
         this.proof = proof;
     }
 

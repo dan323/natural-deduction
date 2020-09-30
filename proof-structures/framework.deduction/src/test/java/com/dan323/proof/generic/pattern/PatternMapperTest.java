@@ -1,6 +1,10 @@
 package com.dan323.proof.generic.pattern;
 
-import com.dan323.expresions.base.*;
+import com.dan323.expressions.base.Conjunction;
+import com.dan323.expressions.base.Constant;
+import com.dan323.expressions.base.LogicOperation;
+import com.dan323.expressions.base.Negation;
+import com.dan323.expressions.base.Variable;
 import org.junit.jupiter.api.Test;
 
 import java.util.Map;
@@ -67,7 +71,7 @@ public class PatternMapperTest {
         assertEquals(solution.get("P"), q);
     }
 
-    private enum ConstantStub implements Constant<LogicOperation> {
+    private enum ConstantStub implements Constant {
 
         FALSE, TRUE;
 

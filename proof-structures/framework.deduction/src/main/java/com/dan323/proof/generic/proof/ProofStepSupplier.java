@@ -1,6 +1,6 @@
 package com.dan323.proof.generic.proof;
 
-import com.dan323.expresions.base.LogicOperation;
+import com.dan323.expressions.base.LogicOperation;
 
 /**
  * @author danco

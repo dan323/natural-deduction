@@ -3,6 +3,9 @@
  */
 module language.implementation.modal {
     requires transitive language.base;
-    exports com.dan323.expresions.modal;
-    exports com.dan323.expresions.relation;
+    requires javaluator;
+
+    exports com.dan323.expressions.modal;
+    exports com.dan323.expressions.relation;
+    exports com.dan323.expressions;
 }

@@ -1,8 +1,8 @@
 package com.dan323.proof.modal;
 
-import com.dan323.expresions.modal.ModalLogicalOperation;
-import com.dan323.expresions.modal.ModalOperation;
-import com.dan323.expresions.modal.NegationModal;
+import com.dan323.expressions.modal.ModalLogicalOperation;
+import com.dan323.expressions.modal.ModalOperation;
+import com.dan323.expressions.modal.NegationModal;
 import com.dan323.proof.generic.NotI;
 import com.dan323.proof.generic.RuleUtils;
 import com.dan323.proof.modal.proof.ModalNaturalDeduction;

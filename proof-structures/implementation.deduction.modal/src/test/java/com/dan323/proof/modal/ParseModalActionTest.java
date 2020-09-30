@@ -1,7 +1,7 @@
 package com.dan323.proof.modal;
 
-import com.dan323.expresions.modal.*;
-import com.dan323.expresions.relation.LessEqual;
+import com.dan323.expressions.modal.*;
+import com.dan323.expressions.relation.LessEqual;
 import com.dan323.proof.generic.Copy;
 import com.dan323.proof.modal.proof.ModalNaturalDeduction;
 import com.dan323.proof.modal.relational.Reflexive;

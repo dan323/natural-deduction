@@ -3,6 +3,7 @@
  */
 module language.implementation.classical{
     requires transitive language.base;
-    exports com.dan323.expresions.classical;
-    exports com.dan323.expresions.classical.exceptions;
+    requires javaluator;
+    exports com.dan323.expressions.classical;
+    exports com.dan323.expressions.classical.exceptions;
 }

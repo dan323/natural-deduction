@@ -1,7 +1,7 @@
 package com.dan323.proof.generic;
 
-import com.dan323.expresions.base.Constant;
-import com.dan323.expresions.base.LogicOperation;
+import com.dan323.expressions.base.Constant;
+import com.dan323.expressions.base.LogicOperation;
 import com.dan323.proof.generic.proof.Proof;
 import com.dan323.proof.generic.proof.ProofReason;
 import com.dan323.proof.generic.proof.ProofStep;
@@ -40,7 +40,7 @@ public abstract class FE<T extends LogicOperation, Q extends ProofStep<T>, P ext
     @Override
     public boolean isValid(P pf) {
         if (RuleUtils.isValidIndexAndProp(pf, falseIndex) && RuleUtils.isOperation(pf, falseIndex, Constant.class)) {
-            Constant<?> cons = (Constant<?>) pf.getSteps().get(falseIndex - 1).getStep();
+            Constant cons = (Constant) pf.getSteps().get(falseIndex - 1).getStep();
             return cons.isFalsehood();
         }
         return false;

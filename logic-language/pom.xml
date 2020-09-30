@@ -15,6 +15,13 @@
         <module>implementation.modal</module>
     </modules>
     <artifactId>logic-language</artifactId>
+    <dependencies>
+        <dependency>
+            <groupId>com.fathzer</groupId>
+            <artifactId>javaluator</artifactId>
+            <version>3.0.3</version>
+        </dependency>
+    </dependencies>
 
 
 </project>

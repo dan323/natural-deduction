@@ -1,9 +1,9 @@
 package com.dan323.proof.modal;
 
-import com.dan323.expresions.modal.DisjunctionModal;
-import com.dan323.expresions.modal.ImplicationModal;
-import com.dan323.expresions.modal.ModalLogicalOperation;
-import com.dan323.expresions.modal.VariableModal;
+import com.dan323.expressions.modal.DisjunctionModal;
+import com.dan323.expressions.modal.ImplicationModal;
+import com.dan323.expressions.modal.ModalLogicalOperation;
+import com.dan323.expressions.modal.VariableModal;
 import com.dan323.proof.modal.proof.ModalNaturalDeduction;
 import com.dan323.proof.modal.proof.ProofStepModal;
 import org.junit.jupiter.api.Assertions;

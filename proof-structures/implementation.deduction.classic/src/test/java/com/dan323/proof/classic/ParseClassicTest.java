@@ -5,7 +5,7 @@ import com.dan323.classical.ClassicFE;
 import com.dan323.classical.ClassicalAction;
 import com.dan323.classical.complex.DeMorgan;
 import com.dan323.classical.proof.NaturalDeduction;
-import com.dan323.expresions.classical.*;
+import com.dan323.expressions.classical.*;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 

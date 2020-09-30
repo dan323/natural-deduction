@@ -1,6 +1,6 @@
 package com.dan323.proof.generic;
 
-import com.dan323.expresions.base.*;
+import com.dan323.expressions.base.*;
 import com.dan323.proof.generic.proof.ProofReason;
 import com.dan323.proof.generic.proof.ProofStep;
 import com.dan323.proof.generic.proof.ProofTest;
@@ -114,7 +114,7 @@ public class RuleFalseTest {
 
         assertFalse(fE.isValid(pf));
 
-        Constant<LogicOperation> constant = mock(Constant.class);
+        Constant constant = mock(Constant.class);
         doReturn(constant).when(pStep0).getStep();
         doReturn(false).when(constant).isFalsehood();
 
@@ -160,11 +160,11 @@ public class RuleFalseTest {
 
         assertEquals(new ProofReason("FI", List.of(1, 2)), record.get(0).getProof());
         assertEquals(1, record.get(0).getAssumptionLevel());
-        assertTrue(((Constant<?>) record.get(0).getStep()).isFalsehood());
+        assertTrue(((Constant) record.get(0).getStep()).isFalsehood());
         assertTrue(record.get(0).isValid());
     }
 
-    public static <T extends LogicOperation> Constant<T> getFalse() {
+    public static <T extends LogicOperation> Constant getFalse() {
         return () -> true;
     }
 

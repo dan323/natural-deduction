@@ -1,6 +1,6 @@
 package com.dan323.proof.generic.pattern;
 
-import com.dan323.expresions.base.LogicOperation;
+import com.dan323.expressions.base.LogicOperation;
 
 import java.util.Map;
 

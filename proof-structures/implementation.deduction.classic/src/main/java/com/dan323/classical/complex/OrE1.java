@@ -6,11 +6,11 @@ import com.dan323.classical.ClassicFE;
 import com.dan323.classical.ClassicFI;
 import com.dan323.classical.ClassicOrE;
 import com.dan323.classical.proof.NaturalDeduction;
-import com.dan323.expresions.base.BinaryOperation;
-import com.dan323.expresions.base.Disjunction;
-import com.dan323.expresions.base.Negation;
-import com.dan323.expresions.classical.ClassicalLogicOperation;
-import com.dan323.expresions.classical.NegationClassic;
+import com.dan323.expressions.base.BinaryOperation;
+import com.dan323.expressions.base.Disjunction;
+import com.dan323.expressions.base.Negation;
+import com.dan323.expressions.classical.ClassicalLogicOperation;
+import com.dan323.expressions.classical.NegationClassic;
 import com.dan323.proof.generic.RuleUtils;
 
 public final class OrE1 extends CompositionRule {

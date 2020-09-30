@@ -1,8 +1,8 @@
 package com.dan323.proof.classic;
 
-import com.dan323.expresions.classical.ClassicalLogicOperation;
-import com.dan323.expresions.classical.ConjunctionClassic;
-import com.dan323.expresions.classical.VariableClassic;
+import com.dan323.expressions.classical.ClassicalLogicOperation;
+import com.dan323.expressions.classical.ConjunctionClassic;
+import com.dan323.expressions.classical.VariableClassic;
 import com.dan323.classical.ClassicAndE1;
 import com.dan323.classical.ClassicAndE2;
 import com.dan323.classical.ClassicAndI;

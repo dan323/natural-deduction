@@ -1,12 +1,12 @@
 package com.dan323.proof.modal;
 
-import com.dan323.expresions.modal.Always;
-import com.dan323.expresions.modal.ModalLogicalOperation;
-import com.dan323.expresions.modal.ModalOperation;
-import com.dan323.expresions.modal.VariableModal;
-import com.dan323.expresions.relation.Equals;
-import com.dan323.expresions.relation.LessEqual;
-import com.dan323.expresions.relation.RelationOperation;
+import com.dan323.expressions.modal.Always;
+import com.dan323.expressions.modal.ModalLogicalOperation;
+import com.dan323.expressions.modal.ModalOperation;
+import com.dan323.expressions.modal.VariableModal;
+import com.dan323.expressions.relation.Equals;
+import com.dan323.expressions.relation.LessEqual;
+import com.dan323.expressions.relation.RelationOperation;
 import com.dan323.proof.generic.proof.ProofReason;
 import com.dan323.proof.modal.proof.ModalNaturalDeduction;
 import com.dan323.proof.modal.proof.ProofStepModal;

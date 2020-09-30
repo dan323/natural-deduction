@@ -1,8 +1,8 @@
 package com.dan323.classical;
 
 import com.dan323.classical.proof.NaturalDeduction;
-import com.dan323.expresions.classical.ClassicalLogicOperation;
-import com.dan323.expresions.classical.DisjunctionClassic;
+import com.dan323.expressions.classical.ClassicalLogicOperation;
+import com.dan323.expressions.classical.DisjunctionClassic;
 import com.dan323.proof.generic.OrI;
 import com.dan323.proof.generic.proof.ProofStep;
 

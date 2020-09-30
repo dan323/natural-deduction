@@ -1,13 +1,13 @@
 package com.dan323.proof.generic.proof;
 
 
-import com.dan323.expresions.base.LogicOperation;
+import com.dan323.expressions.base.LogicOperation;
 import com.dan323.proof.generic.Action;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class Proof<T extends LogicOperation, Q extends ProofStep<T>,A extends Action<T,Q,?>> {
+public abstract class Proof<T extends LogicOperation, Q extends ProofStep<T>, A extends Action<T,Q,?>> {
 
     private List<T> assms;
     private T goal;
@@ -30,7 +30,7 @@ public abstract class Proof<T extends LogicOperation, Q extends ProofStep<T>,A e
         }
     }
 
-    protected abstract Q generateAssm(T logicExpresion);
+    protected abstract Q generateAssm(T logicexpression);
 
     public boolean isDone() {
         if (goal == null) {

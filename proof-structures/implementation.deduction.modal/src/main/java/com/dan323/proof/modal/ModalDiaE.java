@@ -1,11 +1,11 @@
 package com.dan323.proof.modal;
 
-import com.dan323.expresions.base.UnaryOperation;
-import com.dan323.expresions.modal.ModalLogicalOperation;
-import com.dan323.expresions.modal.ModalOperation;
-import com.dan323.expresions.modal.Sometime;
-import com.dan323.expresions.relation.LessEqual;
-import com.dan323.expresions.relation.RelationOperation;
+import com.dan323.expressions.base.UnaryOperation;
+import com.dan323.expressions.modal.ModalLogicalOperation;
+import com.dan323.expressions.modal.ModalOperation;
+import com.dan323.expressions.modal.Sometime;
+import com.dan323.expressions.relation.LessEqual;
+import com.dan323.expressions.relation.RelationOperation;
 import com.dan323.proof.generic.RuleUtils;
 import com.dan323.proof.generic.proof.ProofReason;
 import com.dan323.proof.generic.proof.ProofStepSupplier;
