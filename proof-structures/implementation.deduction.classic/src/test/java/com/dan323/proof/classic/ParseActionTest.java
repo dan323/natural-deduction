@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Test;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class ParseActionTest {
 
@@ -31,9 +32,45 @@ public class ParseActionTest {
     public void parseAndTest() {
         ClassicalAction action1 = ParseClassicalAction.parseAction("&E1", List.of(1), null);
         ClassicalAction action2 = ParseClassicalAction.parseAction("&E2", List.of(1), null);
-        ClassicalAction action3 = ParseClassicalAction.parseAction("&I", List.of(1,2), null);
+        ClassicalAction action3 = ParseClassicalAction.parseAction("&I", List.of(1, 2), null);
         assertEquals(new ClassicAndE1(1), action1);
         assertEquals(new ClassicAndE2(1), action2);
-        assertEquals(new ClassicAndI(1,2), action3);
+        assertEquals(new ClassicAndI(1, 2), action3);
+    }
+
+    @Test
+    public void parseCopyTest() {
+        ClassicalAction action = ParseClassicalAction.parseAction("Rep", List.of(1), null);
+        assertEquals(new ClassicCopy(1), action);
+    }
+
+    @Test
+    public void parseNegTest() {
+        ClassicalAction action = ParseClassicalAction.parseAction("-E", List.of(1), null);
+        assertEquals(new ClassicNotE(1), action);
+        ClassicalAction action1 = ParseClassicalAction.parseAction("-I", List.of(), null);
+        assertEquals(new ClassicNotI(), action1);
+    }
+
+    @Test
+    public void parseImpTest() {
+        ClassicalAction action = ParseClassicalAction.parseAction("->I", List.of(), null);
+        assertEquals(new ClassicDeductionTheorem(), action);
+        ClassicalAction action1 = ParseClassicalAction.parseAction("->E", List.of(1, 2), null);
+        assertEquals(new ClassicModusPonens(1, 2), action1);
+    }
+
+    @Test
+    public void parseFalseTest() {
+        ClassicalAction action = ParseClassicalAction.parseAction("FI", List.of(1, 2), null);
+        assertEquals(new ClassicFI(1, 2), action);
+        ClassicalAction action1 = ParseClassicalAction.parseAction("FE", List.of(2), new VariableClassic("P"));
+        assertEquals(new ClassicFE(2, new VariableClassic("P")), action1);
+    }
+
+    @Test
+    public void parseExcepTest() {
+        List<Integer> lst = List.of();
+        assertThrows(IllegalArgumentException.class, () -> ParseClassicalAction.parseAction("BLA", lst, null));
     }
 }
