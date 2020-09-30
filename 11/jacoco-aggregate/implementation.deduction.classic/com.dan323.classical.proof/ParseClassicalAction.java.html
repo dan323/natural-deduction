@@ -127,14 +127,14 @@ public final class ParseClassicalAction {
     }
 
     public static ClassicalAction parseAction(String name, List&lt;Integer&gt; sources, ClassicalLogicOperation extraInfo){
-<span class="nc bnc" id="L130" title="All 15 branches missed.">        return switch (name) {</span>
-<span class="nc" id="L131">            case &quot;Ass&quot; -&gt; new ClassicAssume(extraInfo);</span>
-<span class="nc" id="L132">            case &quot;|I1&quot; -&gt; new ClassicOrI1(sources.get(0), extraInfo);</span>
-<span class="nc" id="L133">            case &quot;|I2&quot; -&gt; new ClassicOrI2(sources.get(0), extraInfo);</span>
-<span class="nc" id="L134">            case &quot;|E&quot; -&gt; new ClassicOrE(sources.get(0), sources.get(1), sources.get(2));</span>
-<span class="nc" id="L135">            case &quot;&amp;I&quot; -&gt; new ClassicAndI(sources.get(0), sources.get(1));</span>
-<span class="nc" id="L136">            case &quot;&amp;E1&quot; -&gt; new ClassicAndE1(sources.get(0));</span>
-<span class="nc" id="L137">            case &quot;&amp;E2&quot; -&gt; new ClassicAndE2(sources.get(0));</span>
+<span class="pc bpc" id="L130" title="8 of 15 branches missed.">        return switch (name) {</span>
+<span class="fc" id="L131">            case &quot;Ass&quot; -&gt; new ClassicAssume(extraInfo);</span>
+<span class="fc" id="L132">            case &quot;|I1&quot; -&gt; new ClassicOrI1(sources.get(0), extraInfo);</span>
+<span class="fc" id="L133">            case &quot;|I2&quot; -&gt; new ClassicOrI2(sources.get(0), extraInfo);</span>
+<span class="fc" id="L134">            case &quot;|E&quot; -&gt; new ClassicOrE(sources.get(0), sources.get(1), sources.get(2));</span>
+<span class="fc" id="L135">            case &quot;&amp;I&quot; -&gt; new ClassicAndI(sources.get(0), sources.get(1));</span>
+<span class="fc" id="L136">            case &quot;&amp;E1&quot; -&gt; new ClassicAndE1(sources.get(0));</span>
+<span class="fc" id="L137">            case &quot;&amp;E2&quot; -&gt; new ClassicAndE2(sources.get(0));</span>
 <span class="nc" id="L138">            case &quot;Rep&quot; -&gt; new ClassicCopy(sources.get(0));</span>
 <span class="nc" id="L139">            case &quot;-E&quot; -&gt; new ClassicNotE(sources.get(0));</span>
 <span class="nc" id="L140">            case &quot;-I&quot; -&gt; new ClassicNotI();</span>
