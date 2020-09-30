@@ -2,7 +2,7 @@
 
 import com.dan323.classical.ClassicalAction;
 import com.dan323.classical.internal.ClassicalAutomate;
-import com.dan323.expresions.classical.ClassicalLogicOperation;
+import com.dan323.expressions.classical.ClassicalLogicOperation;
 import com.dan323.proof.generic.proof.ParseAction;
 import com.dan323.proof.generic.proof.Proof;
 import com.dan323.proof.generic.proof.ProofReason;
@@ -25,8 +25,8 @@ import java.util.List;
     }
 
     @Override
-    protected ProofStep&lt;ClassicalLogicOperation&gt; generateAssm(ClassicalLogicOperation logicExpresion) {
-<span class="fc" id="L29">        return new ProofStep&lt;&gt;(0, logicExpresion, new ProofReason(&quot;Ass&quot;, List.of()));</span>
+    protected ProofStep&lt;ClassicalLogicOperation&gt; generateAssm(ClassicalLogicOperation logicexpression) {
+<span class="fc" id="L29">        return new ProofStep&lt;&gt;(0, logicexpression, new ProofReason(&quot;Ass&quot;, List.of()));</span>
     }
 
     public void automate() {

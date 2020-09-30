@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>Proof.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">jacoco-report-aggregate</a> &gt; <a href="../index.html" class="el_bundle">framework.deduction</a> &gt; <a href="index.source.html" class="el_package">com.dan323.proof.generic.proof</a> &gt; <span class="el_source">Proof.java</span></div><h1>Proof.java</h1><pre class="source lang-java linenums">package com.dan323.proof.generic.proof;
 
 
-import com.dan323.expresions.base.LogicOperation;
+import com.dan323.expressions.base.LogicOperation;
 import com.dan323.proof.generic.Action;
 
 import java.util.ArrayList;
 import java.util.List;
 
-<span class="fc" id="L10">public abstract class Proof&lt;T extends LogicOperation, Q extends ProofStep&lt;T&gt;,A extends Action&lt;T,Q,?&gt;&gt; {</span>
+<span class="fc" id="L10">public abstract class Proof&lt;T extends LogicOperation, Q extends ProofStep&lt;T&gt;, A extends Action&lt;T,Q,?&gt;&gt; {</span>
 
     private List&lt;T&gt; assms;
     private T goal;
@@ -30,7 +30,7 @@ import java.util.List;
 <span class="fc" id="L30">        }</span>
 <span class="fc" id="L31">    }</span>
 
-    protected abstract Q generateAssm(T logicExpresion);
+    protected abstract Q generateAssm(T logicexpression);
 
     public boolean isDone() {
 <span class="fc bfc" id="L36" title="All 2 branches covered.">        if (goal == null) {</span>
