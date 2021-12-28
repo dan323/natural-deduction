@@ -8,6 +8,12 @@
         <version>0.1-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
+    <packaging>pom</packaging>
+
+    <modules>
+        <module>deduction.modal.spring</module>
+        <module>deduction.modal.domain</module>
+    </modules>
 
     <artifactId>implementation.deduction.modal</artifactId>
     <dependencies>

@@ -17,20 +17,22 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-        <jdk.version>14</jdk.version>
+        <jdk.version>17</jdk.version>
 
         <pitest.version>1.5.1</pitest.version>
-        <pitest.junit5.version>0.12</pitest.junit5.version>
+        <pitest.junit5.version>0.15</pitest.junit5.version>
 
         <maven.javadoc.version>3.2.0</maven.javadoc.version>
         <maven.compiler.version>3.8.1</maven.compiler.version>
         <maven.surefire.version>3.0.0-M5</maven.surefire.version>
         <maven.sonar.version>3.7.0.1746</maven.sonar.version>
-        <maven.jacoco.version>0.8.6</maven.jacoco.version>
+        <maven.jacoco.version>0.8.7</maven.jacoco.version>
 
-        <reflections.version>0.9.11</reflections.version>
-        <junit5.version>5.7.0</junit5.version>
-        <mockito.version>3.5.13</mockito.version>
+        <reflections.version>0.10.2</reflections.version>
+        <spring.version>5.3.14</spring.version>
+        <spring.boot.version>2.6.1</spring.boot.version>
+        <junit5.version>5.8.2</junit5.version>
+        <mockito.version>4.2.0</mockito.version>
         <maven.versions.version>2.8.1</maven.versions.version>
     </properties>
 
@@ -105,6 +107,7 @@
                     <version>${maven.compiler.version}</version>
                     <configuration>
                         <release>${jdk.version}</release>
+                        <target>${jdk.version}</target>
                     </configuration>
                 </plugin>
                 <plugin>
@@ -148,6 +151,10 @@
                     <artifactId>versions-maven-plugin</artifactId>
                     <version>${maven.versions.version}</version>
                 </plugin>
+                <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <version>${spring.boot.version}</version></plugin>
             </plugins>
         </pluginManagement>
         <plugins>
@@ -175,6 +182,13 @@
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <configuration>
+                    <skip>true</skip>
+                </configuration>
             </plugin>
         </plugins>
     </build>

@@ -39,15 +39,15 @@ public abstract class BinaryOperation<T extends LogicOperation> implements Logic
     public boolean equals(Object log) {
         if (log instanceof BinaryOperation && getOperator().equals(((BinaryOperation<?>) log).getOperator())) {
             return getLeft().equals(((BinaryOperation<?>) log).getLeft()) && getRight().equals(((BinaryOperation<?>) log).getRight());
+        } else {
+            return false;
         }
-        return false;
     }
 
     @Override
     public int hashCode() {
         return left.hashCode() * 17 + right.hashCode() * 13 + getOperator().hashCode() * 11;
     }
-
 
     protected abstract String getOperator();
 

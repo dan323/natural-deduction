@@ -4,7 +4,7 @@ import com.dan323.expressions.base.LogicOperation;
 
 import java.util.function.Predicate;
 
-public interface ModalLogicalOperation extends ModalOperation {
+public interface ModalLogicalOperation {
 
     static boolean areModal(LogicOperation... logs) {
         for (LogicOperation log : logs) {

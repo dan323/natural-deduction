@@ -15,29 +15,29 @@ public class RelationOperationTest {
 
     @Test
     public void equalsTest() {
-        Equals<LogicOperation> equals = new Equals<>(logicOperation1, logicOperation2);
-        assertEquals(logicOperation1, equals.getLeft());
-        assertEquals(logicOperation2, equals.getRight());
+        Equals equals = new Equals(logicOperation1.toString(), logicOperation2.toString());
+        assertEquals(logicOperation1.toString(), equals.getLeft());
+        assertEquals(logicOperation2.toString(), equals.getRight());
         assertNotEquals(equals, logicOperation1);
-        Equals<LogicOperation> equals2 = new Equals<>(logicOperation1, logicOperation2);
+        Equals equals2 = new Equals(logicOperation1.toString(), logicOperation2.toString());
         assertEquals(equals, equals2);
         assertNotSame(equals, equals2);
         assertNotEquals(null, equals);
-        Equals<LogicOperation> equals3 = new Equals<>(logicOperation2, logicOperation1);
+        Equals equals3 = new Equals(logicOperation2.toString(), logicOperation1.toString());
         assertEquals(equals3, equals2);
     }
 
     @Test
     public void lessEqualTest() {
-        LessEqual<LogicOperation> lessEqual = new LessEqual<>(logicOperation1, logicOperation2);
-        assertEquals(logicOperation1, lessEqual.getLeft());
-        assertEquals(logicOperation2, lessEqual.getRight());
+        LessEqual lessEqual = new LessEqual(logicOperation1.toString(), logicOperation2.toString());
+        assertEquals(logicOperation1.toString(), lessEqual.getLeft());
+        assertEquals(logicOperation2.toString(), lessEqual.getRight());
         assertNotEquals(lessEqual, logicOperation1);
-        LessEqual<LogicOperation> lessEqual2 = new LessEqual<>(logicOperation1, logicOperation2);
+        LessEqual lessEqual2 = new LessEqual(logicOperation1.toString(), logicOperation2.toString());
         assertEquals(lessEqual, lessEqual2);
         assertNotSame(lessEqual, lessEqual2);
         assertNotEquals(null, lessEqual);
-        LessEqual<LogicOperation> lessEqual3 = new LessEqual<>(logicOperation2, logicOperation1);
+        LessEqual lessEqual3 = new LessEqual(logicOperation2.toString(), logicOperation1.toString());
         assertNotEquals(lessEqual3, lessEqual2);
         assertTrue(RelationOperation.areRelation(lessEqual, lessEqual2));
         assertFalse(RelationOperation.areRelation(logicOperation2, lessEqual2));

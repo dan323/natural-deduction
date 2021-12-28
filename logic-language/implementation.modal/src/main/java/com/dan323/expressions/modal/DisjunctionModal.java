@@ -7,6 +7,7 @@ public final class DisjunctionModal extends Disjunction<ModalOperation> implemen
     public DisjunctionModal(ModalLogicalOperation l, ModalLogicalOperation r) {
         super(l, r);
     }
+
     public DisjunctionModal(ModalOperation l, ModalOperation r) {
         this((ModalLogicalOperation)l, (ModalLogicalOperation)r);
     }

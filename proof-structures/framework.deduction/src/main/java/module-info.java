@@ -6,4 +6,5 @@ module framework.deduction {
 
     exports com.dan323.proof.generic;
     exports com.dan323.proof.generic.proof;
+    exports com.dan323.proof.generic.bean;
 }

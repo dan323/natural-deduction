@@ -12,7 +12,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class ModalParserTest {
 
-    private final ModalLogicParser<String> parser = new ModalLogicParser<>(Function.identity());
+    private final ModalLogicParser parser = new ModalLogicParser();
 
     @Test
     public void parseBox() {
@@ -32,16 +32,16 @@ public class ModalParserTest {
     public void parseLess() {
         ModalOperation m = parser.evaluate("i <= j");
         assertTrue(m instanceof LessEqual);
-        assertEquals("i", ((LessEqual<String>) m).getLeft());
-        assertEquals("j", ((LessEqual<String>) m).getRight());
+        assertEquals("i", ((LessEqual) m).getLeft());
+        assertEquals("j", ((LessEqual) m).getRight());
     }
 
     @Test
     public void parseEq() {
         ModalOperation m = parser.evaluate("i = j");
         assertTrue(m instanceof Equals);
-        assertEquals("i", ((Equals<String>) m).getLeft());
-        assertEquals("j", ((Equals<String>) m).getRight());
+        assertEquals("i", ((Equals) m).getLeft());
+        assertEquals("j", ((Equals) m).getRight());
     }
 
     @Test

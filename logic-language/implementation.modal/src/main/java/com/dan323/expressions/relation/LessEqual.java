@@ -2,9 +2,9 @@ package com.dan323.expressions.relation;
 
 import java.util.Objects;
 
-public final class LessEqual<T> extends RelationOperation<T> {
+public final class LessEqual extends RelationOperation {
 
-    public LessEqual(T left, T right) {
+    public LessEqual(String left, String right) {
         super(left, right, "<=");
     }
 
@@ -12,8 +12,8 @@ public final class LessEqual<T> extends RelationOperation<T> {
     public boolean equals(Object object) {
         return object != null
                 && object.getClass().equals(getClass())
-                && getLeft().equals(((RelationOperation<?>) object).getLeft())
-                && getRight().equals(((RelationOperation<?>) object).getRight());
+                && getLeft().equals(((RelationOperation) object).getLeft())
+                && getRight().equals(((RelationOperation) object).getRight());
     }
 
     @Override

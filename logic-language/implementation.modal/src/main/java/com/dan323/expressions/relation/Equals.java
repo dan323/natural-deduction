@@ -2,9 +2,9 @@ package com.dan323.expressions.relation;
 
 import java.util.Objects;
 
-public final class Equals<T> extends RelationOperation<T> {
+public final class Equals extends RelationOperation {
 
-    public Equals(T left, T right) {
+    public Equals(String left, String right) {
         super(left, right, "=");
     }
 
@@ -12,10 +12,10 @@ public final class Equals<T> extends RelationOperation<T> {
     public boolean equals(Object object) {
         return object != null
                 && object.getClass().equals(getClass())
-                && ((getLeft().equals(((RelationOperation<?>) object).getLeft())
-                && getRight().equals(((RelationOperation<?>) object).getRight()))
-                || (getLeft().equals(((RelationOperation<?>) object).getRight())
-                && getRight().equals(((RelationOperation<?>) object).getLeft())));
+                && ((getLeft().equals(((RelationOperation) object).getLeft())
+                && getRight().equals(((RelationOperation) object).getRight()))
+                || (getLeft().equals(((RelationOperation) object).getRight())
+                && getRight().equals(((RelationOperation) object).getLeft())));
     }
 
     @Override

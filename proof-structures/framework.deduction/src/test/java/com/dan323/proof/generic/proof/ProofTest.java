@@ -75,12 +75,7 @@ public class ProofTest {
         assertTrue(pr.isDone());
     }
 
-    public static class ProofStub extends Proof<LogicOperation, ProofStep<LogicOperation>,ActionStub> {
-
-        @Override
-        public List<ActionStub> parse() {
-            return null;
-        }
+    public static class ProofStub extends Proof<LogicOperation, ProofStep<LogicOperation>> {
 
         @Override
         protected ProofStep<LogicOperation> generateAssm(LogicOperation logicexpression) {
