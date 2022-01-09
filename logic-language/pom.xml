@@ -11,17 +11,10 @@
     <packaging>pom</packaging>
     <modules>
         <module>framework</module>
-        <module>implementation</module>
-        <module>implementation.modal</module>
+        <module>lang.classical</module>
+        <module>lang.modal</module>
     </modules>
     <artifactId>logic-language</artifactId>
-    <dependencies>
-        <dependency>
-            <groupId>com.fathzer</groupId>
-            <artifactId>javaluator</artifactId>
-            <version>3.0.3</version>
-        </dependency>
-    </dependencies>
 
 
 </project>

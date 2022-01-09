@@ -1,0 +1,24 @@
+package com.dan323.proof.modal;
+
+import com.dan323.expressions.base.BinaryOperation;
+import com.dan323.expressions.modal.ModalLogicalOperation;
+import com.dan323.expressions.modal.ModalOperation;
+import com.dan323.proof.generic.AndE;
+import com.dan323.proof.modal.proof.ModalNaturalDeduction;
+import com.dan323.proof.modal.proof.LabeledProofStep;
+
+public final class ModalAndE2<T> extends AndE<ModalOperation, LabeledProofStep<T>, ModalNaturalDeduction<T>> implements ModalAction<T> {
+
+    public ModalAndE2(int i) {
+        super(i, BinaryOperation::getRight);
+    }
+
+    @Override
+    public void apply(ModalNaturalDeduction<T> pf) {
+        applyStepSupplier(pf, ((assLevel, log, reason) -> new LabeledProofStep<>(assLevel, getState(pf), (ModalLogicalOperation) log, reason)));
+    }
+
+    private T getState( ModalNaturalDeduction<T> pf) {
+        return (pf.getSteps().get(getAppliedAt() - 1)).getState().get();
+    }
+}

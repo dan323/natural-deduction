@@ -30,8 +30,12 @@ public class ProofReason {
         return nameProof;
     }
 
+    public List<Integer> getLines(){
+        return listLines;
+    }
+
     public String toString() {
-        return getNameProof() + (listLines.isEmpty() ? "" : (" " + listLines.toString()));
+        return getNameProof() + (listLines.isEmpty() ? "" : (" " + listLines));
     }
 
     public static ProofReason parseReason(String ruleString, Map<String, Function<String, ProofReason>> extra) {

@@ -7,7 +7,6 @@ import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.context.annotation.ComponentScan;
 
 @SpringBootApplication
-@EnableAutoConfiguration
 @ComponentScan({"com.dan323.bean","com.dan323.api","com.dan323.adapter"})
 public class NaturalDeductionRestApplication {
 

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>proof-structures</artifactId>
+        <groupId>com.dan323</groupId>
+        <version>0.1-SNAPSHOT</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>proof.classic</artifactId>
+    <packaging>pom</packaging>
+    <modules>
+        <module>deduction.classic.spring</module>
+        <module>deduction.classic.domain</module>
+    </modules>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.dan323</groupId>
+            <artifactId>framework.deduction</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.dan323</groupId>
+            <artifactId>lang-classic</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+    </dependencies>
+
+
+</project>

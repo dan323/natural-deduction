@@ -1,66 +1,97 @@
 package com.dan323;
 
+import com.dan323.exception.FailedToSaveRuleException;
 import com.dan323.exception.InvalidProofException;
-import com.dan323.primaryports.LogicUseCases;
-import com.dan323.primaryports.Proof;
-import com.dan323.primaryports.Rule;
-import com.dan323.primaryports.Step;
+import com.dan323.expressions.base.LogicOperation;
+import com.dan323.primaryports.*;
 import com.dan323.proof.generic.Action;
-import com.dan323.proof.generic.proof.ParseAction;
+import com.dan323.proof.generic.bean.*;
+import com.dan323.proof.generic.proof.ProofStep;
 import com.dan323.secondaryports.RuleDao;
-import org.springframework.context.ApplicationContext;
+import reactor.core.publisher.Mono;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
-public class SaveRuleUseCase<Q extends Serializable> implements LogicUseCases.SaveRule<Q> {
+public class SaveRuleUseCase<Q extends Serializable, C extends Action<L, S, P>, P extends com.dan323.proof.generic.proof.Proof<L, A, G, S>, A, G, L extends LogicOperation, S extends ProofStep<L>> implements LogicUseCases.SaveRule {
 
     private final String logic;
-    private final Proof<Q> proof;
-    private final String name;
+    private final Proof<P, A, G, S, Q, L> proof;
     private final RuleDao ruleDao;
-    private final ApplicationContext applicationContext;
+    private final ParseAction<C, P> parseAction;
+    private final NaturalDeductionFactory<P, A, G, L, S> naturalDeductionFactory;
+    private final ToGoalParser<Goal<Q>, Q, G> toGoalParser;
+    private final ToAssmParser<Assumption<Q>, Q, A> toAssmParser;
+    private final ToModel<Q, S, L> toModel;
 
-    SaveRuleUseCase(String logic, Proof<Q> proof, String name, RuleDao ruleDao, ApplicationContext applicationContext){
+    public SaveRuleUseCase(String logic, Proof<P, A, G, S, Q, L> proof,
+                           RuleDao ruleDao,
+                           ParseAction<C, P> parseAction,
+                           NaturalDeductionFactory<P, A, G, L, S> naturalDeductionFactory,
+                           ToGoalParser<Goal<Q>, Q, G> toGoalParser,
+                           ToAssmParser<Assumption<Q>, Q, A> toAssmParser,
+                           ToModel<Q, S, L> toModel) {
         this.logic = logic;
         this.proof = proof;
-        this.name = name;
         this.ruleDao = ruleDao;
-        this.applicationContext = applicationContext;
+        this.parseAction = parseAction;
+        this.naturalDeductionFactory = naturalDeductionFactory;
+        this.toGoalParser = toGoalParser;
+        this.toAssmParser = toAssmParser;
+        this.toModel = toModel;
     }
 
     @Override
-    public void perform() throws InvalidProofException {
-        if (validate()){
-            save();
+    public Mono<Void> perform() throws InvalidProofException {
+        if (validate()) {
+            return save().flatMap(bool -> {
+                if (bool) {
+                    return Mono.empty();
+                } else {
+                    return Mono.error(new FailedToSaveRuleException());
+                }
+            });
         } else {
             throw new InvalidProofException();
         }
     }
 
-    private void save(){
-        ruleDao.saveRule(logic, new Rule(extractPremises(proof),proof.goal(),name));
+    private Mono<Boolean> save() {
+        return ruleDao.saveRule(logic, new Rule<>(
+                extractPremises()
+                        .collect(Collectors.toList()),
+                proof.goal(),
+                proof.name()));
     }
 
-    private boolean validate(){
-        /*ParseAction<Action<?,?,com.dan323.proof.generic.proof.Proof<?,?>>,com.dan323.proof.generic.proof.Proof<?,?>>*/
-        var parseAction = applicationContext.getBeansOfType(ParseAction.class).get(logic);
-        /*List<Action<?,?,com.dan323.proof.generic.proof.Proof<?,?>>>*/
-        var actionList = parseAction.translateToActions(proof.toInternalProof());
-        //Go through assms
-        //Apply actions
-        //return true if all actions applied, false otherwise
-        return false;
+    private boolean validate() {
+        var actionList = parseAction.translateToActions(proof.toModelProof(naturalDeductionFactory, toAssmParser, toGoalParser, toModel));
+        var count = extractPremises().count();
+        for (int i = 0; i < count; i++) {
+            actionList.remove(i);
+        }
+        var pr = proof.toModelInitialProof(naturalDeductionFactory, toAssmParser, toGoalParser);
+        try {
+            actionList.forEach(act -> {
+                if (act.isValid(pr)){
+                    act.apply(pr);
+                }
+                else {
+                    throw new IllegalArgumentException();
+                }
+            });
+        } catch (IllegalArgumentException e){
+            return false;
+        }
+        return pr.isDone();
     }
 
-    private List<String> extractPremises(Proof<Q> proof){
+    private Stream<Assumption<Q>> extractPremises() {
         return proof.steps()
                 .stream()
                 .takeWhile(qStep -> qStep.assmsLevel() == 0)
-                .takeWhile(qStep -> qStep.ruleString().contains("Ass"))
-                .map(Step::expression)
-                .collect(Collectors.toList());
+                .takeWhile(qStep -> qStep.ruleString().name().contains("Ass"))
+                .map(step -> new Assumption<>(step.expression(), step.extraInformation()));
     }
 }

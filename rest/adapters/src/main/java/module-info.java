@@ -7,4 +7,7 @@ module rest.adapters {
     requires reactor.core;
     requires org.reactivestreams;
     requires framework.deduction;
+    requires language.base;
+    requires com.fasterxml.jackson.core;
+    requires com.fasterxml.jackson.databind;
 }

@@ -7,9 +7,8 @@ import java.util.function.Supplier;
 
 public interface ExpressionParser<T extends LogicOperation> extends Function<String,T>, LogicAware {
 
-    public static <T extends LogicOperation> ExpressionParser<T> of(Function<String,T> parser, Supplier<String> logic){
-        return new ExpressionParser<T>() {
-
+    static <T extends LogicOperation> ExpressionParser<T> of(Function<String,T> parser, Supplier<String> logic){
+        return new ExpressionParser<>() {
             @Override
             public String ofLogic() {
                 return logic.get();

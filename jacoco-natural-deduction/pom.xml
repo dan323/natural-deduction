@@ -18,35 +18,22 @@
         </dependency>
         <dependency>
             <groupId>com.dan323</groupId>
-            <artifactId>language-implementation.classic</artifactId>
+            <artifactId>lang-classic</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>com.dan323</groupId>
-            <artifactId>implementation.modal</artifactId>
+            <artifactId>lang-modal</artifactId>
             <version>${project.version}</version>
-        </dependency><!--
-        <dependency>
-            <groupId>com.dan323</groupId>
-            <artifactId>deduction.model</artifactId>
-            <version>${rest.version}</version>
-            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>com.dan323</groupId>
-            <artifactId>deduction.service</artifactId>
-            <version>${rest.version}</version>
-            <scope>compile</scope>
+            <artifactId>deduction.modal.spring</artifactId>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>com.dan323</groupId>
-            <artifactId>deduction.controller</artifactId>
-            <version>${rest.version}</version>
-            <scope>compile</scope>
-        </dependency>-->
-        <dependency>
-            <groupId>com.dan323</groupId>
-            <artifactId>implementation.deduction.modal</artifactId>
+            <artifactId>deduction.modal.domain</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
@@ -56,7 +43,12 @@
         </dependency>
         <dependency>
             <groupId>com.dan323</groupId>
-            <artifactId>implementation.deduction.classic</artifactId>
+            <artifactId>deduction.classic.spring</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.dan323</groupId>
+            <artifactId>deduction.classic.domain</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>

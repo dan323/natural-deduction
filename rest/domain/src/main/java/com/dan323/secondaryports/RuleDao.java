@@ -6,10 +6,10 @@ import reactor.core.publisher.Mono;
 
 public interface RuleDao {
 
-    Mono<Rule> getRule(String logic);
+    <T> Mono<Rule<T>> getRule(String logic, String ruleName, Class<T> tClass);
 
     Flux<String> getPossibleActions(String logic);
 
-    Mono<Boolean> saveRule(String logic, Rule rule);
+    <T> Mono<Boolean> saveRule(String logic, Rule<T> rule);
 
 }

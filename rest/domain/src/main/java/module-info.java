@@ -7,4 +7,8 @@ module rest.domain {
     requires spring.beans;
     requires reactor.core;
     requires framework.deduction;
+    requires language.base;
+    requires com.fasterxml.jackson.annotation;
+    requires com.fasterxml.jackson.databind;
+    requires spring.boot;
 }

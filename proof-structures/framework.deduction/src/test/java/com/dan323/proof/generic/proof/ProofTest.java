@@ -75,11 +75,21 @@ public class ProofTest {
         assertTrue(pr.isDone());
     }
 
-    public static class ProofStub extends Proof<LogicOperation, ProofStep<LogicOperation>> {
+    public static class ProofStub extends Proof<LogicOperation, LogicOperation, LogicOperation, ProofStep<LogicOperation>> {
 
         @Override
-        protected ProofStep<LogicOperation> generateAssm(LogicOperation logicexpression) {
-            return new ProofStep<>(0, logicexpression, mock(ProofReason.class));
+        public LogicOperation toAssms(ProofStep<LogicOperation> step) {
+            return step.getStep();
+        }
+
+        @Override
+        public LogicOperation toGoal(ProofStep<LogicOperation> step) {
+            return step.getStep();
+        }
+
+        @Override
+        protected ProofStep<LogicOperation> toStep(LogicOperation logicexpression) {
+            return new ProofStep<>(0, logicexpression, new ProofReason("Ass",List.of()));
         }
 
         @Override
