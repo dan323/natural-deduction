@@ -62,7 +62,11 @@ public class SaveRuleUseCase<Q extends Serializable, C extends Action<L, S, P>, 
                 extractPremises()
                         .collect(Collectors.toList()),
                 proof.goal(),
-                proof.name()));
+                proof.name(),
+                proof.name(),
+                0,
+                false,
+                false));
     }
 
     private boolean validate() {

@@ -10,10 +10,7 @@ import com.dan323.proof.generic.proof.ProofStep;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.HttpServerErrorException;
 import reactor.core.publisher.Mono;
 
@@ -30,7 +27,8 @@ public class ProofResource {
         this.logicUseCases = logicUseCases;
     }
 
-    @PostMapping("{logic}/apply/{ruleName}")
+    @CrossOrigin("http://localhost:3000")
+    @PostMapping("/proof/{logic}/apply/{ruleName}")
     public <P extends com.dan323.proof.generic.proof.Proof<L, A, G, S>, A, G, S extends ProofStep<L>, Q extends Serializable, L extends LogicOperation> Mono<Proof<P, A, G, S, Q, L>> processProofFile(@PathVariable String logic, @RequestBody ApplyRuleRequest<P,A,G,S,Q,L> request, @PathVariable String ruleName) {
         try {
             return logicUseCases.applyRule(logic, request.proof(), ruleName, request.input()).perform();
@@ -39,7 +37,8 @@ public class ProofResource {
         }
     }
 
-    @PostMapping("{logic}/done")
+    @CrossOrigin("http://localhost:3000")
+    @PostMapping("/proof/{logic}/done")
     public <P extends com.dan323.proof.generic.proof.Proof<L, A, G, S>, A, G, S extends ProofStep<L>, Q extends Serializable, L extends LogicOperation> Mono<Boolean> isDone(@PathVariable String logic, @RequestBody Proof<P,A,G,S,Q,L> proof){
         try {
             return logicUseCases.isDone(logic, proof).perform();

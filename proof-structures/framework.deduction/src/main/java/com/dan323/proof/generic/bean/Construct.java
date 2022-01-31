@@ -13,6 +13,10 @@ public interface Construct<K extends Input<?>, L extends LogicOperation, A exten
 
     boolean isNeedsExtra();
 
+    String getName();
+
+    String name();
+
     BiFunction<K,ExpressionParser<L>, A> getCons();
 
 }

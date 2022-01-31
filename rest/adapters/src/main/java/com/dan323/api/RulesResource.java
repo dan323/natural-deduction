@@ -4,6 +4,7 @@ import com.dan323.exception.InvalidProofException;
 import com.dan323.expressions.base.LogicOperation;
 import com.dan323.primaryports.LogicUseCases;
 import com.dan323.primaryports.Proof;
+import com.dan323.primaryports.Rule;
 import com.dan323.proof.generic.proof.ProofStep;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -26,15 +27,17 @@ public class RulesResource {
         this.logicUseCases = logicUseCases;
     }
 
-    @GetMapping("{logic}")
-    public Flux<String> getAllPossibleActions(@PathVariable String logic) {
-        return logicUseCases.getAllActions(logic)
+    @CrossOrigin("http://localhost:3000")
+    @GetMapping("/rules/{logic}")
+    public <T> Flux<Rule<T>> getAllPossibleActions(@PathVariable String logic) {
+        return logicUseCases.<T>getAllActions(logic)
                 .perform()
                 .switchIfEmpty(Flux.error(HttpServerErrorException.create(HttpStatus.NO_CONTENT, "There are no valid actions", HttpHeaders.EMPTY, new byte[]{}, StandardCharsets.UTF_8)));
     }
 
-    @PostMapping("{logic}/add")
-    public <P extends com.dan323.proof.generic.proof.Proof<L, A, G, S>, A, G, S extends ProofStep<L>, Q extends Serializable, L extends LogicOperation> Mono<Proof<P, A, G, S, Q, L>> processProofFile(@PathVariable String logic, @RequestBody Proof<P, A, G, S, Q, L> proof) {
+    @CrossOrigin("http://localhost:3000")
+    @PostMapping("/rules/{logic}/add")
+    public <P extends com.dan323.proof.generic.proof.Proof<L, A, G, S>, A, G, S extends ProofStep<L>, Q extends Serializable, L extends LogicOperation> Mono<Proof<P, A, G, S, Q, L>> processProof(@PathVariable String logic, @RequestBody Proof<P, A, G, S, Q, L> proof) {
         try {
             return logicUseCases.saveRule(logic, proof).perform().thenReturn(proof);
         } catch (InvalidProofException e) {

@@ -6,9 +6,9 @@ import reactor.core.publisher.Mono;
 
 public interface RuleDao {
 
-    <T> Mono<Rule<T>> getRule(String logic, String ruleName, Class<T> tClass);
+    <T> Mono<Rule<T>> getRule(String logic, String ruleName);
 
-    Flux<String> getPossibleActions(String logic);
+    <T> Flux<Rule<T>> getPossibleActions(String logic);
 
     <T> Mono<Boolean> saveRule(String logic, Rule<T> rule);
 

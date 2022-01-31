@@ -42,7 +42,7 @@ public class IsDoneUseCase<Q extends Serializable, C extends Action<L, S, P>, S 
         return Mono.just(proof)
                 .map(pr -> pr.toModelProof(naturalDeductionFactory, toAssmParser, toGoalParser, toModel))
                 .flatMap(this::validate)
-                .map(p -> p.isDone());
+                .map(com.dan323.proof.generic.proof.Proof::isDone);
     }
 
     private Stream<Assumption<Q>> extractPremises() {

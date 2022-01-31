@@ -24,7 +24,7 @@ import java.util.stream.Stream;
 
 public class CustomRuleDao {
 
-    public Flux<String> getRuleNames(String logic) {
+    public <T> Flux<Rule<T>> getRuleNames(String logic) {
         Path ruleList = Paths.get(logic + "/rules/list.txt");
 
         if (Files.exists(ruleList)) {
@@ -32,7 +32,7 @@ public class CustomRuleDao {
                     () -> Files.lines(ruleList),
                     Flux::fromStream,
                     Stream::close
-            );
+            ).flatMap(ruleName -> readRule(logic, ruleName));
         } else {
             return Flux.empty();
         }
@@ -40,19 +40,19 @@ public class CustomRuleDao {
 
     public <T> Mono<Boolean> saveRule(String logic, Rule<T> rule) {
         return Mono.<PairData>create(sink -> {
-            Flux.fromArray(new PairData[]{new PairData(RuleSubscriber.Action.LIST, rule.name()), new PairData(RuleSubscriber.Action.RULE, rule.toString())})
+            Flux.fromArray(new PairData[]{new PairData(RuleSubscriber.Action.LIST, rule.ruleName()), new PairData(RuleSubscriber.Action.RULE, rule.toString())})
                     .subscribe(new RuleSubscriber(logic, sink));
         }).thenReturn(true).onErrorReturn(false);
     }
 
-    public <T> Mono<Rule<T>> readRule(String logic, String ruleName, Class<T> tClass) {
+    public <T> Mono<Rule<T>> readRule(String logic, String ruleName) {
         Path ruleList = Paths.get(logic + "/rules/" + ruleName + ".txt");
         if (Files.exists(ruleList)) {
             return Flux.using(
                     () -> Files.lines(ruleList),
                     Flux::fromStream,
                     Stream::close
-            ).collect(new RuleCollector<>(tClass));
+            ).collect(new RuleCollector<>());
         } else {
             return Mono.empty();
         }
@@ -121,7 +121,7 @@ public class CustomRuleDao {
             this.expression = split[0];
             ObjectMapper mapper = new Jackson2ObjectMapperFactoryBean().getObject();
             try {
-                this.extraInformation = mapper.<T>readValue(split[1],tClass);
+                this.extraInformation = mapper.readValue(split[1],tClass);
             } catch (JsonProcessingException e) {
                 e.printStackTrace();
             }
@@ -138,14 +138,10 @@ public class CustomRuleDao {
 
     private static class RuleCollector<T> implements Collector<String,DataRule<T>,Rule<T>>{
 
-        private final Class<T> tClass;
+        private Class<T> tClass;
         private State state = null;
 
-        private enum State{NAME,ASSMS,GOAL}
-
-        public RuleCollector(Class<T> tClass){
-            this.tClass = tClass;
-        }
+        private enum State{NAME,ASSMS,GOAL,CLASS}
 
         @Override
         public Supplier<DataRule<T>> supplier() {
@@ -156,12 +152,20 @@ public class CustomRuleDao {
         public BiConsumer<DataRule<T>, String> accumulator() {
             return (dt,input) -> {
                 switch (input){
+                    case "#CLASS#" -> state = State.CLASS;
                     case "#NAME#" -> state = State.NAME;
                     case "#ASSMS#" -> state = State.ASSMS;
                     case "#GOAL#" -> state = State.GOAL;
                     case "#END#" -> {}
                     default -> {
                         switch (state){
+                            case CLASS -> {
+                                try {
+                                    tClass = (Class<T>)Class.forName(input);
+                                } catch (ClassNotFoundException e) {
+                                    e.printStackTrace();
+                                }
+                            }
                             case GOAL -> dt.setGoal(new DataGoal<>(input, tClass));
                             case NAME -> dt.setName(input);
                             case ASSMS -> dt.add(new DataAssms<>(input, tClass));
@@ -178,7 +182,7 @@ public class CustomRuleDao {
 
         @Override
         public Function<DataRule<T>, Rule<T>> finisher() {
-            return (data) -> new Rule<>(data.getAssms().stream().map(DataAssms::toAssm).collect(Collectors.toList()),data.getGoal().toGoal(),data.getName());
+            return (data) -> new Rule<>(data.getAssms().stream().map(DataAssms::toAssm).collect(Collectors.toList()),data.getGoal().toGoal(),data.getName(),data.getName(),0, false, false);
         }
 
         @Override

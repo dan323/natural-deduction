@@ -12,14 +12,14 @@ import java.io.Serializable;
 
 public interface LogicUseCases{
 
-    GetAllActions getAllActions(String logic);
+    <T> GetAllActions<T> getAllActions(String logic);
     <Q extends Serializable, C extends Action<L,S,P>, S extends ProofStep<L>, L extends LogicOperation, A, G, P extends com.dan323.proof.generic.proof.Proof<L,A,G,S>> SaveRule saveRule(String logic, Proof<P, A, G, S, Q, L> proof);
     <Q extends Serializable, C extends Action<L,S,P>, S extends ProofStep<L>, L extends LogicOperation, A, G, P extends com.dan323.proof.generic.proof.Proof<L,A,G,S>> ApplyRule<Q,S,L,A,G,P> applyRule(String logic, Proof<P, A, G, S, Q, L> proof, String ruleName, Input<Q> inputs);
     <Q extends Serializable, C extends Action<L,S,P>, S extends ProofStep<L>, L extends LogicOperation, A, G, P extends com.dan323.proof.generic.proof.Proof<L,A,G,S>> IsDone isDone(String logic, Proof<P, A, G, S, Q, L> proof);
 
     @FunctionalInterface
-    interface GetAllActions{
-        Flux<String> perform();
+    interface GetAllActions<T>{
+        Flux<Rule<T>> perform();
     }
 
     @FunctionalInterface

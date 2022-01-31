@@ -4,6 +4,7 @@ import com.dan323.primaryports.Rule;
 import com.dan323.proof.generic.bean.Actions;
 import com.dan323.proof.generic.bean.Construct;
 import com.dan323.proof.generic.bean.Input;
+import com.dan323.proof.generic.bean.LogicAware;
 import com.dan323.secondaryports.RuleDao;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -20,9 +21,9 @@ public class LogicAdapters {
 
     @Bean
     public PrimitiveRuleDao primitiveRuleDao(List<Actions<Input<?>,?,?>> actionsList) {
-        Map<String, List<String>> actionsMap = actionsList
+        var actionsMap = (Map)actionsList
                 .stream()
-                .collect(Collectors.toMap(Actions::ofLogic, Actions::get));
+                .collect(Collectors.toMap(Actions::ofLogic, act -> act.get().stream().map(act::getAction).collect(Collectors.toList())));
         Map<String, Function<String,Construct<?,?,?>>> actions2Map = actionsList
                 .stream()
                 .collect(Collectors.toMap(Actions::ofLogic, act -> act::getAction));
@@ -38,13 +39,14 @@ public class LogicAdapters {
     public RuleDao ruleDao(CustomRuleDao customRuleDao, PrimitiveRuleDao primitiveRuleDao) {
         return new RuleDao() {
             @Override
-            public <T> Mono<Rule<T>> getRule(String logic, String ruleName, Class<T> tClass) {
-                return primitiveRuleDao.<T>getRule(logic,ruleName).switchIfEmpty(customRuleDao.readRule(logic, ruleName, tClass));
+            public <T> Mono<Rule<T>> getRule(String logic, String ruleName) {
+                return primitiveRuleDao.<T>getRule(logic,ruleName).switchIfEmpty(customRuleDao.readRule(logic, ruleName));
             }
 
             @Override
-            public Flux<String> getPossibleActions(String logic) {
-                return primitiveRuleDao.getRules(logic).concatWith(customRuleDao.getRuleNames(logic));
+            public <T> Flux<Rule<T>> getPossibleActions(String logic) {
+                return primitiveRuleDao.getRules(logic);
+                //TODO .concatWith(customRuleDao.getRuleNames(logic));
             }
 
             @Override

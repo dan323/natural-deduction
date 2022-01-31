@@ -50,11 +50,8 @@ public class ApplyRuleUseCase<Q extends Serializable, S extends ProofStep<L>, L 
     @Override
     public Mono<Proof<P, A, G, S, Q, L>> perform() {
         P proofModel = proof.toModelProof(naturalDeductionFactory, toAssmParser, toGoalParser, toModel);
-        Class<?> tClass = inputs.extraInformation() == null? Void.class : inputs.extraInformation().getClass();
-        return ruleDao.getRule(logic, ruleName, tClass).map(rule -> {
-            toAction((Rule<Q>)rule).apply(proofModel);
-            System.out.println("Regla aplicada");
-            System.out.println(proofModel);
+        return ruleDao.<Q>getRule(logic, ruleName).map(rule -> {
+            toAction(rule).apply(proofModel);
             return new Proof<>(proofModel.getSteps()
                     .stream()
                     .map(toModel::applyInv)
@@ -64,7 +61,7 @@ public class ApplyRuleUseCase<Q extends Serializable, S extends ProofStep<L>, L 
     }
 
     private Action<L,S,P> toAction(Rule<Q> rule){
-        if (actions.get().contains(rule.name())){
+        if (actions.get().contains(rule.ruleName())){
             var cons = ((Actions<Input<Q>, L, Action<L,S,P>>)actions).getAction(ruleName);
             verify(cons);
             return cons.getCons().apply(inputs, parser);

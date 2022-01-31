@@ -12,7 +12,6 @@ import com.dan323.proof.generic.proof.Step;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import java.io.Serializable;
 import java.util.List;
 import java.util.function.Function;
 
@@ -30,7 +29,7 @@ public class ClassicalConfiguration {
     }
 
     @Bean
-    public Actions classicalActions(){
+    public Actions<Input<Void>,ClassicalLogicOperation,ClassicalAction> classicalActions(){
         return new ClassicalActions();
     }
 

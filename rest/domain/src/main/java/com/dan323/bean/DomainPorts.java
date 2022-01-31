@@ -25,8 +25,8 @@ public class DomainPorts {
 
         return new LogicUseCases() {
             @Override
-            public GetAllActions getAllActions(String logic) {
-                return new GetAllActionsUseCase(logic, ruleDao);
+            public <T> GetAllActions<T> getAllActions(String logic) {
+                return new GetAllActionsUseCase<>(logic, ruleDao);
             }
 
             @Override
