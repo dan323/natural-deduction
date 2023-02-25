@@ -1,9 +1,5 @@
 package com.dan323.expressions.modal;
 
-import com.dan323.expressions.modal.Always;
-import com.dan323.expressions.modal.ConstantModal;
-import com.dan323.expressions.modal.Sometime;
-import com.dan323.expressions.modal.Until;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 

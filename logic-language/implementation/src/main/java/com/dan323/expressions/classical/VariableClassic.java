@@ -20,12 +20,16 @@ public final class VariableClassic extends Variable implements ClassicalLogicOpe
 
     @Override
     public int hashCode() {
-        return super.hashCode() * 3 + getClass().hashCode();
+        return toString().hashCode() * 3 + getClass().hashCode() * 31;
     }
 
     @Override
     public boolean equals(Object obj) {
-        return ClassicalLogicOperation.classicalOperationEquals(obj, super::equals);
+        if (obj instanceof VariableClassic varClass) {
+            return toString().equals(varClass.toString());
+        } else {
+            return false;
+        }
     }
 
 }

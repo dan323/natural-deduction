@@ -14,12 +14,16 @@ public final class NegationModal extends Negation<ModalOperation> implements Mod
 
     @Override
     public int hashCode() {
-        return super.hashCode() * 3 + getClass().hashCode();
+        return getElement().hashCode() * 5 - getClass().hashCode() * 11;
     }
 
     @Override
     public boolean equals(Object obj) {
-        return ModalLogicalOperation.modalOperationEquals(obj, super::equals);
+        if (obj instanceof NegationModal neg){
+            return neg.getElement().equals(getElement());
+        } else {
+            return false;
+        }
     }
 
 }

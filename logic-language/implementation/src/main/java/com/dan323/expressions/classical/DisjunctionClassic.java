@@ -17,12 +17,16 @@ public final class DisjunctionClassic extends Disjunction<ClassicalLogicOperatio
 
     @Override
     public int hashCode() {
-        return super.hashCode() * 3 + getClass().hashCode();
+        return getRight().hashCode() * 3 + 7 * getLeft().hashCode() - 11 * getClass().hashCode();
     }
 
     @Override
     public boolean equals(Object obj) {
-        return ClassicalLogicOperation.classicalOperationEquals(obj, super::equals);
+        if (obj instanceof DisjunctionClassic disjClass) {
+            return disjClass.getLeft().equals(getLeft()) && disjClass.getRight().equals(getRight());
+        } else {
+            return false;
+        }
     }
 
 }

@@ -34,7 +34,11 @@ public final class ConstantModal implements ModalLogicalOperation, Constant {
 
     @Override
     public boolean equals(Object obj) {
-        return obj instanceof ConstantModal && ((ConstantModal) obj).val == val;
+        if (obj instanceof ConstantModal mod){
+            return mod.val == val;
+        } else {
+            return false;
+        }
     }
 
 }

@@ -15,10 +15,18 @@ public abstract class BinaryOperation<T extends LogicOperation> implements Logic
         this.right = right;
     }
 
+    /**
+     * Left formula
+     * @return formula A such that this is BinaryOperation(A,B)
+     */
     public T getLeft() {
         return left;
     }
 
+    /**
+     * Right formula
+     * @return formula A such that this is BinaryOperation(B,A)
+     */
     public T getRight() {
         return right;
     }
@@ -34,20 +42,6 @@ public abstract class BinaryOperation<T extends LogicOperation> implements Logic
         }
         return leftS + " " + getOperator() + " " + rightS;
     }
-
-    @Override
-    public boolean equals(Object log) {
-        if (log instanceof BinaryOperation && getOperator().equals(((BinaryOperation<?>) log).getOperator())) {
-            return getLeft().equals(((BinaryOperation<?>) log).getLeft()) && getRight().equals(((BinaryOperation<?>) log).getRight());
-        }
-        return false;
-    }
-
-    @Override
-    public int hashCode() {
-        return left.hashCode() * 17 + right.hashCode() * 13 + getOperator().hashCode() * 11;
-    }
-
 
     protected abstract String getOperator();
 

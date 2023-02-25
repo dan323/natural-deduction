@@ -25,16 +25,6 @@ public class BinaryOperationTest {
         binaryOperation4 = new BinaryOperationStub(new LogicOperationStub(1), binaryOperation1);
         binaryOperation5 = new BinaryOperationStub(binaryOperation2, binaryOperation1);
     }
-    
-    @Test
-    public void equalsTest() {
-        Assertions.assertEquals(binaryOperation1, binaryOperation1);
-        Assertions.assertEquals(binaryOperation1, binaryOperation2);
-        Assertions.assertEquals(binaryOperation1.hashCode(), binaryOperation2.hashCode());
-        Assertions.assertNotEquals(binaryOperation1, binaryOperation4);
-        Assertions.assertNotEquals(binaryOperation1, binaryOperation3);
-        Assertions.assertNotEquals(binaryOperation1, binaryOperation1.getLeft());
-    }
 
     @Test
     public void gettersTest() {

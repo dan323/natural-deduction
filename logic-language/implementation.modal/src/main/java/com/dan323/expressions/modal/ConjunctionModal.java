@@ -14,11 +14,15 @@ public final class ConjunctionModal extends Conjunction<ModalOperation> implemen
 
     @Override
     public boolean equals(Object obj) {
-        return ModalLogicalOperation.modalOperationEquals(obj, super::equals);
+        if (obj instanceof ConjunctionModal conj) {
+            return conj.getRight().equals(getRight()) && conj.getLeft().equals(getLeft());
+        } else {
+            return false;
+        }
     }
 
     @Override
     public int hashCode() {
-        return super.hashCode() * 3 + getClass().hashCode();
+        return getLeft().hashCode() * 3 + getRight().hashCode() * 7 + getClass().hashCode();
     }
 }

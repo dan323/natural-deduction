@@ -14,12 +14,16 @@ public final class ImplicationModal extends Implication<ModalOperation> implemen
 
     @Override
     public int hashCode() {
-        return super.hashCode() * 3 + getClass().hashCode();
+        return getRight().hashCode() * 3 - 7 * getLeft().hashCode() + 11 * getClass().hashCode();
     }
 
     @Override
     public boolean equals(Object obj) {
-        return ModalLogicalOperation.modalOperationEquals(obj, super::equals);
+        if (obj instanceof ImplicationModal imp) {
+            return imp.getLeft().equals(getLeft()) && imp.getRight().equals(getRight());
+        } else {
+            return false;
+        }
     }
 
 }

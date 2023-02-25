@@ -10,10 +10,11 @@ public final class LessEqual<T> extends RelationOperation<T> {
 
     @Override
     public boolean equals(Object object) {
-        return object != null
-                && object.getClass().equals(getClass())
-                && getLeft().equals(((RelationOperation<?>) object).getLeft())
-                && getRight().equals(((RelationOperation<?>) object).getRight());
+        if (object instanceof LessEqual<?> lessEqual) {
+            return lessEqual.getLeft().equals(getLeft()) && lessEqual.getRight().equals(getRight());
+        } else {
+            return false;
+        }
     }
 
     @Override
