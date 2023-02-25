@@ -20,11 +20,10 @@ public final class ClassicAssume extends Assume&lt;ClassicalLogicOperation, Proo
 
     @Override
     public boolean equals(Object obj) {
-<span class="pc bpc" id="L23" title="1 of 2 branches missed.">        if (obj instanceof ClassicAssume) {</span>
-<span class="fc" id="L24">            ClassicAssume assume = (ClassicAssume) obj;</span>
-<span class="fc" id="L25">            return Objects.equals(log, assume.log);</span>
+<span class="pc bpc" id="L23" title="1 of 2 branches missed.">        if (obj instanceof ClassicAssume ass) {</span>
+<span class="fc" id="L24">            return Objects.equals(log, ass.log);</span>
         } else {
-<span class="nc" id="L27">            return false;</span>
+<span class="nc" id="L26">            return false;</span>
         }
     }
 }

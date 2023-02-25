@@ -20,11 +20,10 @@ public final class ClassicCopy extends Copy&lt;ClassicalLogicOperation, ProofSte
 
     @Override
     public boolean equals(Object obj) {
-<span class="pc bpc" id="L23" title="1 of 2 branches missed.">        if (obj instanceof ClassicCopy){</span>
-<span class="fc" id="L24">            ClassicCopy classicCopy = (ClassicCopy)obj;</span>
-<span class="pc bpc" id="L25" title="1 of 2 branches missed.">            return getAppliedAt() == classicCopy.getAppliedAt();</span>
+<span class="pc bpc" id="L23" title="1 of 2 branches missed.">        if (obj instanceof ClassicCopy copy){</span>
+<span class="pc bpc" id="L24" title="1 of 2 branches missed.">            return getAppliedAt() == copy.getAppliedAt();</span>
         } else {
-<span class="nc" id="L27">            return false;</span>
+<span class="nc" id="L26">            return false;</span>
         }
     }
 }
