@@ -18,12 +18,16 @@ public final class ImplicationClassic extends Implication&lt;ClassicalLogicOpera
 
     @Override
     public boolean equals(Object obj) {
-<span class="fc" id="L21">        return ClassicalLogicOperation.classicalOperationEquals(obj, super::equals);</span>
+<span class="fc bfc" id="L21" title="All 2 branches covered.">        if (obj instanceof ImplicationClassic impClass) {</span>
+<span class="fc bfc" id="L22" title="All 4 branches covered.">            return impClass.getLeft().equals(getLeft()) &amp;&amp; impClass.getRight().equals(getRight());</span>
+        } else {
+<span class="fc" id="L24">            return false;</span>
+        }
     }
 
     @Override
     public int hashCode() {
-<span class="fc" id="L26">        return super.hashCode() * 3 + getClass().hashCode();</span>
+<span class="fc" id="L30">        return getRight().hashCode() * 3 - 5 * getLeft().hashCode() + 33 * getClass().hashCode();</span>
     }
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

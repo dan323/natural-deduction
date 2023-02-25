@@ -10,12 +10,12 @@ public final class Equals&lt;T&gt; extends RelationOperation&lt;T&gt; {
 
     @Override
     public boolean equals(Object object) {
-<span class="pc bpc" id="L13" title="1 of 2 branches missed.">        return object != null</span>
-<span class="fc bfc" id="L14" title="All 2 branches covered.">                &amp;&amp; object.getClass().equals(getClass())</span>
-<span class="fc bfc" id="L15" title="All 2 branches covered.">                &amp;&amp; ((getLeft().equals(((RelationOperation&lt;?&gt;) object).getLeft())</span>
-<span class="pc bpc" id="L16" title="1 of 2 branches missed.">                &amp;&amp; getRight().equals(((RelationOperation&lt;?&gt;) object).getRight()))</span>
-<span class="pc bpc" id="L17" title="1 of 2 branches missed.">                || (getLeft().equals(((RelationOperation&lt;?&gt;) object).getRight())</span>
-<span class="pc bpc" id="L18" title="1 of 2 branches missed.">                &amp;&amp; getRight().equals(((RelationOperation&lt;?&gt;) object).getLeft())));</span>
+<span class="fc bfc" id="L13" title="All 2 branches covered.">        if (object instanceof Equals&lt;?&gt; eq) {</span>
+<span class="pc bpc" id="L14" title="1 of 4 branches missed.">            return eq.getLeft().equals(getLeft()) &amp;&amp; eq.getRight().equals(getRight())</span>
+<span class="pc bpc" id="L15" title="2 of 4 branches missed.">                    || eq.getRight().equals(getLeft()) &amp;&amp; eq.getLeft().equals(getRight());</span>
+        } else {
+<span class="fc" id="L17">            return false;</span>
+        }
     }
 
     @Override
@@ -23,4 +23,4 @@ public final class Equals&lt;T&gt; extends RelationOperation&lt;T&gt; {
 <span class="nc" id="L23">        return Objects.hash(getLeft(), getRight(), getClass()) + Objects.hash(getRight(), getLeft(), getClass());</span>
     }
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

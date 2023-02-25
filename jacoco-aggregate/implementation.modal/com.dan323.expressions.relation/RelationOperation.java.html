@@ -26,17 +26,8 @@ public abstract class RelationOperation&lt;T&gt; implements ModalOperation {
 <span class="nc" id="L26">        return left.toString() + &quot; &quot; + operation + &quot; &quot; + right.toString();</span>
     }
 
-    public static boolean areRelation(LogicOperation... logs) {
-<span class="fc bfc" id="L30" title="All 2 branches covered.">        for (LogicOperation log : logs) {</span>
-<span class="fc bfc" id="L31" title="All 2 branches covered.">            if (!isRelation(log)) {</span>
-<span class="fc" id="L32">                return false;</span>
-            }
-        }
-<span class="fc" id="L35">        return true;</span>
-    }
-
     static boolean isRelation(LogicOperation log) {
-<span class="fc" id="L39">        return log instanceof RelationOperation;</span>
+<span class="nc" id="L30">        return log instanceof RelationOperation;</span>
     }
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

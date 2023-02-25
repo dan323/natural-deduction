@@ -13,12 +13,16 @@ public final class DisjunctionModal extends Disjunction&lt;ModalOperation&gt; im
 
     @Override
     public int hashCode() {
-<span class="fc" id="L16">        return super.hashCode() * 3 + getClass().hashCode();</span>
+<span class="fc" id="L16">        return getRight().hashCode() * 3 - getLeft().hashCode() *13 + getClass().hashCode();</span>
     }
 
     @Override
     public boolean equals(Object obj) {
-<span class="fc" id="L21">        return ModalLogicalOperation.modalOperationEquals(obj, super::equals);</span>
+<span class="pc bpc" id="L21" title="1 of 2 branches missed.">        if (obj instanceof DisjunctionModal disj){</span>
+<span class="pc bpc" id="L22" title="1 of 4 branches missed.">            return disj.getLeft().equals(getLeft()) &amp;&amp; disj.getRight().equals(getRight());</span>
+        } else {
+<span class="nc" id="L24">            return false;</span>
+        }
     }
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

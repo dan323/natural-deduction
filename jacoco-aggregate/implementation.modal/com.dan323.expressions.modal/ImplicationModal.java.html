@@ -14,13 +14,17 @@ public final class ImplicationModal extends Implication&lt;ModalOperation&gt; im
 
     @Override
     public int hashCode() {
-<span class="fc" id="L17">        return super.hashCode() * 3 + getClass().hashCode();</span>
+<span class="fc" id="L17">        return getRight().hashCode() * 3 - 7 * getLeft().hashCode() + 11 * getClass().hashCode();</span>
     }
 
     @Override
     public boolean equals(Object obj) {
-<span class="fc" id="L22">        return ModalLogicalOperation.modalOperationEquals(obj, super::equals);</span>
+<span class="pc bpc" id="L22" title="1 of 2 branches missed.">        if (obj instanceof ImplicationModal imp) {</span>
+<span class="pc bpc" id="L23" title="1 of 4 branches missed.">            return imp.getLeft().equals(getLeft()) &amp;&amp; imp.getRight().equals(getRight());</span>
+        } else {
+<span class="nc" id="L25">            return false;</span>
+        }
     }
 
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

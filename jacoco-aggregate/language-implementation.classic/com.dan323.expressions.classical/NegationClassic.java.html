@@ -17,13 +17,17 @@ public final class NegationClassic extends Negation&lt;ClassicalLogicOperation&g
 
     @Override
     public int hashCode() {
-<span class="fc" id="L20">        return super.hashCode() * 3 + getClass().hashCode();</span>
+<span class="fc" id="L20">        return getElement().hashCode() * 3 - 11 * getClass().hashCode();</span>
     }
 
     @Override
     public boolean equals(Object obj) {
-<span class="fc" id="L25">        return ClassicalLogicOperation.classicalOperationEquals(obj, super::equals);</span>
+<span class="fc bfc" id="L25" title="All 2 branches covered.">        if (obj instanceof NegationClassic neg) {</span>
+<span class="fc" id="L26">            return this.getElement().equals(neg.getElement());</span>
+        } else {
+<span class="fc" id="L28">            return false;</span>
+        }
     }
 
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

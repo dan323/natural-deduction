@@ -19,24 +19,14 @@ public abstract class UnaryOperation&lt;T extends LogicOperation&gt; implements 
 <span class="fc" id="L19">        return element;</span>
     }
 
-    @Override
-    public boolean equals(Object log) {
-<span class="pc bpc" id="L24" title="1 of 6 branches missed.">        return log instanceof UnaryOperation &amp;&amp; getOperator().equals(((UnaryOperation&lt;?&gt;) log).getOperator()) &amp;&amp; getElement().equals(((UnaryOperation&lt;?&gt;) log).getElement());</span>
-    }
-
-    @Override
-    public int hashCode() {
-<span class="fc" id="L29">        return getElement().hashCode() * 13 + getOperator().hashCode() * 11;</span>
-    }
-
     public String toString() {
-<span class="fc" id="L33">        String leftS = getElement().toString();</span>
-<span class="fc bfc" id="L34" title="All 4 branches covered.">        if (getElement() instanceof BinaryOperation || getElement() instanceof UnaryOperation) {</span>
-<span class="fc" id="L35">            leftS = &quot;(&quot; + leftS + &quot;)&quot;;</span>
+<span class="fc" id="L23">        String leftS = getElement().toString();</span>
+<span class="fc bfc" id="L24" title="All 4 branches covered.">        if (getElement() instanceof BinaryOperation || getElement() instanceof UnaryOperation) {</span>
+<span class="fc" id="L25">            leftS = &quot;(&quot; + leftS + &quot;)&quot;;</span>
         }
-<span class="fc" id="L37">        return getOperator() + &quot; &quot; + leftS;</span>
+<span class="fc" id="L27">        return getOperator() + &quot; &quot; + leftS;</span>
     }
 
     protected abstract String getOperator();
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

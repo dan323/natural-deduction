@@ -34,8 +34,12 @@ public final class ConstantModal implements ModalLogicalOperation, Constant {
 
     @Override
     public boolean equals(Object obj) {
-<span class="fc bfc" id="L37" title="All 4 branches covered.">        return obj instanceof ConstantModal &amp;&amp; ((ConstantModal) obj).val == val;</span>
+<span class="fc bfc" id="L37" title="All 2 branches covered.">        if (obj instanceof ConstantModal mod){</span>
+<span class="fc bfc" id="L38" title="All 2 branches covered.">            return mod.val == val;</span>
+        } else {
+<span class="fc" id="L40">            return false;</span>
+        }
     }
 
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

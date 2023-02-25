@@ -20,13 +20,17 @@ public final class VariableClassic extends Variable implements ClassicalLogicOpe
 
     @Override
     public int hashCode() {
-<span class="fc" id="L23">        return super.hashCode() * 3 + getClass().hashCode();</span>
+<span class="fc" id="L23">        return toString().hashCode() * 3 + getClass().hashCode() * 31;</span>
     }
 
     @Override
     public boolean equals(Object obj) {
-<span class="fc" id="L28">        return ClassicalLogicOperation.classicalOperationEquals(obj, super::equals);</span>
+<span class="fc bfc" id="L28" title="All 2 branches covered.">        if (obj instanceof VariableClassic varClass) {</span>
+<span class="fc" id="L29">            return toString().equals(varClass.toString());</span>
+        } else {
+<span class="fc" id="L31">            return false;</span>
+        }
     }
 
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

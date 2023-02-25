@@ -17,13 +17,16 @@ public final class ConjunctionClassic extends Conjunction&lt;ClassicalLogicOpera
 
     @Override
     public int hashCode() {
-<span class="fc" id="L20">        return super.hashCode() * 3 + getClass().hashCode();</span>
+<span class="fc" id="L20">        return getLeft().hashCode() * 3 - getRight().hashCode() * 13 + getClass().hashCode() * 31;</span>
     }
 
     @Override
     public boolean equals(Object obj) {
-<span class="fc" id="L25">        return ClassicalLogicOperation.classicalOperationEquals(obj, super::equals);</span>
+<span class="fc bfc" id="L25" title="All 2 branches covered.">        if (obj instanceof ConjunctionClassic conjClass) {</span>
+<span class="pc bpc" id="L26" title="1 of 4 branches missed.">            return conjClass.getLeft().equals(getLeft()) &amp;&amp; conjClass.getRight().equals(getRight());</span>
+        } else {
+<span class="fc" id="L28">            return false;</span>
+        }
     }
-
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

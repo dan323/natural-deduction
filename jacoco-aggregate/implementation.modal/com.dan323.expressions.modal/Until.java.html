@@ -15,12 +15,16 @@ public final class Until extends BinaryOperation&lt;ModalOperation&gt; implement
 
     @Override
     public int hashCode() {
-<span class="fc" id="L18">        return super.hashCode() * 3 + getClass().hashCode();</span>
+<span class="fc" id="L18">        return getRight().hashCode() * 3 - 6 * getLeft().hashCode() + 31 * getClass().hashCode();</span>
     }
 
     @Override
     public boolean equals(Object obj) {
-<span class="fc" id="L23">        return ModalLogicalOperation.modalOperationEquals(obj, super::equals);</span>
+<span class="pc bpc" id="L23" title="1 of 2 branches missed.">        if (obj instanceof Until unt) {</span>
+<span class="fc bfc" id="L24" title="All 4 branches covered.">            return unt.getLeft().equals(getLeft()) &amp;&amp; unt.getRight().equals(getRight());</span>
+        } else {
+<span class="nc" id="L26">            return false;</span>
+        }
     }
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>
