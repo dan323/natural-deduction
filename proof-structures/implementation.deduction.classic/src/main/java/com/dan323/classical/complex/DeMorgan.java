@@ -18,7 +18,7 @@ public final class DeMorgan extends CompositionRule {
     }
 
     public boolean equals(Object ob) {
-        return (ob instanceof DeMorgan) && ((DeMorgan) ob).i == i;
+        return (ob instanceof DeMorgan morgan) && morgan.i == i;
     }
 
     public int hashCode() {

@@ -20,9 +20,8 @@ public final class ClassicCopy extends Copy<ClassicalLogicOperation, ProofStep<C
 
     @Override
     public boolean equals(Object obj) {
-        if (obj instanceof ClassicCopy){
-            ClassicCopy classicCopy = (ClassicCopy)obj;
-            return getAppliedAt() == classicCopy.getAppliedAt();
+        if (obj instanceof ClassicCopy copy){
+            return getAppliedAt() == copy.getAppliedAt();
         } else {
             return false;
         }

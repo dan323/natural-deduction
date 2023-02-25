@@ -20,9 +20,8 @@ public final class ClassicAssume extends Assume<ClassicalLogicOperation, ProofSt
 
     @Override
     public boolean equals(Object obj) {
-        if (obj instanceof ClassicAssume) {
-            ClassicAssume assume = (ClassicAssume) obj;
-            return Objects.equals(log, assume.log);
+        if (obj instanceof ClassicAssume ass) {
+            return Objects.equals(log, ass.log);
         } else {
             return false;
         }
