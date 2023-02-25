@@ -15,15 +15,16 @@ on:
 jobs:
   mvn_flow:
     runs-on: ubuntu-latest
-    name: mvn flow Java 14
+    name: mvn flow Java 17
     steps:
       - uses: actions/checkout@master
         with:
           fetch-depth: 0
       - name: Setup java
-        uses: actions/setup-java@v1
+        uses: actions/setup-java@v3
         with:
-          java-version: 14
+          java-version: 17
+          distribution: 'corretto'
       - name: compile
         run: mvn -B -f pom.xml clean compile
       - name: run test suits
@@ -35,7 +36,8 @@ jobs:
           SONAR_ORGANIZATION: ${{ secrets.SONAR_ORGANIZATION }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: mvn -B -f pom.xml sonar:sonar -Dsonar.java.source=14 -Dsonar.java.target=14 -Dsonar.login=$SONAR_TOKEN -Dsonar.host.url=https://sonarcloud.io/ -Dsonar.organization=$SONAR_ORGANIZATION
+          SONAR_PROJECT: ${{ secrets.SONAR_PROJECT }}
+        run: mvn -B -f pom.xml org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.java.source=17 -Dsonar.java.target=17 -Dsonar.login=$SONAR_TOKEN -Dsonar.host.url=https://sonarcloud.io/ -Dsonar.organization=$SONAR_ORGANIZATION -Dsonar.projectKey=dan323_natural-deduction
       - name: set PR number
         if: github.event_name == 'pull_request'
         run: |
@@ -76,11 +78,10 @@ jobs:
       - name: Setup java
         uses: actions/setup-java@v1
         with:
-          java-version: 14
+          java-version: 17
       - name: mutation testing
         run: |
           mvn -B -f pom.xml clean test-compile org.pitest:pitest-maven:mutationCoverage org.pitest:pitest-maven:report-aggregate-module
-          rm -r target/pit-reports/pit-reports
           mkdir -p target/site
           mv target/pit-reports target/site
       - name: set PR number

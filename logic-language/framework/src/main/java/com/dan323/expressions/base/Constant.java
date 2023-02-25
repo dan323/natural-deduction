@@ -5,6 +5,9 @@ package com.dan323.expressions.base;
  */
 public interface Constant extends LogicOperation {
 
+    /**
+     * @return true if this constant represents {@code False}
+     */
     boolean isFalsehood();
 
 }

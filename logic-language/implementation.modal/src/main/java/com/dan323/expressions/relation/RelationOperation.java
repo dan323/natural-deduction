@@ -26,15 +26,6 @@ public abstract class RelationOperation<T> implements ModalOperation {
         return left.toString() + " " + operation + " " + right.toString();
     }
 
-    public static boolean areRelation(LogicOperation... logs) {
-        for (LogicOperation log : logs) {
-            if (!isRelation(log)) {
-                return false;
-            }
-        }
-        return true;
-    }
-
     static boolean isRelation(LogicOperation log) {
         return log instanceof RelationOperation;
     }

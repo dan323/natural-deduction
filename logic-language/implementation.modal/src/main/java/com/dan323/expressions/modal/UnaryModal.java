@@ -8,13 +8,4 @@ public abstract class UnaryModal extends UnaryOperation<ModalLogicalOperation> i
         super(element);
     }
 
-    @Override
-    public int hashCode() {
-        return super.hashCode() * 5 + ModalLogicalOperation.class.hashCode();
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        return ModalLogicalOperation.modalOperationEquals(obj, super::equals);
-    }
 }

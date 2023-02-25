@@ -17,12 +17,15 @@ public final class ConjunctionClassic extends Conjunction<ClassicalLogicOperatio
 
     @Override
     public int hashCode() {
-        return super.hashCode() * 3 + getClass().hashCode();
+        return getLeft().hashCode() * 3 - getRight().hashCode() * 13 + getClass().hashCode() * 31;
     }
 
     @Override
     public boolean equals(Object obj) {
-        return ClassicalLogicOperation.classicalOperationEquals(obj, super::equals);
+        if (obj instanceof ConjunctionClassic conjClass) {
+            return conjClass.getLeft().equals(getLeft()) && conjClass.getRight().equals(getRight());
+        } else {
+            return false;
+        }
     }
-
 }

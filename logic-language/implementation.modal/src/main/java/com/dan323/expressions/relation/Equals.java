@@ -10,12 +10,12 @@ public final class Equals<T> extends RelationOperation<T> {
 
     @Override
     public boolean equals(Object object) {
-        return object != null
-                && object.getClass().equals(getClass())
-                && ((getLeft().equals(((RelationOperation<?>) object).getLeft())
-                && getRight().equals(((RelationOperation<?>) object).getRight()))
-                || (getLeft().equals(((RelationOperation<?>) object).getRight())
-                && getRight().equals(((RelationOperation<?>) object).getLeft())));
+        if (object instanceof Equals<?> eq) {
+            return eq.getLeft().equals(getLeft()) && eq.getRight().equals(getRight())
+                    || eq.getRight().equals(getLeft()) && eq.getLeft().equals(getRight());
+        } else {
+            return false;
+        }
     }
 
     @Override

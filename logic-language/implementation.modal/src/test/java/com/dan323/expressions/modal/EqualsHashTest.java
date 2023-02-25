@@ -1,6 +1,5 @@
 package com.dan323.expressions.modal;
 
-import com.dan323.expressions.modal.*;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 

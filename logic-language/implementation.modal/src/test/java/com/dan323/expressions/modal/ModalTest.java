@@ -1,8 +1,6 @@
 package com.dan323.expressions.modal;
 
-import com.dan323.expressions.base.Implication;
 import com.dan323.expressions.base.LogicOperation;
-import com.dan323.expressions.modal.*;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -23,18 +21,6 @@ public class ModalTest {
         Assertions.assertEquals("TRUE", c.toString());
         Assertions.assertEquals("P", v.toString());
         Assertions.assertEquals("- (" + v + " & " + c + ")", clo.toString());
-    }
-
-    @Test
-    public void modalTest() {
-        ConstantModal c = ConstantModal.TRUE;
-        VariableModal v = new VariableModal("P");
-        ModalLogicalOperation clo = new NegationModal(new ConjunctionModal(v, c));
-        LogicOperation mock = new LogicOperation() {
-        };
-        Assertions.assertTrue(ModalLogicalOperation.isModal(clo));
-        Assertions.assertTrue(ModalLogicalOperation.areModal(clo, c, v));
-        Assertions.assertFalse(ModalLogicalOperation.areModal(clo, c, mock));
     }
 
     @Test

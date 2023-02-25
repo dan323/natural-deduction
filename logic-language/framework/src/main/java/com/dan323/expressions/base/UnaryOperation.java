@@ -19,16 +19,6 @@ public abstract class UnaryOperation<T extends LogicOperation> implements LogicO
         return element;
     }
 
-    @Override
-    public boolean equals(Object log) {
-        return log instanceof UnaryOperation && getOperator().equals(((UnaryOperation<?>) log).getOperator()) && getElement().equals(((UnaryOperation<?>) log).getElement());
-    }
-
-    @Override
-    public int hashCode() {
-        return getElement().hashCode() * 13 + getOperator().hashCode() * 11;
-    }
-
     public String toString() {
         String leftS = getElement().toString();
         if (getElement() instanceof BinaryOperation || getElement() instanceof UnaryOperation) {

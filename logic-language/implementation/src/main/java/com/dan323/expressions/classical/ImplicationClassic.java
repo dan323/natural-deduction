@@ -18,11 +18,15 @@ public final class ImplicationClassic extends Implication<ClassicalLogicOperatio
 
     @Override
     public boolean equals(Object obj) {
-        return ClassicalLogicOperation.classicalOperationEquals(obj, super::equals);
+        if (obj instanceof ImplicationClassic impClass) {
+            return impClass.getLeft().equals(getLeft()) && impClass.getRight().equals(getRight());
+        } else {
+            return false;
+        }
     }
 
     @Override
     public int hashCode() {
-        return super.hashCode() * 3 + getClass().hashCode();
+        return getRight().hashCode() * 3 - 5 * getLeft().hashCode() + 33 * getClass().hashCode();
     }
 }

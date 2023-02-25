@@ -15,11 +15,15 @@ public final class Until extends BinaryOperation<ModalOperation> implements Moda
 
     @Override
     public int hashCode() {
-        return super.hashCode() * 3 + getClass().hashCode();
+        return getRight().hashCode() * 3 - 6 * getLeft().hashCode() + 31 * getClass().hashCode();
     }
 
     @Override
     public boolean equals(Object obj) {
-        return ModalLogicalOperation.modalOperationEquals(obj, super::equals);
+        if (obj instanceof Until unt) {
+            return unt.getLeft().equals(getLeft()) && unt.getRight().equals(getRight());
+        } else {
+            return false;
+        }
     }
 }

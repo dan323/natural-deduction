@@ -9,12 +9,16 @@ public final class VariableModal extends Variable implements ModalLogicalOperati
 
     @Override
     public int hashCode() {
-        return super.hashCode() * 3 + getClass().hashCode();
+        return toString().hashCode() * 3 + getClass().hashCode();
     }
 
     @Override
     public boolean equals(Object obj) {
-        return ModalLogicalOperation.modalOperationEquals(obj, super::equals);
+        if (obj instanceof VariableModal varMod){
+            return varMod.toString().equals(toString());
+        } else {
+            return false;
+        }
     }
 
 }

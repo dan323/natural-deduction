@@ -1,13 +1,5 @@
 package com.dan323.expressions.classical;
 
-import com.dan323.expressions.base.LogicOperation;
-import com.dan323.expressions.classical.ClassicalLogicOperation;
-import com.dan323.expressions.classical.ConjunctionClassic;
-import com.dan323.expressions.classical.ConstantClassic;
-import com.dan323.expressions.classical.DisjunctionClassic;
-import com.dan323.expressions.classical.ImplicationClassic;
-import com.dan323.expressions.classical.NegationClassic;
-import com.dan323.expressions.classical.VariableClassic;
 import com.dan323.expressions.classical.exceptions.InvalidMapValuesException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -29,19 +21,6 @@ public class ClassicalTest {
         Assertions.assertEquals("TRUE", c.toString());
         Assertions.assertEquals("P", v.toString());
         Assertions.assertEquals("- (" + v + " & " + c + ")", clo.toString());
-    }
-
-    @Test
-    public void classicalTest() {
-        ConstantClassic c = ConstantClassic.TRUE;
-        VariableClassic v = new VariableClassic("P");
-        ClassicalLogicOperation clo = new NegationClassic(new ConjunctionClassic(v, c));
-        LogicOperation mock = new LogicOperation() {
-        };
-
-        Assertions.assertTrue(ClassicalLogicOperation.isClassical(clo));
-        Assertions.assertTrue(ClassicalLogicOperation.areClassical(clo, c, v));
-        Assertions.assertFalse(ClassicalLogicOperation.areClassical(clo, c, mock));
     }
 
     @Test
@@ -111,7 +90,7 @@ public class ClassicalTest {
     public void toStringComplex() {
         VariableClassic P = new VariableClassic("P");
         NegationClassic d = new NegationClassic(P);
-        ImplicationClassic n = new ImplicationClassic(d,d);
-        Assertions.assertEquals("(- P) -> (- P)",n.toString());
+        ImplicationClassic n = new ImplicationClassic(d, d);
+        Assertions.assertEquals("(- P) -> (- P)", n.toString());
     }
 }

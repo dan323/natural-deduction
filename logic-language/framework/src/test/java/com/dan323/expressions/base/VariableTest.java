@@ -17,13 +17,4 @@ public class VariableTest {
         Assertions.assertEquals("P", new VariableStub("P").toString());
     }
 
-    @Test
-    public void equalsTest() {
-        Variable p = new VariableStub("P");
-        Variable p1 = new VariableStub("P");
-        Variable q = new VariableStub("Q");
-        Assertions.assertNotEquals(p, q);
-        Assertions.assertEquals(p, p1);
-        Assertions.assertEquals(p.hashCode(), p1.hashCode());
-    }
 }

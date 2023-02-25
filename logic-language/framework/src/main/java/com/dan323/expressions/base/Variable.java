@@ -16,14 +16,4 @@ public abstract class Variable implements LogicOperation {
         return var;
     }
 
-    @Override
-    public boolean equals(Object log) {
-        return log != null && log.getClass().equals(getClass()) && ((Variable) log).var.equals(var);
-    }
-
-    @Override
-    public int hashCode() {
-        return var.hashCode();
-    }
-
 }

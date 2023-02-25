@@ -7,6 +7,18 @@
         <groupId>com.dan323</groupId>
         <version>0.1-SNAPSHOT</version>
     </parent>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>16</source>
+                    <target>16</target>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>language-implementation.classic</artifactId>
@@ -16,11 +28,6 @@
             <groupId>com.dan323</groupId>
             <artifactId>language-framework</artifactId>
             <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.fathzer</groupId>
-            <artifactId>javaluator</artifactId>
-            <version>3.0.3</version>
         </dependency>
     </dependencies>
 

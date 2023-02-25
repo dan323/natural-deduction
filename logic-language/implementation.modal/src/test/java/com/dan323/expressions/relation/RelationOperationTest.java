@@ -4,7 +4,6 @@ import com.dan323.expressions.base.LogicOperation;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 
 public class RelationOperationTest {
@@ -39,8 +38,5 @@ public class RelationOperationTest {
         assertNotEquals(null, lessEqual);
         LessEqual<LogicOperation> lessEqual3 = new LessEqual<>(logicOperation2, logicOperation1);
         assertNotEquals(lessEqual3, lessEqual2);
-        assertTrue(RelationOperation.areRelation(lessEqual, lessEqual2));
-        assertFalse(RelationOperation.areRelation(logicOperation2, lessEqual2));
-        assertFalse(RelationOperation.areRelation(lessEqual2, logicOperation2));
     }
 }

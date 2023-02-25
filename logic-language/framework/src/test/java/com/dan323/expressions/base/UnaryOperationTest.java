@@ -34,16 +34,6 @@ public class UnaryOperationTest {
     }
 
     @Test
-    public void equalsTest() {
-        Assertions.assertEquals(unaryOperation1, unaryOperation1);
-        Assertions.assertEquals(unaryOperation1, unaryOperation2);
-        Assertions.assertEquals(unaryOperation1.hashCode(), unaryOperation2.hashCode());
-        Assertions.assertNotEquals(unaryOperation1, unaryOperation4);
-        Assertions.assertNotEquals(unaryOperation1, unaryOperation3);
-        Assertions.assertNotEquals(unaryOperation1, unaryOperation1.getElement());
-    }
-
-    @Test
     public void gettersTest() {
         Assertions.assertEquals(new LogicOperationStub(1), unaryOperation1.getElement());
     }
