@@ -19,8 +19,8 @@
 
         <jdk.version>17</jdk.version>
 
-        <pitest.version>1.5.1</pitest.version>
-        <pitest.junit5.version>0.12</pitest.junit5.version>
+        <pitest.version>1.11.1</pitest.version>
+        <pitest.junit5.version>1.1.2</pitest.junit5.version>
 
         <maven.javadoc.version>3.2.0</maven.javadoc.version>
         <maven.compiler.version>3.8.1</maven.compiler.version>
