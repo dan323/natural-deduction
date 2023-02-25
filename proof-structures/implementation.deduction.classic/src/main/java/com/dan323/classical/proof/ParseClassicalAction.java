@@ -68,11 +68,14 @@ public final class ParseClassicalAction {
     private static ClassicalAction parseOrI(NaturalDeduction naturalDeduction, ClassicalLogicOperation atPos, ProofReason proofReason) {
         int[] ints = parseArray(proofReason);
         ClassicalLogicOperation origin = naturalDeduction.getSteps().get(ints[0] - 1).getStep();
-        DisjunctionClassic disj = (DisjunctionClassic) atPos;
-        if (disj.getLeft().equals(origin)) {
-            return new ClassicOrI1(ints[0], disj.getRight());
+        if (atPos instanceof DisjunctionClassic disj) {
+            if (disj.getLeft().equals(origin)) {
+                return new ClassicOrI1(ints[0], disj.getRight());
+            } else {
+                return new ClassicOrI2(ints[0], disj.getLeft());
+            }
         } else {
-            return new ClassicOrI2(ints[0], disj.getLeft());
+            throw new IllegalArgumentException(atPos.toString() + " is not Disjunction");
         }
     }
 
@@ -142,7 +145,7 @@ public final class ParseClassicalAction {
             case "->E" -> new ClassicModusPonens(sources.get(0), sources.get(1));
             case "FE" -> new ClassicFE(sources.get(0), extraInfo);
             case "FI" -> new ClassicFI(sources.get(0), sources.get(1));
-            default -> throw new IllegalArgumentException();
+            default -> throw new IllegalArgumentException("The rule " + name + " is not valid.");
         };
     }
 }

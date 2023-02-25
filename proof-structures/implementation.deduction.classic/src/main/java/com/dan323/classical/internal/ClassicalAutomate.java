@@ -13,6 +13,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Class to execute a Natural deduction in classic logic
+ *
+ * @author daniel
+ */
 public final class ClassicalAutomate {
 
     private NaturalDeduction proof;
@@ -26,7 +31,7 @@ public final class ClassicalAutomate {
     public static final ClassicalAutomate AUTOMATIC_SOLVER = new ClassicalAutomate();
 
     /**
-     * Finish the proof it it can be done.
+     * Finish the proof if it can be done.
      * It will stop without solving it if it cannot be solved
      *
      * @param naturalDeduction the proof to solve

@@ -25,8 +25,8 @@ public final class NaturalDeduction extends Proof<ClassicalLogicOperation, Proof
     }
 
     @Override
-    protected ProofStep<ClassicalLogicOperation> generateAssm(ClassicalLogicOperation logicexpression) {
-        return new ProofStep<>(0, logicexpression, new ProofReason("Ass", List.of()));
+    protected ProofStep<ClassicalLogicOperation> generateAssm(ClassicalLogicOperation logicExpression) {
+        return new ProofStep<>(0, logicExpression, new ProofReason("Ass", List.of()));
     }
 
     public void automate() {

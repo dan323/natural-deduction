@@ -24,8 +24,8 @@ public final class OrE2 extends CompositionRule {
     }
 
     public boolean equals(Object ob) {
-        if (ob instanceof OrE2) {
-            return ((OrE2) ob).a == a && ((OrE2) ob).b == b;
+        if (ob instanceof OrE2 ore) {
+            return ore.a == a && ore.b == b;
         }
         return false;
     }
