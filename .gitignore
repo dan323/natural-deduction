@@ -1,5 +1,6 @@
 # Compiled code
 target/
+**/target/
 *.class
 *.jar
 *.war
