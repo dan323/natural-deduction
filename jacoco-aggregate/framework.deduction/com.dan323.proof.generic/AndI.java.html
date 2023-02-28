@@ -12,7 +12,7 @@ import java.util.function.BinaryOperator;
 /**
  * @author danco
  */
-public abstract class AndI&lt;T extends LogicOperation, Q extends ProofStep&lt;T&gt;, P extends Proof&lt;T, Q, ?&gt;&gt; implements AbstractAction&lt;T, Q, P&gt; {
+public abstract class AndI&lt;T extends LogicOperation, Q extends ProofStep&lt;T&gt;, P extends Proof&lt;T, Q&gt;&gt; implements AbstractAction&lt;T, Q, P&gt; {
 
     private final int applyAt1;
     private final int applyAt2;

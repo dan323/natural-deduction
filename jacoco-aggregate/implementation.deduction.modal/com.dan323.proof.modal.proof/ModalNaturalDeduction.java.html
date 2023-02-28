@@ -10,7 +10,7 @@ import com.dan323.proof.modal.AbstractModalAction;
 
 import java.util.List;
 
-public final class ModalNaturalDeduction&lt;T&gt; extends Proof&lt;ModalOperation, ProofStepModal&lt;T&gt;, AbstractModalAction&lt;T&gt;&gt; {
+public final class ModalNaturalDeduction&lt;T&gt; extends Proof&lt;ModalOperation, ProofStepModal&lt;T&gt;&gt; {
 
     private final T state0;
 
@@ -31,7 +31,7 @@ public final class ModalNaturalDeduction&lt;T&gt; extends Proof&lt;ModalOperatio
 
     @Override
     public List&lt;AbstractModalAction&lt;T&gt;&gt; parse() {
-<span class="fc" id="L34">        return ((ParseAction&lt;AbstractModalAction&lt;T&gt;,ModalNaturalDeduction&lt;T&gt;&gt;)ParseModalAction::parse).translateToActions(this);</span>
+<span class="fc" id="L34">        return ((ParseAction&lt;AbstractModalAction&lt;T&gt;,ModalNaturalDeduction&lt;T&gt;,ModalOperation,ProofStepModal&lt;T&gt;&gt;)ParseModalAction::parse).translateToActions(this);</span>
     }
 
     @Override

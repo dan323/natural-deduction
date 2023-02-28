@@ -36,7 +36,7 @@ public class ModalLogicParser&lt;T&gt; extends AbstractEvaluator&lt;ModalOperati
 
     @Override
     protected ModalOperation evaluate(Constant constant, Object evaluationContext) {
-<span class="fc bfc" id="L39" title="All 2 branches covered.">        return constant.getName().equals(&quot;FALSE&quot;) ? ConstantModal.FALSE : ConstantModal.TRUE;</span>
+<span class="fc bfc" id="L39" title="All 2 branches covered.">        return &quot;FALSE&quot;.equals(constant.getName()) ? ConstantModal.FALSE : ConstantModal.TRUE;</span>
     }
 
     @Override

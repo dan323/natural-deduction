@@ -12,7 +12,7 @@ import java.util.function.BinaryOperator;
 /**
  * @author danco
  */
-public abstract class DeductionTheorem&lt;T extends LogicOperation, Q extends ProofStep&lt;T&gt;, P extends Proof&lt;T, Q, ?&gt;&gt; implements AbstractAction&lt;T, Q, P&gt; {
+public abstract class DeductionTheorem&lt;T extends LogicOperation, Q extends ProofStep&lt;T&gt;, P extends Proof&lt;T, Q&gt;&gt; implements AbstractAction&lt;T, Q, P&gt; {
 
     private final BinaryOperator&lt;T&gt; constructor;
 
@@ -36,7 +36,7 @@ public abstract class DeductionTheorem&lt;T extends LogicOperation, Q extends Pr
         }
 <span class="fc" id="L37">        int lastAssumption = RuleUtils.getToLastAssumption(pf, assLevel);</span>
 <span class="fc" id="L38">        ProofStep&lt;T&gt; log = pf.getSteps().get(pf.getSteps().size() - lastAssumption);</span>
-<span class="fc" id="L39">        return log.getProof().getNameProof().equals(&quot;Ass&quot;);</span>
+<span class="fc" id="L39">        return &quot;Ass&quot;.equals(log.getProof().getNameProof());</span>
     }
 
     @Override

@@ -22,7 +22,7 @@ public final class ModalDeductionTheorem&lt;T&gt; extends DeductionTheorem&lt;Mo
         }
 <span class="fc" id="L23">        int lastAssumption = RuleUtils.getToLastAssumption(pf, assLevel);</span>
 <span class="fc" id="L24">        ProofStepModal&lt;T&gt; log = pf.getSteps().get(pf.getSteps().size() - lastAssumption);</span>
-<span class="pc bpc" id="L25" title="1 of 4 branches missed.">        return log.getProof().getNameProof().equals(&quot;Ass&quot;) &amp;&amp; ModalAction.checkEqualState(pf, pf.getSteps().size() - lastAssumption + 1, pf.getSteps().size());</span>
+<span class="pc bpc" id="L25" title="1 of 4 branches missed.">        return &quot;Ass&quot;.equals(log.getProof().getNameProof()) &amp;&amp; ModalAction.checkEqualState(pf, pf.getSteps().size() - lastAssumption + 1, pf.getSteps().size());</span>
     }
 
     @Override

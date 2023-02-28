@@ -27,7 +27,7 @@ public final class ClassicalParser extends AbstractEvaluator&lt;ClassicalLogicOp
 
     @Override
     protected ClassicalLogicOperation evaluate(Constant constant, Object evaluationContext) {
-<span class="fc bfc" id="L30" title="All 2 branches covered.">        return constant.getName().equals(&quot;FALSE&quot;) ? ConstantClassic.FALSE : ConstantClassic.TRUE;</span>
+<span class="fc bfc" id="L30" title="All 2 branches covered.">        return &quot;FALSE&quot;.equals(constant.getName()) ? ConstantClassic.FALSE : ConstantClassic.TRUE;</span>
     }
 
     @Override
