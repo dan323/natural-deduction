@@ -9,10 +9,10 @@
     <packaging>pom</packaging>
     <version>0.1-SNAPSHOT</version>
     <modules>
-        <module>logic-language</module>
-        <module>proof-structures</module>
         <module>rest</module>
         <module>jacoco-natural-deduction</module>
+        <module>domain</module>
+        <module>domain/use-cases/modal-use-case</module>
     </modules>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -27,11 +27,15 @@
         <maven.surefire.version>3.0.0-M5</maven.surefire.version>
         <maven.sonar.version>3.7.0.1746</maven.sonar.version>
         <maven.jacoco.version>0.8.8</maven.jacoco.version>
-
-        <reflections.version>0.9.11</reflections.version>
-        <junit5.version>5.9.2</junit5.version>
-        <mockito.version>5.1.1</mockito.version>
         <maven.versions.version>2.8.1</maven.versions.version>
+
+        <reflections.version>0.10.2</reflections.version>
+
+        <junit5.version>5.9.2</junit5.version>
+
+        <mockito.version>5.1.1</mockito.version>
+
+        <spring.version>5.1.4.RELEASE</spring.version>
     </properties>
 
 

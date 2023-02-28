@@ -23,7 +23,8 @@ public class ClassicalService implements ProofService<ClassicalService.Nothing, 
     @Override
     public List<String> initPossibleActions() {
         Reflections reflections = new Reflections("com.dan323.classical");
-        return reflections.getSubTypesOf(ClassicalAction.class).stream()
+        return reflections.getSubTypesOf(ClassicalAction.class)
+                .stream()
                 .filter(clazz -> !clazz.getName().contains("complex"))
                 .map(Class::getSimpleName)
                 .collect(Collectors.toList());
