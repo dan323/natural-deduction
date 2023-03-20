@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>Copy.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">jacoco-report-aggregate</a> &gt; <a href="../index.html" class="el_bundle">framework.deduction</a> &gt; <a href="index.source.html" class="el_package">com.dan323.proof.generic</a> &gt; <span class="el_source">Copy.java</span></div><h1>Copy.java</h1><pre class="source lang-java linenums">package com.dan323.proof.generic;
+
+import com.dan323.expressions.base.LogicOperation;
+import com.dan323.proof.generic.proof.Proof;
+import com.dan323.proof.generic.proof.ProofReason;
+import com.dan323.proof.generic.proof.ProofStep;
+import com.dan323.proof.generic.proof.ProofStepSupplier;
+
+import java.util.Collections;
+
+/**
+ * @author danco
+ */
+public abstract class Copy&lt;T extends LogicOperation, Q extends ProofStep&lt;T&gt;, P extends Proof&lt;T, Q&gt;&gt; implements Action&lt;T, Q, P&gt;, AbstractAction&lt;T,Q,P&gt; {
+
+    private final int source;
+
+<span class="fc" id="L18">    public Copy(int i) {</span>
+<span class="fc" id="L19">        source = i;</span>
+<span class="fc" id="L20">    }</span>
+
+    @Override
+    public boolean isValid(P pf) {
+<span class="fc" id="L24">        return RuleUtils.isValidIndexAndProp(pf, source);</span>
+    }
+
+    @Override
+    public void applyStepSupplier(P pf, ProofStepSupplier&lt;T, Q&gt; supp) {
+<span class="fc" id="L29">        pf.getSteps().add(supp.generateProofStep(RuleUtils.getLastAssumptionLevel(pf), pf.getSteps().get(source - 1).getStep(), getReason()));</span>
+<span class="fc" id="L30">    }</span>
+
+    public int getAppliedAt() {
+<span class="fc" id="L33">        return source;</span>
+    }
+
+    protected ProofReason getReason() {
+<span class="fc" id="L37">        return new ProofReason(&quot;Rep&quot;, Collections.singletonList(source));</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>
