@@ -144,17 +144,32 @@ public class RuleConjunctionTest {
         public AndEStub(int app) {
             super(app, Conjunction<LogicOperation>::getLeft);
         }
+
+        @Override
+        public void apply(ProofTest.ProofStub pf) {
+
+        }
     }
 
     public static class AndEStub2 extends AndE<LogicOperation, ProofStep<LogicOperation>, ProofTest.ProofStub> {
         public AndEStub2(int app) {
             super(app, Conjunction<LogicOperation>::getRight);
         }
+
+        @Override
+        public void apply(ProofTest.ProofStub pf) {
+
+        }
     }
 
     public static class AndIStub extends AndI<LogicOperation, ProofStep<LogicOperation>, ProofTest.ProofStub> {
         public AndIStub(int app1, int app2) {
             super(app1, app2, RuleConjunctionTest::mockConjunction);
+        }
+
+        @Override
+        public void apply(ProofTest.ProofStub pf) {
+
         }
     }
 

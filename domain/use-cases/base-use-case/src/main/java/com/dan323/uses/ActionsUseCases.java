@@ -11,9 +11,9 @@ public interface ActionsUseCases {
 
     GetActions getActions(String logicName);
 
-    <A extends Action<T, Q, P>, T extends LogicOperation, Q extends ProofStep<T>, P extends Proof<T, Q>> ApplyAction<A, T, Q, P> applyAction(A action, P proof, String logicName);
+    <A extends Action<T, Q, P>, T extends LogicOperation, Q extends ProofStep<T>, P extends Proof<T, Q>> ApplyAction<A, T, Q, P> applyAction(String logicName);
 
-    <T extends LogicOperation, Q extends ProofStep<T>, P extends Proof<T, Q>> Solve<T, Q, P> solveProblem(P proof, String logicName);
+    <T extends LogicOperation, Q extends ProofStep<T>, P extends Proof<T, Q>> Solve<T, Q, P> solveProblem(String logicName);
 
     interface GetActions {
         List<String> perform();

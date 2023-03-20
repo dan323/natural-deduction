@@ -12,7 +12,7 @@ import java.util.Collections;
 /**
  * @author danco
  */
-public abstract class NotE<T extends LogicOperation, Q extends ProofStep<T>, P extends Proof<T, Q>> implements AbstractAction<T, Q, P> {
+public abstract class NotE<T extends LogicOperation, Q extends ProofStep<T>, P extends Proof<T, Q>> implements Action<T, Q, P>, AbstractAction<T,Q,P> {
 
     private final int neg;
 

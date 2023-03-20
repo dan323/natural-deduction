@@ -157,11 +157,21 @@ public class RuleImplicationTest {
         public DeductionTheoremStub() {
             super(RuleImplicationTest::mockImplication);
         }
+
+        @Override
+        public void apply(ProofTest.ProofStub pf) {
+
+        }
     }
 
     public static class ModusPonensStub extends ModusPonens<LogicOperation, ProofStep<LogicOperation>, ProofTest.ProofStub> {
         public ModusPonensStub(int i1, int i2) {
             super(i1, i2);
+        }
+
+        @Override
+        public void apply(ProofTest.ProofStub pf) {
+
         }
     }
 

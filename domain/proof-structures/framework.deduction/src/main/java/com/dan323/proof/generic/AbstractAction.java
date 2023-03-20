@@ -10,8 +10,6 @@ import com.dan323.proof.generic.proof.ProofStepSupplier;
  */
 public interface AbstractAction<T extends LogicOperation, Q extends ProofStep<T>, P extends Proof<T, Q>> {
 
-    boolean isValid(P pf);
-
     void applyStepSupplier(P pf, ProofStepSupplier<T, Q> supp);
 
 }

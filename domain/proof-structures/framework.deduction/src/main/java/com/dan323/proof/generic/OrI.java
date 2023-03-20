@@ -13,7 +13,7 @@ import java.util.function.BinaryOperator;
 /**
  * @author danco
  */
-public abstract class OrI<T extends LogicOperation, Q extends ProofStep<T>, P extends Proof<T, Q>> implements AbstractAction<T, Q, P> {
+public abstract class OrI<T extends LogicOperation, Q extends ProofStep<T>, P extends Proof<T, Q>> implements Action<T, Q, P>, AbstractAction<T,Q,P> {
 
     private final int applyAt;
     private final T intro;

@@ -14,7 +14,7 @@ import java.util.function.Supplier;
 /**
  * @author danco
  */
-public abstract class FI<T extends LogicOperation, Q extends ProofStep<T>, P extends Proof<T, Q>> implements AbstractAction<T, Q, P> {
+public abstract class FI<T extends LogicOperation, Q extends ProofStep<T>, P extends Proof<T, Q>> implements Action<T, Q, P>, AbstractAction<T,Q,P> {
 
     private final int neg;
     private final int pos;

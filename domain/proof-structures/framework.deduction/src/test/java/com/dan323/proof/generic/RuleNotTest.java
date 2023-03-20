@@ -161,11 +161,21 @@ public class RuleNotTest {
         public NotIStub() {
             super(RuleNotTest::mockNot);
         }
+
+        @Override
+        public void apply(ProofTest.ProofStub pf) {
+
+        }
     }
 
     public static class NotEStub extends NotE<LogicOperation, ProofStep<LogicOperation>, ProofTest.ProofStub> {
         public NotEStub(int i) {
             super(i);
+        }
+
+        @Override
+        public void apply(ProofTest.ProofStub pf) {
+
         }
     }
 

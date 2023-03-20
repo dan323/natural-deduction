@@ -107,11 +107,21 @@ public class RuleBaseTest {
         public AssumeStub(LogicOperation clo) {
             super(clo);
         }
+
+        @Override
+        public void apply(ProofTest.ProofStub pf) {
+
+        }
     }
 
     public static class CopyStub extends Copy<LogicOperation, ProofStep<LogicOperation>, ProofTest.ProofStub> {
         public CopyStub(int clo) {
             super(clo);
+        }
+
+        @Override
+        public void apply(ProofTest.ProofStub pf) {
+
         }
     }
 

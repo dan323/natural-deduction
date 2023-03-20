@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
 public class ActionsUseCaseConfiguration {
 
     @Bean
-    ActionsUseCases usecases(List<LogicalGetActions> getActions, LogicalApplyAction applyActions, List<LogicalSolver> solvers) {
+    public ActionsUseCases useCases(List<LogicalGetActions> getActions, List<LogicalSolver> solvers) {
 
         Map<String, ActionsUseCases.GetActions> actionGetters;
         ActionsUseCases.ApplyAction actionAppliers;
@@ -30,7 +30,6 @@ public class ActionsUseCaseConfiguration {
         actionGetters = getActions.stream()
                 .map(logicalGetActions -> new AbstractMap.SimpleEntry<>(logicalGetActions.getLogicName(), logicalGetActions))
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-        actionAppliers = applyActions;
         problemSolvers = solvers.stream()
                 .map(logicalGetActions -> new AbstractMap.SimpleEntry<>(logicalGetActions.getLogicName(), logicalGetActions))
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
@@ -43,12 +42,12 @@ public class ActionsUseCaseConfiguration {
             }
 
             @Override
-            public <A extends Action<T, Q, P>, T extends LogicOperation, Q extends ProofStep<T>, P extends Proof<T, Q>> ApplyAction<A,T, Q, P> applyAction(A action, P proof, String logicName) {
-                return actionAppliers;
+            public <A extends Action<T, Q, P>, T extends LogicOperation, Q extends ProofStep<T>, P extends Proof<T, Q>> ApplyAction<A,T, Q, P> applyAction(String logicName) {
+                return new LogicalApplyAction<>();
             }
 
             @Override
-            public <T extends LogicOperation, Q extends ProofStep<T>, P extends Proof<T, Q>> Solve<T, Q, P> solveProblem(P proof, String logicName) {
+            public <T extends LogicOperation, Q extends ProofStep<T>, P extends Proof<T, Q>> Solve<T, Q, P> solveProblem(String logicName) {
                 return Optional.ofNullable(problemSolvers.get(logicName)).orElseThrow(IllegalArgumentException::new);
             }
         };
