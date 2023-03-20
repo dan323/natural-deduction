@@ -15,7 +15,7 @@ public final class ModalAndE1<T> extends AndE<ModalOperation, ProofStepModal<T>,
 
     @Override
     public void apply(ModalNaturalDeduction<T> pf) {
-        applyStepSupplier(pf, ((assLevel, log, reason) -> new ProofStepModal<>(getState(pf), assLevel, (ModalLogicalOperation) log, reason)));
+        applyStepSupplier(pf, (assLevel, log, reason) -> new ProofStepModal<>(getState(pf), assLevel, (ModalLogicalOperation) log, reason));
     }
 
     private T getState(ModalNaturalDeduction<T> pf) {

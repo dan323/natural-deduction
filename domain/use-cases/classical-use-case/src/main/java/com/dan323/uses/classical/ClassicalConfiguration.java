@@ -9,12 +9,12 @@ import org.springframework.context.annotation.Configuration;
 public class ClassicalConfiguration {
 
     @Bean
-    LogicalSolver classicalSolver(){
+    public LogicalSolver classicalSolver(){
         return new ClassicSolver();
     }
 
     @Bean
-    LogicalGetActions classicalActions(){
+    public LogicalGetActions classicalActions(){
         return new ClassicGetActions();
     }
 

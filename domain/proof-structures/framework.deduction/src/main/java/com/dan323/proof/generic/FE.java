@@ -13,7 +13,7 @@ import java.util.Objects;
 /**
  * @author danco
  */
-public abstract class FE<T extends LogicOperation, Q extends ProofStep<T>, P extends Proof<T, Q>> implements AbstractAction<T, Q, P> {
+public abstract class FE<T extends LogicOperation, Q extends ProofStep<T>, P extends Proof<T, Q>> implements Action<T, Q, P>, AbstractAction<T,Q,P> {
 
     private final T intro;
     private final int falseIndex;

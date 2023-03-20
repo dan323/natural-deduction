@@ -172,11 +172,21 @@ public class RuleFalseTest {
         public FIStub(int a, int b) {
             super(a, b, RuleFalseTest::getFalse);
         }
+
+        @Override
+        public void apply(ProofTest.ProofStub pf) {
+
+        }
     }
 
     public static class FEStub extends FE<LogicOperation, ProofStep<LogicOperation>, ProofTest.ProofStub> {
         public FEStub(LogicOperation op, int i) {
             super(op, i);
+        }
+
+        @Override
+        public void apply(ProofTest.ProofStub pf) {
+
         }
     }
 

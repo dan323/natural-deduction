@@ -186,11 +186,20 @@ public class RuleOrTest {
             super(app, lo, RuleOrTest::mockOr);
         }
 
+        @Override
+        public void apply(ProofTest.ProofStub pf) {
+
+        }
     }
 
     public static class OrEStub extends OrE<LogicOperation, ProofStep<LogicOperation>, ProofTest.ProofStub> {
         public OrEStub(int dis, int r1, int r2) {
             super(dis, r1, r2);
+        }
+
+        @Override
+        public void apply(ProofTest.ProofStub pf) {
+
         }
     }
 }

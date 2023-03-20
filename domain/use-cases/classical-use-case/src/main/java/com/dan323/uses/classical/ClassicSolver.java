@@ -7,7 +7,7 @@ import com.dan323.uses.LogicalSolver;
 
 public class ClassicSolver implements LogicalSolver<ClassicalLogicOperation, ProofStep<ClassicalLogicOperation>, NaturalDeduction> {
 
-    ClassicSolver(){
+    public ClassicSolver(){
     }
 
     @Override

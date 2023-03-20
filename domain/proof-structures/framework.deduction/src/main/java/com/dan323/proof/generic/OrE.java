@@ -15,7 +15,7 @@ import java.util.Objects;
 /**
  * @author danco
  */
-public abstract class OrE<T extends LogicOperation, Q extends ProofStep<T>, P extends Proof<T, Q>> implements AbstractAction<T, Q, P> {
+public abstract class OrE<T extends LogicOperation, Q extends ProofStep<T>, P extends Proof<T, Q>> implements Action<T, Q, P>, AbstractAction<T,Q,P> {
 
     private final int disj;
     private final int rule1;

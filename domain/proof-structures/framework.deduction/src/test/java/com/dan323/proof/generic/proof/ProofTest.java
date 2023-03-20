@@ -105,9 +105,6 @@ public class ProofTest {
             return false;
         }
 
-        @Override
-        public void applyStepSupplier(ProofStub pf, ProofStepSupplier<LogicOperation, ProofStep<LogicOperation>> supp) {
-        }
     }
 
 }
