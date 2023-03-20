@@ -2,14 +2,15 @@
 
 import com.dan323.classical.proof.NaturalDeduction;
 import com.dan323.expressions.classical.ClassicalLogicOperation;
+import com.dan323.proof.generic.AbstractAction;
 import com.dan323.proof.generic.Action;
 import com.dan323.proof.generic.proof.ProofStep;
 
-public interface ClassicalAction extends Action&lt;ClassicalLogicOperation, ProofStep&lt;ClassicalLogicOperation&gt;, NaturalDeduction&gt; {
+public interface ClassicalAction extends Action&lt;ClassicalLogicOperation, ProofStep&lt;ClassicalLogicOperation&gt;, NaturalDeduction&gt;, AbstractAction&lt;ClassicalLogicOperation, ProofStep&lt;ClassicalLogicOperation&gt;, NaturalDeduction&gt; {
 
     @Override
     default void apply(NaturalDeduction pf) {
-<span class="fc" id="L12">        applyStepSupplier(pf, ProofStep::new);</span>
-<span class="fc" id="L13">    }</span>
+<span class="fc" id="L13">        applyStepSupplier(pf, ProofStep::new);</span>
+<span class="fc" id="L14">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

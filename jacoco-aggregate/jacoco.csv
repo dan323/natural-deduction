@@ -84,8 +84,8 @@ jacoco-report-aggregate/implementation.deduction.classic,com.dan323.classical,Cl
 jacoco-report-aggregate/implementation.deduction.classic,com.dan323.classical,ClassicOrE,0,6,0,0,0,2,0,1,0,1
 jacoco-report-aggregate/implementation.deduction.classic,com.dan323.classical,ClassicCopy,18,18,2,2,2,4,3,2,1,2
 jacoco-report-aggregate/implementation.deduction.classic,com.dan323.classical,ClassicOrI1,0,6,0,0,0,2,0,1,0,1
-jacoco-report-aggregate/implementation.deduction.classic,com.dan323.classical,ClassicAndI,0,6,0,0,0,2,0,1,0,1
 jacoco-report-aggregate/implementation.deduction.classic,com.dan323.classical,ClassicOrI2,0,12,0,0,0,2,0,2,0,2
+jacoco-report-aggregate/implementation.deduction.classic,com.dan323.classical,ClassicAndI,0,6,0,0,0,2,0,1,0,1
 jacoco-report-aggregate/implementation.deduction.classic,com.dan323.classical.proof,ParseClassicalAction,23,434,3,31,4,66,4,44,1,18
 jacoco-report-aggregate/implementation.deduction.classic,com.dan323.classical.proof,NaturalDeduction,0,31,0,0,0,9,0,5,0,5
 jacoco-report-aggregate/implementation.deduction.classic,com.dan323.classical.complex,DeMorgan,5,140,1,9,1,18,2,8,1,4
