@@ -1,14 +1,20 @@
 package com.dan323.model;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Objects;
+import com.dan323.classical.proof.ParseClassicalAction;
+import com.dan323.expressions.classical.ClassicalLogicOperation;
+import com.dan323.expressions.modal.ModalLogicalOperation;
+import com.dan323.proof.modal.proof.ParseModalAction;
 
 /**
  * @author danco
  */
 public class Action<T extends Serializable> implements Serializable {
 
+    @Serial
     private static final long serialVersionUID = 9213445L;
     private String name;
     private List<Integer> sources;
@@ -51,5 +57,20 @@ public class Action<T extends Serializable> implements Serializable {
     @Override
     public int hashCode() {
         return Objects.hash(name, sources, extraInformation);
+    }
+
+    public com.dan323.proof.generic.Action toDomain(String logic){
+        if ("classical".equals(logic)) {
+            return ParseClassicalAction.parseAction(name,sources, (ClassicalLogicOperation) extraInformation);
+        } else if ("modal".equals(logic)) {
+            var extra = (ModalExtra<?>) extraInformation;
+            return ParseModalAction.parseAction(name, sources, extra.expression, extra.state);
+        }
+        throw new IllegalArgumentException();
+    }
+
+    private static class ModalExtra<T> {
+        private T state;
+        private ModalLogicalOperation expression;
     }
 }
