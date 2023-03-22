@@ -24,7 +24,6 @@ public class ActionsUseCaseConfiguration {
     public ActionsUseCases useCases(List<LogicalGetActions> getActions, List<LogicalSolver> solvers) {
 
         Map<String, ActionsUseCases.GetActions> actionGetters;
-        ActionsUseCases.ApplyAction actionAppliers;
         Map<String, ActionsUseCases.Solve> problemSolvers;
 
         actionGetters = getActions.stream()
