@@ -1,27 +1,31 @@
 package com.dan323.controller;
 
-import com.dan323.model.*;
-import com.dan323.service.ProofActionService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
+import com.dan323.model.Proof;
+import com.dan323.model.ProofActionRequest;
+import com.dan323.model.ProofResponse;
+import com.dan323.uses.ActionsUseCases;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
-import javax.sql.rowset.serial.SerialJavaObject;
+import javax.inject.Inject;
+
 import java.io.Serializable;
 import java.util.List;
 
-@Controller
+@RestController
+@RequestMapping("/logic")
 public class ControllerInterface {
 
-    @Autowired
-    private ProofActionService service;
+    private ActionsUseCases useCase;
 
-    @GetMapping("{logic}/list")
+    @Inject
+    public ControllerInterface(ActionsUseCases useCase){
+        this.useCase = useCase;
+    }
+
+    @GetMapping("{logic}/action")
     public ResponseEntity<List<String>> getAllPossibleActions(@PathVariable String logic) {
-        var actions = service.getAllActions(logic);
+        var actions = useCase.getActions(logic).perform();
         if (actions.isEmpty()) {
             return ResponseEntity.noContent().build();
         } else {
@@ -29,6 +33,7 @@ public class ControllerInterface {
         }
     }
 
+  /*
     @PostMapping("{logic}/add/proof")
     public <Q extends Serializable> ResponseEntity<Action<SequenceRule<Q>>> processProofFile(@RequestParam MultipartFile file, @PathVariable String logic) {
         var action = service.<Q>processFile(file, logic);
@@ -39,11 +44,14 @@ public class ControllerInterface {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
+   */
 
     @PostMapping("{logic}/apply")
-    public <T extends Serializable, Q extends Serializable> ResponseEntity<ProofResponse<Q>> doAction(@RequestBody ProofActionRequest<T,Q> proofActionRequest) {
-        Proof<Q> proof = service.applyActionToProof(proofActionRequest.getProof(), proofActionRequest.getAction());
-        ProofResponse<Q> response = new ProofResponse<>(proof, proof.getSteps().size() > proofActionRequest.getProof().getSteps().size());
+    public <T extends Serializable, Q extends Serializable> ResponseEntity<ProofResponse<Q>> doAction(@RequestBody ProofActionRequest<T, Q> proofActionRequest, @PathVariable String logic) {
+        var action = proofActionRequest.getAction();
+        var proof = proofActionRequest.getProof();
+        var afterAction = useCase.applyAction(logic).perform(action.toDomain(logic), proof.toDomain(logic));
+        ProofResponse<Q> response = new ProofResponse<>(Proof.from(afterAction), proof.getSteps().size() > proofActionRequest.getProof().getSteps().size());
         if (response.isSuccess()) {
             return ResponseEntity.ok(response);
         } else {
