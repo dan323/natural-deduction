@@ -8,9 +8,9 @@ import java.io.Serializable;
 public class ProofActionRequest<T extends Serializable, Q extends Serializable> {
 
     private Proof<Q> proof;
-    private Action<T> action;
+    private Action action;
 
-    public ProofActionRequest(Proof<Q> proof, Action<T> action) {
+    public ProofActionRequest(Proof<Q> proof, Action action) {
         this.proof = proof;
         this.action = action;
     }
@@ -23,11 +23,11 @@ public class ProofActionRequest<T extends Serializable, Q extends Serializable> 
         this.proof = proof;
     }
 
-    public Action<T> getAction() {
+    public Action getAction() {
         return action;
     }
 
-    public void setAction(Action<T> action) {
+    public void setAction(Action action) {
         this.action = action;
     }
 }

@@ -39,6 +39,7 @@ public final class ClassicalAutomate {
     public void automate(NaturalDeduction naturalDeduction) {
         // Init state
         proof = naturalDeduction;
+        proof.reset();
         goals = new ArrayList<>();
         actionsDone = new ArrayList<>();
         usedForGoal = new HashMap<>();

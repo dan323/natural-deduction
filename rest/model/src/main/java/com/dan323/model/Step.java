@@ -12,7 +12,7 @@ public class Step<T extends Serializable> implements Serializable {
     private String expression;
     private String ruleString;
     private int assmsLevel;
-    private T extraInformation;
+    private Extra extraInformation;
 
     public Step(String expression, String ruleString, int assmsLevel) {
         this.expression = expression;
@@ -44,11 +44,11 @@ public class Step<T extends Serializable> implements Serializable {
         this.expression = expression;
     }
 
-    public T getExtraInformation() {
+    public Extra getExtraInformation() {
         return extraInformation;
     }
 
-    public void setExtraInformation(T extraInformation) {
+    public void setExtraInformation(Extra extraInformation) {
         this.extraInformation = extraInformation;
     }
 

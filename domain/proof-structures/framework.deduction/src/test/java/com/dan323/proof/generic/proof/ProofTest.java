@@ -88,6 +88,11 @@ public class ProofTest {
         }
 
         @Override
+        public void automate() {
+            // Do nothing
+        }
+
+        @Override
         public void initializeProof(List<LogicOperation> assms, LogicOperation goal) {
             setAssms(assms);
             setGoal(goal);

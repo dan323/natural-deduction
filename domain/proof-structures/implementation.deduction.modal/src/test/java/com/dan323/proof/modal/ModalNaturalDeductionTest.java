@@ -12,7 +12,7 @@ public class ModalNaturalDeductionTest {
 
     @Test
     public void getGoalTest() {
-        var mnd = new ModalNaturalDeduction<>("s0");
+        var mnd = new ModalNaturalDeduction("s0");
         var p = new VariableModal("P");
         mnd.initializeProof(List.of(), p);
         assertEquals(p, mnd.getGoal());
@@ -20,7 +20,7 @@ public class ModalNaturalDeductionTest {
 
     @Test
     public void getStateTest(){
-        var mnd = new ModalNaturalDeduction<>("s0");
+        var mnd = new ModalNaturalDeduction("s0");
         assertEquals("s0", mnd.getState0());
     }
 }

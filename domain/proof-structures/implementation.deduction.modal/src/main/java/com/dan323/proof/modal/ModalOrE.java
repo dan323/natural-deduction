@@ -8,14 +8,14 @@ import com.dan323.proof.modal.proof.ProofStepModal;
 
 import java.util.List;
 
-public final class ModalOrE<T> extends OrE<ModalOperation, ProofStepModal<T>, ModalNaturalDeduction<T>> implements ModalAction<T> {
+public final class ModalOrE extends OrE<ModalOperation, ProofStepModal, ModalNaturalDeduction> implements ModalAction {
 
     public ModalOrE(int dis, int r1, int r2) {
         super(dis, r1, r2);
     }
 
     @Override
-    public boolean isValid(ModalNaturalDeduction<T> pf) {
+    public boolean isValid(ModalNaturalDeduction pf) {
         if (super.isValid(pf)) {
             return ModalAction.checkEqualState(pf, List.of(getDisj(), get1(), get2()));
         }
@@ -23,8 +23,8 @@ public final class ModalOrE<T> extends OrE<ModalOperation, ProofStepModal<T>, Mo
     }
 
     @Override
-    public void apply(ModalNaturalDeduction<T> pf) {
-        T st = (pf.getSteps().get(get1() - 1)).getState();
-        applyStepSupplier(pf, (assLevel, sol, reason) -> new ProofStepModal<>(st, assLevel, (ModalLogicalOperation) sol, reason));
+    public void apply(ModalNaturalDeduction pf) {
+        String st = (pf.getSteps().get(get1() - 1)).getState();
+        applyStepSupplier(pf, (assLevel, sol, reason) -> new ProofStepModal(st, assLevel, (ModalLogicalOperation) sol, reason));
     }
 }

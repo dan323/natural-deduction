@@ -7,15 +7,15 @@ import com.dan323.proof.generic.OrI;
 import com.dan323.proof.modal.proof.ModalNaturalDeduction;
 import com.dan323.proof.modal.proof.ProofStepModal;
 
-public final class ModalOrI1<T> extends OrI<ModalOperation, ProofStepModal<T>, ModalNaturalDeduction<T>> implements ModalAction<T> {
+public final class ModalOrI1 extends OrI<ModalOperation, ProofStepModal, ModalNaturalDeduction> implements ModalAction {
 
     public ModalOrI1(int i, ModalLogicalOperation intro) {
-        super(i, intro, DisjunctionModal::new);
+        super(i, intro, (a,b) -> new DisjunctionModal((ModalLogicalOperation) a,(ModalLogicalOperation) b));
     }
 
     @Override
-    public void apply(ModalNaturalDeduction<T> pf) {
+    public void apply(ModalNaturalDeduction pf) {
         applyStepSupplier(pf, ((assLevel, log, reason) ->
-                new ProofStepModal<>((pf.getSteps().get(getAt() - 1)).getState(), assLevel, (ModalLogicalOperation) log, reason)));
+                new ProofStepModal((pf.getSteps().get(getAt() - 1)).getState(), assLevel, (ModalLogicalOperation) log, reason)));
     }
 }

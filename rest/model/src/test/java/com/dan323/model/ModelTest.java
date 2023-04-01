@@ -10,12 +10,12 @@ public class ModelTest {
 
     @Test
     public void actionTest() {
-        Action<String> action = new Action<>();
+        Action action = new Action();
         action.setName("Name");
-        action.setExtraInformation("Information");
+        action.setExtraInformation(new Extra("P","Information"));
         action.setSources(List.of(1, 2));
         assertEquals("Name", action.getName());
-        assertEquals("Information", action.getExtraInformation());
+        assertEquals("Information", action.getExtraInformation().getState());
         assertEquals(List.of(1, 2), action.getSources());
     }
 

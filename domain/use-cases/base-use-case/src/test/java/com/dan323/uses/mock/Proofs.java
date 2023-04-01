@@ -24,6 +24,11 @@ public final class Proofs {
             }
 
             @Override
+            public void automate() {
+
+            }
+
+            @Override
             public void initializeProof(List assms, LogicOperation goal) {
 
             }

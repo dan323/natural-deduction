@@ -4,6 +4,8 @@ import com.dan323.model.Proof;
 import com.dan323.model.ProofActionRequest;
 import com.dan323.model.ProofResponse;
 import com.dan323.uses.ActionsUseCases;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -16,7 +18,8 @@ import java.util.List;
 @RequestMapping("/logic")
 public class ControllerInterface {
 
-    private ActionsUseCases useCase;
+    private final ActionsUseCases useCase;
+    private final Logger LOGGER = LoggerFactory.getLogger(ControllerInterface.class);
 
     @Inject
     public ControllerInterface(ActionsUseCases useCase){
@@ -25,6 +28,7 @@ public class ControllerInterface {
 
     @GetMapping("{logic}/action")
     public ResponseEntity<List<String>> getAllPossibleActions(@PathVariable String logic) {
+        LOGGER.info("The logic called is {}", logic);
         var actions = useCase.getActions(logic).perform();
         if (actions.isEmpty()) {
             return ResponseEntity.noContent().build();

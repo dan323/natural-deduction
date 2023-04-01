@@ -14,7 +14,7 @@ import java.util.Objects;
 /**
  * @author danco
  */
-public final class Transitive<T> extends RelationalAction<T> {
+public final class Transitive extends RelationalAction {
 
     private final int first;
     private final int second;
@@ -25,27 +25,24 @@ public final class Transitive<T> extends RelationalAction<T> {
     }
 
     @Override
-    public boolean isValid(ModalNaturalDeduction<T> pf) {
-        if (!(pf.getSteps().get(first - 1).getStep() instanceof LessEqual) || !(pf.getSteps().get(second - 1).getStep() instanceof LessEqual)) {
+    public boolean isValid(ModalNaturalDeduction pf) {
+        if (!(pf.getSteps().get(first - 1).getStep() instanceof LessEqual firstLog) || !(pf.getSteps().get(second - 1).getStep() instanceof LessEqual secondLog)) {
             return false;
         } else {
-            LessEqual<T> firstLog = (LessEqual<T>) pf.getSteps().get(first - 1).getStep();
-            LessEqual<T> secondLog = (LessEqual<T>) pf.getSteps().get(second - 1).getStep();
             return firstLog.getRight().equals(secondLog.getLeft());
         }
     }
 
     @Override
-    public void applyStepSupplier(ModalNaturalDeduction<T> pf, ProofStepSupplier<ModalOperation, ProofStepModal<T>> supp) {
-        T s1 = ((LessEqual<T>) pf.getSteps().get(first - 1).getStep()).getLeft();
-        T s3 = ((LessEqual<T>) pf.getSteps().get(first - 1).getStep()).getRight();
-        pf.getSteps().add(supp.generateProofStep(RuleUtils.getLastAssumptionLevel(pf), new LessEqual<>(s1, s3), new ProofReason("Trans", List.of(first, second))));
+    public void applyStepSupplier(ModalNaturalDeduction pf, ProofStepSupplier<ModalOperation, ProofStepModal> supp) {
+        String s1 = ((LessEqual) pf.getSteps().get(first - 1).getStep()).getLeft();
+        String s3 = ((LessEqual) pf.getSteps().get(first - 1).getStep()).getRight();
+        pf.getSteps().add(supp.generateProofStep(RuleUtils.getLastAssumptionLevel(pf), new LessEqual(s1, s3), new ProofReason("Trans", List.of(first, second))));
     }
 
     @Override
     public boolean equals(Object o){
-        if (o instanceof Transitive){
-            Transitive<?> t = (Transitive<?>)o;
+        if (o instanceof Transitive t){
             return t.first == first && t.second == second;
         } else {
             return false;

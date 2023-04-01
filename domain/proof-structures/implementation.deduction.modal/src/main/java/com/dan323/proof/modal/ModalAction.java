@@ -4,13 +4,13 @@ import com.dan323.proof.modal.proof.ModalNaturalDeduction;
 
 import java.util.List;
 
-public interface ModalAction<T> extends AbstractModalAction<T> {
+public interface ModalAction extends AbstractModalAction {
 
-    static <T> boolean checkEqualState(ModalNaturalDeduction<T> pf, List<Integer> list) {
+    static boolean checkEqualState(ModalNaturalDeduction pf, List<Integer> list) {
         if (list.isEmpty()) {
             return true;
         }
-        T s0 = (pf.getSteps().get(list.get(0) - 1)).getState();
+        String s0 = (pf.getSteps().get(list.get(0) - 1)).getState();
         for (int i = 1; i < list.size(); i++) {
             if (!s0.equals((pf.getSteps().get(list.get(i) - 1)).getState())) {
                 return false;
@@ -19,7 +19,7 @@ public interface ModalAction<T> extends AbstractModalAction<T> {
         return true;
     }
 
-    static <T> boolean checkEqualState(ModalNaturalDeduction<T> pf, int a, int b) {
+    static boolean checkEqualState(ModalNaturalDeduction pf, int a, int b) {
         return (pf.getSteps().get(a - 1)).getState().equals((pf.getSteps().get(b - 1)).getState());
     }
 
