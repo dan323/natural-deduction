@@ -13,7 +13,7 @@ import com.dan323.proof.modal.proof.ProofStepModal;
 import java.util.Arrays;
 import java.util.Objects;
 
-public final class ModalDiaI<T> implements ModalAction<T> {
+public final class ModalDiaI implements ModalAction {
 
     private final int i;
     private final int j;
@@ -24,11 +24,10 @@ public final class ModalDiaI<T> implements ModalAction<T> {
     }
 
     @Override
-    public boolean isValid(ModalNaturalDeduction<T> pf) {
+    public boolean isValid(ModalNaturalDeduction pf) {
         if (RuleUtils.isValidIndexAndProp(pf, i) && pf.getSteps().get(i - 1).getStep() instanceof ModalLogicalOperation &&
-                RuleUtils.isValidIndexAndProp(pf, j) && pf.getSteps().get(j - 1).getStep() instanceof LessEqual) {
-            LessEqual<T> lessEqual = (LessEqual<T>) pf.getSteps().get(j - 1).getStep();
-            T futureState = pf.getSteps().get(i - 1).getState();
+                RuleUtils.isValidIndexAndProp(pf, j) && pf.getSteps().get(j - 1).getStep() instanceof LessEqual lessEqual) {
+            String futureState = pf.getSteps().get(i - 1).getState();
             return futureState.equals(lessEqual.getRight());
         } else {
             return false;
@@ -36,15 +35,15 @@ public final class ModalDiaI<T> implements ModalAction<T> {
     }
 
     @Override
-    public void applyStepSupplier(ModalNaturalDeduction<T> pf, ProofStepSupplier<ModalOperation, ProofStepModal<T>> supp) {
+    public void applyStepSupplier(ModalNaturalDeduction pf, ProofStepSupplier<ModalOperation, ProofStepModal> supp) {
         ModalLogicalOperation log = (ModalLogicalOperation) pf.getSteps().get(i - 1).getStep();
         pf.getSteps().add(supp.generateProofStep(pf.getSteps().get(pf.getSteps().size() - 1).getAssumptionLevel(), new Sometime(log), new ProofReason("<>I", Arrays.asList(i, j))));
     }
 
     @Override
-    public void apply(ModalNaturalDeduction<T> pf) {
-        LessEqual<T> lessEqual = (LessEqual<T>) pf.getSteps().get(j - 1).getStep();
-        applyStepSupplier(pf, ((assLevel, log, reason) -> new ProofStepModal<>(lessEqual.getLeft(), assLevel, (ModalLogicalOperation) log, reason)));
+    public void apply(ModalNaturalDeduction pf) {
+        LessEqual lessEqual = (LessEqual) pf.getSteps().get(j - 1).getStep();
+        applyStepSupplier(pf, ((assLevel, log, reason) -> new ProofStepModal(lessEqual.getLeft(), assLevel, (ModalLogicalOperation) log, reason)));
     }
 
     @Override
@@ -54,6 +53,6 @@ public final class ModalDiaI<T> implements ModalAction<T> {
 
     @Override
     public boolean equals(Object obj) {
-        return (obj instanceof ModalDiaI) && ((ModalDiaI<?>) obj).i == i && ((ModalDiaI<?>) obj).j == j;
+        return (obj instanceof ModalDiaI diaI) && diaI.i == i && diaI.j == j;
     }
 }

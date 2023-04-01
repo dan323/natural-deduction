@@ -8,25 +8,25 @@ import com.dan323.proof.modal.proof.ProofStepModal;
 
 import java.util.Objects;
 
-public final class ModalCopy<T> extends Copy<ModalOperation, ProofStepModal<T>, ModalNaturalDeduction<T>> implements ModalAction<T> {
+public final class ModalCopy extends Copy<ModalOperation, ProofStepModal, ModalNaturalDeduction> implements ModalAction {
 
     public ModalCopy(int i) {
         super(i);
     }
 
     @Override
-    public void apply(ModalNaturalDeduction<T> pf) {
-        applyStepSupplier(pf, (assLevel, log, reason) -> new ProofStepModal<>(getState(pf, getAppliedAt()), assLevel, (ModalLogicalOperation) log, reason));
+    public void apply(ModalNaturalDeduction pf) {
+        applyStepSupplier(pf, (assLevel, log, reason) -> new ProofStepModal(getState(pf, getAppliedAt()), assLevel, (ModalLogicalOperation) log, reason));
     }
 
-    private T getState(ModalNaturalDeduction<T> pf, int k) {
+    private String getState(ModalNaturalDeduction pf, int k) {
         return (pf.getSteps().get(k - 1)).getState();
     }
 
     @Override
     public boolean equals(Object o){
-        if (o instanceof ModalCopy){
-            return getAppliedAt() == ((ModalCopy<?>)o).getAppliedAt();
+        if (o instanceof ModalCopy copy){
+            return getAppliedAt() == copy.getAppliedAt();
         } else {
             return false;
         }

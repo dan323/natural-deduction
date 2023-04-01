@@ -6,14 +6,14 @@ import com.dan323.proof.generic.NotE;
 import com.dan323.proof.modal.proof.ModalNaturalDeduction;
 import com.dan323.proof.modal.proof.ProofStepModal;
 
-public final class ModalNotE<T> extends NotE<ModalOperation, ProofStepModal<T>, ModalNaturalDeduction<T>> implements ModalAction<T> {
+public final class ModalNotE extends NotE<ModalOperation, ProofStepModal, ModalNaturalDeduction> implements ModalAction {
 
     public ModalNotE(int j) {
         super(j);
     }
 
     @Override
-    public void apply(ModalNaturalDeduction<T> pf) {
-        applyStepSupplier(pf, ((assLevel, log, reason) -> new ProofStepModal<>((pf.getSteps().get(getNeg() - 1)).getState(), assLevel, (ModalLogicalOperation) log, reason)));
+    public void apply(ModalNaturalDeduction pf) {
+        applyStepSupplier(pf, ((assLevel, log, reason) -> new ProofStepModal((pf.getSteps().get(getNeg() - 1)).getState(), assLevel, (ModalLogicalOperation) log, reason)));
     }
 }

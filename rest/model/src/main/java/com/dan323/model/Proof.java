@@ -2,6 +2,7 @@ package com.dan323.model;
 
 import com.dan323.classical.proof.NaturalDeduction;
 import com.dan323.classical.proof.ParseClassicalAction;
+import com.dan323.expressions.ModalLogicParser;
 import com.dan323.expressions.classical.ClassicalLogicOperation;
 import com.dan323.expressions.modal.ModalOperation;
 import com.dan323.proof.generic.proof.ProofStep;
@@ -82,7 +83,7 @@ public class Proof<T extends Serializable> implements Serializable {
 
 
     private com.dan323.proof.generic.proof.Proof mapModal(Proof<T> proof) {
-        ModalNaturalDeduction nd = new ModalNaturalDeduction<>("s0");
+        ModalNaturalDeduction nd = new ModalNaturalDeduction("s0");
         List<ModalOperation> assmsLst = new ArrayList<>();
         boolean assms = true;
         for (Step<T> step : proof.getSteps()) {
@@ -93,7 +94,8 @@ public class Proof<T extends Serializable> implements Serializable {
                     assms = false;
                     nd.initializeProof(assmsLst, ParseModalAction.parseExpression(proof.getGoal()));
                 }
-                ParseModalAction.parseWithReason(nd, ParseModalAction.parseExpression(step.getExpression()), ParseModalAction.parseReason(step.getRuleString()), step.getExtraInformation()).apply(nd);
+                var parser = new ModalLogicParser();
+                ParseModalAction.parseWithReason(nd, ParseModalAction.parseExpression(step.getExpression()), ParseModalAction.parseReason(step.getRuleString()), step.getExtraInformation().getState()).apply(nd);
             }
         }
         return nd;
@@ -115,7 +117,7 @@ public class Proof<T extends Serializable> implements Serializable {
             for (Object obj : proof.getSteps()) {
                 var step = (ProofStepModal) obj;
                 var stepDto = new Step<>(step.getStep().toString(), step.getProof().toString(), step.getAssumptionLevel());
-                stepDto.setExtraInformation((Serializable) step.getState());
+                stepDto.setExtraInformation(new Extra("",step.getState()));
                 pr.addStep(stepDto);
             }
         }

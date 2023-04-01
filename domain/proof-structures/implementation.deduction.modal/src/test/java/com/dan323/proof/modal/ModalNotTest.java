@@ -15,19 +15,19 @@ public class ModalNotTest {
 
     @Test
     public void modalNotIApply() {
-        var modalnoti = new ModalNotI<String>();
+        var modalnoti = new ModalNotI();
         String state = "i";
         var variable = new VariableModal("P");
         var variable2 = new VariableModal("Q");
         var variable3 = new VariableModal("R");
         var bottom = ConstantModal.FALSE;
-        var assume = new ModalAssume<>(variable, state);
-        var assume2 = new ModalAssume<>(variable2, "w");
-        var assume3 = new ModalAssume<>(variable3, "w");
-        var pf = new ModalNaturalDeduction<>("s0");
+        var assume = new ModalAssume(variable, state);
+        var assume2 = new ModalAssume(variable2, "w");
+        var assume3 = new ModalAssume(variable3, "w");
+        var pf = new ModalNaturalDeduction("s0");
 
         assume.apply(pf);
-        pf.getSteps().add(new ProofStepModal<>(state, 1, bottom, new ProofReason("TST", List.of())));
+        pf.getSteps().add(new ProofStepModal(state, 1, bottom, new ProofReason("TST", List.of())));
         modalnoti.apply(pf);
 
         Assertions.assertEquals("- P", pf.getSteps().get(pf.getSteps().size() - 1).getStep().toString());
@@ -38,7 +38,7 @@ public class ModalNotTest {
         assume2.apply(pf);
         assume3.apply(pf);
         assume.apply(pf);
-        pf.getSteps().add(new ProofStepModal<>(state, 3, bottom, new ProofReason("TST", List.of())));
+        pf.getSteps().add(new ProofStepModal(state, 3, bottom, new ProofReason("TST", List.of())));
         modalnoti.apply(pf);
 
         Assertions.assertEquals("- P", pf.getSteps().get(pf.getSteps().size() - 1).getStep().toString());
@@ -50,10 +50,10 @@ public class ModalNotTest {
     @Test
     public void ModalNotEApply() {
         var state = "i";
-        var notE = new ModalNotE<String>(1);
+        var notE = new ModalNotE(1);
         var negneg = new NegationModal(new NegationModal(new VariableModal("P")));
-        var assume = new ModalAssume<>(negneg, state);
-        var pf = new ModalNaturalDeduction<>("s0");
+        var assume = new ModalAssume(negneg, state);
+        var pf = new ModalNaturalDeduction("s0");
 
         assume.apply(pf);
         notE.apply(pf);

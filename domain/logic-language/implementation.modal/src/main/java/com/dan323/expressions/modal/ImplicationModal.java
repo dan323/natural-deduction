@@ -4,12 +4,18 @@ import com.dan323.expressions.base.Implication;
 
 public final class ImplicationModal extends Implication<ModalOperation> implements ModalLogicalOperation {
 
-    public ImplicationModal(ModalOperation l, ModalOperation r) {
-        this((ModalLogicalOperation) l, (ModalLogicalOperation) r);
-    }
-
     public ImplicationModal(ModalLogicalOperation l, ModalLogicalOperation r) {
         super(l, r);
+    }
+
+    @Override
+    public ModalLogicalOperation getLeft() {
+        return (ModalLogicalOperation) super.getLeft();
+    }
+
+    @Override
+    public ModalLogicalOperation getRight() {
+        return (ModalLogicalOperation) super.getRight();
     }
 
     @Override

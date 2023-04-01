@@ -8,8 +8,9 @@ public final class NegationModal extends Negation<ModalOperation> implements Mod
         super(elem);
     }
 
-    public NegationModal(ModalOperation elem) {
-        this((ModalLogicalOperation) elem);
+    @Override
+    public ModalLogicalOperation getElement() {
+        return (ModalLogicalOperation) super.getElement();
     }
 
     @Override
