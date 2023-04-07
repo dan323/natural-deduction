@@ -12,7 +12,7 @@ import com.dan323.proof.modal.proof.ProofStepModal;
 
 import java.util.List;
 
-public final class ModalBoxE&lt;T&gt; implements ModalAction&lt;T&gt; {
+public final class ModalBoxE implements ModalAction {
 
     private final int i;
     private final int q;
@@ -23,35 +23,35 @@ public final class ModalBoxE&lt;T&gt; implements ModalAction&lt;T&gt; {
 <span class="fc" id="L23">    }</span>
 
     @Override
-    public boolean isValid(ModalNaturalDeduction&lt;T&gt; pf) {
-<span class="pc bpc" id="L27" title="1 of 6 branches missed.">        if (RuleUtils.isValidIndexAndProp(pf, i) &amp;&amp; RuleUtils.isValidIndexAndProp(pf, q) &amp;&amp; RuleUtils.isOperation(pf, i, Always.class)) {</span>
-<span class="fc" id="L28">            ProofStepModal&lt;T&gt; ps = pf.getSteps().get(i - 1);</span>
-<span class="fc" id="L29">            ProofStepModal&lt;T&gt; ps2 = pf.getSteps().get(q - 1);</span>
-<span class="fc" id="L30">            T state = ps.getState();</span>
-<span class="pc bpc" id="L31" title="1 of 4 branches missed.">            return (ps2.getStep() instanceof LessEqual) &amp;&amp; ((LessEqual&lt;T&gt;) ps2.getStep()).getLeft().equals(state);</span>
+    public boolean isValid(ModalNaturalDeduction pf) {
+<span class="fc bfc" id="L27" title="All 6 branches covered.">        if (RuleUtils.isValidIndexAndProp(pf, i) &amp;&amp; RuleUtils.isValidIndexAndProp(pf, q) &amp;&amp; RuleUtils.isOperation(pf, i, Always.class)) {</span>
+<span class="fc" id="L28">            ProofStepModal ps = pf.getSteps().get(i - 1);</span>
+<span class="fc" id="L29">            ProofStepModal ps2 = pf.getSteps().get(q - 1);</span>
+<span class="fc" id="L30">            String state = ps.getState();</span>
+<span class="fc bfc" id="L31" title="All 4 branches covered.">            return (ps2.getStep() instanceof LessEqual less) &amp;&amp; less.getLeft().equals(state);</span>
         }
 <span class="fc" id="L33">        return false;</span>
     }
 
     @Override
-    public void applyStepSupplier(ModalNaturalDeduction&lt;T&gt; pf, ProofStepSupplier&lt;ModalOperation, ProofStepModal&lt;T&gt;&gt; supp) {
+    public void applyStepSupplier(ModalNaturalDeduction pf, ProofStepSupplier&lt;ModalOperation, ProofStepModal&gt; supp) {
 <span class="fc" id="L38">        int assLevel = 0;</span>
 <span class="pc bpc" id="L39" title="1 of 2 branches missed.">        if (!pf.getSteps().isEmpty()) {</span>
 <span class="fc" id="L40">            assLevel = RuleUtils.getLastAssumptionLevel(pf);</span>
         }
-<span class="fc" id="L42">        ProofStepModal&lt;T&gt; ps = pf.getSteps().get(i - 1);</span>
+<span class="fc" id="L42">        ProofStepModal ps = pf.getSteps().get(i - 1);</span>
 <span class="fc" id="L43">        Always al = (Always) ps.getStep();</span>
 <span class="fc" id="L44">        pf.getSteps().add(supp.generateProofStep(assLevel, al.getElement(), new ProofReason(&quot;[]E&quot;, List.of(i, q))));</span>
 <span class="fc" id="L45">    }</span>
 
     @Override
-    public void apply(ModalNaturalDeduction&lt;T&gt; pf) {
-<span class="fc" id="L49">        T fl = ((LessEqual&lt;T&gt;) pf.getSteps().get(q - 1).getStep()).getRight();</span>
-<span class="fc" id="L50">        applyStepSupplier(pf, ((assLevel, log, reason) -&gt; new ProofStepModal&lt;&gt;(fl, assLevel, (ModalLogicalOperation) log, reason)));</span>
+    public void apply(ModalNaturalDeduction pf) {
+<span class="fc" id="L49">        String fl = ((LessEqual) pf.getSteps().get(q - 1).getStep()).getRight();</span>
+<span class="fc" id="L50">        applyStepSupplier(pf, ((assLevel, log, reason) -&gt; new ProofStepModal(fl, assLevel, (ModalLogicalOperation) log, reason)));</span>
 <span class="fc" id="L51">    }</span>
 
     public boolean equals(Object ob) {
-<span class="pc bpc" id="L54" title="3 of 6 branches missed.">        return (ob instanceof ModalBoxE) &amp;&amp; ((ModalBoxE&lt;?&gt;) ob).i == i &amp;&amp; ((ModalBoxE&lt;?&gt;) ob).q == q;</span>
+<span class="fc bfc" id="L54" title="All 6 branches covered.">        return (ob instanceof ModalBoxE boxE) &amp;&amp; boxE.i == i &amp;&amp; boxE.q == q;</span>
     }
 
     public int hashCode() {

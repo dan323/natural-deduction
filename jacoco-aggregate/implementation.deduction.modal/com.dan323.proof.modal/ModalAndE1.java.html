@@ -7,18 +7,18 @@ import com.dan323.proof.generic.AndE;
 import com.dan323.proof.modal.proof.ModalNaturalDeduction;
 import com.dan323.proof.modal.proof.ProofStepModal;
 
-public final class ModalAndE1&lt;T&gt; extends AndE&lt;ModalOperation, ProofStepModal&lt;T&gt;, ModalNaturalDeduction&lt;T&gt;&gt; implements ModalAction&lt;T&gt; {
+public final class ModalAndE1 extends AndE&lt;ModalOperation, ProofStepModal, ModalNaturalDeduction&gt; implements ModalAction {
 
     public ModalAndE1(int i) {
 <span class="fc" id="L13">        super(i, BinaryOperation::getLeft);</span>
 <span class="fc" id="L14">    }</span>
 
     @Override
-    public void apply(ModalNaturalDeduction&lt;T&gt; pf) {
-<span class="fc" id="L18">        applyStepSupplier(pf, (assLevel, log, reason) -&gt; new ProofStepModal&lt;&gt;(getState(pf), assLevel, (ModalLogicalOperation) log, reason));</span>
+    public void apply(ModalNaturalDeduction pf) {
+<span class="fc" id="L18">        applyStepSupplier(pf, (assLevel, log, reason) -&gt; new ProofStepModal(getState(pf), assLevel, (ModalLogicalOperation) log, reason));</span>
 <span class="fc" id="L19">    }</span>
 
-    private T getState(ModalNaturalDeduction&lt;T&gt; pf) {
+    private String getState(ModalNaturalDeduction pf) {
 <span class="fc" id="L22">        return (pf.getSteps().get(getAppliedAt() - 1)).getState();</span>
     }
 }

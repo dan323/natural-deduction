@@ -7,16 +7,16 @@ import com.dan323.proof.generic.OrI;
 import com.dan323.proof.modal.proof.ModalNaturalDeduction;
 import com.dan323.proof.modal.proof.ProofStepModal;
 
-public final class ModalOrI2&lt;T&gt; extends OrI&lt;ModalOperation, ProofStepModal&lt;T&gt;, ModalNaturalDeduction&lt;T&gt;&gt; implements ModalAction&lt;T&gt; {
+public final class ModalOrI2 extends OrI&lt;ModalOperation, ProofStepModal, ModalNaturalDeduction&gt; implements ModalAction {
 
     public ModalOrI2(int i, ModalLogicalOperation intro) {
-<span class="fc" id="L13">        super(i, intro, (l1, l2) -&gt; new DisjunctionModal(l2, l1));</span>
+<span class="fc" id="L13">        super(i, intro, (l1, l2) -&gt; new DisjunctionModal((ModalLogicalOperation) l2, (ModalLogicalOperation) l1));</span>
 <span class="fc" id="L14">    }</span>
 
     @Override
-    public void apply(ModalNaturalDeduction&lt;T&gt; pf) {
+    public void apply(ModalNaturalDeduction pf) {
 <span class="fc" id="L18">        applyStepSupplier(pf, ((assLevel, log, reason) -&gt;</span>
-<span class="fc" id="L19">                new ProofStepModal&lt;&gt;(pf.getSteps().get(getAt() - 1).getState(), assLevel, (ModalLogicalOperation) log, reason)));</span>
+<span class="fc" id="L19">                new ProofStepModal(pf.getSteps().get(getAt() - 1).getState(), assLevel, (ModalLogicalOperation) log, reason)));</span>
 <span class="fc" id="L20">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

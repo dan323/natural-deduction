@@ -6,15 +6,15 @@ import com.dan323.proof.generic.NotE;
 import com.dan323.proof.modal.proof.ModalNaturalDeduction;
 import com.dan323.proof.modal.proof.ProofStepModal;
 
-public final class ModalNotE&lt;T&gt; extends NotE&lt;ModalOperation, ProofStepModal&lt;T&gt;, ModalNaturalDeduction&lt;T&gt;&gt; implements ModalAction&lt;T&gt; {
+public final class ModalNotE extends NotE&lt;ModalOperation, ProofStepModal, ModalNaturalDeduction&gt; implements ModalAction {
 
     public ModalNotE(int j) {
 <span class="fc" id="L12">        super(j);</span>
 <span class="fc" id="L13">    }</span>
 
     @Override
-    public void apply(ModalNaturalDeduction&lt;T&gt; pf) {
-<span class="fc" id="L17">        applyStepSupplier(pf, ((assLevel, log, reason) -&gt; new ProofStepModal&lt;&gt;((pf.getSteps().get(getNeg() - 1)).getState(), assLevel, (ModalLogicalOperation) log, reason)));</span>
+    public void apply(ModalNaturalDeduction pf) {
+<span class="fc" id="L17">        applyStepSupplier(pf, ((assLevel, log, reason) -&gt; new ProofStepModal((pf.getSteps().get(getNeg() - 1)).getState(), assLevel, (ModalLogicalOperation) log, reason)));</span>
 <span class="fc" id="L18">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

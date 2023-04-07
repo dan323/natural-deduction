@@ -4,25 +4,31 @@ import com.dan323.expressions.base.Implication;
 
 public final class ImplicationModal extends Implication&lt;ModalOperation&gt; implements ModalLogicalOperation {
 
-    public ImplicationModal(ModalOperation l, ModalOperation r) {
-<span class="fc" id="L8">        this((ModalLogicalOperation) l, (ModalLogicalOperation) r);</span>
+    public ImplicationModal(ModalLogicalOperation l, ModalLogicalOperation r) {
+<span class="fc" id="L8">        super(l, r);</span>
 <span class="fc" id="L9">    }</span>
 
-    public ImplicationModal(ModalLogicalOperation l, ModalLogicalOperation r) {
-<span class="fc" id="L12">        super(l, r);</span>
-<span class="fc" id="L13">    }</span>
+    @Override
+    public ModalLogicalOperation getLeft() {
+<span class="fc" id="L13">        return (ModalLogicalOperation) super.getLeft();</span>
+    }
+
+    @Override
+    public ModalLogicalOperation getRight() {
+<span class="fc" id="L18">        return (ModalLogicalOperation) super.getRight();</span>
+    }
 
     @Override
     public int hashCode() {
-<span class="fc" id="L17">        return getRight().hashCode() * 3 - 7 * getLeft().hashCode() + 11 * getClass().hashCode();</span>
+<span class="fc" id="L23">        return getRight().hashCode() * 3 - 7 * getLeft().hashCode() + 11 * getClass().hashCode();</span>
     }
 
     @Override
     public boolean equals(Object obj) {
-<span class="pc bpc" id="L22" title="1 of 2 branches missed.">        if (obj instanceof ImplicationModal imp) {</span>
-<span class="pc bpc" id="L23" title="1 of 4 branches missed.">            return imp.getLeft().equals(getLeft()) &amp;&amp; imp.getRight().equals(getRight());</span>
+<span class="fc bfc" id="L28" title="All 2 branches covered.">        if (obj instanceof ImplicationModal imp) {</span>
+<span class="fc bfc" id="L29" title="All 4 branches covered.">            return imp.getLeft().equals(getLeft()) &amp;&amp; imp.getRight().equals(getRight());</span>
         } else {
-<span class="nc" id="L25">            return false;</span>
+<span class="fc" id="L31">            return false;</span>
         }
     }
 

@@ -13,7 +13,7 @@ import com.dan323.proof.modal.proof.ProofStepModal;
 import java.util.List;
 import java.util.Objects;
 
-<span class="fc" id="L16">public final class ModalBoxI&lt;T&gt; implements ModalAction&lt;T&gt; {</span>
+<span class="fc" id="L16">public final class ModalBoxI implements ModalAction {</span>
 
     @Override
     public boolean equals(Object obj) {
@@ -26,18 +26,18 @@ import java.util.Objects;
     }
 
     @Override
-    public boolean isValid(ModalNaturalDeduction&lt;T&gt; pf) {
+    public boolean isValid(ModalNaturalDeduction pf) {
 <span class="fc" id="L30">        int assLevel = RuleUtils.getLastAssumptionLevel(pf);</span>
 <span class="fc bfc" id="L31" title="All 2 branches covered.">        if (assLevel == 0) {</span>
 <span class="fc" id="L32">            return false;</span>
         }
 <span class="fc" id="L34">        int lastAssumption = getLastAssumption(pf);</span>
-<span class="fc" id="L35">        ProofStepModal&lt;T&gt; log = pf.getSteps().get(pf.getSteps().size() - lastAssumption);</span>
+<span class="fc" id="L35">        ProofStepModal log = pf.getSteps().get(pf.getSteps().size() - lastAssumption);</span>
 <span class="fc bfc" id="L36" title="All 2 branches covered.">        if (!(log.getStep() instanceof LessEqual)) {</span>
 <span class="fc" id="L37">            return false;</span>
         }
-<span class="fc" id="L39">        T stateGreater = ((LessEqual&lt;T&gt;) log.getStep()).getRight();</span>
-<span class="fc" id="L40">        ProofStepModal&lt;T&gt; conclusion = pf.getSteps().get(pf.getSteps().size() - 1);</span>
+<span class="fc" id="L39">        String stateGreater = ((LessEqual) log.getStep()).getRight();</span>
+<span class="fc" id="L40">        ProofStepModal conclusion = pf.getSteps().get(pf.getSteps().size() - 1);</span>
 <span class="fc bfc" id="L41" title="All 2 branches covered.">        if (!(conclusion.getStep() instanceof ModalLogicalOperation)) {</span>
 <span class="fc" id="L42">            return false;</span>
         }
@@ -48,25 +48,25 @@ import java.util.Objects;
     }
 
     @Override
-    public void applyStepSupplier(ModalNaturalDeduction&lt;T&gt; pf, ProofStepSupplier&lt;ModalOperation, ProofStepModal&lt;T&gt;&gt; supp) {
+    public void applyStepSupplier(ModalNaturalDeduction pf, ProofStepSupplier&lt;ModalOperation, ProofStepModal&gt; supp) {
 <span class="fc" id="L52">        int assLevel = RuleUtils.getLastAssumptionLevel(pf);</span>
 <span class="fc" id="L53">        pf.getSteps().add(supp.generateProofStep(assLevel - 1, new Always((ModalLogicalOperation) pf.getSteps().get(pf.getSteps().size() - 1).getStep()), new ProofReason(&quot;[]I&quot;,</span>
 <span class="fc" id="L54">                List.of(pf.getSteps().size() - getLastAssumption(pf) + 1, pf.getSteps().size()))));</span>
 <span class="fc" id="L55">    }</span>
 
-    private int getLastAssumption(ModalNaturalDeduction&lt;T&gt; pf) {
+    private int getLastAssumption(ModalNaturalDeduction pf) {
 <span class="fc" id="L58">        int assLevel = RuleUtils.getLastAssumptionLevel(pf);</span>
 <span class="fc" id="L59">        return RuleUtils.getToLastAssumption(pf, assLevel);</span>
     }
 
     @Override
-    public void apply(ModalNaturalDeduction&lt;T&gt; pf) {
+    public void apply(ModalNaturalDeduction pf) {
 <span class="fc" id="L64">        int lastAssumption = getLastAssumption(pf);</span>
-<span class="fc" id="L65">        ProofStepModal&lt;T&gt; log = pf.getSteps().get(pf.getSteps().size() - lastAssumption);</span>
-<span class="fc" id="L66">        T stateLess = ((LessEqual&lt;T&gt;) log.getStep()).getLeft();</span>
+<span class="fc" id="L65">        ProofStepModal log = pf.getSteps().get(pf.getSteps().size() - lastAssumption);</span>
+<span class="fc" id="L66">        String stateLess = ((LessEqual) log.getStep()).getLeft();</span>
 
 <span class="fc" id="L68">        RuleUtils.disableUntilLastAssumption(pf, log.getAssumptionLevel());</span>
-<span class="fc" id="L69">        applyStepSupplier(pf, (assLevel, log1, reason) -&gt; new ProofStepModal&lt;&gt;(stateLess, assLevel, (ModalLogicalOperation) log1, reason));</span>
+<span class="fc" id="L69">        applyStepSupplier(pf, (assLevel, log1, reason) -&gt; new ProofStepModal(stateLess, assLevel, (ModalLogicalOperation) log1, reason));</span>
 <span class="fc" id="L70">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

@@ -6,23 +6,23 @@ import com.dan323.proof.generic.FE;
 import com.dan323.proof.modal.proof.ModalNaturalDeduction;
 import com.dan323.proof.modal.proof.ProofStepModal;
 
-public final class ModalFE&lt;T&gt; extends FE&lt;ModalOperation, ProofStepModal&lt;T&gt;, ModalNaturalDeduction&lt;T&gt;&gt; implements ModalAction&lt;T&gt; {
+public final class ModalFE extends FE&lt;ModalOperation, ProofStepModal, ModalNaturalDeduction&gt; implements ModalAction {
 
-    private final T state;
+    private final String state;
 
-    public ModalFE(int j, ModalLogicalOperation clo, T st) {
+    public ModalFE(int j, ModalLogicalOperation clo, String st) {
 <span class="fc" id="L14">        super(clo, j);</span>
 <span class="fc" id="L15">        state = st;</span>
 <span class="fc" id="L16">    }</span>
 
     @Override
-    public void apply(ModalNaturalDeduction&lt;T&gt; pf) {
-<span class="fc" id="L20">        applyStepSupplier(pf, ((assLevel, log, reason) -&gt; new ProofStepModal&lt;&gt;(state, assLevel, (ModalLogicalOperation) log, reason)));</span>
+    public void apply(ModalNaturalDeduction pf) {
+<span class="fc" id="L20">        applyStepSupplier(pf, ((assLevel, log, reason) -&gt; new ProofStepModal(state, assLevel, (ModalLogicalOperation) log, reason)));</span>
 <span class="fc" id="L21">    }</span>
 
     @Override
     public boolean equals(Object o) {
-<span class="fc bfc" id="L25" title="All 4 branches covered.">        return super.equals(o) &amp;&amp; ((ModalFE&lt;?&gt;) o).state.equals(state);</span>
+<span class="fc bfc" id="L25" title="All 4 branches covered.">        return super.equals(o) &amp;&amp; ((ModalFE) o).state.equals(state);</span>
     }
 
     @Override

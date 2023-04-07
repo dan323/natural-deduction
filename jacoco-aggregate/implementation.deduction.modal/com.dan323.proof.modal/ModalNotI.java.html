@@ -8,16 +8,16 @@ import com.dan323.proof.generic.RuleUtils;
 import com.dan323.proof.modal.proof.ModalNaturalDeduction;
 import com.dan323.proof.modal.proof.ProofStepModal;
 
-public final class ModalNotI&lt;T&gt; extends NotI&lt;ModalOperation, ProofStepModal&lt;T&gt;, ModalNaturalDeduction&lt;T&gt;&gt; implements ModalAction&lt;T&gt; {
+public final class ModalNotI extends NotI&lt;ModalOperation, ProofStepModal, ModalNaturalDeduction&gt; implements ModalAction {
 
     public ModalNotI() {
-<span class="fc" id="L14">        super(NegationModal::new);</span>
+<span class="fc" id="L14">        super(t -&gt; new NegationModal((ModalLogicalOperation) t));</span>
 <span class="fc" id="L15">    }</span>
 
     @Override
-    public void apply(ModalNaturalDeduction&lt;T&gt; pf) {
+    public void apply(ModalNaturalDeduction pf) {
 <span class="fc" id="L19">        applyStepSupplier(pf, ((assLevel, log, reason) -&gt;</span>
-<span class="fc" id="L20">                new ProofStepModal&lt;&gt;((pf.getSteps().get(pf.getSteps().size() - RuleUtils.getToLastAssumption(pf, assLevel + 1) + 1)).getState(), assLevel, (ModalLogicalOperation) log, reason)));</span>
+<span class="fc" id="L20">                new ProofStepModal((pf.getSteps().get(pf.getSteps().size() - RuleUtils.getToLastAssumption(pf, assLevel + 1))).getState(), assLevel, (ModalLogicalOperation) log, reason)));</span>
 <span class="fc" id="L21">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

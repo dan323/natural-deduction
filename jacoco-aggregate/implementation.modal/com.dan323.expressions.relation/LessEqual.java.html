@@ -2,15 +2,15 @@
 
 import java.util.Objects;
 
-public final class LessEqual&lt;T&gt; extends RelationOperation&lt;T&gt; {
+public final class LessEqual extends RelationOperation {
 
-    public LessEqual(T left, T right) {
+    public LessEqual(String left, String right) {
 <span class="fc" id="L8">        super(left, right, &quot;&lt;=&quot;);</span>
 <span class="fc" id="L9">    }</span>
 
     @Override
     public boolean equals(Object object) {
-<span class="fc bfc" id="L13" title="All 2 branches covered.">        if (object instanceof LessEqual&lt;?&gt; lessEqual) {</span>
+<span class="fc bfc" id="L13" title="All 2 branches covered.">        if (object instanceof LessEqual lessEqual) {</span>
 <span class="pc bpc" id="L14" title="1 of 4 branches missed.">            return lessEqual.getLeft().equals(getLeft()) &amp;&amp; lessEqual.getRight().equals(getRight());</span>
         } else {
 <span class="fc" id="L16">            return false;</span>

@@ -7,21 +7,28 @@ public final class DisjunctionModal extends Disjunction&lt;ModalOperation&gt; im
     public DisjunctionModal(ModalLogicalOperation l, ModalLogicalOperation r) {
 <span class="fc" id="L8">        super(l, r);</span>
 <span class="fc" id="L9">    }</span>
-    public DisjunctionModal(ModalOperation l, ModalOperation r) {
-<span class="fc" id="L11">        this((ModalLogicalOperation)l, (ModalLogicalOperation)r);</span>
-<span class="fc" id="L12">    }</span>
+
+    @Override
+    public ModalLogicalOperation getLeft() {
+<span class="fc" id="L13">        return (ModalLogicalOperation) super.getLeft();</span>
+    }
+
+    @Override
+    public ModalLogicalOperation getRight() {
+<span class="fc" id="L18">        return (ModalLogicalOperation) super.getRight();</span>
+    }
 
     @Override
     public int hashCode() {
-<span class="fc" id="L16">        return getRight().hashCode() * 3 - getLeft().hashCode() *13 + getClass().hashCode();</span>
+<span class="fc" id="L23">        return getRight().hashCode() * 3 - getLeft().hashCode() *13 + getClass().hashCode();</span>
     }
 
     @Override
     public boolean equals(Object obj) {
-<span class="pc bpc" id="L21" title="1 of 2 branches missed.">        if (obj instanceof DisjunctionModal disj){</span>
-<span class="pc bpc" id="L22" title="1 of 4 branches missed.">            return disj.getLeft().equals(getLeft()) &amp;&amp; disj.getRight().equals(getRight());</span>
+<span class="fc bfc" id="L28" title="All 2 branches covered.">        if (obj instanceof DisjunctionModal disj){</span>
+<span class="pc bpc" id="L29" title="1 of 4 branches missed.">            return disj.getLeft().equals(getLeft()) &amp;&amp; disj.getRight().equals(getRight());</span>
         } else {
-<span class="nc" id="L24">            return false;</span>
+<span class="fc" id="L31">            return false;</span>
         }
     }
 }

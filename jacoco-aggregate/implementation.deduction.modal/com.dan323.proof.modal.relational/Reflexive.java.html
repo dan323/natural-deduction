@@ -12,7 +12,7 @@ import com.dan323.proof.modal.proof.ProofStepModal;
 import java.util.List;
 import java.util.Objects;
 
-public final class Reflexive&lt;T&gt; extends RelationalAction&lt;T&gt; {
+public final class Reflexive extends RelationalAction {
 
     private final int step;
 
@@ -21,28 +21,32 @@ public final class Reflexive&lt;T&gt; extends RelationalAction&lt;T&gt; {
 <span class="fc" id="L21">    }</span>
 
     @Override
-    public void applyStepSupplier(ModalNaturalDeduction&lt;T&gt; pf, ProofStepSupplier&lt;ModalOperation, ProofStepModal&lt;T&gt;&gt; supp) {
-<span class="fc" id="L25">        T state = pf.getSteps().get(step - 1).getState();</span>
-<span class="fc" id="L26">        pf.getSteps().add(supp.generateProofStep(RuleUtils.getLastAssumptionLevel(pf), new LessEqual&lt;&gt;(state, state), new ProofReason(&quot;Refl&quot;, List.of(step))));</span>
+    public void applyStepSupplier(ModalNaturalDeduction pf, ProofStepSupplier&lt;ModalOperation, ProofStepModal&gt; supp) {
+<span class="fc" id="L25">        String state = pf.getSteps().get(step - 1).getState();</span>
+<span class="fc" id="L26">        pf.getSteps().add(supp.generateProofStep(RuleUtils.getLastAssumptionLevel(pf), new LessEqual(state, state), new ProofReason(&quot;Refl&quot;, List.of(step))));</span>
 <span class="fc" id="L27">    }</span>
 
+    public int getStep(){
+<span class="fc" id="L30">        return step;</span>
+    }
+
     @Override
-    public boolean isValid(ModalNaturalDeduction&lt;T&gt; pf) {
-<span class="fc" id="L31">        return pf.getSteps().get(step - 1).getStep() instanceof ModalLogicalOperation;</span>
+    public boolean isValid(ModalNaturalDeduction pf) {
+<span class="fc" id="L35">        return pf.getSteps().get(step - 1).getStep() instanceof ModalLogicalOperation;</span>
     }
 
     @Override
     public boolean equals(Object o){
-<span class="pc bpc" id="L36" title="1 of 2 branches missed.">        if (o instanceof Reflexive){</span>
-<span class="pc bpc" id="L37" title="1 of 2 branches missed.">            return step == ((Reflexive&lt;?&gt;)o).step;</span>
+<span class="pc bpc" id="L40" title="1 of 2 branches missed.">        if (o instanceof Reflexive refl){</span>
+<span class="pc bpc" id="L41" title="1 of 2 branches missed.">            return step == refl.step;</span>
         } else {
-<span class="nc" id="L39">            return false;</span>
+<span class="nc" id="L43">            return false;</span>
         }
     }
 
     @Override
     public int hashCode(){
-<span class="nc" id="L45">        return Objects.hash(getClass(), step);</span>
+<span class="nc" id="L49">        return Objects.hash(getClass(), step);</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

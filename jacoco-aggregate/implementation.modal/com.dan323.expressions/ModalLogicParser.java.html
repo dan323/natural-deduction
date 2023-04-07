@@ -8,7 +8,7 @@ import com.fathzer.soft.javaluator.*;
 import java.util.Iterator;
 import java.util.List;
 
-public class ModalLogicParser&lt;T&gt; extends AbstractEvaluator&lt;ModalOperation&gt; {
+public class ModalLogicParser extends AbstractEvaluator&lt;ModalOperation&gt; {
 
 <span class="fc" id="L13">    private static final Operator AND = new Operator(&quot;&amp;&quot;, 2, Operator.Associativity.LEFT, 1);</span>
 <span class="fc" id="L14">    private static final Operator OR = new Operator(&quot;|&quot;, 2, Operator.Associativity.LEFT, 2);</span>
@@ -18,45 +18,43 @@ public class ModalLogicParser&lt;T&gt; extends AbstractEvaluator&lt;ModalOperati
 <span class="fc" id="L18">    private static final Operator SOM = new Operator(&quot;&lt;&gt;&quot;, 1, Operator.Associativity.LEFT, 6);</span>
 <span class="fc" id="L19">    private static final Operator LES = new Operator(&quot;&lt;=&quot;, 2, Operator.Associativity.LEFT, 7);</span>
 <span class="fc" id="L20">    private static final Operator EQU = new Operator(&quot;=&quot;, 2, Operator.Associativity.LEFT, 8);</span>
-    private final java.util.function.Function&lt;String, T&gt; parser;
 
-    public ModalLogicParser(java.util.function.Function&lt;String, T&gt; parser) {
-<span class="fc" id="L24">        super(buildParams());</span>
-<span class="fc" id="L25">        this.parser = parser;</span>
-<span class="fc" id="L26">    }</span>
+    public ModalLogicParser() {
+<span class="fc" id="L23">        super(buildParams());</span>
+<span class="fc" id="L24">    }</span>
 
     private static Parameters buildParams() {
-<span class="fc" id="L29">        Parameters parameters = new Parameters();</span>
-<span class="fc" id="L30">        parameters.add(new Constant(&quot;FALSE&quot;));</span>
-<span class="fc" id="L31">        parameters.add(new Constant(&quot;TRUE&quot;));</span>
-<span class="fc" id="L32">        parameters.addOperators(List.of(AND, OR, IMP, NEG, ALW, SOM, LES, EQU));</span>
-<span class="fc" id="L33">        parameters.addExpressionBracket(BracketPair.PARENTHESES);</span>
-<span class="fc" id="L34">        return parameters;</span>
+<span class="fc" id="L27">        Parameters parameters = new Parameters();</span>
+<span class="fc" id="L28">        parameters.add(new Constant(&quot;FALSE&quot;));</span>
+<span class="fc" id="L29">        parameters.add(new Constant(&quot;TRUE&quot;));</span>
+<span class="fc" id="L30">        parameters.addOperators(List.of(AND, OR, IMP, NEG, ALW, SOM, LES, EQU));</span>
+<span class="fc" id="L31">        parameters.addExpressionBracket(BracketPair.PARENTHESES);</span>
+<span class="fc" id="L32">        return parameters;</span>
     }
 
     @Override
     protected ModalOperation evaluate(Constant constant, Object evaluationContext) {
-<span class="fc bfc" id="L39" title="All 2 branches covered.">        return &quot;FALSE&quot;.equals(constant.getName()) ? ConstantModal.FALSE : ConstantModal.TRUE;</span>
+<span class="fc bfc" id="L37" title="All 2 branches covered.">        return &quot;FALSE&quot;.equals(constant.getName()) ? ConstantModal.FALSE : ConstantModal.TRUE;</span>
     }
 
     @Override
     protected ModalOperation evaluate(Operator operator, Iterator&lt;ModalOperation&gt; operands, Object evaluationContext) {
-<span class="pc bpc" id="L44" title="1 of 9 branches missed.">        return switch (operator.getSymbol()) {</span>
-<span class="fc" id="L45">            case &quot;&amp;&quot; -&gt; new ConjunctionModal(operands.next(), operands.next());</span>
-<span class="fc" id="L46">            case &quot;|&quot; -&gt; new DisjunctionModal(operands.next(), operands.next());</span>
-<span class="fc" id="L47">            case &quot;-&gt;&quot; -&gt; new ImplicationModal(operands.next(), operands.next());</span>
-<span class="fc" id="L48">            case &quot;-&quot; -&gt; new NegationModal(operands.next());</span>
-<span class="fc" id="L49">            case &quot;[]&quot; -&gt; new Always((ModalLogicalOperation) operands.next());</span>
-<span class="fc" id="L50">            case &quot;&lt;&gt;&quot; -&gt; new Sometime((ModalLogicalOperation) operands.next());</span>
-<span class="fc" id="L51">            case &quot;&lt;=&quot; -&gt; new LessEqual&lt;&gt;(parser.apply(operands.next().toString()), parser.apply(operands.next().toString()));</span>
-<span class="fc" id="L52">            case &quot;=&quot; -&gt; new Equals&lt;&gt;(parser.apply(operands.next().toString()), parser.apply(operands.next().toString()));</span>
-<span class="nc" id="L53">            default -&gt; throw new IllegalArgumentException(&quot;Invalid operator&quot;);</span>
+<span class="pc bpc" id="L42" title="1 of 9 branches missed.">        return switch (operator.getSymbol()) {</span>
+<span class="fc" id="L43">            case &quot;&amp;&quot; -&gt; new ConjunctionModal(operands.next(), operands.next());</span>
+<span class="fc" id="L44">            case &quot;|&quot; -&gt; new DisjunctionModal((ModalLogicalOperation) operands.next(), (ModalLogicalOperation) operands.next());</span>
+<span class="fc" id="L45">            case &quot;-&gt;&quot; -&gt; new ImplicationModal((ModalLogicalOperation) operands.next(), (ModalLogicalOperation) operands.next());</span>
+<span class="fc" id="L46">            case &quot;-&quot; -&gt; new NegationModal((ModalLogicalOperation) operands.next());</span>
+<span class="fc" id="L47">            case &quot;[]&quot; -&gt; new Always((ModalLogicalOperation) operands.next());</span>
+<span class="fc" id="L48">            case &quot;&lt;&gt;&quot; -&gt; new Sometime((ModalLogicalOperation) operands.next());</span>
+<span class="fc" id="L49">            case &quot;&lt;=&quot; -&gt; new LessEqual(operands.next().toString(), operands.next().toString());</span>
+<span class="fc" id="L50">            case &quot;=&quot; -&gt; new Equals(operands.next().toString(), operands.next().toString());</span>
+<span class="nc" id="L51">            default -&gt; throw new IllegalArgumentException(&quot;Invalid operator&quot;);</span>
         };
     }
 
     @Override
     protected ModalLogicalOperation toValue(String s, Object o) {
-<span class="fc" id="L59">        return new VariableModal(s.trim());</span>
+<span class="fc" id="L57">        return new VariableModal(s.trim());</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

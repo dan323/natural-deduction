@@ -8,21 +8,22 @@ public final class NegationModal extends Negation&lt;ModalOperation&gt; implemen
 <span class="fc" id="L8">        super(elem);</span>
 <span class="fc" id="L9">    }</span>
 
-    public NegationModal(ModalOperation elem) {
-<span class="fc" id="L12">        this((ModalLogicalOperation) elem);</span>
-<span class="fc" id="L13">    }</span>
+    @Override
+    public ModalLogicalOperation getElement() {
+<span class="fc" id="L13">        return (ModalLogicalOperation) super.getElement();</span>
+    }
 
     @Override
     public int hashCode() {
-<span class="fc" id="L17">        return getElement().hashCode() * 5 - getClass().hashCode() * 11;</span>
+<span class="fc" id="L18">        return getElement().hashCode() * 5 - getClass().hashCode() * 11;</span>
     }
 
     @Override
     public boolean equals(Object obj) {
-<span class="pc bpc" id="L22" title="1 of 2 branches missed.">        if (obj instanceof NegationModal neg){</span>
-<span class="fc" id="L23">            return neg.getElement().equals(getElement());</span>
+<span class="fc bfc" id="L23" title="All 2 branches covered.">        if (obj instanceof NegationModal neg){</span>
+<span class="fc" id="L24">            return neg.getElement().equals(getElement());</span>
         } else {
-<span class="nc" id="L25">            return false;</span>
+<span class="fc" id="L26">            return false;</span>
         }
     }
 

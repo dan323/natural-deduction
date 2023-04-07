@@ -6,11 +6,11 @@ import com.dan323.proof.modal.AbstractModalAction;
 import com.dan323.proof.modal.proof.ModalNaturalDeduction;
 import com.dan323.proof.modal.proof.ProofStepModal;
 
-<span class="fc" id="L9">public abstract class RelationalAction&lt;T&gt; implements AbstractModalAction&lt;T&gt; {</span>
+<span class="fc" id="L9">public abstract class RelationalAction implements AbstractModalAction {</span>
 
     @Override
-    public void apply(ModalNaturalDeduction&lt;T&gt; pf) {
-<span class="fc" id="L13">        applyStepSupplier(pf, (assLevel, log, reason) -&gt; new ProofStepModal&lt;&gt;(assLevel, (RelationOperation&lt;T&gt;) log, reason));</span>
+    public void apply(ModalNaturalDeduction pf) {
+<span class="fc" id="L13">        applyStepSupplier(pf, (assLevel, log, reason) -&gt; new ProofStepModal(assLevel, (RelationOperation) log, reason));</span>
 <span class="fc" id="L14">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

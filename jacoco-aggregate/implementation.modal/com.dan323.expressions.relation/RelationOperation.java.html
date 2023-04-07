@@ -3,27 +3,27 @@
 import com.dan323.expressions.base.LogicOperation;
 import com.dan323.expressions.modal.ModalOperation;
 
-public abstract class RelationOperation&lt;T&gt; implements ModalOperation {
-    private final T left;
-    private final T right;
+public abstract class RelationOperation implements ModalOperation {
+    private final String left;
+    private final String right;
     private final String operation;
 
-<span class="fc" id="L11">    public RelationOperation(T left, T right, String operation) {</span>
+<span class="fc" id="L11">    public RelationOperation(String left, String right, String operation) {</span>
 <span class="fc" id="L12">        this.left = left;</span>
 <span class="fc" id="L13">        this.right = right;</span>
 <span class="fc" id="L14">        this.operation = operation;</span>
 <span class="fc" id="L15">    }</span>
 
-    public T getLeft() {
+    public String getLeft() {
 <span class="fc" id="L18">        return left;</span>
     }
 
-    public T getRight() {
+    public String getRight() {
 <span class="fc" id="L22">        return right;</span>
     }
 
     public String toString() {
-<span class="nc" id="L26">        return left.toString() + &quot; &quot; + operation + &quot; &quot; + right.toString();</span>
+<span class="nc" id="L26">        return left + &quot; &quot; + operation + &quot; &quot; + right;</span>
     }
 
     static boolean isRelation(LogicOperation log) {

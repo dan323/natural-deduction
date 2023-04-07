@@ -22,8 +22,18 @@ public final class ConjunctionModal extends Conjunction&lt;ModalOperation&gt; im
     }
 
     @Override
+    public ModalLogicalOperation getLeft() {
+<span class="fc" id="L26">        return (ModalLogicalOperation) super.getLeft();</span>
+    }
+
+    @Override
+    public ModalLogicalOperation getRight() {
+<span class="fc" id="L31">        return (ModalLogicalOperation) super.getRight();</span>
+    }
+
+    @Override
     public int hashCode() {
-<span class="fc" id="L26">        return getLeft().hashCode() * 3 + getRight().hashCode() * 7 + getClass().hashCode();</span>
+<span class="fc" id="L36">        return getLeft().hashCode() * 3 + getRight().hashCode() * 7 + getClass().hashCode();</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

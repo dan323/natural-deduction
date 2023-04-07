@@ -2,15 +2,15 @@
 
 import java.util.Objects;
 
-public final class Equals&lt;T&gt; extends RelationOperation&lt;T&gt; {
+public final class Equals extends RelationOperation {
 
-    public Equals(T left, T right) {
+    public Equals(String left, String right) {
 <span class="fc" id="L8">        super(left, right, &quot;=&quot;);</span>
 <span class="fc" id="L9">    }</span>
 
     @Override
     public boolean equals(Object object) {
-<span class="fc bfc" id="L13" title="All 2 branches covered.">        if (object instanceof Equals&lt;?&gt; eq) {</span>
+<span class="fc bfc" id="L13" title="All 2 branches covered.">        if (object instanceof Equals eq) {</span>
 <span class="pc bpc" id="L14" title="1 of 4 branches missed.">            return eq.getLeft().equals(getLeft()) &amp;&amp; eq.getRight().equals(getRight())</span>
 <span class="pc bpc" id="L15" title="2 of 4 branches missed.">                    || eq.getRight().equals(getLeft()) &amp;&amp; eq.getLeft().equals(getRight());</span>
         } else {

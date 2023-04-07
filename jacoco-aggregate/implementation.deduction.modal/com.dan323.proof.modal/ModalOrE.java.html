@@ -8,14 +8,14 @@ import com.dan323.proof.modal.proof.ProofStepModal;
 
 import java.util.List;
 
-public final class ModalOrE&lt;T&gt; extends OrE&lt;ModalOperation, ProofStepModal&lt;T&gt;, ModalNaturalDeduction&lt;T&gt;&gt; implements ModalAction&lt;T&gt; {
+public final class ModalOrE extends OrE&lt;ModalOperation, ProofStepModal, ModalNaturalDeduction&gt; implements ModalAction {
 
     public ModalOrE(int dis, int r1, int r2) {
 <span class="fc" id="L14">        super(dis, r1, r2);</span>
 <span class="fc" id="L15">    }</span>
 
     @Override
-    public boolean isValid(ModalNaturalDeduction&lt;T&gt; pf) {
+    public boolean isValid(ModalNaturalDeduction pf) {
 <span class="fc bfc" id="L19" title="All 2 branches covered.">        if (super.isValid(pf)) {</span>
 <span class="fc" id="L20">            return ModalAction.checkEqualState(pf, List.of(getDisj(), get1(), get2()));</span>
         }
@@ -23,9 +23,9 @@ public final class ModalOrE&lt;T&gt; extends OrE&lt;ModalOperation, ProofStepMod
     }
 
     @Override
-    public void apply(ModalNaturalDeduction&lt;T&gt; pf) {
-<span class="fc" id="L27">        T st = (pf.getSteps().get(get1() - 1)).getState();</span>
-<span class="fc" id="L28">        applyStepSupplier(pf, (assLevel, sol, reason) -&gt; new ProofStepModal&lt;&gt;(st, assLevel, (ModalLogicalOperation) sol, reason));</span>
+    public void apply(ModalNaturalDeduction pf) {
+<span class="fc" id="L27">        String st = (pf.getSteps().get(get1() - 1)).getState();</span>
+<span class="fc" id="L28">        applyStepSupplier(pf, (assLevel, sol, reason) -&gt; new ProofStepModal(st, assLevel, (ModalLogicalOperation) sol, reason));</span>
 <span class="fc" id="L29">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>
