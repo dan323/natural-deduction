@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>UnaryOperation.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">jacoco-report-aggregate</a> &gt; <a href="../index.html" class="el_bundle">language-framework</a> &gt; <a href="index.source.html" class="el_package">com.dan323.expressions.base</a> &gt; <span class="el_source">UnaryOperation.java</span></div><h1>UnaryOperation.java</h1><pre class="source lang-java linenums">package com.dan323.expressions.base;
+
+/**
+ * @author danco
+ */
+public abstract class UnaryOperation&lt;T extends LogicOperation&gt; implements LogicOperation {
+
+    private final T element;
+
+<span class="fc" id="L10">    public UnaryOperation(T element) {</span>
+<span class="fc" id="L11">        this.element = element;</span>
+<span class="fc" id="L12">    }</span>
+
+    public T castToLanguage() {
+<span class="fc" id="L15">        return (T) this;</span>
+    }
+
+    public T getElement() {
+<span class="fc" id="L19">        return element;</span>
+    }
+
+    public String toString() {
+<span class="fc" id="L23">        String leftS = getElement().toString();</span>
+<span class="fc bfc" id="L24" title="All 4 branches covered.">        if (getElement() instanceof BinaryOperation || getElement() instanceof UnaryOperation) {</span>
+<span class="fc" id="L25">            leftS = &quot;(&quot; + leftS + &quot;)&quot;;</span>
+        }
+<span class="fc" id="L27">        return getOperator() + &quot; &quot; + leftS;</span>
+    }
+
+    protected abstract String getOperator();
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>
