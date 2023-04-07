@@ -3,11 +3,12 @@ package com.dan323.proof.modal.internal;
 import com.dan323.expressions.base.LogicOperation;
 import com.dan323.expressions.modal.*;
 import com.dan323.expressions.relation.LessEqual;
+import com.dan323.expressions.relation.RelationOperation;
 import com.dan323.proof.modal.*;
-import com.dan323.proof.modal.complex.ModalDeMorgan;
-import com.dan323.proof.modal.complex.ModalOrE1;
-import com.dan323.proof.modal.complex.ModalOrE2;
+import com.dan323.proof.modal.complex.*;
 import com.dan323.proof.modal.proof.ModalNaturalDeduction;
+import com.dan323.proof.modal.relational.Reflexive;
+import com.dan323.proof.modal.relational.Transitive;
 
 import java.util.*;
 
@@ -22,6 +23,8 @@ public final class ModalAutomate {
     private List<Map.Entry<String, ModalOperation>> goals;
     private List<AbstractModalAction> actionsDone;
     private Map<Integer, Integer> usedForGoal;
+
+    private Map<String, Integer> reflUsed;
 
     private ModalAutomate() {
     }
@@ -41,6 +44,7 @@ public final class ModalAutomate {
         goals = new ArrayList<>();
         actionsDone = new ArrayList<>();
         usedForGoal = new HashMap<>();
+        reflUsed = new HashMap<>();
         goals.add(new AbstractMap.SimpleEntry<>(proof.getState0(), proof.getGoal()));
 
         var c = true;
@@ -86,6 +90,7 @@ public final class ModalAutomate {
             } else {
                 b = eliminateRules();
             }
+            System.out.println("Start:\n" + proof.toString() + "\n");
         }
         return c;
     }
@@ -154,10 +159,10 @@ public final class ModalAutomate {
         }
         ModalOperation goal = goals.get(goals.size() - 1).getValue();
         String state = goals.get(goals.size() - 1).getKey();
-        for (int i = 0; i < proof.getSteps().size(); i++) {
+        for (int i = 0; i < proof.getSteps().size()-1; i++) {
             if (proof.getSteps().get(i).isValid() &&
                     goal.equals(proof.getSteps().get(i).getStep()) &&
-                    i + 1 < proof.getSteps().size()) {
+                    state.equals(proof.getSteps().get(i).getState())) {
                 return Optional.of(new ModalCopy(i + 1));
             }
         }
@@ -186,7 +191,7 @@ public final class ModalAutomate {
         for (int k = 0; k < proof.getSteps().size(); k++) {
             if (proof.getSteps().get(k).isValid()) {
                 if (proof.getSteps().get(k).getStep().equals(element)) {
-                    states.put(proof.getSteps().get(k).getState(), k + 1);
+                    states.put(proof.getSteps().get(k).getState(), k+1);
                 }
             }
         }
@@ -195,7 +200,7 @@ public final class ModalAutomate {
                 if (proof.getSteps().get(k).getStep() instanceof LessEqual lessEqual && lessEqual.getLeft().equals(state)) {
                     Integer finalState = states.get(lessEqual.getRight());
                     if (finalState != null) {
-                        return Optional.of(new ModalDiaI(finalState, k));
+                        return Optional.of(new ModalDiaI(finalState, k+1));
                     }
                 }
             }
@@ -344,16 +349,68 @@ public final class ModalAutomate {
 
     private Optional<AbstractModalAction> lookForElimRules() {
         for (int i = 0; i < proof.getSteps().size(); i++) {
-            if (proof.getSteps().get(i).isValid()) {
+            if (proof.getSteps().get(i).isValid() && proof.getSteps().get(i).getStep() instanceof ModalLogicalOperation) {
                 int k = i + 1;
                 var act = Optional.of(new ModalDeMorgan(k))
                         .flatMap(this::checkSingleAction)
+                        .or(() -> Optional.of(new DeMorgan(k))
+                                .flatMap(this::checkSingleAction))
                         .or(() -> Optional.of(new ModalNotE(k))
                                 .flatMap(this::checkSingleAction))
+                        .or(() -> Optional.of(new Reflexive(k))
+                                .flatMap(this::checkReflAction))
                         .or(() -> checkAdditionOfAndI(k - 1))
-                        .or(() -> checkAdditionOfDisjIModPonens(k - 1));
+                        .or(() -> checkAdditionOfDisjIModPonens(k - 1))
+                        .or(() -> checkAdditionOfAlways(k - 1))
+                        .or(() -> checkAdditionOfContraAlw(k - 1));
                 if (act.isPresent()) {
                     return act;
+                }
+            } else if (proof.getSteps().get(i).isValid() && proof.getSteps().get(i).getStep() instanceof RelationOperation){
+                var act = checkAdditionOfTrans(i);
+                if (act.isPresent()){
+                    return act;
+                }
+            }
+        }
+        return Optional.empty();
+    }
+
+    private Optional<AbstractModalAction> checkAdditionOfContraAlw(int i) {
+        for (int j = 0; j < proof.getSteps().size(); j++) {
+            if (proof.getSteps().get(j).isValid()) {
+                var opt = Optional.of(new ContraSometime(i + 1, j + 1))
+                        .flatMap(this::checkSingleAction);
+                if (opt.isPresent()) {
+                    return opt;
+                }
+            }
+        }
+        return Optional.empty();
+    }
+
+    private Optional<AbstractModalAction> checkAdditionOfTrans(int i) {
+        if (proof.getSteps().get(i).getStep() instanceof LessEqual lessEqual && !lessEqual.getLeft().equals(lessEqual.getRight())) {
+            for (int j = 0; j < proof.getSteps().size(); j++) {
+                if (proof.getSteps().get(j).isValid() && proof.getSteps().get(j).getStep() instanceof LessEqual lessEqual1 && !lessEqual1.getLeft().equals(lessEqual1.getRight())) {
+                    var opt = Optional.of(new Transitive(i + 1, j + 1))
+                            .flatMap(this::checkSingleAction);
+                    if (opt.isPresent()) {
+                        return opt;
+                    }
+                }
+            }
+        }
+        return Optional.empty();
+    }
+
+    private Optional<AbstractModalAction> checkAdditionOfAlways(int i) {
+        for (int j = 0; j < proof.getSteps().size(); j++) {
+            if (proof.getSteps().get(j).isValid()) {
+                var opt = Optional.of(new ModalBoxE(i + 1, j + 1))
+                        .flatMap(this::checkSingleAction);
+                if (opt.isPresent()) {
+                    return opt;
                 }
             }
         }
@@ -378,6 +435,21 @@ public final class ModalAutomate {
                 .filter(a -> !actionsDone.contains(a) && a.isValid(proof));
         answer.ifPresent(a -> actionsDone.add(a));
         return answer;
+    }
+
+    private Optional<AbstractModalAction> checkReflAction(Reflexive act) {
+        int k = act.getStep();
+        var state = proof.getSteps().get(k - 1).getState();
+        if (reflUsed.containsKey(state)) {
+            if (!proof.getSteps().get(reflUsed.get(state)).isValid()) {
+                reflUsed.put(state, k);
+                return Optional.of(act);
+            }
+        } else {
+            reflUsed.put(state, k);
+            return Optional.of(act);
+        }
+        return Optional.empty();
     }
 
     private Optional<AbstractModalAction> checkAdditionOfDisjIModPonens(int i) {
@@ -408,7 +480,7 @@ public final class ModalAutomate {
             var state = goals.get(goals.size() - 1).getKey();
             ModalLogicalOperation goal = (ModalLogicalOperation) goals.get(goals.size() - 1).getValue();
             if (goal instanceof ConjunctionModal conj) {
-                updateGoalConjuntion(conj, state);
+                updateGoalConjunction(conj, state);
             } else if (goal instanceof ImplicationModal imp) {
                 updateGoalImplication(imp, state);
             } else if (goal instanceof NegationModal neg) {
@@ -437,7 +509,9 @@ public final class ModalAutomate {
                     goals.add(new AbstractMap.SimpleEntry<>(state, new NegationModal(disj.getLeft())));
                 } else if (log instanceof ImplicationModal imp) {
                     goals.add(new AbstractMap.SimpleEntry<>(state, imp.getLeft()));
-                } else {
+                } else if (log instanceof Sometime some){
+                    goals.add(new AbstractMap.SimpleEntry<>(state, new Always(new NegationModal(some.getElement())) ));
+                }else {
                     b = false;
                 }
                 if (b) {
@@ -496,7 +570,7 @@ public final class ModalAutomate {
      *
      * @param goal last goal of type AND
      */
-    private void updateGoalConjuntion(ConjunctionModal goal, String state) {
+    private void updateGoalConjunction(ConjunctionModal goal, String state) {
         goals.add(new AbstractMap.SimpleEntry<>(state, goal.getLeft()));
         goals.add(new AbstractMap.SimpleEntry<>(state, goal.getRight()));
     }

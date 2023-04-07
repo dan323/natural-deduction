@@ -37,8 +37,8 @@ public final class DeMorgan extends CompositionRule {
         String newState = pf.newState();
         NegationModal operation = (NegationModal) pf.getSteps().get(i - 1).getStep();
         (new ModalAssume(new LessEqual(pf.getSteps().get(i - 1).getState(), newState))).apply(pf);
-        (new ModalAssume(operation.getElement(), newState)).apply(pf);
-        (new ModalDiaI(i + 1, i + 2)).apply(pf);
+        (new ModalAssume(((Sometime)operation.getElement()).getElement(), newState)).apply(pf);
+        (new ModalDiaI(i + 2, i + 1)).apply(pf);
         (new ModalFI(i + 3, i)).apply(pf);
         (new ModalNotI()).apply(pf);
         (new ModalBoxI()).apply(pf);
