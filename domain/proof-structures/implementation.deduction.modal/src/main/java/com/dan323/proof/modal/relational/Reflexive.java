@@ -26,6 +26,10 @@ public final class Reflexive extends RelationalAction {
         pf.getSteps().add(supp.generateProofStep(RuleUtils.getLastAssumptionLevel(pf), new LessEqual(state, state), new ProofReason("Refl", List.of(step))));
     }
 
+    public int getStep(){
+        return step;
+    }
+
     @Override
     public boolean isValid(ModalNaturalDeduction pf) {
         return pf.getSteps().get(step - 1).getStep() instanceof ModalLogicalOperation;

@@ -28,7 +28,7 @@ public final class ModalBoxE implements ModalAction {
             ProofStepModal ps = pf.getSteps().get(i - 1);
             ProofStepModal ps2 = pf.getSteps().get(q - 1);
             String state = ps.getState();
-            return (ps2.getStep() instanceof LessEqual) && ((LessEqual) ps2.getStep()).getLeft().equals(state);
+            return (ps2.getStep() instanceof LessEqual less) && less.getLeft().equals(state);
         }
         return false;
     }

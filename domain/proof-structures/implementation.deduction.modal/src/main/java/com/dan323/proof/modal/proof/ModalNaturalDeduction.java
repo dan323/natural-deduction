@@ -8,8 +8,11 @@ import com.dan323.proof.generic.proof.Proof;
 import com.dan323.proof.generic.proof.ProofReason;
 import com.dan323.proof.generic.proof.ProofStep;
 import com.dan323.proof.modal.AbstractModalAction;
+import com.dan323.proof.modal.internal.ModalAutomate;
 
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 public final class ModalNaturalDeduction extends Proof<ModalOperation, ProofStepModal> {
 
@@ -17,6 +20,10 @@ public final class ModalNaturalDeduction extends Proof<ModalOperation, ProofStep
 
     public ModalNaturalDeduction(String state0) {
         this.state0 = state0;
+    }
+
+    public ModalNaturalDeduction(){
+        this.state0="s0";
     }
 
     public String getState0() {
@@ -46,7 +53,7 @@ public final class ModalNaturalDeduction extends Proof<ModalOperation, ProofStep
 
     @Override
     public void automate() {
-        throw new UnsupportedOperationException();
+        ModalAutomate.AUTOMATIC_SOLVER.automate(this);
     }
 
     /**
@@ -85,7 +92,10 @@ public final class ModalNaturalDeduction extends Proof<ModalOperation, ProofStep
     public String newState() {
         var lst = getSteps().stream()
                 .filter(ProofStep::isValid)
-                .map(ProofStepModal::getState).toList();
+                .map(ProofStepModal::getState)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toSet());
+        lst.add("s0");
         int i = lst.size();
         while (lst.contains("s" + i)) {
             i++;

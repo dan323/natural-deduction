@@ -36,7 +36,7 @@ public final class Transitive extends RelationalAction {
     @Override
     public void applyStepSupplier(ModalNaturalDeduction pf, ProofStepSupplier<ModalOperation, ProofStepModal> supp) {
         String s1 = ((LessEqual) pf.getSteps().get(first - 1).getStep()).getLeft();
-        String s3 = ((LessEqual) pf.getSteps().get(first - 1).getStep()).getRight();
+        String s3 = ((LessEqual) pf.getSteps().get(second - 1).getStep()).getRight();
         pf.getSteps().add(supp.generateProofStep(RuleUtils.getLastAssumptionLevel(pf), new LessEqual(s1, s3), new ProofReason("Trans", List.of(first, second))));
     }
 
