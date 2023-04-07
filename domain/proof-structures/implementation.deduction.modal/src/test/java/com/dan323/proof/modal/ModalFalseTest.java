@@ -13,10 +13,10 @@ public class ModalFalseTest {
 
     @Test
     public void equalsTest() {
-        ModalFI<String> modalFI = new ModalFI<>("j", 1, 2);
-        ModalFI<String> modalFI2 = new ModalFI<>("i", 1, 2);
-        ModalFI<String> modalFI3 = new ModalFI<>("j", 1, 3);
-        ModalFI<String> modalFI4 = new ModalFI<>("j", 1, 2);
+        ModalFI modalFI = new ModalFI(1, 2);
+        ModalFI modalFI2 = new ModalFI(1, 4);
+        ModalFI modalFI3 = new ModalFI(1, 3);
+        ModalFI modalFI4 = new ModalFI(1, 2);
 
         assertEquals(modalFI, modalFI);
         assertEquals(modalFI, modalFI4);
@@ -25,10 +25,10 @@ public class ModalFalseTest {
         assertEquals(modalFI.hashCode(), modalFI4.hashCode());
 
         VariableModal p = new VariableModal("P");
-        ModalFE<String> modalFE = new ModalFE<>(1, p, "j");
-        ModalFE<String> modalFE2 = new ModalFE<>(1, p, "i");
-        ModalFE<String> modalFE3 = new ModalFE<>(2, p, "i");
-        ModalFE<String> modalFE4 = new ModalFE<>(1, p, "j");
+        ModalFE modalFE = new ModalFE(1, p, "j");
+        ModalFE modalFE2 = new ModalFE(1, p, "i");
+        ModalFE modalFE3 = new ModalFE(2, p, "i");
+        ModalFE modalFE4 = new ModalFE(1, p, "j");
 
         assertEquals(modalFE, modalFE);
         assertEquals(modalFE, modalFE4);
@@ -39,11 +39,11 @@ public class ModalFalseTest {
 
     @Test
     public void modalFIApply() {
-        ModalFI<String> modalFI = new ModalFI<>("j", 1, 2);
+        ModalFI modalFI = new ModalFI(1, 2);
         VariableModal variable = new VariableModal("P");
-        ModalAssume<String> assume = new ModalAssume<>(variable, "i");
-        ModalAssume<String> assume2 = new ModalAssume<>(new NegationModal(variable), "i");
-        ModalNaturalDeduction<String> pf = new ModalNaturalDeduction<>("s0");
+        ModalAssume assume = new ModalAssume(variable, "i");
+        ModalAssume assume2 = new ModalAssume(new NegationModal(variable), "i");
+        ModalNaturalDeduction pf = new ModalNaturalDeduction("s0");
 
         assume.apply(pf);
         assume2.apply(pf);
@@ -52,30 +52,30 @@ public class ModalFalseTest {
         Assertions.assertEquals("FALSE", pf.getSteps().get(pf.getSteps().size() - 1).getStep().toString());
         Assertions.assertEquals(2, pf.getSteps().get(pf.getSteps().size() - 1).getAssumptionLevel());
         Assertions.assertEquals("FI [1, 2]", pf.getSteps().get(pf.getSteps().size() - 1).getProof().toString());
-        Assertions.assertEquals("j:       FALSE           FI [1, 2]", pf.getSteps().get(pf.getSteps().size() - 1).toString());
+        Assertions.assertEquals("s0:       FALSE           FI [1, 2]", pf.getSteps().get(pf.getSteps().size() - 1).toString());
     }
 
     @Test
     public void modalFIValid() {
-        var modalFI = new ModalFI<>("j", 1, 2);
+        var modalFI = new ModalFI(1, 2);
         var p = new VariableModal("P");
-        var assume = new ModalAssume<>(p, "i");
-        var assume2 = new ModalAssume<>(new NegationModal(p), "i");
-        var pr = new ModalNaturalDeduction<>("s0");
+        var assume = new ModalAssume(p, "i");
+        var assume2 = new ModalAssume(new NegationModal(p), "i");
+        var pr = new ModalNaturalDeduction("s0");
         assume.apply(pr);
         assume2.apply(pr);
 
         assertTrue(modalFI.isValid(pr));
 
         pr.getSteps().clear();
-        assume = new ModalAssume<>(p, "j");
+        assume = new ModalAssume(p, "j");
         assume.apply(pr);
         assume2.apply(pr);
 
         assertFalse(modalFI.isValid(pr));
 
         pr.getSteps().clear();
-        assume = new ModalAssume<>(new ConjunctionModal(p, p), "i");
+        assume = new ModalAssume(new ConjunctionModal(p, p), "i");
         assume.apply(pr);
         assume2.apply(pr);
 
@@ -84,12 +84,12 @@ public class ModalFalseTest {
 
     @Test
     public void modalFEApply() {
-        var modalFI = new ModalFI<>("j", 1, 2);
+        var modalFI = new ModalFI(1, 2);
         var variable = new VariableModal("P");
-        var assume = new ModalAssume<>(variable, "i");
-        var assume2 = new ModalAssume<>(new NegationModal(variable), "i");
-        var pf = new ModalNaturalDeduction<>("s0");
-        var modalFE = new ModalFE<>(3, variable, "k");
+        var assume = new ModalAssume(variable, "i");
+        var assume2 = new ModalAssume(new NegationModal(variable), "i");
+        var pf = new ModalNaturalDeduction("s0");
+        var modalFE = new ModalFE(3, variable, "k");
 
         assume.apply(pf);
         assume2.apply(pf);

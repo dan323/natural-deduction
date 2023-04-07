@@ -6,5 +6,5 @@ import com.dan323.proof.generic.Action;
 import com.dan323.proof.modal.proof.ModalNaturalDeduction;
 import com.dan323.proof.modal.proof.ProofStepModal;
 
-public interface AbstractModalAction<T> extends Action<ModalOperation, ProofStepModal<T>, ModalNaturalDeduction<T>>, AbstractAction<ModalOperation, ProofStepModal<T>, ModalNaturalDeduction<T>> {
+public interface AbstractModalAction extends Action<ModalOperation, ProofStepModal, ModalNaturalDeduction>, AbstractAction<ModalOperation, ProofStepModal, ModalNaturalDeduction> {
 }

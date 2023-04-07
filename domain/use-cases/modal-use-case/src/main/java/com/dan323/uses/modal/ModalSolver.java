@@ -5,9 +5,9 @@ import com.dan323.proof.modal.proof.ModalNaturalDeduction;
 import com.dan323.proof.modal.proof.ProofStepModal;
 import com.dan323.uses.LogicalSolver;
 
-public class ModalSolver<T> implements LogicalSolver<ModalOperation, ProofStepModal<T>, ModalNaturalDeduction<T>> {
+public class ModalSolver<T> implements LogicalSolver<ModalOperation, ProofStepModal, ModalNaturalDeduction> {
     @Override
-    public ModalNaturalDeduction<T> perform(ModalNaturalDeduction<T> proof) {
+    public ModalNaturalDeduction perform(ModalNaturalDeduction proof) {
         throw new UnsupportedOperationException("This is not yet implemented");
     }
 

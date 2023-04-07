@@ -25,19 +25,19 @@ public class DiaTest {
 
     @Test
     public void diaEApply() {
-        var diaE = new ModalDiaE<String>(1);
+        var diaE = new ModalDiaE(1);
         var mlo = new VariableModal("P");
         var conclusion = new VariableModal("Q");
         var initStep = new Sometime(mlo);
-        var assume = new ModalAssume<>(mlo, STATE_1);
-        var assume2 = new ModalAssume<>(new LessEqual<>(STATE_0, STATE_1));
-        var pf = new ModalNaturalDeduction<>(STATE_0);
+        var assume = new ModalAssume(mlo, STATE_1);
+        var assume2 = new ModalAssume(new LessEqual(STATE_0, STATE_1));
+        var pf = new ModalNaturalDeduction(STATE_0);
 
         pf.initializeProof(Collections.singletonList(initStep), mock(ModalLogicalOperation.class));
 
         assume.apply(pf);
         assume2.apply(pf);
-        pf.getSteps().add(new ProofStepModal<>(STATE_0, 2, conclusion, new ProofReason("TST", List.of())));
+        pf.getSteps().add(new ProofStepModal(STATE_0, 2, conclusion, new ProofReason("TST", List.of())));
         diaE.apply(pf);
 
         Assertions.assertEquals("Q", pf.getSteps().get(pf.getSteps().size() - 1).getStep().toString());
@@ -50,10 +50,10 @@ public class DiaTest {
     public void diaIApply() {
         // Init variables
         var mlo = new VariableModal("P");
-        var diaI = new ModalDiaI<String>(2, 1);
-        var pf = new ModalNaturalDeduction<>(STATE_0);
-        var initStep = new LessEqual<>(STATE_0, STATE_1);
-        var assume = new ModalAssume<>(mlo, STATE_1);
+        var diaI = new ModalDiaI(2, 1);
+        var pf = new ModalNaturalDeduction(STATE_0);
+        var initStep = new LessEqual(STATE_0, STATE_1);
+        var assume = new ModalAssume(mlo, STATE_1);
 
         pf.initializeProof(Collections.singletonList(initStep), mock(ModalLogicalOperation.class));
         assume.apply(pf);
@@ -69,13 +69,13 @@ public class DiaTest {
     public void diaEValid() {
         // Init variables
         var mlo = mock(ModalLogicalOperation.class);
-        var diaE = new ModalDiaE<String>(1);
+        var diaE = new ModalDiaE(1);
         var initStep = new Sometime(mlo);
-        var assume = new ModalAssume<>(mock(ModalLogicalOperation.class), STATE_1);
-        var assume2 = new ModalAssume<>(mlo, STATE_1);
-        var assume3 = new ModalAssume<>(new LessEqual<>(STATE_0, STATE_1));
-        var assume4 = new ModalAssume<>(new LessEqual<>("q", STATE_1));
-        var proof = new ModalNaturalDeduction<>(STATE_0);
+        var assume = new ModalAssume(mock(ModalLogicalOperation.class), STATE_1);
+        var assume2 = new ModalAssume(mlo, STATE_1);
+        var assume3 = new ModalAssume(new LessEqual(STATE_0, STATE_1));
+        var assume4 = new ModalAssume(new LessEqual("q", STATE_1));
+        var proof = new ModalNaturalDeduction(STATE_0);
 
         // Empty proof
         assertFalse(diaE.isValid(proof));
@@ -94,7 +94,7 @@ public class DiaTest {
         assertFalse(diaE.isValid(proof));
 
         // Valid conclusion
-        proof.getSteps().add(new ProofStepModal<>(STATE_0, 2, mock(ModalLogicalOperation.class), new ProofReason("TST", List.of())));
+        proof.getSteps().add(new ProofStepModal(STATE_0, 2, mock(ModalLogicalOperation.class), new ProofReason("TST", List.of())));
         assertTrue(diaE.isValid(proof));
 
         // assms are not of correct type
@@ -109,7 +109,7 @@ public class DiaTest {
 
         assume2.apply(proof);
         assume3.apply(proof);
-        proof.getSteps().add(new ProofStepModal<String>(3, mock(RelationOperation.class), new ProofReason("TST", List.of())));
+        proof.getSteps().add(new ProofStepModal(3, mock(RelationOperation.class), new ProofReason("TST", List.of())));
         assertFalse(diaE.isValid(proof));
 
         // Invalid expression before last assumption
@@ -118,7 +118,7 @@ public class DiaTest {
         assume2.apply(proof);
         proof.getSteps().get(proof.getSteps().size() - 1).disable();
         assume3.apply(proof);
-        proof.getSteps().add(new ProofStepModal<String>(proof.getSteps().get(proof.getSteps().size() - 1).getAssumptionLevel(), mock(RelationOperation.class), new ProofReason("TST", List.of())));
+        proof.getSteps().add(new ProofStepModal(proof.getSteps().get(proof.getSteps().size() - 1).getAssumptionLevel(), mock(RelationOperation.class), new ProofReason("TST", List.of())));
         assertFalse(diaE.isValid(proof));
 
         // Invalid assumption level before last assumption
@@ -126,8 +126,8 @@ public class DiaTest {
 
         assume2.apply(proof);
         assume3.apply(proof);
-        proof.getSteps().add(new ProofStepModal<String>(3, mock(RelationOperation.class), new ProofReason("TST", List.of())));
-        proof.getSteps().add(new ProofStepModal<String>(3, mock(RelationOperation.class), new ProofReason("TST", List.of())));
+        proof.getSteps().add(new ProofStepModal(3, mock(RelationOperation.class), new ProofReason("TST", List.of())));
+        proof.getSteps().add(new ProofStepModal(3, mock(RelationOperation.class), new ProofReason("TST", List.of())));
         assertFalse(diaE.isValid(proof));
 
         // Invalid conclusion
@@ -135,7 +135,7 @@ public class DiaTest {
 
         assume2.apply(proof);
         assume3.apply(proof);
-        proof.getSteps().add(new ProofStepModal<>(STATE_1, 2, mock(ModalLogicalOperation.class), new ProofReason("TST", List.of())));
+        proof.getSteps().add(new ProofStepModal(STATE_1, 2, mock(ModalLogicalOperation.class), new ProofReason("TST", List.of())));
         assertFalse(diaE.isValid(proof));
 
         // Invalid <= assms
@@ -143,7 +143,7 @@ public class DiaTest {
 
         assume2.apply(proof);
         assume4.apply(proof);
-        proof.getSteps().add(new ProofStepModal<>(STATE_0, 2, mock(ModalLogicalOperation.class), new ProofReason("TST", List.of())));
+        proof.getSteps().add(new ProofStepModal(STATE_0, 2, mock(ModalLogicalOperation.class), new ProofReason("TST", List.of())));
         assertFalse(diaE.isValid(proof));
 
         //Invalid logic expression assms
@@ -151,45 +151,45 @@ public class DiaTest {
 
         assume.apply(proof);
         assume3.apply(proof);
-        proof.getSteps().add(new ProofStepModal<>(STATE_0, 2, mock(ModalLogicalOperation.class), new ProofReason("TST", List.of())));
+        proof.getSteps().add(new ProofStepModal(STATE_0, 2, mock(ModalLogicalOperation.class), new ProofReason("TST", List.of())));
         assertFalse(diaE.isValid(proof));
 
         // Invalid y in x<=y conclusion
         proof.initializeProof(Collections.singletonList(initStep), mock(ModalLogicalOperation.class));
 
-        var lessEq = new LessEqual<>(STATE_0, STATE_1);
+        var lessEq = new LessEqual(STATE_0, STATE_1);
         assume2.apply(proof);
         assume3.apply(proof);
-        proof.getSteps().add(new ProofStepModal<>(2, lessEq, new ProofReason("TST", List.of())));
+        proof.getSteps().add(new ProofStepModal(2, lessEq, new ProofReason("TST", List.of())));
         assertFalse(diaE.isValid(proof));
 
         // Invalid x in x<=y conclusion
         proof.initializeProof(Collections.singletonList(initStep), mock(ModalLogicalOperation.class));
 
-        lessEq = new LessEqual<>(STATE_1, STATE_0);
+        lessEq = new LessEqual(STATE_1, STATE_0);
         assume2.apply(proof);
         assume3.apply(proof);
-        proof.getSteps().add(new ProofStepModal<>(2, lessEq, new ProofReason("TST", List.of())));
+        proof.getSteps().add(new ProofStepModal(2, lessEq, new ProofReason("TST", List.of())));
         assertFalse(diaE.isValid(proof));
 
         // Valid x<=y conclusion
         proof.initializeProof(Collections.singletonList(initStep), mock(ModalLogicalOperation.class));
 
-        lessEq = new LessEqual<>(STATE_0, STATE_0);
+        lessEq = new LessEqual(STATE_0, STATE_0);
         assume2.apply(proof);
         assume3.apply(proof);
-        proof.getSteps().add(new ProofStepModal<>(2, lessEq, new ProofReason("TST", List.of())));
+        proof.getSteps().add(new ProofStepModal(2, lessEq, new ProofReason("TST", List.of())));
         assertTrue(diaE.isValid(proof));
     }
 
     @Test
     public void diaIValid() {
-        var diaI = new ModalDiaI<String>(2, 1);
-        var proof = new ModalNaturalDeduction<>(STATE_0);
-        var initStep = new LessEqual<>(STATE_0, STATE_1);
+        var diaI = new ModalDiaI(2, 1);
+        var proof = new ModalNaturalDeduction(STATE_0);
+        var initStep = new LessEqual(STATE_0, STATE_1);
         var expression = mock(ModalLogicalOperation.class);
-        var assume = new ModalAssume<>(expression, STATE_1);
-        var assume2 = new ModalAssume<>(expression, "a");
+        var assume = new ModalAssume(expression, STATE_1);
+        var assume2 = new ModalAssume(expression, "a");
 
         // No expression valid
         proof.initializeProof(Collections.singletonList(initStep), mock(ModalLogicalOperation.class));
@@ -199,7 +199,7 @@ public class DiaTest {
         // Valid proof state
         assume.apply(proof);
         assertTrue(diaI.isValid(proof));
-        // Expression is not longer valid
+        // Expression is no longer valid
         proof.getSteps().get(proof.getSteps().size() - 1).disable();
         assertFalse(diaI.isValid(proof));
 

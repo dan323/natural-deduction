@@ -1,7 +1,7 @@
 package com.dan323.uses.classical.test;
 
-import com.dan323.uses.classical.ClassicGetActions;
-import com.dan323.uses.classical.ClassicSolver;
+import com.dan323.uses.LogicalGetActions;
+import com.dan323.uses.classical.ClassicalConfiguration;
 import com.dan323.uses.classical.mock.ClassicalProof;
 import org.junit.jupiter.api.Test;
 
@@ -11,7 +11,7 @@ public class ClassicalUseTest {
 
     @Test
     public void classicSolver() {
-        ClassicSolver solver = new ClassicSolver();
+        var solver = (new ClassicalConfiguration()).classicalSolver();
         var proof = solver.perform(ClassicalProof.naturalDeductionNoAssms());
         assertTrue(proof.isDone());
         proof = solver.perform(ClassicalProof.naturalDeductionWithAssms());
@@ -22,7 +22,7 @@ public class ClassicalUseTest {
 
     @Test
     public void classicActions() {
-        ClassicGetActions actions = new ClassicGetActions();
+        LogicalGetActions actions = (new ClassicalConfiguration()).classicalActions();
         assertEquals(14, actions.perform().size());
     }
 }

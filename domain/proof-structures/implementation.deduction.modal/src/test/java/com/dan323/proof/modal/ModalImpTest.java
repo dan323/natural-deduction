@@ -17,25 +17,25 @@ public class ModalImpTest {
 
     @Test
     public void modalDTValid() {
-        var deductionTheorem = new ModalDeductionTheorem<String>();
-        var pf = new ModalNaturalDeduction<>("s0");
+        var deductionTheorem = new ModalDeductionTheorem();
+        var pf = new ModalNaturalDeduction("s0");
         assertFalse(deductionTheorem.isValid(pf));
 
-        var assume = new ModalAssume<>(new VariableModal("P"), "i");
+        var assume = new ModalAssume(new VariableModal("P"), "i");
         assume.apply(pf);
         assertTrue(deductionTheorem.isValid(pf));
 
-        pf.getSteps().add(new ProofStepModal<>("j", 1, new VariableModal("Q"), new ProofReason("TST", List.of())));
+        pf.getSteps().add(new ProofStepModal("j", 1, new VariableModal("Q"), new ProofReason("TST", List.of())));
         assertFalse(deductionTheorem.isValid(pf));
     }
 
     @Test
     public void modalDTApply() {
         var state = "i";
-        var deductionTheorem = new ModalDeductionTheorem<String>();
+        var deductionTheorem = new ModalDeductionTheorem();
         var variable = new VariableModal("P");
-        var assume = new ModalAssume<>(variable, state);
-        var pf = new ModalNaturalDeduction<>("s0");
+        var assume = new ModalAssume(variable, state);
+        var pf = new ModalNaturalDeduction("s0");
 
         assume.apply(pf);
         deductionTheorem.apply(pf);
@@ -49,12 +49,12 @@ public class ModalImpTest {
     @Test
     public void modalMPValid() {
         var state = "i";
-        var pr = new ModalNaturalDeduction<>("s0");
-        var mp = new ModalModusPonens<String>(2, 1);
+        var pr = new ModalNaturalDeduction("s0");
+        var mp = new ModalModusPonens(2, 1);
         var p = new VariableModal("P");
         var q = new VariableModal("Q");
-        var assume1 = new ModalAssume<>(p, state);
-        var assume2 = new ModalAssume<>(new ImplicationModal(p, q), "j");
+        var assume1 = new ModalAssume(p, state);
+        var assume2 = new ModalAssume(new ImplicationModal(p, q), "j");
 
         assume1.apply(pr);
         assertFalse(mp.isValid(pr));
@@ -63,7 +63,7 @@ public class ModalImpTest {
         assertFalse(mp.isValid(pr));
 
         pr.getSteps().remove(1);
-        assume2 = new ModalAssume<>(new ImplicationModal(p, q), state);
+        assume2 = new ModalAssume(new ImplicationModal(p, q), state);
         assume2.apply(pr);
         assertTrue(mp.isValid(pr));
     }
@@ -71,12 +71,12 @@ public class ModalImpTest {
     @Test
     public void modalMPApply() {
         var state = "i";
-        var modusPonens = new ModalModusPonens<String>(1, 2);
+        var modusPonens = new ModalModusPonens(1, 2);
         var variable = new VariableModal("P");
         var varImpVar = new ImplicationModal(variable, variable);
-        var assume = new ModalAssume<>(variable, state);
-        var assume2 = new ModalAssume<>(varImpVar, state);
-        var pf = new ModalNaturalDeduction<>("s0");
+        var assume = new ModalAssume(variable, state);
+        var assume2 = new ModalAssume(varImpVar, state);
+        var pf = new ModalNaturalDeduction("s0");
 
         assume2.apply(pf);
         assume.apply(pf);

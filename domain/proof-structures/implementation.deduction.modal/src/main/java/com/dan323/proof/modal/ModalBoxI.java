@@ -13,7 +13,7 @@ import com.dan323.proof.modal.proof.ProofStepModal;
 import java.util.List;
 import java.util.Objects;
 
-public final class ModalBoxI<T> implements ModalAction<T> {
+public final class ModalBoxI implements ModalAction {
 
     @Override
     public boolean equals(Object obj) {
@@ -26,18 +26,18 @@ public final class ModalBoxI<T> implements ModalAction<T> {
     }
 
     @Override
-    public boolean isValid(ModalNaturalDeduction<T> pf) {
+    public boolean isValid(ModalNaturalDeduction pf) {
         int assLevel = RuleUtils.getLastAssumptionLevel(pf);
         if (assLevel == 0) {
             return false;
         }
         int lastAssumption = getLastAssumption(pf);
-        ProofStepModal<T> log = pf.getSteps().get(pf.getSteps().size() - lastAssumption);
+        ProofStepModal log = pf.getSteps().get(pf.getSteps().size() - lastAssumption);
         if (!(log.getStep() instanceof LessEqual)) {
             return false;
         }
-        T stateGreater = ((LessEqual<T>) log.getStep()).getRight();
-        ProofStepModal<T> conclusion = pf.getSteps().get(pf.getSteps().size() - 1);
+        String stateGreater = ((LessEqual) log.getStep()).getRight();
+        ProofStepModal conclusion = pf.getSteps().get(pf.getSteps().size() - 1);
         if (!(conclusion.getStep() instanceof ModalLogicalOperation)) {
             return false;
         }
@@ -48,24 +48,24 @@ public final class ModalBoxI<T> implements ModalAction<T> {
     }
 
     @Override
-    public void applyStepSupplier(ModalNaturalDeduction<T> pf, ProofStepSupplier<ModalOperation, ProofStepModal<T>> supp) {
+    public void applyStepSupplier(ModalNaturalDeduction pf, ProofStepSupplier<ModalOperation, ProofStepModal> supp) {
         int assLevel = RuleUtils.getLastAssumptionLevel(pf);
         pf.getSteps().add(supp.generateProofStep(assLevel - 1, new Always((ModalLogicalOperation) pf.getSteps().get(pf.getSteps().size() - 1).getStep()), new ProofReason("[]I",
                 List.of(pf.getSteps().size() - getLastAssumption(pf) + 1, pf.getSteps().size()))));
     }
 
-    private int getLastAssumption(ModalNaturalDeduction<T> pf) {
+    private int getLastAssumption(ModalNaturalDeduction pf) {
         int assLevel = RuleUtils.getLastAssumptionLevel(pf);
         return RuleUtils.getToLastAssumption(pf, assLevel);
     }
 
     @Override
-    public void apply(ModalNaturalDeduction<T> pf) {
+    public void apply(ModalNaturalDeduction pf) {
         int lastAssumption = getLastAssumption(pf);
-        ProofStepModal<T> log = pf.getSteps().get(pf.getSteps().size() - lastAssumption);
-        T stateLess = ((LessEqual<T>) log.getStep()).getLeft();
+        ProofStepModal log = pf.getSteps().get(pf.getSteps().size() - lastAssumption);
+        String stateLess = ((LessEqual) log.getStep()).getLeft();
 
         RuleUtils.disableUntilLastAssumption(pf, log.getAssumptionLevel());
-        applyStepSupplier(pf, (assLevel, log1, reason) -> new ProofStepModal<>(stateLess, assLevel, (ModalLogicalOperation) log1, reason));
+        applyStepSupplier(pf, (assLevel, log1, reason) -> new ProofStepModal(stateLess, assLevel, (ModalLogicalOperation) log1, reason));
     }
 }

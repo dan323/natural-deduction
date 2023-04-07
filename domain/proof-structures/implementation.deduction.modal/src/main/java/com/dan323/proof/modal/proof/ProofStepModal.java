@@ -6,16 +6,16 @@ import com.dan323.expressions.relation.RelationOperation;
 import com.dan323.proof.generic.proof.ProofReason;
 import com.dan323.proof.generic.proof.ProofStep;
 
-public class ProofStepModal<T> extends ProofStep<ModalOperation> {
+public class ProofStepModal extends ProofStep<ModalOperation> {
 
-    private final T state;
+    private final String state;
 
-    public ProofStepModal(T state, int ass, ModalLogicalOperation log, ProofReason proofReason) {
+    public ProofStepModal(String state, int ass, ModalLogicalOperation log, ProofReason proofReason) {
         super(ass, log, proofReason);
         this.state = state;
     }
 
-    public ProofStepModal(int ass, RelationOperation<T> log, ProofReason proofReason) {
+    public ProofStepModal(int ass, RelationOperation log, ProofReason proofReason) {
         super(ass, log, proofReason);
         state = null;
     }
@@ -29,7 +29,7 @@ public class ProofStepModal<T> extends ProofStep<ModalOperation> {
         }
     }
 
-    public T getState() {
+    public String getState() {
         return state;
     }
 }

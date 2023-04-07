@@ -9,12 +9,12 @@ import org.springframework.context.annotation.Configuration;
 public class ModalConfiguration {
 
     @Bean
-    LogicalSolver classicalSolver(){
+    public LogicalSolver modalSolver(){
         return new ModalSolver<>();
     }
 
     @Bean
-    LogicalGetActions classicalActions(){
+    public LogicalGetActions modalActions(){
         return new ModalGetActions();
     }
 

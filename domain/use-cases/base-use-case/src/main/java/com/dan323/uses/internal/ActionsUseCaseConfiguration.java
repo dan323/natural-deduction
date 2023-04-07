@@ -8,6 +8,8 @@ import com.dan323.uses.ActionsUseCases;
 import com.dan323.uses.LogicalApplyAction;
 import com.dan323.uses.LogicalGetActions;
 import com.dan323.uses.LogicalSolver;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -24,7 +26,6 @@ public class ActionsUseCaseConfiguration {
     public ActionsUseCases useCases(List<LogicalGetActions> getActions, List<LogicalSolver> solvers) {
 
         Map<String, ActionsUseCases.GetActions> actionGetters;
-        ActionsUseCases.ApplyAction actionAppliers;
         Map<String, ActionsUseCases.Solve> problemSolvers;
 
         actionGetters = getActions.stream()

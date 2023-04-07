@@ -23,6 +23,10 @@ public abstract class Proof<T extends LogicOperation, Q extends ProofStep<T>> {
         steps.remove(steps.size() - 1);
     }
 
+    public void reset(){
+        initializeProof(assms, goal);
+    }
+
     protected void setAssms(List<T> assms) {
         this.assms = assms;
         for (T lo : assms) {
@@ -31,6 +35,8 @@ public abstract class Proof<T extends LogicOperation, Q extends ProofStep<T>> {
     }
 
     protected abstract Q generateAssm(T logicexpression);
+
+    public abstract void automate();
 
     public boolean isDone() {
         if (goal == null) {

@@ -22,6 +22,16 @@ public final class ConjunctionModal extends Conjunction<ModalOperation> implemen
     }
 
     @Override
+    public ModalLogicalOperation getLeft() {
+        return (ModalLogicalOperation) super.getLeft();
+    }
+
+    @Override
+    public ModalLogicalOperation getRight() {
+        return (ModalLogicalOperation) super.getRight();
+    }
+
+    @Override
     public int hashCode() {
         return getLeft().hashCode() * 3 + getRight().hashCode() * 7 + getClass().hashCode();
     }

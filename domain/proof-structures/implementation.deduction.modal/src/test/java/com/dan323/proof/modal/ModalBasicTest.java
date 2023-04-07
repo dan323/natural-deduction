@@ -13,9 +13,9 @@ public class ModalBasicTest {
 
     @Test
     public void copyTest() {
-        ProofStepModal<String> pStep = mock(ProofStepModal.class);
-        ModalCopy<String> copy = new ModalCopy<>(1);
-        ModalNaturalDeduction<String> pf = new ModalNaturalDeduction<>("s0");
+        ProofStepModal pStep = mock(ProofStepModal.class);
+        ModalCopy copy = new ModalCopy(1);
+        ModalNaturalDeduction pf = new ModalNaturalDeduction("s0");
         pf.getSteps().add(pStep);
         doReturn(1).when(pStep).getAssumptionLevel();
         doReturn("i").when(pStep).getState();
@@ -33,8 +33,8 @@ public class ModalBasicTest {
     @Test
     public void assmsTest() {
         VariableModal variable = new VariableModal("P");
-        ModalAssume<String> assms = new ModalAssume<>(variable, "i");
-        ModalNaturalDeduction<String> pf = new ModalNaturalDeduction<>("s0");
+        ModalAssume assms = new ModalAssume(variable, "i");
+        ModalNaturalDeduction pf = new ModalNaturalDeduction("s0");
 
         assms.apply(pf);
 

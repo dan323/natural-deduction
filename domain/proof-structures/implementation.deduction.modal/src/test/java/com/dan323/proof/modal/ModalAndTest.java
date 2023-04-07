@@ -22,20 +22,20 @@ public class ModalAndTest {
         String state = "i";
         String state2 = "j";
         VariableModal p = new VariableModal("P");
-        ModalNaturalDeduction<String> pf = new ModalNaturalDeduction<>("s0");
-        ModalAndI<String> andI = new ModalAndI<>(1, 2);
+        ModalNaturalDeduction pf = new ModalNaturalDeduction("s0");
+        ModalAndI andI = new ModalAndI(1, 2);
 
         assertFalse(andI.isValid(pf));
 
-        ModalAssume<String> assume = new ModalAssume<>(p, state);
-        ModalAssume<String> assume2 = new ModalAssume<>(p, state2);
+        ModalAssume assume = new ModalAssume(p, state);
+        ModalAssume assume2 = new ModalAssume(p, state2);
         assume.apply(pf);
         assume2.apply(pf);
 
         assertFalse(andI.isValid(pf));
 
         pf.initializeProof(List.of(), mock(ModalLogicalOperation.class));
-        assume2 = new ModalAssume<>(p, state);
+        assume2 = new ModalAssume(p, state);
         assume.apply(pf);
         assume2.apply(pf);
 
@@ -44,9 +44,9 @@ public class ModalAndTest {
 
     @Test
     public void modalAndEApply() {
-        ProofStepModal<String> pStep = mock(ProofStepModal.class);
-        ModalAndE1<String> andE1 = new ModalAndE1<>(1);
-        ModalNaturalDeduction<String> pf = new ModalNaturalDeduction<>("s0");
+        ProofStepModal pStep = mock(ProofStepModal.class);
+        ModalAndE1 andE1 = new ModalAndE1(1);
+        ModalNaturalDeduction pf = new ModalNaturalDeduction("s0");
         pf.getSteps().add(pStep);
         doReturn(1).when(pStep).getAssumptionLevel();
         VariableModal variable = new VariableModal("P");
@@ -61,7 +61,7 @@ public class ModalAndTest {
         Assertions.assertEquals("&E [1]", pf.getSteps().get(pf.getSteps().size() - 1).getProof().toString());
         Assertions.assertEquals("i:    P           &E [1]", pf.getSteps().get(pf.getSteps().size() - 1).toString());
 
-        ModalAndE2<String> andE2 = new ModalAndE2<>(1);
+        ModalAndE2 andE2 = new ModalAndE2(1);
         andE2.apply(pf);
 
         Assertions.assertEquals("Q", pf.getSteps().get(pf.getSteps().size() - 1).getStep().toString());
@@ -73,10 +73,10 @@ public class ModalAndTest {
     @Test
     public void ModalAndIApply() {
         String state = "i";
-        ModalAndI<String> andI = new ModalAndI<>(1, 2);
-        ModalAssume<String> assume1 = new ModalAssume<>(new VariableModal("P"), state);
-        ModalAssume<String> assume2 = new ModalAssume<>(new VariableModal("Q"), state);
-        ModalNaturalDeduction<String> pf = new ModalNaturalDeduction<>("s0");
+        ModalAndI andI = new ModalAndI(1, 2);
+        ModalAssume assume1 = new ModalAssume(new VariableModal("P"), state);
+        ModalAssume assume2 = new ModalAssume(new VariableModal("Q"), state);
+        ModalNaturalDeduction pf = new ModalNaturalDeduction("s0");
 
         assume1.apply(pf);
         assume2.apply(pf);

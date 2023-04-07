@@ -9,19 +9,18 @@ import com.dan323.proof.modal.proof.ProofStepModal;
 
 import java.util.Objects;
 
-public final class ModalAssume<T> extends Assume<ModalOperation, ProofStepModal<T>, ModalNaturalDeduction<T>> implements ModalAction<T> {
+public final class ModalAssume extends Assume<ModalOperation, ProofStepModal, ModalNaturalDeduction> implements ModalAction {
 
-    private final T state;
+    private final String state;
 
-    public ModalAssume(ModalLogicalOperation clo, T st) {
+    public ModalAssume(ModalLogicalOperation clo, String st) {
         super(clo);
         state = st;
     }
 
     @Override
     public boolean equals(Object o) {
-        if (o instanceof ModalAssume) {
-            ModalAssume<T> assume = (ModalAssume<T>) o;
+        if (o instanceof ModalAssume assume) {
             return Objects.equals(state, assume.state) &&
                     log.equals(assume.log);
 
@@ -35,17 +34,17 @@ public final class ModalAssume<T> extends Assume<ModalOperation, ProofStepModal<
         return Objects.hash(state, log, getClass());
     }
 
-    public ModalAssume(RelationOperation<T> operation) {
+    public ModalAssume(RelationOperation operation) {
         super(operation);
         state = null;
     }
 
     @Override
-    public void apply(ModalNaturalDeduction<T> pf) {
+    public void apply(ModalNaturalDeduction pf) {
         if (state == null) {
-            applyStepSupplier(pf, (assLevel, log, reason) -> new ProofStepModal<>(assLevel, (RelationOperation<T>) log, reason));
+            applyStepSupplier(pf, (assLevel, log, reason) -> new ProofStepModal(assLevel, (RelationOperation) log, reason));
         } else {
-            applyStepSupplier(pf, (assLevel, log, reason) -> new ProofStepModal<>(state, assLevel, (ModalLogicalOperation) log, reason));
+            applyStepSupplier(pf, (assLevel, log, reason) -> new ProofStepModal(state, assLevel, (ModalLogicalOperation) log, reason));
         }
     }
 }

@@ -27,16 +27,16 @@ public class BoxTest {
 
     @Test
     public void boxIValid() {
-        var boxI = new ModalBoxI<String>();
-        var proof = new ModalNaturalDeduction<>(STATE_0);
+        var boxI = new ModalBoxI();
+        var proof = new ModalNaturalDeduction(STATE_0);
         var prop = mock(ModalLogicalOperation.class);
-        var assume = new ModalAssume<>(new LessEqual<>(STATE_0, STATE_1));
-        var assume2 = new ModalAssume<>(prop, STATE_0);
-        var assume3 = new ModalAssume<>(mock(ModalLogicalOperation.class), STATE_1);
+        var assume = new ModalAssume(new LessEqual(STATE_0, STATE_1));
+        var assume2 = new ModalAssume(prop, STATE_0);
+        var assume3 = new ModalAssume(mock(ModalLogicalOperation.class), STATE_1);
 
         // Valid proof
         assume.apply(proof);
-        proof.getSteps().add(new ProofStepModal<>(STATE_1, 1, prop, new ProofReason("TST", Collections.emptyList())));
+        proof.getSteps().add(new ProofStepModal(STATE_1, 1, prop, new ProofReason("TST", Collections.emptyList())));
 
         assertTrue(boxI.isValid(proof));
 
@@ -45,28 +45,28 @@ public class BoxTest {
         assertFalse(boxI.isValid(proof));
         // Conclusion is not valid
         assume.apply(proof);
-        proof.getSteps().add(new ProofStepModal<String>(1, mock(RelationOperation.class), new ProofReason("TST", Collections.emptyList())));
+        proof.getSteps().add(new ProofStepModal(1, mock(RelationOperation.class), new ProofReason("TST", Collections.emptyList())));
 
         assertFalse(boxI.isValid(proof));
 
         // No assumption level
         proof.initializeProof(Collections.emptyList(), mock(ModalOperation.class));
         assume.apply(proof);
-        proof.getSteps().add(new ProofStepModal<String>(0, mock(RelationOperation.class), new ProofReason("TST", Collections.emptyList())));
+        proof.getSteps().add(new ProofStepModal(0, mock(RelationOperation.class), new ProofReason("TST", Collections.emptyList())));
 
         assertFalse(boxI.isValid(proof));
 
         // Assumption not valid
         proof.initializeProof(Collections.emptyList(), mock(ModalOperation.class));
         assume2.apply(proof);
-        proof.getSteps().add(new ProofStepModal<String>(1, mock(RelationOperation.class), new ProofReason("TST", Collections.emptyList())));
+        proof.getSteps().add(new ProofStepModal(1, mock(RelationOperation.class), new ProofReason("TST", Collections.emptyList())));
 
         assertFalse(boxI.isValid(proof));
 
         // Not valid conclusion state
         proof.initializeProof(Collections.emptyList(), mock(ModalOperation.class));
         assume.apply(proof);
-        proof.getSteps().add(new ProofStepModal<>(STATE_0, 1, prop, new ProofReason("TST", List.of())));
+        proof.getSteps().add(new ProofStepModal(STATE_0, 1, prop, new ProofReason("TST", List.of())));
 
         assertFalse(boxI.isValid(proof));
 
@@ -74,19 +74,19 @@ public class BoxTest {
         proof.initializeProof(List.of(), mock(ModalOperation.class));
         assume3.apply(proof);
         assume.apply(proof);
-        proof.getSteps().add(new ProofStepModal<>(STATE_1, 2, prop, new ProofReason("TST", Collections.emptyList())));
+        proof.getSteps().add(new ProofStepModal(STATE_1, 2, prop, new ProofReason("TST", Collections.emptyList())));
 
         assertFalse(boxI.isValid(proof));
     }
 
     @Test
     public void boxEValid() {
-        var boxE = new ModalBoxE<String>(1, 2);
-        var proof = new ModalNaturalDeduction<>(STATE_0);
+        var boxE = new ModalBoxE(1, 2);
+        var proof = new ModalNaturalDeduction(STATE_0);
         var prop = mock(ModalLogicalOperation.class);
-        var assume1 = new ModalAssume<>(new Always(prop), STATE_0);
-        var assume2 = new ModalAssume<>(new LessEqual<>(STATE_0, STATE_1));
-        var assume3 = new ModalAssume<>(new Equals<>("a", STATE_1));
+        var assume1 = new ModalAssume(new Always(prop), STATE_0);
+        var assume2 = new ModalAssume(new LessEqual(STATE_0, STATE_1));
+        var assume3 = new ModalAssume(new Equals("a", STATE_1));
 
         // Steps not there
         assertFalse(boxE.isValid(proof));
@@ -118,14 +118,14 @@ public class BoxTest {
 
     @Test
     public void boxIApply() {
-        var boxI = new ModalBoxI<String>();
-        var pf = new ModalNaturalDeduction<>(STATE_0);
+        var boxI = new ModalBoxI();
+        var pf = new ModalNaturalDeduction(STATE_0);
         var prop = new VariableModal("P");
-        var assume = new ModalAssume<>(new LessEqual<>(STATE_0, STATE_1));
+        var assume = new ModalAssume(new LessEqual(STATE_0, STATE_1));
 
         // Valid proof
         assume.apply(pf);
-        pf.getSteps().add(new ProofStepModal<>(STATE_1, 1, prop, new ProofReason("TST", Collections.emptyList())));
+        pf.getSteps().add(new ProofStepModal(STATE_1, 1, prop, new ProofReason("TST", Collections.emptyList())));
         boxI.apply(pf);
 
         Assertions.assertEquals("[] P", pf.getSteps().get(pf.getSteps().size() - 1).getStep().toString());
@@ -136,11 +136,11 @@ public class BoxTest {
 
     @Test
     public void boxEApply() {
-        var boxE = new ModalBoxE<String>(1, 2);
-        var pf = new ModalNaturalDeduction<>(STATE_0);
+        var boxE = new ModalBoxE(1, 2);
+        var pf = new ModalNaturalDeduction(STATE_0);
         var prop = new VariableModal("P");
-        var assume1 = new ModalAssume<>(new Always(prop), STATE_0);
-        var assume2 = new ModalAssume<>(new LessEqual<>(STATE_0, STATE_1));
+        var assume1 = new ModalAssume(new Always(prop), STATE_0);
+        var assume2 = new ModalAssume(new LessEqual(STATE_0, STATE_1));
 
         assume1.apply(pf);
         assume2.apply(pf);

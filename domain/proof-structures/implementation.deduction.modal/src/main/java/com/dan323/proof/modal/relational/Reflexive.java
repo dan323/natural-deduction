@@ -12,7 +12,7 @@ import com.dan323.proof.modal.proof.ProofStepModal;
 import java.util.List;
 import java.util.Objects;
 
-public final class Reflexive<T> extends RelationalAction<T> {
+public final class Reflexive extends RelationalAction {
 
     private final int step;
 
@@ -21,20 +21,24 @@ public final class Reflexive<T> extends RelationalAction<T> {
     }
 
     @Override
-    public void applyStepSupplier(ModalNaturalDeduction<T> pf, ProofStepSupplier<ModalOperation, ProofStepModal<T>> supp) {
-        T state = pf.getSteps().get(step - 1).getState();
-        pf.getSteps().add(supp.generateProofStep(RuleUtils.getLastAssumptionLevel(pf), new LessEqual<>(state, state), new ProofReason("Refl", List.of(step))));
+    public void applyStepSupplier(ModalNaturalDeduction pf, ProofStepSupplier<ModalOperation, ProofStepModal> supp) {
+        String state = pf.getSteps().get(step - 1).getState();
+        pf.getSteps().add(supp.generateProofStep(RuleUtils.getLastAssumptionLevel(pf), new LessEqual(state, state), new ProofReason("Refl", List.of(step))));
+    }
+
+    public int getStep(){
+        return step;
     }
 
     @Override
-    public boolean isValid(ModalNaturalDeduction<T> pf) {
+    public boolean isValid(ModalNaturalDeduction pf) {
         return pf.getSteps().get(step - 1).getStep() instanceof ModalLogicalOperation;
     }
 
     @Override
     public boolean equals(Object o){
-        if (o instanceof Reflexive){
-            return step == ((Reflexive<?>)o).step;
+        if (o instanceof Reflexive refl){
+            return step == refl.step;
         } else {
             return false;
         }

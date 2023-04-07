@@ -12,6 +12,7 @@ import com.dan323.proof.modal.relational.Reflexive;
 import com.dan323.proof.modal.relational.Transitive;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -21,7 +22,7 @@ public final class ParseModalAction {
     private ParseModalAction() {
     }
 
-    public static <T> AbstractModalAction<T> parseWithReason(ModalNaturalDeduction<T> proof, ModalOperation atPos, ProofReason proofReason, T state) {
+    public static AbstractModalAction parseWithReason(ModalNaturalDeduction proof, ModalOperation atPos, ProofReason proofReason, String state) {
         return switch (proofReason.getNameProof()) {
             case "Ass" -> parseAss(atPos, state);
             case "|I" -> parseOrI(proof, proofReason, atPos);
@@ -34,7 +35,7 @@ public final class ParseModalAction {
             case "->I" -> parseImpI();
             case "->E" -> parseImpE(proofReason);
             case "FE" -> parseFE(proofReason, atPos, state);
-            case "FI" -> parseFI(proofReason, state);
+            case "FI" -> parseFI(proofReason);
             case "[]I" -> parseBoxI();
             case "[]E" -> parseBoxE(proofReason);
             case "<>I" -> parseDiaI(proofReason);
@@ -45,95 +46,95 @@ public final class ParseModalAction {
         };
     }
 
-    public static <T> AbstractModalAction<T> parse(ModalNaturalDeduction<T> proof, int pos) {
+    public static AbstractModalAction parse(ModalNaturalDeduction proof, int pos) {
         return parseWithReason(proof, proof.getSteps().get(pos - 1).getStep(), proof.getSteps().get(pos - 1).getProof(), proof.getSteps().get(pos - 1).getState());
     }
 
-    private static <T> AbstractModalAction<T> parseTrans(ProofReason proofReason) {
+    private static AbstractModalAction parseTrans(ProofReason proofReason) {
         int[] ints = parseArray(proofReason);
-        return new Transitive<>(ints[0], ints[1]);
+        return new Transitive(ints[0], ints[1]);
     }
 
-    private static <T> AbstractModalAction<T> parseRefl(ProofReason proofReason) {
+    private static AbstractModalAction parseRefl(ProofReason proofReason) {
         int[] ints = parseArray(proofReason);
-        return new Reflexive<>(ints[0]);
+        return new Reflexive(ints[0]);
     }
 
-    private static <T> ModalAction<T> parseDiaE(ProofReason proofReason) {
+    private static ModalAction parseDiaE(ProofReason proofReason) {
         int[] ints = parseArray(proofReason);
-        return new ModalDiaE<>(ints[0]);
+        return new ModalDiaE(ints[0]);
     }
 
-    private static <T> ModalDiaI<T> parseDiaI(ProofReason proofReason) {
+    private static ModalDiaI parseDiaI(ProofReason proofReason) {
         int[] ints = parseArray(proofReason);
-        return new ModalDiaI<>(ints[0], ints[1]);
+        return new ModalDiaI(ints[0], ints[1]);
     }
 
-    private static <T> ModalBoxE<T> parseBoxE(ProofReason proofReason) {
+    private static ModalBoxE parseBoxE(ProofReason proofReason) {
         int[] ints = parseArray(proofReason);
-        return new ModalBoxE<>(ints[0], ints[1]);
+        return new ModalBoxE(ints[0], ints[1]);
     }
 
-    private static <T> ModalBoxI<T> parseBoxI() {
-        return new ModalBoxI<>();
+    private static ModalBoxI parseBoxI() {
+        return new ModalBoxI();
     }
 
-    private static <T> ModalFI<T> parseFI(ProofReason reason, T state) {
+    private static ModalFI parseFI(ProofReason reason) {
         int[] ints = parseArray(reason);
-        return new ModalFI<>(state, ints[0], ints[1]);
+        return new ModalFI(ints[0], ints[1]);
     }
 
-    private static <T> ModalFE<T> parseFE(ProofReason reason, ModalOperation atPos, T state) {
+    private static ModalFE parseFE(ProofReason reason, ModalOperation atPos, String state) {
         int[] ints = parseArray(reason);
-        return new ModalFE<>(ints[0], (ModalLogicalOperation) atPos, state);
+        return new ModalFE(ints[0], (ModalLogicalOperation) atPos, state);
     }
 
-    private static <T> ModalModusPonens<T> parseImpE(ProofReason proofReason) {
+    private static ModalModusPonens parseImpE(ProofReason proofReason) {
         int[] ints = parseArray(proofReason);
-        return new ModalModusPonens<>(ints[0], ints[1]);
+        return new ModalModusPonens(ints[0], ints[1]);
     }
 
-    private static <T> ModalDeductionTheorem<T> parseImpI() {
-        return new ModalDeductionTheorem<>();
+    private static ModalDeductionTheorem parseImpI() {
+        return new ModalDeductionTheorem();
     }
 
-    private static <T> ModalNotI<T> parseNotI() {
-        return new ModalNotI<>();
+    private static ModalNotI parseNotI() {
+        return new ModalNotI();
     }
 
-    private static <T> ModalAction<T> parseOrI(ModalNaturalDeduction<T> naturalDeduction, ProofReason reason, ModalOperation atPos) {
+    private static ModalAction parseOrI(ModalNaturalDeduction naturalDeduction, ProofReason reason, ModalOperation atPos) {
         int[] ints = parseArray(reason);
         ModalOperation origin = naturalDeduction.getSteps().get(ints[0] - 1).getStep();
         if (((DisjunctionModal) atPos).getLeft().equals(origin)) {
-            return new ModalOrI1<>(ints[0], (ModalLogicalOperation) ((DisjunctionModal) atPos).getRight());
+            return new ModalOrI1(ints[0], ((DisjunctionModal) atPos).getRight());
         } else {
-            return new ModalOrI2<>(ints[0], (ModalLogicalOperation) ((DisjunctionModal) atPos).getLeft());
+            return new ModalOrI2(ints[0], ((DisjunctionModal) atPos).getLeft());
         }
     }
 
-    private static <T> ModalAction<T> parseAndE(ModalNaturalDeduction<T> naturalDeduction, ProofReason reason, ModalOperation atPos) {
+    private static ModalAction parseAndE(ModalNaturalDeduction naturalDeduction, ProofReason reason, ModalOperation atPos) {
         int[] ints = parseArray(reason);
         ConjunctionModal conj = (ConjunctionModal) naturalDeduction.getSteps().get(ints[0] - 1).getStep();
         if (atPos.equals(conj.getLeft())) {
-            return new ModalAndE1<>(ints[0]);
+            return new ModalAndE1(ints[0]);
         } else {
-            return new ModalAndE2<>(ints[0]);
+            return new ModalAndE2(ints[0]);
         }
     }
 
-    private static <T> ModalNotE<T> parseNotE(ProofReason proofReason) {
+    private static ModalNotE parseNotE(ProofReason proofReason) {
         int[] ints = parseArray(proofReason);
-        return new ModalNotE<>(ints[0]);
+        return new ModalNotE(ints[0]);
     }
 
-    private static <T> ModalCopy<T> parseCopy(ProofReason proofReason) {
+    private static ModalCopy parseCopy(ProofReason proofReason) {
         int[] ints = parseArray(proofReason);
-        return new ModalCopy<>(ints[0]);
+        return new ModalCopy(ints[0]);
     }
 
-    private static <T> ModalAndI<T> parseAndI(ProofReason proofReason) {
+    private static ModalAndI parseAndI(ProofReason proofReason) {
         int[] ints = parseArray(proofReason);
-        return new ModalAndI<>(ints[0], ints[1]);
+        return new ModalAndI(ints[0], ints[1]);
     }
 
     private static int[] parseArray(ProofReason proofReason) {
@@ -141,17 +142,17 @@ public final class ParseModalAction {
                 .map(String::trim).mapToInt(Integer::parseInt).toArray();
     }
 
-    private static <T> ModalAssume<T> parseAss(ModalOperation atPos, T state) {
-        if (atPos instanceof RelationOperation<?> operation) {
-            return new ModalAssume<>((RelationOperation<T>) operation);
+    private static ModalAssume parseAss(ModalOperation atPos, String state) {
+        if (atPos instanceof RelationOperation operation) {
+            return new ModalAssume(operation);
         } else {
-            return new ModalAssume<>((ModalLogicalOperation) atPos, state);
+            return new ModalAssume((ModalLogicalOperation) atPos, state);
         }
     }
 
-    private static <Q> ModalOrE<Q> parseOrE(ProofReason reason) {
+    private static ModalOrE parseOrE(ProofReason reason) {
         int[] ints = parseArray(reason);
-        return new ModalOrE<>(ints[0], ints[1], ints[2]);
+        return new ModalOrE(ints[0], ints[1], ints[2]);
     }
 
     private static int[] parseArray(String proofReason, int reasonLength) {
@@ -175,9 +176,35 @@ public final class ParseModalAction {
         return ProofReason.parseReason(ruleString, MODAL_RULES);
     }
 
-    private static final ModalLogicParser<String> modalParser = new ModalLogicParser<>(Function.identity());
+    private static final ModalLogicParser modalParser = new ModalLogicParser();
 
     public static ModalOperation parseExpression(String expression) {
         return modalParser.evaluate(expression);
+    }
+
+    public static AbstractModalAction parseAction(String name, List<Integer> sources, ModalOperation extraInfo, String state){
+        return switch (name) {
+            case "Ass" -> extraInfo instanceof RelationOperation relationOperation ? new ModalAssume(relationOperation): new ModalAssume((ModalLogicalOperation)extraInfo, state);
+            case "|I1" -> new ModalOrI1(sources.get(0), (ModalLogicalOperation) extraInfo);
+            case "|I2" -> new ModalOrI2(sources.get(0), (ModalLogicalOperation) extraInfo);
+            case "|E" -> new ModalOrE(sources.get(0), sources.get(1), sources.get(2));
+            case "&I" -> new ModalAndI(sources.get(0), sources.get(1));
+            case "&E1" -> new ModalAndE1(sources.get(0));
+            case "&E2" -> new ModalAndE2(sources.get(0));
+            case "Rep" -> new ModalCopy(sources.get(0));
+            case "-E" -> new ModalNotE(sources.get(0));
+            case "-I" -> new ModalNotI();
+            case "->I" -> new ModalDeductionTheorem();
+            case "->E" -> new ModalModusPonens(sources.get(0), sources.get(1));
+            case "FE" -> new ModalFE(sources.get(0), (ModalLogicalOperation) extraInfo, state);
+            case "FI" -> new ModalFI(sources.get(0), sources.get(1));
+            case "[]I" -> new ModalBoxI();
+            case "[]E" -> new ModalBoxE(sources.get(0), sources.get(1));
+            case "<>I" -> new ModalDiaI(sources.get(0), sources.get(1));
+            case "<>E" -> new ModalDiaE(sources.get(0));
+            case "Refl" -> new Reflexive(sources.get(0));
+            case "Trans" -> new Transitive(sources.get(0), sources.get(1));
+            default -> throw new IllegalArgumentException("The rule " + name + " is not valid.");
+        };
     }
 }
