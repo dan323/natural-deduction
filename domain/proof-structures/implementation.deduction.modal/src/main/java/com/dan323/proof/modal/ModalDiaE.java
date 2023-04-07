@@ -87,6 +87,9 @@ public final class ModalDiaE implements ModalAction {
     public void applyStepSupplier(ModalNaturalDeduction pf, ProofStepSupplier<ModalOperation, ProofStepModal> supp) {
         ProofStepModal psm = pf.getSteps().get(pf.getSteps().size() - 1);
         int i = RuleUtils.getToLastAssumption(pf, psm.getAssumptionLevel());
+        ProofStepModal log = pf.getSteps().get(pf.getSteps().size() - i - 1);
+
+        RuleUtils.disableUntilLastAssumption(pf, log.getAssumptionLevel());
         List<Integer> lst = List.of(j, pf.getSteps().size() - i, pf.getSteps().size());
         pf.getSteps().add(supp.generateProofStep(psm.getAssumptionLevel() - 2, psm.getStep(), new ProofReason("<>E", lst)));
     }

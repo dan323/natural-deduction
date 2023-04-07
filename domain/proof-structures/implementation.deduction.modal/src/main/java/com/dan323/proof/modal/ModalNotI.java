@@ -17,6 +17,6 @@ public final class ModalNotI extends NotI<ModalOperation, ProofStepModal, ModalN
     @Override
     public void apply(ModalNaturalDeduction pf) {
         applyStepSupplier(pf, ((assLevel, log, reason) ->
-                new ProofStepModal((pf.getSteps().get(pf.getSteps().size() - RuleUtils.getToLastAssumption(pf, assLevel + 1) + 1)).getState(), assLevel, (ModalLogicalOperation) log, reason)));
+                new ProofStepModal((pf.getSteps().get(pf.getSteps().size() - RuleUtils.getToLastAssumption(pf, assLevel + 1))).getState(), assLevel, (ModalLogicalOperation) log, reason)));
     }
 }

@@ -30,7 +30,6 @@ public class ModalAutomateDiaTest {
         var naturalDeduction = new ModalNaturalDeduction();
         naturalDeduction.initializeProof(List.of(new Sometime(p), new Always(new ImplicationModal(p,q))), new Sometime(q));
         naturalDeduction.automate();
-        System.out.println(naturalDeduction);
         assertTrue(naturalDeduction.isDone());
     }
 }

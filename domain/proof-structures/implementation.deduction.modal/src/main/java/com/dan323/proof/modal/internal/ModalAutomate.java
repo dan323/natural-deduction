@@ -90,7 +90,6 @@ public final class ModalAutomate {
             } else {
                 b = eliminateRules();
             }
-            System.out.println("Start:\n" + proof.toString() + "\n");
         }
         return c;
     }
@@ -163,7 +162,11 @@ public final class ModalAutomate {
             if (proof.getSteps().get(i).isValid() &&
                     goal.equals(proof.getSteps().get(i).getStep()) &&
                     state.equals(proof.getSteps().get(i).getState())) {
-                return Optional.of(new ModalCopy(i + 1));
+                if (!goal.equals(proof.getSteps().get(proof.getSteps().size()-1).getStep()) ||
+                    !(goal.equals(ConstantModal.FALSE) ||
+                            state.equals(proof.getSteps().get(proof.getSteps().size()-1).getState()))) {
+                    return Optional.of(new ModalCopy(i + 1));
+                }
             }
         }
         Optional<AbstractModalAction> sol = Optional.empty();
