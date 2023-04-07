@@ -19,7 +19,7 @@ public final class ModalCopy extends Copy<ModalOperation, ProofStepModal, ModalN
         applyStepSupplier(pf, (assLevel, log, reason) -> new ProofStepModal(getState(pf, getAppliedAt()), assLevel, (ModalLogicalOperation) log, reason));
     }
 
-    private String getState(ModalNaturalDeduction pf, int k) {
+    private static String getState(ModalNaturalDeduction pf, int k) {
         return (pf.getSteps().get(k - 1)).getState();
     }
 

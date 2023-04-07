@@ -1,6 +1,5 @@
 package com.dan323.expressions.relation;
 
-import com.dan323.expressions.base.LogicOperation;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -12,7 +11,7 @@ public class RelationOperationTest {
         Equals equals = new Equals("s0", "s1");
         assertEquals("s0", equals.getLeft());
         assertEquals("s1", equals.getRight());
-        assertNotEquals(equals, "s2");
+        assertNotEquals("s2", equals);
         Equals equals2 = new Equals("s0", "s1");
         assertEquals(equals, equals2);
         assertNotSame(equals, equals2);

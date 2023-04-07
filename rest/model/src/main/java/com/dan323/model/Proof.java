@@ -2,7 +2,6 @@ package com.dan323.model;
 
 import com.dan323.classical.proof.NaturalDeduction;
 import com.dan323.classical.proof.ParseClassicalAction;
-import com.dan323.expressions.ModalLogicParser;
 import com.dan323.expressions.classical.ClassicalLogicOperation;
 import com.dan323.expressions.modal.ModalOperation;
 import com.dan323.proof.generic.proof.ProofStep;
@@ -94,7 +93,6 @@ public class Proof<T extends Serializable> implements Serializable {
                     assms = false;
                     nd.initializeProof(assmsLst, ParseModalAction.parseExpression(proof.getGoal()));
                 }
-                var parser = new ModalLogicParser();
                 ParseModalAction.parseWithReason(nd, ParseModalAction.parseExpression(step.getExpression()), ParseModalAction.parseReason(step.getRuleString()), step.getExtraInformation().getState()).apply(nd);
             }
         }
