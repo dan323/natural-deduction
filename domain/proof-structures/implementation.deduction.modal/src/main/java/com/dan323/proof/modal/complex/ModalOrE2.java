@@ -32,10 +32,9 @@ public final class ModalOrE2 extends CompositionRule {
 
     @Override
     public boolean isValid(ModalNaturalDeduction pf) {
-        if (ModalAction.checkEqualState(pf, a, b)) {
-            if (RuleUtils.isValidIndexAndProp(pf, a) && RuleUtils.isValidIndexAndProp(pf, b) && RuleUtils.isOperation(pf, a, Disjunction.class) && RuleUtils.isOperation(pf, b, Negation.class)) {
-                return ((BinaryOperation<?>) pf.getSteps().get(a - 1).getStep()).getRight().equals(((NegationModal) pf.getSteps().get(b - 1).getStep()).getElement());
-            }
+        if (ModalAction.checkEqualState(pf, a, b)
+                && RuleUtils.isValidIndexAndProp(pf, a) && RuleUtils.isValidIndexAndProp(pf, b) && RuleUtils.isOperation(pf, a, Disjunction.class) && RuleUtils.isOperation(pf, b, Negation.class)) {
+            return ((BinaryOperation<?>) pf.getSteps().get(a - 1).getStep()).getRight().equals(((NegationModal) pf.getSteps().get(b - 1).getStep()).getElement());
         }
         return false;
     }
