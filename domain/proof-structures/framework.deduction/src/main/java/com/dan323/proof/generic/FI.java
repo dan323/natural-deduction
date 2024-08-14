@@ -58,6 +58,6 @@ public abstract class FI<T extends LogicOperation, Q extends ProofStep<T>, P ext
 
     @Override
     public boolean equals(Object obj) {
-        return obj != null && obj.getClass().equals(getClass()) && ((FI<?, ?, ?>) obj).neg == neg && ((FI<?, ?, ?>) obj).pos == pos;
+        return (obj instanceof FI<?,?,?> fi) && fi.neg == neg && fi.pos == pos;
     }
 }

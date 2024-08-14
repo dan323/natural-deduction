@@ -28,4 +28,8 @@ public final class ModalFI extends FI<ModalOperation, ProofStepModal, ModalNatur
         return super.hashCode() * 7;
     }
 
+    @Override
+    public boolean equals(Object obj) {
+        return obj instanceof ModalFI modalFI && super.equals(modalFI);
+    }
 }
