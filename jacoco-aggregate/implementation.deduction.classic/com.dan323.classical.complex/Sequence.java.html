@@ -27,7 +27,7 @@ public final class Sequence extends CompositionRule {
 <span class="fc" id="L27">        return true;</span>
     }
 
-    private void resetProof(NaturalDeduction pf, int size) {
+    private static void resetProof(NaturalDeduction pf, int size) {
 <span class="fc" id="L31">        List&lt;ClassicalAction&gt; actions = pf.parse();</span>
 <span class="fc" id="L32">        pf.initializeProof(pf.getAssms(), pf.getGoal());</span>
 <span class="pc bpc" id="L33" title="1 of 2 branches missed.">        for (int i = pf.getAssms().size(); i &lt; size; i++) {</span>

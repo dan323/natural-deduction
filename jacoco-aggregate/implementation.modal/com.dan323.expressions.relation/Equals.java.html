@@ -10,11 +10,11 @@ public final class Equals extends RelationOperation {
 
     @Override
     public boolean equals(Object object) {
-<span class="fc bfc" id="L13" title="All 2 branches covered.">        if (object instanceof Equals eq) {</span>
+<span class="pc bpc" id="L13" title="1 of 2 branches missed.">        if (object instanceof Equals eq) {</span>
 <span class="pc bpc" id="L14" title="1 of 4 branches missed.">            return eq.getLeft().equals(getLeft()) &amp;&amp; eq.getRight().equals(getRight())</span>
 <span class="pc bpc" id="L15" title="2 of 4 branches missed.">                    || eq.getRight().equals(getLeft()) &amp;&amp; eq.getLeft().equals(getRight());</span>
         } else {
-<span class="fc" id="L17">            return false;</span>
+<span class="nc" id="L17">            return false;</span>
         }
     }
 

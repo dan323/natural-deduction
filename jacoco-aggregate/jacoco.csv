@@ -14,7 +14,7 @@ jacoco-report-aggregate/language-implementation.classic,com.dan323.expressions.c
 jacoco-report-aggregate/language-implementation.classic,com.dan323.expressions.classical,NegationClassic,0,42,0,4,0,7,0,6,0,4
 jacoco-report-aggregate/language-implementation.classic,com.dan323.expressions.classical,ConjunctionClassic,2,65,2,8,0,7,2,7,0,4
 jacoco-report-aggregate/language-implementation.classic,com.dan323.expressions.classical,ImplicationClassic,2,65,2,8,0,7,2,7,0,4
-jacoco-report-aggregate/implementation.modal,com.dan323.expressions.relation,Equals,39,41,3,7,1,6,4,4,1,2
+jacoco-report-aggregate/implementation.modal,com.dan323.expressions.relation,Equals,41,39,4,6,2,5,5,3,1,2
 jacoco-report-aggregate/implementation.modal,com.dan323.expressions.relation,RelationOperation,11,18,0,0,2,7,2,3,2,3
 jacoco-report-aggregate/implementation.modal,com.dan323.expressions.relation,LessEqual,19,30,1,5,1,5,2,4,1,2
 jacoco-report-aggregate/implementation.modal,com.dan323.expressions.modal,ConstantModal,0,55,0,4,0,12,0,9,0,7
@@ -30,7 +30,7 @@ jacoco-report-aggregate/implementation.modal,com.dan323.expressions.modal,UnaryM
 jacoco-report-aggregate/implementation.modal,com.dan323.expressions,ModalLogicParser,5,201,1,10,1,27,1,14,0,6
 jacoco-report-aggregate/implementation.deduction.modal,com.dan323.proof.modal,ModalDeductionTheorem,0,80,1,5,0,10,1,7,0,5
 jacoco-report-aggregate/implementation.deduction.modal,com.dan323.proof.modal,ModalDiaE,20,330,8,28,3,49,9,17,1,7
-jacoco-report-aggregate/implementation.deduction.modal,com.dan323.proof.modal,ModalFI,0,44,0,4,0,6,0,8,0,6
+jacoco-report-aggregate/implementation.deduction.modal,com.dan323.proof.modal,ModalFI,0,58,0,8,0,7,0,11,0,7
 jacoco-report-aggregate/implementation.deduction.modal,com.dan323.proof.modal,ModalDiaI,22,161,6,8,1,16,7,7,1,6
 jacoco-report-aggregate/implementation.deduction.modal,com.dan323.proof.modal,ModalFE,0,50,0,4,0,7,0,7,0,5
 jacoco-report-aggregate/implementation.deduction.modal,com.dan323.proof.modal,ModalNotI,0,38,0,0,0,5,0,4,0,4
@@ -46,7 +46,7 @@ jacoco-report-aggregate/implementation.deduction.modal,com.dan323.proof.modal,Mo
 jacoco-report-aggregate/implementation.deduction.modal,com.dan323.proof.modal,ModalOrI2,0,38,0,0,0,5,0,4,0,4
 jacoco-report-aggregate/implementation.deduction.modal,com.dan323.proof.modal,ModalAndE1,0,33,0,0,0,5,0,4,0,4
 jacoco-report-aggregate/implementation.deduction.modal,com.dan323.proof.modal,ModalModusPonens,0,47,0,4,0,7,0,6,0,4
-jacoco-report-aggregate/implementation.deduction.modal,com.dan323.proof.modal,ModalCopy,18,47,2,2,2,7,3,5,1,5
+jacoco-report-aggregate/implementation.deduction.modal,com.dan323.proof.modal,ModalCopy,18,46,2,2,2,7,3,5,1,5
 jacoco-report-aggregate/implementation.deduction.modal,com.dan323.proof.modal.internal,ModalAutomate,187,1989,46,216,14,278,36,139,0,44
 jacoco-report-aggregate/implementation.deduction.modal,com.dan323.proof.modal.proof,ModalNaturalDeduction,28,136,11,11,3,37,7,14,0,10
 jacoco-report-aggregate/implementation.deduction.modal,com.dan323.proof.modal.proof,ProofStepModal,3,31,1,1,1,9,1,4,0,4
@@ -69,7 +69,7 @@ jacoco-report-aggregate/framework.deduction,com.dan323.proof.generic,ModusPonens
 jacoco-report-aggregate/framework.deduction,com.dan323.proof.generic,AndI,0,116,2,10,0,19,2,12,0,8
 jacoco-report-aggregate/framework.deduction,com.dan323.proof.generic,Copy,0,43,0,0,0,8,0,5,0,5
 jacoco-report-aggregate/framework.deduction,com.dan323.proof.generic,NotE,1,113,2,10,0,17,2,11,0,7
-jacoco-report-aggregate/framework.deduction,com.dan323.proof.generic,FI,0,134,3,11,0,18,3,11,0,7
+jacoco-report-aggregate/framework.deduction,com.dan323.proof.generic,FI,0,130,2,10,0,18,2,11,0,7
 jacoco-report-aggregate/framework.deduction,com.dan323.proof.generic,Assume,0,31,0,0,0,8,0,4,0,4
 jacoco-report-aggregate/framework.deduction,com.dan323.proof.generic,NotI,1,124,2,8,0,23,2,8,0,5
 jacoco-report-aggregate/framework.deduction,com.dan323.proof.generic,FE,0,112,2,12,0,17,2,11,0,6
@@ -99,5 +99,5 @@ jacoco-report-aggregate/implementation.deduction.classic,com.dan323.classical.co
 jacoco-report-aggregate/implementation.deduction.classic,com.dan323.classical.complex,OrE1,9,169,2,12,1,18,3,9,1,4
 jacoco-report-aggregate/implementation.deduction.classic,com.dan323.classical.complex,OrE2,9,169,2,12,1,18,3,9,1,4
 jacoco-report-aggregate/implementation.deduction.classic,com.dan323.classical.complex,CompositionRule,5,3,0,0,1,1,1,1,1,1
-jacoco-report-aggregate/implementation.deduction.classic,com.dan323.classical.complex,Sequence,8,75,1,7,1,20,1,7,0,4
+jacoco-report-aggregate/implementation.deduction.classic,com.dan323.classical.complex,Sequence,8,73,1,7,1,20,1,7,0,4
 jacoco-report-aggregate/implementation.deduction.classic,com.dan323.classical.internal,ClassicalAutomate,76,1164,21,149,8,205,17,92,0,24
