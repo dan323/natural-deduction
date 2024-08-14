@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>ModalBoxE.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">jacoco-report-aggregate</a> &gt; <a href="../index.html" class="el_bundle">implementation.deduction.modal</a> &gt; <a href="index.source.html" class="el_package">com.dan323.proof.modal</a> &gt; <span class="el_source">ModalBoxE.java</span></div><h1>ModalBoxE.java</h1><pre class="source lang-java linenums">package com.dan323.proof.modal;
+
+import com.dan323.expressions.modal.Always;
+import com.dan323.expressions.modal.ModalLogicalOperation;
+import com.dan323.expressions.modal.ModalOperation;
+import com.dan323.expressions.relation.LessEqual;
+import com.dan323.proof.generic.RuleUtils;
+import com.dan323.proof.generic.proof.ProofReason;
+import com.dan323.proof.generic.proof.ProofStepSupplier;
+import com.dan323.proof.modal.proof.ModalNaturalDeduction;
+import com.dan323.proof.modal.proof.ProofStepModal;
+
+import java.util.List;
+
+public final class ModalBoxE implements ModalAction {
+
+    private final int i;
+    private final int q;
+
+<span class="fc" id="L20">    public ModalBoxE(int j, int p) {</span>
+<span class="fc" id="L21">        i = j;</span>
+<span class="fc" id="L22">        q = p;</span>
+<span class="fc" id="L23">    }</span>
+
+    @Override
+    public boolean isValid(ModalNaturalDeduction pf) {
+<span class="fc bfc" id="L27" title="All 6 branches covered.">        if (RuleUtils.isValidIndexAndProp(pf, i) &amp;&amp; RuleUtils.isValidIndexAndProp(pf, q) &amp;&amp; RuleUtils.isOperation(pf, i, Always.class)) {</span>
+<span class="fc" id="L28">            ProofStepModal ps = pf.getSteps().get(i - 1);</span>
+<span class="fc" id="L29">            ProofStepModal ps2 = pf.getSteps().get(q - 1);</span>
+<span class="fc" id="L30">            String state = ps.getState();</span>
+<span class="fc bfc" id="L31" title="All 4 branches covered.">            return (ps2.getStep() instanceof LessEqual less) &amp;&amp; less.getLeft().equals(state);</span>
+        }
+<span class="fc" id="L33">        return false;</span>
+    }
+
+    @Override
+    public void applyStepSupplier(ModalNaturalDeduction pf, ProofStepSupplier&lt;ModalOperation, ProofStepModal&gt; supp) {
+<span class="fc" id="L38">        int assLevel = 0;</span>
+<span class="pc bpc" id="L39" title="1 of 2 branches missed.">        if (!pf.getSteps().isEmpty()) {</span>
+<span class="fc" id="L40">            assLevel = RuleUtils.getLastAssumptionLevel(pf);</span>
+        }
+<span class="fc" id="L42">        ProofStepModal ps = pf.getSteps().get(i - 1);</span>
+<span class="fc" id="L43">        Always al = (Always) ps.getStep();</span>
+<span class="fc" id="L44">        pf.getSteps().add(supp.generateProofStep(assLevel, al.getElement(), new ProofReason(&quot;[]E&quot;, List.of(i, q))));</span>
+<span class="fc" id="L45">    }</span>
+
+    @Override
+    public void apply(ModalNaturalDeduction pf) {
+<span class="fc" id="L49">        String fl = ((LessEqual) pf.getSteps().get(q - 1).getStep()).getRight();</span>
+<span class="fc" id="L50">        applyStepSupplier(pf, ((assLevel, log, reason) -&gt; new ProofStepModal(fl, assLevel, (ModalLogicalOperation) log, reason)));</span>
+<span class="fc" id="L51">    }</span>
+
+    public boolean equals(Object ob) {
+<span class="fc bfc" id="L54" title="All 6 branches covered.">        return (ob instanceof ModalBoxE boxE) &amp;&amp; boxE.i == i &amp;&amp; boxE.q == q;</span>
+    }
+
+    public int hashCode() {
+<span class="nc" id="L58">        return i * 19 + q;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>
