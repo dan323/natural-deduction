@@ -110,7 +110,7 @@ public class RuleBaseTest {
 
         @Override
         public void apply(ProofTest.ProofStub pf) {
-
+            // This is just a stub
         }
     }
 
@@ -121,7 +121,7 @@ public class RuleBaseTest {
 
         @Override
         public void apply(ProofTest.ProofStub pf) {
-
+            // This is just a stub
         }
     }
 

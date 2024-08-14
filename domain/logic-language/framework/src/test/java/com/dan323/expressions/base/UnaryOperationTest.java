@@ -15,8 +15,6 @@ public class UnaryOperationTest {
 
     private UnaryOperation<LogicOperation> unaryOperation1;
     private UnaryOperation<LogicOperation> unaryOperation2;
-    private UnaryOperation<LogicOperation> unaryOperation3;
-    private UnaryOperation<LogicOperation> unaryOperation4;
 
 
     @Test
@@ -28,9 +26,7 @@ public class UnaryOperationTest {
     @BeforeEach
     public void init() {
         unaryOperation1 = new UnaryOperationStub(new LogicOperationStub(1));
-        unaryOperation2 = new UnaryOperationStub(new LogicOperationStub(1));
-        unaryOperation3 = new UnaryOperationStub(new LogicOperationStub(4));
-        unaryOperation4 = new UnaryOperationStub(unaryOperation1);
+        unaryOperation2 = new UnaryOperationStub(unaryOperation1);
     }
 
     @Test
@@ -41,6 +37,6 @@ public class UnaryOperationTest {
     @Test
     public void toStringTest() {
         Assertions.assertEquals("unop " + unaryOperation1.getElement().toString(), unaryOperation1.toString());
-        Assertions.assertEquals("unop (" + unaryOperation1.toString() + ")", unaryOperation4.toString());
+        Assertions.assertEquals("unop (" + unaryOperation1.toString() + ")", unaryOperation2.toString());
     }
 }
