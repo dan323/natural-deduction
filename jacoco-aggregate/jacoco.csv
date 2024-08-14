@@ -8,7 +8,7 @@ jacoco-report-aggregate/language-framework,com.dan323.expressions.base,UnaryOper
 jacoco-report-aggregate/language-framework,com.dan323.expressions.base,Conjunction,0,7,0,0,0,3,0,2,0,2
 jacoco-report-aggregate/language-implementation.classic,com.dan323.expressions.classical.exceptions,InvalidMapValuesException,3,4,0,0,2,2,1,1,1,1
 jacoco-report-aggregate/language-implementation.classic,com.dan323.expressions.classical,ConstantClassic,0,40,0,0,0,9,0,6,0,6
-jacoco-report-aggregate/language-implementation.classic,com.dan323.expressions.classical,VariableClassic,0,50,0,4,0,9,0,6,0,4
+jacoco-report-aggregate/language-implementation.classic,com.dan323.expressions.classical,VariableClassic,0,51,0,4,0,9,0,6,0,4
 jacoco-report-aggregate/language-implementation.classic,com.dan323.expressions.classical,ClassicalParser,0,142,0,9,0,22,0,12,0,6
 jacoco-report-aggregate/language-implementation.classic,com.dan323.expressions.classical,DisjunctionClassic,0,67,2,8,0,7,2,7,0,4
 jacoco-report-aggregate/language-implementation.classic,com.dan323.expressions.classical,NegationClassic,0,42,0,4,0,7,0,6,0,4
