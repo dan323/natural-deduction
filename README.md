@@ -3,7 +3,7 @@ A system for [natural deduction](https://en.wikipedia.org/wiki/Natural_deduction
 
 ## Status
 
-[![Main Workflow](https://github.com/dan323/natural-deduction/workflows/Main%20Workflow/badge.svg?branch=master&event=push)](https://https://github.com/dan323/natural-deduction/actions?query=branch%3Amaster+event%3Apush)
+[![Main Workflow](https://github.com/dan323/natural-deduction/workflows/Main%20Workflow/badge.svg?branch=master&event=push)](https://github.com/dan323/natural-deduction/actions?query=branch%3Amaster+event%3Apush)
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=dan323_natural-deduction&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=dan323_natural-deduction)
 [![Bugs](https://sonarcloud.io/api/project_badges/measure?project=dan323_natural-deduction&metric=bugs)](https://sonarcloud.io/summary/new_code?id=dan323_natural-deduction)
 [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=dan323_natural-deduction&metric=coverage)](https://sonarcloud.io/summary/new_code?id=dan323_natural-deduction)

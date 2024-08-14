@@ -15,7 +15,7 @@ on:
 jobs:
   mvn_flow:
     runs-on: ubuntu-latest
-    name: mvn flow Java 17
+    name: mvn flow Java 21
     steps:
       - uses: actions/checkout@master
         with:
@@ -23,7 +23,7 @@ jobs:
       - name: Setup java
         uses: actions/setup-java@master
         with:
-          java-version: 17
+          java-version: 21
           distribution: 'corretto'
       - name: compile
         run: mvn -B -f pom.xml clean compile
@@ -78,7 +78,7 @@ jobs:
       - name: Setup java
         uses: actions/setup-java@master
         with:
-          java-version: 17
+          java-version: 21
           distribution: 'corretto'
       - name: mutation testing
         run: |
