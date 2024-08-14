@@ -94,7 +94,6 @@ public class Proof<T extends Serializable> implements Serializable {
                     assms = false;
                     nd.initializeProof(assmsLst, ParseModalAction.parseExpression(proof.getGoal()));
                 }
-                var parser = new ModalLogicParser();
                 ParseModalAction.parseWithReason(nd, ParseModalAction.parseExpression(step.getExpression()), ParseModalAction.parseReason(step.getRuleString()), step.getExtraInformation().getState()).apply(nd);
             }
         }

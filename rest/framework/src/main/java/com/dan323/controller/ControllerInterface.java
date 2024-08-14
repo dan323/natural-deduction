@@ -19,7 +19,7 @@ import java.util.List;
 public class ControllerInterface {
 
     private final ActionsUseCases useCase;
-    private final Logger LOGGER = LoggerFactory.getLogger(ControllerInterface.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ControllerInterface.class);
 
     @Inject
     public ControllerInterface(ActionsUseCases useCase){

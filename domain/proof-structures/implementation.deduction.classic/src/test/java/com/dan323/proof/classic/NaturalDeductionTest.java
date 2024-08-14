@@ -2,7 +2,6 @@ package com.dan323.proof.classic;
 
 import com.dan323.expressions.classical.*;
 import com.dan323.classical.proof.NaturalDeduction;
-import com.dan323.expressions.classical.*;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
