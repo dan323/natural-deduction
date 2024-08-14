@@ -1,8 +1,12 @@
 package com.dan323.proof.modal;
 
+import com.dan323.expressions.base.LogicOperation;
 import com.dan323.expressions.modal.ConjunctionModal;
 import com.dan323.expressions.modal.NegationModal;
 import com.dan323.expressions.modal.VariableModal;
+import com.dan323.proof.generic.FI;
+import com.dan323.proof.generic.proof.Proof;
+import com.dan323.proof.generic.proof.ProofStep;
 import com.dan323.proof.modal.proof.ModalNaturalDeduction;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -35,6 +39,9 @@ public class ModalFalseTest {
         assertNotEquals(modalFE, modalFE2);
         assertNotEquals(modalFE, modalFE3);
         assertEquals(modalFE.hashCode(), modalFE4.hashCode());
+
+        assertNotEquals(new StubFI(1,2), modalFI);
+        assertNotEquals(new StubFI(1,3), modalFI);
     }
 
     @Test
@@ -100,5 +107,16 @@ public class ModalFalseTest {
         Assertions.assertEquals(2, pf.getSteps().get(pf.getSteps().size() - 1).getAssumptionLevel());
         Assertions.assertEquals("FE [3]", pf.getSteps().get(pf.getSteps().size() - 1).getProof().toString());
         Assertions.assertEquals("k:       P           FE [3]", pf.getSteps().get(pf.getSteps().size() - 1).toString());
+    }
+
+    private static class StubFI extends FI<LogicOperation, ProofStep<LogicOperation>, Proof<LogicOperation, ProofStep<LogicOperation>>> {
+        public StubFI(int a, int b) {
+            super(a, b, () -> () -> true);
+        }
+
+        @Override
+        public void apply(Proof<LogicOperation, ProofStep<LogicOperation>> pf) {
+            // This is a stub
+        }
     }
 }
