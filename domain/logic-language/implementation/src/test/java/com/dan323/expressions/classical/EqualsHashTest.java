@@ -86,6 +86,6 @@ public class EqualsHashTest {
         Assertions.assertNotEquals(p, d);
         Assertions.assertEquals(notP, d);
         Assertions.assertNotEquals(q, notQ);
-        Assertions.assertEquals(q.hashCode(), d.hashCode());
+        Assertions.assertEquals(notP.hashCode(), d.hashCode());
     }
 }
