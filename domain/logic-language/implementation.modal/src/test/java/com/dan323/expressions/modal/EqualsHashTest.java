@@ -29,7 +29,7 @@ public class EqualsHashTest {
         Assertions.assertNotEquals(p, d);
         Assertions.assertNotEquals(notQ, d);
         Assertions.assertEquals(notP, d);
-        Assertions.assertEquals(q.hashCode(), d.hashCode());
+        Assertions.assertEquals(notP.hashCode(), d.hashCode());
     }
 
     @Test
