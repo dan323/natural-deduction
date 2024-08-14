@@ -65,31 +65,31 @@ public class ClassicalTest {
 
     @Test
     public void disjunctionTest() {
-        VariableClassic P = new VariableClassic("P");
-        DisjunctionClassic d = new DisjunctionClassic(P, P);
+        VariableClassic p = new VariableClassic("P");
+        DisjunctionClassic d = new DisjunctionClassic(p, p);
         Assertions.assertEquals("P | P", d.toString());
     }
 
     @Test
     public void disjunctionEvaluate() {
-        VariableClassic P = new VariableClassic("P");
-        VariableClassic Q = new VariableClassic("Q");
-        DisjunctionClassic d = new DisjunctionClassic(P, Q);
+        VariableClassic p = new VariableClassic("P");
+        VariableClassic q = new VariableClassic("Q");
+        DisjunctionClassic d = new DisjunctionClassic(p, q);
         Assertions.assertTrue(d.evaluate(Map.of("P", true, "Q", false)));
         Assertions.assertFalse(d.evaluate(Map.of("P", false, "Q", false)));
     }
 
     @Test
     public void implicationToString() {
-        VariableClassic P = new VariableClassic("P");
-        ImplicationClassic d = new ImplicationClassic(P, P);
+        VariableClassic p = new VariableClassic("P");
+        ImplicationClassic d = new ImplicationClassic(p, p);
         Assertions.assertEquals("P -> P", d.toString());
     }
 
     @Test
     public void toStringComplex() {
-        VariableClassic P = new VariableClassic("P");
-        NegationClassic d = new NegationClassic(P);
+        VariableClassic p = new VariableClassic("P");
+        NegationClassic d = new NegationClassic(p);
         ImplicationClassic n = new ImplicationClassic(d, d);
         Assertions.assertEquals("(- P) -> (- P)", n.toString());
     }

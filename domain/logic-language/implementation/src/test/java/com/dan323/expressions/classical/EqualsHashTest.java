@@ -78,14 +78,14 @@ public class EqualsHashTest {
 
     @Test
     public void negationEquals() {
-        VariableClassic P = new VariableClassic("P");
-        VariableClassic Q = new VariableClassic("Q");
-        NegationClassic d = new NegationClassic(P);
-        NegationClassic q = new NegationClassic(P);
-        NegationClassic t = new NegationClassic(Q);
-        Assertions.assertNotEquals(P, d);
-        Assertions.assertEquals(q, d);
-        Assertions.assertNotEquals(q, t);
+        VariableClassic p = new VariableClassic("P");
+        VariableClassic q = new VariableClassic("Q");
+        NegationClassic d = new NegationClassic(p);
+        NegationClassic notP = new NegationClassic(p);
+        NegationClassic notQ = new NegationClassic(q);
+        Assertions.assertNotEquals(p, d);
+        Assertions.assertEquals(notP, d);
+        Assertions.assertNotEquals(q, notQ);
         Assertions.assertEquals(q.hashCode(), d.hashCode());
     }
 }

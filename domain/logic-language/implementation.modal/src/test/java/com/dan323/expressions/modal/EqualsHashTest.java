@@ -21,14 +21,14 @@ public class EqualsHashTest {
 
     @Test
     public void negationEquals() {
-        VariableModal P = new VariableModal("P");
-        VariableModal Q = new VariableModal("Q");
-        NegationModal d = new NegationModal(P);
-        NegationModal q = new NegationModal(P);
-        NegationModal t = new NegationModal(Q);
-        Assertions.assertNotEquals(P, d);
-        Assertions.assertNotEquals(t, d);
-        Assertions.assertEquals(q, d);
+        VariableModal p = new VariableModal("P");
+        VariableModal q = new VariableModal("Q");
+        NegationModal d = new NegationModal(p);
+        NegationModal notP = new NegationModal(p);
+        NegationModal notQ = new NegationModal(q);
+        Assertions.assertNotEquals(p, d);
+        Assertions.assertNotEquals(notQ, d);
+        Assertions.assertEquals(notP, d);
         Assertions.assertEquals(q.hashCode(), d.hashCode());
     }
 
