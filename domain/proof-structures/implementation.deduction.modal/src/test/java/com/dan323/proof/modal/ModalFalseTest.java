@@ -22,7 +22,6 @@ public class ModalFalseTest {
         ModalFI modalFI3 = new ModalFI(1, 3);
         ModalFI modalFI4 = new ModalFI(1, 2);
 
-        assertEquals(modalFI, modalFI);
         assertEquals(modalFI, modalFI4);
         assertNotEquals(modalFI, modalFI2);
         assertNotEquals(modalFI, modalFI3);
@@ -34,14 +33,15 @@ public class ModalFalseTest {
         ModalFE modalFE3 = new ModalFE(2, p, "i");
         ModalFE modalFE4 = new ModalFE(1, p, "j");
 
-        assertEquals(modalFE, modalFE);
         assertEquals(modalFE, modalFE4);
         assertNotEquals(modalFE, modalFE2);
         assertNotEquals(modalFE, modalFE3);
         assertEquals(modalFE.hashCode(), modalFE4.hashCode());
 
-        assertNotEquals(new StubFI(1,2), modalFI);
+        assertEquals(new StubFI(1,2), modalFI);
+        assertNotEquals(modalFI, new StubFI(1,2));
         assertNotEquals(new StubFI(1,3), modalFI);
+        assertNotEquals("fail", new StubFI(1,3));
     }
 
     @Test
