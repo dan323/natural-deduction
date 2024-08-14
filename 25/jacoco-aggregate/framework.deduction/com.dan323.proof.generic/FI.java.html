@@ -58,7 +58,7 @@ public abstract class FI&lt;T extends LogicOperation, Q extends ProofStep&lt;T&g
 
     @Override
     public boolean equals(Object obj) {
-<span class="pc bpc" id="L61" title="3 of 8 branches missed.">        return obj != null &amp;&amp; obj.getClass().equals(getClass()) &amp;&amp; ((FI&lt;?, ?, ?&gt;) obj).neg == neg &amp;&amp; ((FI&lt;?, ?, ?&gt;) obj).pos == pos;</span>
+<span class="pc bpc" id="L61" title="2 of 6 branches missed.">        return (obj instanceof FI&lt;?,?,?&gt; fi) &amp;&amp; fi.neg == neg &amp;&amp; fi.pos == pos;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

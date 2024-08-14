@@ -30,7 +30,7 @@ jacoco-report-aggregate/implementation.modal,com.dan323.expressions.modal,UnaryM
 jacoco-report-aggregate/implementation.modal,com.dan323.expressions,ModalLogicParser,5,201,1,10,1,27,1,14,0,6
 jacoco-report-aggregate/implementation.deduction.modal,com.dan323.proof.modal,ModalDeductionTheorem,0,80,1,5,0,10,1,7,0,5
 jacoco-report-aggregate/implementation.deduction.modal,com.dan323.proof.modal,ModalDiaE,20,330,8,28,3,49,9,17,1,7
-jacoco-report-aggregate/implementation.deduction.modal,com.dan323.proof.modal,ModalFI,0,44,0,4,0,6,0,8,0,6
+jacoco-report-aggregate/implementation.deduction.modal,com.dan323.proof.modal,ModalFI,0,58,1,7,0,7,1,10,0,7
 jacoco-report-aggregate/implementation.deduction.modal,com.dan323.proof.modal,ModalDiaI,22,161,6,8,1,16,7,7,1,6
 jacoco-report-aggregate/implementation.deduction.modal,com.dan323.proof.modal,ModalFE,0,50,0,4,0,7,0,7,0,5
 jacoco-report-aggregate/implementation.deduction.modal,com.dan323.proof.modal,ModalNotI,0,38,0,0,0,5,0,4,0,4
@@ -69,7 +69,7 @@ jacoco-report-aggregate/framework.deduction,com.dan323.proof.generic,ModusPonens
 jacoco-report-aggregate/framework.deduction,com.dan323.proof.generic,AndI,0,116,2,10,0,19,2,12,0,8
 jacoco-report-aggregate/framework.deduction,com.dan323.proof.generic,Copy,0,43,0,0,0,8,0,5,0,5
 jacoco-report-aggregate/framework.deduction,com.dan323.proof.generic,NotE,1,113,2,10,0,17,2,11,0,7
-jacoco-report-aggregate/framework.deduction,com.dan323.proof.generic,FI,0,134,3,11,0,18,3,11,0,7
+jacoco-report-aggregate/framework.deduction,com.dan323.proof.generic,FI,0,130,2,10,0,18,2,11,0,7
 jacoco-report-aggregate/framework.deduction,com.dan323.proof.generic,Assume,0,31,0,0,0,8,0,4,0,4
 jacoco-report-aggregate/framework.deduction,com.dan323.proof.generic,NotI,1,124,2,8,0,23,2,8,0,5
 jacoco-report-aggregate/framework.deduction,com.dan323.proof.generic,FE,0,112,2,12,0,17,2,11,0,6
