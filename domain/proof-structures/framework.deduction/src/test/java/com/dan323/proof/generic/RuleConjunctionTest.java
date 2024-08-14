@@ -147,7 +147,7 @@ public class RuleConjunctionTest {
 
         @Override
         public void apply(ProofTest.ProofStub pf) {
-
+            // This is just a stub
         }
     }
 
@@ -158,7 +158,7 @@ public class RuleConjunctionTest {
 
         @Override
         public void apply(ProofTest.ProofStub pf) {
-
+            // This is just a stub
         }
     }
 
@@ -169,7 +169,7 @@ public class RuleConjunctionTest {
 
         @Override
         public void apply(ProofTest.ProofStub pf) {
-
+            // This is just a stub
         }
     }
 

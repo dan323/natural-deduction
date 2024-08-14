@@ -14,16 +14,12 @@ public class BinaryOperationTest {
     private BinaryOperation<LogicOperation> binaryOperation1;
     private BinaryOperation<LogicOperation> binaryOperation2;
     private BinaryOperation<LogicOperation> binaryOperation3;
-    private BinaryOperation<LogicOperation> binaryOperation4;
-    private BinaryOperation<LogicOperation> binaryOperation5;
 
     @BeforeEach
     public void init() {
         binaryOperation1 = new BinaryOperationStub(new LogicOperationStub(1), new LogicOperationStub(2));
         binaryOperation2 = new BinaryOperationStub(new LogicOperationStub(1), new LogicOperationStub(2));
-        binaryOperation3 = new BinaryOperationStub(new LogicOperationStub(4), new LogicOperationStub(5));
-        binaryOperation4 = new BinaryOperationStub(new LogicOperationStub(1), binaryOperation1);
-        binaryOperation5 = new BinaryOperationStub(binaryOperation2, binaryOperation1);
+        binaryOperation3 = new BinaryOperationStub(binaryOperation2, binaryOperation1);
     }
 
     @Test
@@ -35,6 +31,6 @@ public class BinaryOperationTest {
     @Test
     public void toStringTest() {
         Assertions.assertEquals(binaryOperation1.getLeft().toString() + " op " + binaryOperation1.getRight().toString(), binaryOperation1.toString());
-        Assertions.assertEquals("(" + binaryOperation2.toString() + ") op (" + binaryOperation1.toString() + ")", binaryOperation5.toString());
+        Assertions.assertEquals("(" + binaryOperation2.toString() + ") op (" + binaryOperation1.toString() + ")", binaryOperation3.toString());
     }
 }

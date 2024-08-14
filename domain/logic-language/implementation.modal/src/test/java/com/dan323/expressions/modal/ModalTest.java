@@ -29,15 +29,15 @@ public class ModalTest {
 
     @Test
     public void disjunctionTest() {
-        VariableModal P = new VariableModal("P");
-        DisjunctionModal d = new DisjunctionModal(P, P);
+        VariableModal p = new VariableModal("P");
+        DisjunctionModal d = new DisjunctionModal(p, p);
         Assertions.assertEquals("P | P", d.toString());
     }
 
     @Test
     public void implicationToString() {
-        VariableModal P = new VariableModal("P");
-        ImplicationModal d = new ImplicationModal(P, P);
+        VariableModal p = new VariableModal("P");
+        ImplicationModal d = new ImplicationModal(p, p);
         Assertions.assertEquals("P -> P", d.toString());
     }
 
@@ -51,8 +51,8 @@ public class ModalTest {
 
     @Test
     public void toStringComplex() {
-        VariableModal P = new VariableModal("P");
-        NegationModal d = new NegationModal(P);
+        VariableModal p = new VariableModal("P");
+        NegationModal d = new NegationModal(p);
         ImplicationModal n = new ImplicationModal(d, d);
         Assertions.assertEquals("(- P) -> (- P)", n.toString());
     }
