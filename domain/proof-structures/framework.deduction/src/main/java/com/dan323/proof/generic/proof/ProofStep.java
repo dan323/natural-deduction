@@ -40,10 +40,10 @@ public class ProofStep<T extends LogicOperation> {
         StringBuilder sb = new StringBuilder();
         sb.append("   ".repeat(assumptionLevel));
         if (step != null) {
-            sb.append(step.toString());
+            sb.append(step);
         }
         sb.append("           ");
-        sb.append(proof.toString());
+        sb.append(proof);
         return sb.toString();
     }
 }

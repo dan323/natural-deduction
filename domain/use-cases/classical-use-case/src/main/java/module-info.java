@@ -7,4 +7,5 @@ module classic.cases {
     requires spring.beans;
     requires spring.context;
     requires org.slf4j;
+    requires deduction.model;
 }

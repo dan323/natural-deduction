@@ -15,9 +15,11 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 public final class ParseModalAction {
+
+    private static final String TRANS = "Trans";
+    private static final String REFL = "Refl";
 
     private ParseModalAction() {
     }
@@ -40,8 +42,8 @@ public final class ParseModalAction {
             case "[]E" -> parseBoxE(proofReason);
             case "<>I" -> parseDiaI(proofReason);
             case "<>E" -> parseDiaE(proofReason);
-            case "Refl" -> parseRefl(proofReason);
-            case "Trans" -> parseTrans(proofReason);
+            case REFL -> parseRefl(proofReason);
+            case TRANS -> parseTrans(proofReason);
             default -> throw new IllegalStateException();
         };
     }
@@ -168,8 +170,8 @@ public final class ParseModalAction {
                     "[]E", st -> new ProofReason("[]E", Arrays.stream(parseArray(st, 3)).boxed().toList()),
                     "<>I", st -> new ProofReason("<>I", Arrays.stream(parseArray(st, 3)).boxed().toList()),
                     "<>E", st -> new ProofReason("<>E", Arrays.stream(parseArray(st, 3)).boxed().toList()),
-                    "Ref", st -> new ProofReason("Refl", Arrays.stream(parseArray(st, 4)).boxed().toList()),
-                    "Tra", st -> new ProofReason("Trans", Arrays.stream(parseArray(st, 5)).boxed().toList()));
+                    "Ref", st -> new ProofReason(REFL, Arrays.stream(parseArray(st, 4)).boxed().toList()),
+                    "Tra", st -> new ProofReason(TRANS, Arrays.stream(parseArray(st, 5)).boxed().toList()));
 
 
     public static ProofReason parseReason(String ruleString) {
@@ -185,14 +187,14 @@ public final class ParseModalAction {
     public static AbstractModalAction parseAction(String name, List<Integer> sources, ModalOperation extraInfo, String state){
         return switch (name) {
             case "Ass" -> extraInfo instanceof RelationOperation relationOperation ? new ModalAssume(relationOperation): new ModalAssume((ModalLogicalOperation)extraInfo, state);
-            case "|I1" -> new ModalOrI1(sources.get(0), (ModalLogicalOperation) extraInfo);
-            case "|I2" -> new ModalOrI2(sources.get(0), (ModalLogicalOperation) extraInfo);
+            case "|I1" -> new ModalOrI1(sources.getFirst(), (ModalLogicalOperation) extraInfo);
+            case "|I2" -> new ModalOrI2(sources.getFirst(), (ModalLogicalOperation) extraInfo);
             case "|E" -> new ModalOrE(sources.get(0), sources.get(1), sources.get(2));
             case "&I" -> new ModalAndI(sources.get(0), sources.get(1));
-            case "&E1" -> new ModalAndE1(sources.get(0));
-            case "&E2" -> new ModalAndE2(sources.get(0));
-            case "Rep" -> new ModalCopy(sources.get(0));
-            case "-E" -> new ModalNotE(sources.get(0));
+            case "&E1" -> new ModalAndE1(sources.getFirst());
+            case "&E2" -> new ModalAndE2(sources.getFirst());
+            case "Rep" -> new ModalCopy(sources.getFirst());
+            case "-E" -> new ModalNotE(sources.getFirst());
             case "-I" -> new ModalNotI();
             case "->I" -> new ModalDeductionTheorem();
             case "->E" -> new ModalModusPonens(sources.get(0), sources.get(1));
@@ -202,8 +204,8 @@ public final class ParseModalAction {
             case "[]E" -> new ModalBoxE(sources.get(0), sources.get(1));
             case "<>I" -> new ModalDiaI(sources.get(0), sources.get(1));
             case "<>E" -> new ModalDiaE(sources.get(0));
-            case "Refl" -> new Reflexive(sources.get(0));
-            case "Trans" -> new Transitive(sources.get(0), sources.get(1));
+            case REFL -> new Reflexive(sources.get(0));
+            case TRANS -> new Transitive(sources.get(0), sources.get(1));
             default -> throw new IllegalArgumentException("The rule " + name + " is not valid.");
         };
     }

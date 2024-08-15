@@ -4,6 +4,7 @@ module rest.framework {
     requires deduction.model;
     requires javax.inject;
     requires org.slf4j;
+    requires framework.deduction;
 
     exports com.dan323.controller to spring.web;
 }

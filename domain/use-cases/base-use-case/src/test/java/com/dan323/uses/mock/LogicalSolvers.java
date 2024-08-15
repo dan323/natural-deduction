@@ -1,6 +1,6 @@
 package com.dan323.uses.mock;
 
-import com.dan323.proof.generic.proof.Proof;
+import com.dan323.model.ProofDto;
 import com.dan323.uses.LogicalSolver;
 
 import java.util.List;
@@ -14,14 +14,15 @@ public final class LogicalSolvers {
     private static LogicalSolver getLogicalSolver(String logic) {
         return new LogicalSolver() {
             @Override
+            public ProofDto perform(ProofDto proof) {
+                return proof;
+            }
+
+            @Override
             public String getLogicName() {
                 return logic;
             }
 
-            @Override
-            public Proof perform(Proof proof) {
-                return proof;
-            }
         };
     }
 }
