@@ -37,7 +37,7 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_PROJECT: ${{ secrets.SONAR_PROJECT }}
-        run: mvn -B -f pom.xml org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.java.source=21 -Dsonar.java.target=21 -Dsonar.login=$SONAR_TOKEN -Dsonar.host.url=https://sonarcloud.io/ -Dsonar.organization=$SONAR_ORGANIZATION -Dsonar.projectKey=dan323_natural-deduction
+        run: mvn -B -f pom.xml org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.java.source=21 -Dsonar.java.target=21 -Dsonar.token=$SONAR_TOKEN -Dsonar.host.url=https://sonarcloud.io/ -Dsonar.organization=$SONAR_ORGANIZATION -Dsonar.projectKey=dan323_natural-deduction
       - name: set PR number
         if: github.event_name == 'pull_request'
         run: |

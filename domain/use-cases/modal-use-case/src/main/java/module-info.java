@@ -6,4 +6,5 @@ module modal.cases{
     requires framework.deduction;
     requires org.reflections;
     requires org.slf4j;
+    requires deduction.model;
 }

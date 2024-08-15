@@ -1,15 +1,6 @@
 package com.dan323.uses.internal;
 
-import com.dan323.expressions.base.LogicOperation;
-import com.dan323.proof.generic.Action;
-import com.dan323.proof.generic.proof.Proof;
-import com.dan323.proof.generic.proof.ProofStep;
-import com.dan323.uses.ActionsUseCases;
-import com.dan323.uses.LogicalApplyAction;
-import com.dan323.uses.LogicalGetActions;
-import com.dan323.uses.LogicalSolver;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.dan323.uses.*;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -23,7 +14,7 @@ import java.util.stream.Collectors;
 public class ActionsUseCaseConfiguration {
 
     @Bean
-    public ActionsUseCases useCases(List<LogicalGetActions> getActions, List<LogicalSolver> solvers) {
+    public ActionsUseCases useCases(List<LogicalGetActions> getActions, List<LogicalSolver> solvers, List<Transformer> transformers) {
 
         Map<String, ActionsUseCases.GetActions> actionGetters;
         Map<String, ActionsUseCases.Solve> problemSolvers;
@@ -43,12 +34,12 @@ public class ActionsUseCaseConfiguration {
             }
 
             @Override
-            public <A extends Action<T, Q, P>, T extends LogicOperation, Q extends ProofStep<T>, P extends Proof<T, Q>> ApplyAction<A,T, Q, P> applyAction(String logicName) {
-                return new LogicalApplyAction<>();
+            public ApplyAction applyAction(String logicName) {
+                return new LogicalApplyAction(transformers.stream().filter(transformer -> transformer.logic().equals(logicName)).findFirst().orElseThrow());
             }
 
             @Override
-            public <T extends LogicOperation, Q extends ProofStep<T>, P extends Proof<T, Q>> Solve<T, Q, P> solveProblem(String logicName) {
+            public Solve solveProblem(String logicName) {
                 return Optional.ofNullable(problemSolvers.get(logicName)).orElseThrow(IllegalArgumentException::new);
             }
         };

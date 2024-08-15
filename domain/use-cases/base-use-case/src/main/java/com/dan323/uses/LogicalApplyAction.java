@@ -1,17 +1,27 @@
 package com.dan323.uses;
 
 import com.dan323.expressions.base.LogicOperation;
+import com.dan323.model.ActionDto;
+import com.dan323.model.ProofDto;
 import com.dan323.proof.generic.Action;
 import com.dan323.proof.generic.proof.Proof;
 import com.dan323.proof.generic.proof.ProofStep;
 
-public class LogicalApplyAction<A extends Action<T, Q, P>, T extends LogicOperation, Q extends ProofStep<T>, P extends Proof<T, Q>> implements ActionsUseCases.ApplyAction<A, T, Q, P> {
+public class LogicalApplyAction<T extends LogicOperation, Q extends ProofStep<T>, P extends Proof<T,Q>, A extends Action<T,Q,P>> implements ActionsUseCases.ApplyAction {
+
+    private final Transformer<T,Q,P,A> logic;
+
+    public LogicalApplyAction(Transformer<T,Q,P,A> transformer){
+        this.logic = transformer;
+    }
 
     @Override
-    public P perform(A action, P proof) {
-        if (action.isValid(proof)) {
-            action.apply(proof);
+    public ProofDto perform(ActionDto action, ProofDto proof) {
+        var act = logic.from(action);
+        var pr = logic.from(proof);
+        if (act.isValid(pr)) {
+            act.apply(pr);
         }
-        return proof;
+        return logic.fromProof(pr);
     }
 }

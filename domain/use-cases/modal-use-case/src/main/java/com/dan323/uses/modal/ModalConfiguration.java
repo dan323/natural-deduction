@@ -10,7 +10,7 @@ public class ModalConfiguration {
 
     @Bean
     public LogicalSolver modalSolver(){
-        return new ModalSolver<>();
+        return new ModalSolver();
     }
 
     @Bean

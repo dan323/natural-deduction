@@ -1,13 +1,11 @@
 package com.dan323.uses.modal;
 
-import com.dan323.expressions.modal.ModalOperation;
-import com.dan323.proof.modal.proof.ModalNaturalDeduction;
-import com.dan323.proof.modal.proof.ProofStepModal;
+import com.dan323.model.ProofDto;
 import com.dan323.uses.LogicalSolver;
 
-public class ModalSolver<T> implements LogicalSolver<ModalOperation, ProofStepModal, ModalNaturalDeduction> {
+public class ModalSolver implements LogicalSolver {
     @Override
-    public ModalNaturalDeduction perform(ModalNaturalDeduction proof) {
+    public ProofDto perform(ProofDto proof) {
         throw new UnsupportedOperationException("This is not yet implemented");
     }
 

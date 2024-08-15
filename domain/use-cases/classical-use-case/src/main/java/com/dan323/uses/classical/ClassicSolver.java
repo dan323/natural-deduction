@@ -1,19 +1,20 @@
 package com.dan323.uses.classical;
 
 import com.dan323.classical.proof.NaturalDeduction;
-import com.dan323.expressions.classical.ClassicalLogicOperation;
-import com.dan323.proof.generic.proof.ProofStep;
+import com.dan323.model.ProofDto;
 import com.dan323.uses.LogicalSolver;
 
-public class ClassicSolver implements LogicalSolver<ClassicalLogicOperation, ProofStep<ClassicalLogicOperation>, NaturalDeduction> {
+public class ClassicSolver implements LogicalSolver {
 
-    public ClassicSolver(){
+    public ClassicSolver() {
     }
 
     @Override
-    public NaturalDeduction perform(NaturalDeduction naturalDeduction) {
+    public ProofDto perform(ProofDto proof) {
+        var transformer = new ClassicalProofTransformer();
+        NaturalDeduction naturalDeduction = transformer.from(proof);
         naturalDeduction.automate();
-        return naturalDeduction;
+        return transformer.fromProof(naturalDeduction);
     }
 
     @Override

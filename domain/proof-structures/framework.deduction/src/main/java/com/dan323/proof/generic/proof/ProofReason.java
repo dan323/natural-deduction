@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 public class ProofReason {
 
@@ -31,23 +30,23 @@ public class ProofReason {
     }
 
     public String toString() {
-        return getNameProof() + (listLines.isEmpty() ? "" : (" " + listLines.toString()));
+        return getNameProof() + (listLines.isEmpty() ? "" : (" " + listLines));
     }
 
     public static ProofReason parseReason(String ruleString, Map<String, Function<String, ProofReason>> extra) {
         ProofReason proofReason = switch (ruleString.substring(0, 3)) {
             case "Ass" -> new ProofReason("Ass", List.of());
-            case "|I " -> new ProofReason("|I", Arrays.stream(parseArray(ruleString, 2)).boxed().collect(Collectors.toUnmodifiableList()));
-            case "|E " -> new ProofReason("|E", Arrays.stream(parseArray(ruleString, 2)).boxed().collect(Collectors.toUnmodifiableList()));
-            case "&I " -> new ProofReason("&I", Arrays.stream(parseArray(ruleString, 2)).boxed().collect(Collectors.toUnmodifiableList()));
-            case "&E " -> new ProofReason("&E", Arrays.stream(parseArray(ruleString, 2)).boxed().collect(Collectors.toUnmodifiableList()));
-            case "Rep" -> new ProofReason("Rep", Arrays.stream(parseArray(ruleString, 3)).boxed().collect(Collectors.toUnmodifiableList()));
-            case "-E " -> new ProofReason("-E", Arrays.stream(parseArray(ruleString, 2)).boxed().collect(Collectors.toUnmodifiableList()));
+            case "|I " -> new ProofReason("|I", Arrays.stream(parseArray(ruleString, 2)).boxed().toList());
+            case "|E " -> new ProofReason("|E", Arrays.stream(parseArray(ruleString, 2)).boxed().toList());
+            case "&I " -> new ProofReason("&I", Arrays.stream(parseArray(ruleString, 2)).boxed().toList());
+            case "&E " -> new ProofReason("&E", Arrays.stream(parseArray(ruleString, 2)).boxed().toList());
+            case "Rep" -> new ProofReason("Rep", Arrays.stream(parseArray(ruleString, 3)).boxed().toList());
+            case "-E " -> new ProofReason("-E", Arrays.stream(parseArray(ruleString, 2)).boxed().toList());
             case "-I " -> new ProofReason("-I", List.of());
             case "->I" -> new ProofReason("->I", List.of());
-            case "->E" -> new ProofReason("->E", Arrays.stream(parseArray(ruleString, 3)).boxed().collect(Collectors.toUnmodifiableList()));
-            case "FE " -> new ProofReason("FE", Arrays.stream(parseArray(ruleString, 2)).boxed().collect(Collectors.toUnmodifiableList()));
-            case "FI " -> new ProofReason("FI", Arrays.stream(parseArray(ruleString, 2)).boxed().collect(Collectors.toUnmodifiableList()));
+            case "->E" -> new ProofReason("->E", Arrays.stream(parseArray(ruleString, 3)).boxed().toList());
+            case "FE " -> new ProofReason("FE", Arrays.stream(parseArray(ruleString, 2)).boxed().toList());
+            case "FI " -> new ProofReason("FI", Arrays.stream(parseArray(ruleString, 2)).boxed().toList());
             default -> null;
         };
         if (proofReason == null && extra.containsKey(ruleString.substring(0, 3))) {
