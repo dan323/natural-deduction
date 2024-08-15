@@ -50,7 +50,7 @@ jacoco-report-aggregate/implementation.deduction.modal,com.dan323.proof.modal,Mo
 jacoco-report-aggregate/implementation.deduction.modal,com.dan323.proof.modal.internal,ModalAutomate,187,1989,46,216,14,278,36,139,0,44
 jacoco-report-aggregate/implementation.deduction.modal,com.dan323.proof.modal.proof,ModalNaturalDeduction,28,136,11,11,3,37,7,14,0,10
 jacoco-report-aggregate/implementation.deduction.modal,com.dan323.proof.modal.proof,ProofStepModal,3,31,1,1,1,9,1,4,0,4
-jacoco-report-aggregate/implementation.deduction.modal,com.dan323.proof.modal.proof,ParseModalAction,289,433,24,24,28,72,28,46,6,26
+jacoco-report-aggregate/implementation.deduction.modal,com.dan323.proof.modal.proof,ParseModalAction,283,433,24,24,28,72,28,46,6,26
 jacoco-report-aggregate/implementation.deduction.modal,com.dan323.proof.modal.complex,CompositionRule,5,3,0,0,1,1,1,1,1,1
 jacoco-report-aggregate/implementation.deduction.modal,com.dan323.proof.modal.complex,ModalDeMorgan,7,141,2,8,1,20,3,7,1,4
 jacoco-report-aggregate/implementation.deduction.modal,com.dan323.proof.modal.complex,DeMorgan,5,127,1,9,1,16,2,8,1,4
@@ -75,8 +75,8 @@ jacoco-report-aggregate/framework.deduction,com.dan323.proof.generic,NotI,1,124,
 jacoco-report-aggregate/framework.deduction,com.dan323.proof.generic,FE,0,112,2,12,0,17,2,11,0,6
 jacoco-report-aggregate/framework.deduction,com.dan323.proof.generic.proof,ParseAction,0,26,0,0,0,4,0,2,0,2
 jacoco-report-aggregate/framework.deduction,com.dan323.proof.generic.proof,Proof,0,126,1,11,0,29,1,18,0,13
-jacoco-report-aggregate/framework.deduction,com.dan323.proof.generic.proof,ProofReason,100,140,11,12,9,21,13,12,2,6
-jacoco-report-aggregate/framework.deduction,com.dan323.proof.generic.proof,ProofStep,0,64,1,1,0,19,1,7,0,7
+jacoco-report-aggregate/framework.deduction,com.dan323.proof.generic.proof,ProofReason,88,134,11,12,9,21,13,12,2,6
+jacoco-report-aggregate/framework.deduction,com.dan323.proof.generic.proof,ProofStep,0,62,1,1,0,19,1,7,0,7
 jacoco-report-aggregate/framework.deduction,com.dan323.proof.generic.pattern,PatternMapperUnaryBinaryOps,11,104,5,17,1,19,4,10,0,3
 jacoco-report-aggregate/implementation.deduction.classic,com.dan323.classical,ClassicAndE1,0,5,0,0,0,2,0,1,0,1
 jacoco-report-aggregate/implementation.deduction.classic,com.dan323.classical,ClassicAndE2,0,5,0,0,0,2,0,1,0,1
