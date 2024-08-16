@@ -138,8 +138,8 @@ public final class ParseClassicalAction {
             case "&I" -> new ClassicAndI(sources.get(0), sources.get(1));
             case "&E1" -> new ClassicAndE1(sources.get(0));
             case "&E2" -> new ClassicAndE2(sources.get(0));
-            case "Rep" -> new ClassicCopy(sources.get(0));
-            case "-E" -> new ClassicNotE(sources.get(0));
+            case "Rep" -> new ClassicCopy(sources.getFirst());
+            case "-E" -> new ClassicNotE(sources.getFirst());
             case "-I" -> new ClassicNotI();
             case "->I" -> new ClassicDeductionTheorem();
             case "->E" -> new ClassicModusPonens(sources.get(0), sources.get(1));

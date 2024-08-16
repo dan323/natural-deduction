@@ -15,7 +15,7 @@ public class ParserTest {
     @Test
     public void andParseTest() {
         ClassicalLogicOperation log = classicalParser.evaluate("P & Q");
-        assertTrue(log instanceof ConjunctionClassic);
+        assertInstanceOf(ConjunctionClassic.class, log);
         assertEquals(new VariableClassic("P"), ((ConjunctionClassic) log).getLeft());
         assertEquals(new VariableClassic("Q"), ((ConjunctionClassic) log).getRight());
     }
@@ -23,7 +23,7 @@ public class ParserTest {
     @Test
     public void impParseTest() {
         ClassicalLogicOperation log = classicalParser.evaluate("P -> Q");
-        assertTrue(log instanceof ImplicationClassic);
+        assertInstanceOf(ImplicationClassic.class, log);
         assertEquals(new VariableClassic("P"), ((ImplicationClassic) log).getLeft());
         assertEquals(new VariableClassic("Q"), ((ImplicationClassic) log).getRight());
     }
@@ -31,15 +31,15 @@ public class ParserTest {
     @Test
     public void orParseTest() {
         ClassicalLogicOperation log = classicalParser.evaluate("(P & Q) | K");
-        assertTrue(log instanceof DisjunctionClassic);
-        assertTrue(((DisjunctionClassic) log).getLeft() instanceof ConjunctionClassic);
+        assertInstanceOf(DisjunctionClassic.class, log);
+        assertInstanceOf(ConjunctionClassic.class, ((DisjunctionClassic) log).getLeft());
     }
 
     @Test
     public void negParseTest() {
         ClassicalLogicOperation log = classicalParser.evaluate("- (P & Q)");
-        assertTrue(log instanceof NegationClassic);
-        assertTrue(((NegationClassic) log).getElement() instanceof ConjunctionClassic);
+        assertInstanceOf(NegationClassic.class, log);
+        assertInstanceOf(ConjunctionClassic.class, ((NegationClassic) log).getElement());
     }
 
     @Test
@@ -53,7 +53,7 @@ public class ParserTest {
     @Test
     public void constParseTest() {
         ClassicalLogicOperation log = classicalParser.evaluate("TRUE & FALSE");
-        assertTrue(log instanceof ConjunctionClassic);
+        assertInstanceOf(ConjunctionClassic.class, log);
         assertEquals(ConstantClassic.TRUE, ((ConjunctionClassic) log).getLeft());
         assertEquals(ConstantClassic.FALSE, ((ConjunctionClassic) log).getRight());
     }

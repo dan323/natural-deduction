@@ -13,8 +13,14 @@ public interface ActionsUseCases {
 
     Solve solveProblem(String logicName);
 
+    ParseProof parseToProof(String logic);
+
     interface GetActions {
         List<String> perform();
+    }
+
+    interface ParseProof {
+        ProofDto perform(String proofAsString);
     }
 
     interface ApplyAction {

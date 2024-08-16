@@ -5,10 +5,7 @@ import com.dan323.expressions.relation.Equals;
 import com.dan323.expressions.relation.LessEqual;
 import org.junit.jupiter.api.Test;
 
-import java.util.function.Function;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class ModalParserTest {
 
@@ -17,21 +14,21 @@ public class ModalParserTest {
     @Test
     public void parseBox() {
         ModalOperation m = parser.evaluate("[]P");
-        assertTrue(m instanceof Always);
+        assertInstanceOf(Always.class, m);
         assertEquals("P", ((Always) m).getElement().toString());
     }
 
     @Test
     public void parseDia() {
         ModalOperation m = parser.evaluate("<>P");
-        assertTrue(m instanceof Sometime);
+        assertInstanceOf(Sometime.class, m);
         assertEquals("P", ((Sometime) m).getElement().toString());
     }
 
     @Test
     public void parseLess() {
         ModalOperation m = parser.evaluate("i <= j");
-        assertTrue(m instanceof LessEqual);
+        assertInstanceOf(LessEqual.class, m);
         assertEquals("i", ((LessEqual) m).getLeft());
         assertEquals("j", ((LessEqual) m).getRight());
     }
@@ -39,7 +36,7 @@ public class ModalParserTest {
     @Test
     public void parseEq() {
         ModalOperation m = parser.evaluate("i = j");
-        assertTrue(m instanceof Equals);
+        assertInstanceOf(Equals.class, m);
         assertEquals("i", ((Equals) m).getLeft());
         assertEquals("j", ((Equals) m).getRight());
     }
@@ -47,14 +44,14 @@ public class ModalParserTest {
     @Test
     public void parseAnd() {
         ModalOperation m = parser.evaluate("P & Q");
-        assertTrue(m instanceof ConjunctionModal);
+        assertInstanceOf(ConjunctionModal.class, m);
         assertEquals("P", ((ConjunctionModal) m).getLeft().toString());
     }
 
     @Test
     public void parseOr() {
         ModalOperation m = parser.evaluate("P | Q");
-        assertTrue(m instanceof DisjunctionModal);
+        assertInstanceOf(DisjunctionModal.class, m);
         assertEquals("P", ((DisjunctionModal) m).getLeft().toString());
     }
 
@@ -69,14 +66,14 @@ public class ModalParserTest {
     @Test
     public void parseImp() {
         ModalOperation m = parser.evaluate("P -> Q");
-        assertTrue(m instanceof ImplicationModal);
+        assertInstanceOf(ImplicationModal.class, m);
         assertEquals("P", ((ImplicationModal) m).getLeft().toString());
     }
 
     @Test
     public void parseNeg() {
         ModalOperation m = parser.evaluate("-P");
-        assertTrue(m instanceof NegationModal);
+        assertInstanceOf(NegationModal.class, m);
         assertEquals("P", ((NegationModal) m).getElement().toString());
     }
 }
