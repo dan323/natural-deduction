@@ -138,8 +138,8 @@ public final class ParseClassicalAction {
 <span class="fc" id="L138">            case &quot;&amp;I&quot; -&gt; new ClassicAndI(sources.get(0), sources.get(1));</span>
 <span class="fc" id="L139">            case &quot;&amp;E1&quot; -&gt; new ClassicAndE1(sources.get(0));</span>
 <span class="fc" id="L140">            case &quot;&amp;E2&quot; -&gt; new ClassicAndE2(sources.get(0));</span>
-<span class="fc" id="L141">            case &quot;Rep&quot; -&gt; new ClassicCopy(sources.get(0));</span>
-<span class="fc" id="L142">            case &quot;-E&quot; -&gt; new ClassicNotE(sources.get(0));</span>
+<span class="fc" id="L141">            case &quot;Rep&quot; -&gt; new ClassicCopy(sources.getFirst());</span>
+<span class="fc" id="L142">            case &quot;-E&quot; -&gt; new ClassicNotE(sources.getFirst());</span>
 <span class="fc" id="L143">            case &quot;-I&quot; -&gt; new ClassicNotI();</span>
 <span class="fc" id="L144">            case &quot;-&gt;I&quot; -&gt; new ClassicDeductionTheorem();</span>
 <span class="fc" id="L145">            case &quot;-&gt;E&quot; -&gt; new ClassicModusPonens(sources.get(0), sources.get(1));</span>

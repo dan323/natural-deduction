@@ -20,7 +20,7 @@ import java.util.List;
     public abstract List&lt;? extends Action&lt;T,Q,? extends Proof&lt;T,Q&gt;&gt;&gt; parse();
 
     public void removeLastStep() {
-<span class="fc" id="L23">        steps.remove(steps.size() - 1);</span>
+<span class="fc" id="L23">        steps.removeLast();</span>
 <span class="fc" id="L24">    }</span>
 
     public void reset(){

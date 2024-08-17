@@ -74,9 +74,9 @@ jacoco-report-aggregate/framework.deduction,com.dan323.proof.generic,Assume,0,31
 jacoco-report-aggregate/framework.deduction,com.dan323.proof.generic,NotI,1,124,2,8,0,23,2,8,0,5
 jacoco-report-aggregate/framework.deduction,com.dan323.proof.generic,FE,0,112,2,12,0,17,2,11,0,6
 jacoco-report-aggregate/framework.deduction,com.dan323.proof.generic.proof,ParseAction,0,26,0,0,0,4,0,2,0,2
-jacoco-report-aggregate/framework.deduction,com.dan323.proof.generic.proof,Proof,0,126,1,11,0,29,1,18,0,13
+jacoco-report-aggregate/framework.deduction,com.dan323.proof.generic.proof,Proof,0,121,1,11,0,29,1,18,0,13
 jacoco-report-aggregate/framework.deduction,com.dan323.proof.generic.proof,ProofReason,88,134,11,12,9,21,13,12,2,6
-jacoco-report-aggregate/framework.deduction,com.dan323.proof.generic.proof,ProofStep,0,62,1,1,0,19,1,7,0,7
+jacoco-report-aggregate/framework.deduction,com.dan323.proof.generic.proof,ProofStep,0,64,1,1,0,19,1,7,0,7
 jacoco-report-aggregate/framework.deduction,com.dan323.proof.generic.pattern,PatternMapperUnaryBinaryOps,11,104,5,17,1,19,4,10,0,3
 jacoco-report-aggregate/implementation.deduction.classic,com.dan323.classical,ClassicAndE1,0,5,0,0,0,2,0,1,0,1
 jacoco-report-aggregate/implementation.deduction.classic,com.dan323.classical,ClassicAndE2,0,5,0,0,0,2,0,1,0,1
@@ -93,7 +93,7 @@ jacoco-report-aggregate/implementation.deduction.classic,com.dan323.classical,Cl
 jacoco-report-aggregate/implementation.deduction.classic,com.dan323.classical,ClassicOrI1,0,6,0,0,0,2,0,1,0,1
 jacoco-report-aggregate/implementation.deduction.classic,com.dan323.classical,ClassicAndI,0,6,0,0,0,2,0,1,0,1
 jacoco-report-aggregate/implementation.deduction.classic,com.dan323.classical,ClassicOrI2,0,12,0,0,0,2,0,2,0,2
-jacoco-report-aggregate/implementation.deduction.classic,com.dan323.classical.proof,ParseClassicalAction,23,434,3,31,4,66,4,44,1,18
+jacoco-report-aggregate/implementation.deduction.classic,com.dan323.classical.proof,ParseClassicalAction,23,432,3,31,4,66,4,44,1,18
 jacoco-report-aggregate/implementation.deduction.classic,com.dan323.classical.proof,NaturalDeduction,0,31,0,0,0,9,0,5,0,5
 jacoco-report-aggregate/implementation.deduction.classic,com.dan323.classical.complex,DeMorgan,5,140,1,9,1,18,2,8,1,4
 jacoco-report-aggregate/implementation.deduction.classic,com.dan323.classical.complex,OrE1,9,169,2,12,1,18,3,9,1,4
