@@ -42,7 +42,7 @@ public class ProofStep<T extends LogicOperation> {
         if (step != null) {
             sb.append(step);
         }
-        sb.append("           ");
+        sb.append(" ".repeat(11));
         sb.append(proof);
         return sb.toString();
     }

@@ -2,6 +2,8 @@ package com.dan323.uses.classical;
 
 import com.dan323.uses.LogicalGetActions;
 import com.dan323.uses.LogicalSolver;
+import com.dan323.uses.ProofParser;
+import com.dan323.uses.Transformer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -9,13 +11,22 @@ import org.springframework.context.annotation.Configuration;
 public class ClassicalConfiguration {
 
     @Bean
-    public LogicalSolver classicalSolver(){
+    public LogicalSolver classicalSolver() {
         return new ClassicSolver();
     }
 
     @Bean
-    public LogicalGetActions classicalActions(){
+    public LogicalGetActions classicalActions() {
         return new ClassicGetActions();
     }
 
+    @Bean
+    public ProofParser classicalProofParser() {
+        return new ParseClassicalProof();
+    }
+
+    @Bean
+    public Transformer classicalTransformer() {
+        return new ClassicalProofTransformer();
+    }
 }

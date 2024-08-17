@@ -52,7 +52,7 @@ public class ParseClassicalProof implements ProofParser<NaturalDeduction,Classic
         }
         int assmsLevel = i / 3;
         var startExpression = line.substring(i);
-        var firstSpace = startExpression.indexOf(' ');
+        var firstSpace = startExpression.indexOf(" ".repeat(11));
         var lastSpace = startExpression.lastIndexOf("  ");
         var expression = startExpression.substring(0, firstSpace);
         var rule = startExpression.substring(lastSpace + 2);

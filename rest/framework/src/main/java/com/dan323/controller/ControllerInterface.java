@@ -28,7 +28,7 @@ public class ControllerInterface {
     }
 
     @GetMapping("{logic}/actions")
-    public ResponseEntity<List<String>> getAllPossibleActions(@PathVariable String logic) {
+    public ResponseEntity<List<String>> getAllPossibleActions(@PathVariable("logic") String logic) {
         LOGGER.info("The logic called is {}", logic);
         var actions = useCase.getActions(logic).perform();
         if (actions.isEmpty()) {
@@ -39,7 +39,7 @@ public class ControllerInterface {
     }
 
     @PostMapping("{logic}/proof")
-    public ResponseEntity<ProofDto> processProofFile(@RequestParam MultipartFile file, @PathVariable String logic) {
+    public ResponseEntity<ProofDto> processProofFile(@RequestParam("file") MultipartFile file, @PathVariable("logic") String logic) {
         try {
             String contents = new String(file.getBytes());
             ProofDto proofDto = useCase.parseToProof(logic).perform(contents);
@@ -54,7 +54,7 @@ public class ControllerInterface {
     }
 
     @PostMapping("{logic}/action")
-    public ResponseEntity<ProofResponse> doAction(@RequestBody ProofActionRequest proofActionRequest, @PathVariable String logic) {
+    public ResponseEntity<ProofResponse> doAction(@RequestBody ProofActionRequest proofActionRequest, @PathVariable("logic") String logic) {
         var action = proofActionRequest.actionDto();
         var proof = proofActionRequest.proofDto();
         var afterAction = useCase.applyAction(logic).perform(action, proof);

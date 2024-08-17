@@ -131,20 +131,20 @@ public final class ParseClassicalAction {
 
     public static ClassicalAction parseAction(String name, List<Integer> sources, ClassicalLogicOperation extraInfo){
         return switch (name) {
-            case "Ass" -> new ClassicAssume(extraInfo);
-            case "|I1" -> new ClassicOrI1(sources.get(0), extraInfo);
-            case "|I2" -> new ClassicOrI2(sources.get(0), extraInfo);
-            case "|E" -> new ClassicOrE(sources.get(0), sources.get(1), sources.get(2));
-            case "&I" -> new ClassicAndI(sources.get(0), sources.get(1));
-            case "&E1" -> new ClassicAndE1(sources.get(0));
-            case "&E2" -> new ClassicAndE2(sources.get(0));
-            case "Rep" -> new ClassicCopy(sources.getFirst());
-            case "-E" -> new ClassicNotE(sources.getFirst());
-            case "-I" -> new ClassicNotI();
-            case "->I" -> new ClassicDeductionTheorem();
-            case "->E" -> new ClassicModusPonens(sources.get(0), sources.get(1));
-            case "FE" -> new ClassicFE(sources.get(0), extraInfo);
-            case "FI" -> new ClassicFI(sources.get(0), sources.get(1));
+            case "ClassicAssume" -> new ClassicAssume(extraInfo);
+            case "ClassicOrI1" -> new ClassicOrI1(sources.get(0), extraInfo);
+            case "ClassicOrI2" -> new ClassicOrI2(sources.get(0), extraInfo);
+            case "ClassicOrE" -> new ClassicOrE(sources.get(0), sources.get(1), sources.get(2));
+            case "ClassicAndI" -> new ClassicAndI(sources.get(0), sources.get(1));
+            case "ClassicAndE1" -> new ClassicAndE1(sources.get(0));
+            case "ClassicAndE2" -> new ClassicAndE2(sources.get(0));
+            case "ClassicCopy" -> new ClassicCopy(sources.getFirst());
+            case "ClassicNotE" -> new ClassicNotE(sources.getFirst());
+            case "ClassicNotI" -> new ClassicNotI();
+            case "ClassicDeductionTheorem" -> new ClassicDeductionTheorem();
+            case "ClassicModusPonens" -> new ClassicModusPonens(sources.get(0), sources.get(1));
+            case "ClassicFE" -> new ClassicFE(sources.get(0), extraInfo);
+            case "ClassicFI" -> new ClassicFI(sources.get(0), sources.get(1));
             default -> throw new IllegalArgumentException("The rule " + name + " is not valid.");
         };
     }
