@@ -14,8 +14,9 @@ import com.dan323.uses.Transformer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
-public class ClassicalProofTransformer implements Transformer<ClassicalLogicOperation, ProofStep<ClassicalLogicOperation>,NaturalDeduction,ClassicalAction> {
+public class ClassicalProofTransformer implements Transformer<ClassicalLogicOperation, ProofStep<ClassicalLogicOperation>, NaturalDeduction, ClassicalAction> {
 
     @Override
     public String logic() {
@@ -26,7 +27,7 @@ public class ClassicalProofTransformer implements Transformer<ClassicalLogicOper
         NaturalDeduction nd = new NaturalDeduction();
         List<ClassicalLogicOperation> assmsLst = new ArrayList<>();
         boolean assms = true;
-        if (proof.steps().isEmpty()){
+        if (proof.steps().isEmpty()) {
             nd.initializeProof(List.of(), ParseClassicalAction.parseExpression(proof.goal()));
         } else {
             for (StepDto step : proof.steps()) {
@@ -49,7 +50,7 @@ public class ClassicalProofTransformer implements Transformer<ClassicalLogicOper
 
     public ClassicalAction from(ActionDto action) {
         var parser = new ClassicalParser();
-        return ParseClassicalAction.parseAction(action.name(), action.sources(), parser.evaluate(action.extraParameters().get("expression")));
+        return ParseClassicalAction.parseAction(action.name(), action.sources(), Optional.ofNullable(action.extraParameters().get("expression")).map(parser::evaluate).orElse(null));
     }
 
     @Override
