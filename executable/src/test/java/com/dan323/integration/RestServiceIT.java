@@ -57,7 +57,7 @@ public class RestServiceIT {
                         HttpMethod.GET,
                         new HttpEntity<>(null, headers),
                         String[].class);
-        assertEquals(response.getStatusCode(), HttpStatus.OK);
+        assertEquals(HttpStatus.OK, response.getStatusCode());
         assertArrayEquals(actionArray, response.getBody());
     }
 
