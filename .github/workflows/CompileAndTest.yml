@@ -28,9 +28,7 @@ jobs:
       - name: compile
         run: mvn -B -f pom.xml clean compile
       - name: run test suits
-        run: mvn -B -f pom.xml test
-      - name: integration tests
-        run: mvn -B -f pom.xml compiler:testCompile surefire:test@integration-test
+        run: mvn -B -f pom.xml verify
       - name: jacoco report
         run: mvn -B -f pom.xml -Dmaven.test.skip=true package
       - name: sonar cloud
