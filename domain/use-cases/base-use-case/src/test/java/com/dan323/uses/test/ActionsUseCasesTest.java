@@ -1,11 +1,13 @@
 package com.dan323.uses.test;
 
+import com.dan323.uses.ProofParser;
 import com.dan323.uses.ActionsUseCases;
 import com.dan323.uses.LogicalGetActions;
 import com.dan323.uses.LogicalSolver;
 import com.dan323.uses.Transformer;
 import com.dan323.uses.internal.ActionsUseCaseConfiguration;
 import com.dan323.uses.mock.LogicalSolvers;
+import com.dan323.uses.mock.Parsers;
 import com.dan323.uses.mock.Transformers;
 import org.junit.jupiter.api.Test;
 
@@ -22,11 +24,16 @@ public class ActionsUseCasesTest {
 
     private final ActionsUseCaseConfiguration actionsUseCaseConfiguration = new ActionsUseCaseConfiguration();
 
-    private final WithTransformers useCases = transformers -> getActions -> solvers -> actionsUseCaseConfiguration.useCases(getActions, solvers, transformers);
+    private final WithParsers useCases = parsers
+            -> transformers
+            -> getActions
+            -> solvers
+            -> actionsUseCaseConfiguration.useCases(getActions, solvers, transformers, parsers);
 
     @Test
     public void solveTest() {
         ActionsUseCases cases = useCases
+                .withNoParsers()
                 .withNoTransformers()
                 .withNoActions()
                 .withSolvers(LogicalSolvers.getLogicalSolvers());
@@ -40,6 +47,7 @@ public class ActionsUseCasesTest {
     @Test
     public void actionsTest() {
         ActionsUseCases cases = useCases
+                .withNoParsers()
                 .withNoTransformers()
                 .withActionGetters(actionsList())
                 .withoutSolvers();
@@ -53,6 +61,7 @@ public class ActionsUseCasesTest {
     @Test
     public void applierTest() {
         var cases = useCases
+                .withNoParsers()
                 .withTransformers(Transformers.getTransformers())
                 .withNoActions()
                 .withoutSolvers();
@@ -60,6 +69,28 @@ public class ActionsUseCasesTest {
         assertEquals(genericProof("l1").steps().size() + 1, p.steps().size());
         p = cases.applyAction("l2").perform(invalid(), genericProof("l2"));
         assertEquals(genericProof("l2"), p);
+    }
+
+    @Test
+    public void parseProofTest() {
+        var cases = useCases
+                .withParsers(Parsers.parsers())
+                .withTransformers(Transformers.getTransformers())
+                .withNoActions()
+                .withoutSolvers();
+        var proof = cases.parseToProof("l1").perform("Something");
+        assertEquals(Parsers.expectedLength(), proof.steps().size());
+    }
+
+    @FunctionalInterface
+    public interface WithParsers {
+
+        WithTransformers withParsers(List<ProofParser> parsers);
+
+        default WithTransformers withNoParsers() {
+            return withParsers(List.of());
+        }
+
     }
 
     @FunctionalInterface

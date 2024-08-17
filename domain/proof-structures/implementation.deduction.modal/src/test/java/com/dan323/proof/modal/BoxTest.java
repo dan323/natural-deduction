@@ -99,14 +99,14 @@ public class BoxTest {
         // Invalid element (both cases)
         proof.initializeProof(Collections.emptyList(), mock(ModalLogicalOperation.class));
         assume1.apply(proof);
-        proof.getSteps().get(proof.getSteps().size() - 1).disable();
+        proof.getSteps().getLast().disable();
         assume2.apply(proof);
         assertFalse(boxE.isValid(proof));
 
         proof.initializeProof(Collections.emptyList(), mock(ModalLogicalOperation.class));
         assume1.apply(proof);
         assume2.apply(proof);
-        proof.getSteps().get(proof.getSteps().size() - 1).disable();
+        proof.getSteps().getLast().disable();
         assertFalse(boxE.isValid(proof));
 
         // Invalid relation
@@ -128,10 +128,10 @@ public class BoxTest {
         pf.getSteps().add(new ProofStepModal(STATE_1, 1, prop, new ProofReason("TST", Collections.emptyList())));
         boxI.apply(pf);
 
-        Assertions.assertEquals("[] P", pf.getSteps().get(pf.getSteps().size() - 1).getStep().toString());
-        Assertions.assertEquals(0, pf.getSteps().get(pf.getSteps().size() - 1).getAssumptionLevel());
-        Assertions.assertEquals("[]I [1, 2]", pf.getSteps().get(pf.getSteps().size() - 1).getProof().toString());
-        Assertions.assertEquals("s0: [] P           []I [1, 2]", pf.getSteps().get(pf.getSteps().size() - 1).toString());
+        Assertions.assertEquals("[] P", pf.getSteps().getLast().getStep().toString());
+        Assertions.assertEquals(0, pf.getSteps().getLast().getAssumptionLevel());
+        Assertions.assertEquals("[]I [1, 2]", pf.getSteps().getLast().getProof().toString());
+        Assertions.assertEquals("s0: [] P           []I [1, 2]", pf.getSteps().getLast().toString());
     }
 
     @Test
@@ -146,9 +146,9 @@ public class BoxTest {
         assume2.apply(pf);
         boxE.apply(pf);
 
-        Assertions.assertEquals("P", pf.getSteps().get(pf.getSteps().size() - 1).getStep().toString());
-        Assertions.assertEquals(2, pf.getSteps().get(pf.getSteps().size() - 1).getAssumptionLevel());
-        Assertions.assertEquals("[]E [1, 2]", pf.getSteps().get(pf.getSteps().size() - 1).getProof().toString());
-        Assertions.assertEquals("s1:       P           []E [1, 2]", pf.getSteps().get(pf.getSteps().size() - 1).toString());
+        Assertions.assertEquals("P", pf.getSteps().getLast().getStep().toString());
+        Assertions.assertEquals(2, pf.getSteps().getLast().getAssumptionLevel());
+        Assertions.assertEquals("[]E [1, 2]", pf.getSteps().getLast().getProof().toString());
+        Assertions.assertEquals("s1:       P           []E [1, 2]", pf.getSteps().getLast().toString());
     }
 }

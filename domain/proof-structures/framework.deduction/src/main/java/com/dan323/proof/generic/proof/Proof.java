@@ -20,7 +20,7 @@ public abstract class Proof<T extends LogicOperation, Q extends ProofStep<T>> {
     public abstract List<? extends Action<T,Q,? extends Proof<T,Q>>> parse();
 
     public void removeLastStep() {
-        steps.remove(steps.size() - 1);
+        steps.removeLast();
     }
 
     public void reset(){

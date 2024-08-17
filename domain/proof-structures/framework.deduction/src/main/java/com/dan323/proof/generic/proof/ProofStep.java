@@ -38,7 +38,7 @@ public class ProofStep<T extends LogicOperation> {
 
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        sb.append("   ".repeat(assumptionLevel));
+        sb.append(" ".repeat(3 * assumptionLevel));
         if (step != null) {
             sb.append(step);
         }
