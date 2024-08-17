@@ -32,7 +32,7 @@ jobs:
       - name: jacoco report
         run: mvn -B -f pom.xml -Dmaven.test.skip=true package
       - name: integration tests
-        run: mvn -B -f pom.xml surefire:test@integration-test
+        run: mvn -B -f pom.xml compile surefire:test@integration-test
       - name: sonar cloud
         env:
           SONAR_ORGANIZATION: ${{ secrets.SONAR_ORGANIZATION }}
