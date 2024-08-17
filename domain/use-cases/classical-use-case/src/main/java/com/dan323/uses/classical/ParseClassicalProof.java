@@ -1,8 +1,10 @@
-package com.dan323.classical.proof;
+package com.dan323.uses.classical;
 
 import com.dan323.classical.ClassicalAction;
+import com.dan323.classical.proof.NaturalDeduction;
+import com.dan323.classical.proof.ParseClassicalAction;
 import com.dan323.expressions.classical.ClassicalLogicOperation;
-import com.dan323.proof.generic.ProofParser;
+import com.dan323.uses.ProofParser;
 import com.dan323.proof.generic.proof.ProofStep;
 
 public class ParseClassicalProof implements ProofParser<NaturalDeduction,ClassicalLogicOperation,ProofStep<ClassicalLogicOperation>> {

@@ -8,7 +8,7 @@ import com.dan323.expressions.classical.ClassicalLogicOperation;
 import com.dan323.expressions.classical.ImplicationClassic;
 import com.dan323.expressions.classical.VariableClassic;
 import com.dan323.proof.generic.Action;
-import com.dan323.proof.generic.ProofParser;
+import com.dan323.uses.ProofParser;
 import com.dan323.proof.generic.proof.Proof;
 import com.dan323.proof.generic.proof.ProofReason;
 import com.dan323.proof.generic.proof.ProofStep;

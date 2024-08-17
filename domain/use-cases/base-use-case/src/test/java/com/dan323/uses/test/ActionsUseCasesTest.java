@@ -1,6 +1,6 @@
 package com.dan323.uses.test;
 
-import com.dan323.proof.generic.ProofParser;
+import com.dan323.uses.ProofParser;
 import com.dan323.uses.ActionsUseCases;
 import com.dan323.uses.LogicalGetActions;
 import com.dan323.uses.LogicalSolver;

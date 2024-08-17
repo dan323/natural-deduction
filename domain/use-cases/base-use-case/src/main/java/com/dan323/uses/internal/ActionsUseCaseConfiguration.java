@@ -1,6 +1,6 @@
 package com.dan323.uses.internal;
 
-import com.dan323.proof.generic.ProofParser;
+import com.dan323.uses.ProofParser;
 import com.dan323.uses.*;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

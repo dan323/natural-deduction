@@ -2,7 +2,7 @@ module rest.framework {
     requires use.cases;
     requires spring.web;
     requires deduction.model;
-    requires javax.inject;
+    requires jakarta.inject;
     requires org.slf4j;
     requires framework.deduction;
 
