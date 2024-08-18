@@ -66,5 +66,10 @@ public class ModalTransformerTest {
         actionDto = new ActionDto("Refl", List.of(1), Map.of());
         action = transformer.from(actionDto);
         assertInstanceOf(Reflexive.class, action);
+        actionDto = new ActionDto("->E", List.of(1, 2), Map.of());
+        action = transformer.from(actionDto);
+        assertInstanceOf(ModalModusPonens.class, action);
+        var actionInError = new ActionDto("->E", List.of(), Map.of());
+        assertThrows(IndexOutOfBoundsException.class, () -> transformer.from(actionInError));
     }
 }

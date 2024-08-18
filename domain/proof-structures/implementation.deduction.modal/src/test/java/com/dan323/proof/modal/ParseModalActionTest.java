@@ -2,8 +2,8 @@ package com.dan323.proof.modal;
 
 import com.dan323.expressions.modal.*;
 import com.dan323.expressions.relation.LessEqual;
-import com.dan323.proof.generic.Copy;
 import com.dan323.proof.modal.proof.ModalNaturalDeduction;
+import com.dan323.proof.modal.proof.ParseModalAction;
 import com.dan323.proof.modal.relational.Reflexive;
 import com.dan323.proof.modal.relational.Transitive;
 import org.junit.jupiter.api.Test;
@@ -11,6 +11,7 @@ import org.junit.jupiter.api.Test;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 
 public class ParseModalActionTest {
 
@@ -191,5 +192,21 @@ public class ParseModalActionTest {
         (new ModalDiaE(4)).apply(mnd);
         lst = mnd.parse();
         assertEquals(new ModalDiaE(4), lst.get(7));
+    }
+
+    @Test
+    public void parseAction() {
+        var action = ParseModalAction.parseAction("Ass", List.of(), new VariableModal("P"), "s0");
+        assertInstanceOf(ModalAssume.class, action);
+        action = ParseModalAction.parseAction("Refl", List.of(1), null, null);
+        assertInstanceOf(Reflexive.class, action);
+        action = ParseModalAction.parseAction("Rep", List.of(2), null, null);
+        assertInstanceOf(ModalCopy.class, action);
+        action = ParseModalAction.parseAction("->I", List.of(), null, null);
+        assertInstanceOf(ModalDeductionTheorem.class, action);
+        action = ParseModalAction.parseAction("->E", List.of(2,4), null, null);
+        assertInstanceOf(ModalModusPonens.class, action);
+        action = ParseModalAction.parseAction("-E", List.of(3), null, null);
+        assertInstanceOf(ModalNotE.class, action);
     }
 }
