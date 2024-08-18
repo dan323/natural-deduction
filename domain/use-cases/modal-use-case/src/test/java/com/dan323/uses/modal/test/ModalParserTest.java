@@ -1,8 +1,11 @@
 package com.dan323.uses.modal.test;
 
+import com.dan323.expressions.modal.Always;
 import com.dan323.expressions.modal.ImplicationModal;
 import com.dan323.expressions.modal.ModalLogicalOperation;
 import com.dan323.expressions.modal.VariableModal;
+import com.dan323.expressions.relation.LessEqual;
+import com.dan323.expressions.relation.RelationOperation;
 import com.dan323.proof.generic.proof.ProofReason;
 import com.dan323.proof.modal.ModalAssume;
 import com.dan323.proof.modal.ModalCopy;
@@ -21,6 +24,7 @@ public class ModalParserTest {
     private static final ModalLogicalOperation P = new VariableModal("P");
     private static final ModalLogicalOperation Q = new VariableModal("Q");
     private static final ModalLogicalOperation QimpP = new ImplicationModal(Q, P);
+    private static final RelationOperation s0LessS1 = new LessEqual("s0", "s1");
 
     @Test
     public void parseProofSuccessfully() {
@@ -35,6 +39,16 @@ public class ModalParserTest {
         deductionTheoremAction.apply(nd);
         var parsedProof = parser.parseProof(nd.toString());
         assertEquals(4, parsedProof.getSteps().size());
+        assertEquals(nd.toString(), parsedProof.toString());
+    }
+
+    @Test
+    public void parseProofRelationSuccessfully() {
+        var parser = new ModalProofParser();
+        var nd = new ModalNaturalDeduction();
+        nd.initializeProof(List.of(new Always(P), s0LessS1), P);
+        var parsedProof = parser.parseProof(nd.toString());
+        assertEquals(2, parsedProof.getSteps().size());
         assertEquals(nd.toString(), parsedProof.toString());
     }
 
