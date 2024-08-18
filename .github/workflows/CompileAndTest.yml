@@ -95,7 +95,7 @@ jobs:
         env:
           PR: ${{ github.event.pull_request.number }}
       - name: publish pitest report
-        uses: peaceiris/actions-gh-pages@lastest
+        uses: peaceiris/actions-gh-pages@v4.0.0
         if: github.event_name == 'pull_request'
         env:
           PR: ${{ github.event.pull_request.number }}
