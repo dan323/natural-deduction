@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>OrE.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">jacoco-report-aggregate</a> &gt; <a href="../index.html" class="el_bundle">framework.deduction</a> &gt; <a href="index.source.html" class="el_package">com.dan323.proof.generic</a> &gt; <span class="el_source">OrE.java</span></div><h1>OrE.java</h1><pre class="source lang-java linenums">package com.dan323.proof.generic;
+
+import com.dan323.expressions.base.BinaryOperation;
+import com.dan323.expressions.base.Disjunction;
+import com.dan323.expressions.base.Implication;
+import com.dan323.expressions.base.LogicOperation;
+import com.dan323.proof.generic.proof.Proof;
+import com.dan323.proof.generic.proof.ProofReason;
+import com.dan323.proof.generic.proof.ProofStep;
+import com.dan323.proof.generic.proof.ProofStepSupplier;
+
+import java.util.List;
+import java.util.Objects;
+
+/**
+ * @author danco
+ */
+public abstract class OrE&lt;T extends LogicOperation, Q extends ProofStep&lt;T&gt;, P extends Proof&lt;T, Q&gt;&gt; implements Action&lt;T, Q, P&gt;, AbstractAction&lt;T,Q,P&gt; {
+
+    private final int disj;
+    private final int rule1;
+    private final int rule2;
+
+<span class="fc" id="L24">    public OrE(int dis, int r1, int r2) {</span>
+<span class="fc" id="L25">        disj = dis;</span>
+<span class="fc" id="L26">        rule1 = r1;</span>
+<span class="fc" id="L27">        rule2 = r2;</span>
+<span class="fc" id="L28">    }</span>
+
+    protected int getDisj() {
+<span class="fc" id="L31">        return disj;</span>
+    }
+
+    protected int get1() {
+<span class="fc" id="L35">        return rule1;</span>
+    }
+
+    protected int get2() {
+<span class="fc" id="L39">        return rule2;</span>
+    }
+
+    @Override
+    public boolean isValid(P pf) {
+<span class="pc bpc" id="L44" title="2 of 6 branches missed.">        if (RuleUtils.isValidIndexAndProp(pf, disj) &amp;&amp; RuleUtils.isValidIndexAndProp(pf, rule1) &amp;&amp; RuleUtils.isValidIndexAndProp(pf, rule2)) {</span>
+<span class="fc" id="L45">            LogicOperation dis = pf.getSteps().get(disj - 1).getStep();</span>
+<span class="fc" id="L46">            LogicOperation r1 = pf.getSteps().get(rule1 - 1).getStep();</span>
+<span class="fc" id="L47">            LogicOperation r2 = pf.getSteps().get(rule2 - 1).getStep();</span>
+<span class="pc bpc" id="L48" title="3 of 6 branches missed.">            if ((dis instanceof Disjunction) &amp;&amp; (r1 instanceof Implication) &amp;&amp; (r2 instanceof Implication)) {</span>
+<span class="fc" id="L49">                LogicOperation left = ((BinaryOperation&lt;?&gt;) dis).getLeft();</span>
+<span class="fc" id="L50">                LogicOperation right = ((BinaryOperation&lt;?&gt;) dis).getRight();</span>
+<span class="pc bpc" id="L51" title="1 of 4 branches missed.">                if (((BinaryOperation&lt;?&gt;) r1).getLeft().equals(left) &amp;&amp; ((BinaryOperation&lt;?&gt;) r2).getLeft().equals(right)) {</span>
+<span class="fc" id="L52">                    return ((BinaryOperation&lt;?&gt;) r1).getRight().equals(((BinaryOperation&lt;?&gt;) r2).getRight());</span>
+                }
+            }
+        }
+<span class="fc" id="L56">        return false;</span>
+    }
+
+    @Override
+    public boolean equals(Object o) {
+<span class="fc bfc" id="L61" title="All 2 branches covered.">        if (this == o) {</span>
+<span class="fc" id="L62">            return true;</span>
+        }
+<span class="fc bfc" id="L64" title="All 2 branches covered.">        if (!(o instanceof OrE)) {</span>
+<span class="fc" id="L65">            return false;</span>
+        }
+<span class="fc" id="L67">        OrE&lt;?, ?, ?&gt; orE = (OrE&lt;?, ?, ?&gt;) o;</span>
+<span class="pc bpc" id="L68" title="2 of 6 branches missed.">        return disj == orE.disj &amp;&amp;</span>
+                rule1 == orE.rule1 &amp;&amp;
+                rule2 == orE.rule2;
+    }
+
+    @Override
+    public int hashCode() {
+<span class="fc" id="L75">        return Objects.hash(disj, rule1, rule2);</span>
+    }
+
+    @Override
+    public void applyStepSupplier(P pf, ProofStepSupplier&lt;T, Q&gt; supp) {
+<span class="fc" id="L80">        T sol = ((BinaryOperation&lt;T&gt;) pf.getSteps().get(rule1 - 1).getStep()).getRight();</span>
+<span class="fc" id="L81">        int assLevel = pf.getSteps().get(pf.getSteps().size() - 1).getAssumptionLevel();</span>
+<span class="fc" id="L82">        pf.getSteps().add(supp.generateProofStep(assLevel, sol, new ProofReason(&quot;|E&quot;, List.of(disj, rule1, rule2))));</span>
+<span class="fc" id="L83">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>
