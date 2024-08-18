@@ -12,7 +12,7 @@ public class ClassicalConfiguration {
 
     @Bean
     public LogicalSolver classicalSolver() {
-        return new ClassicSolver();
+        return new LogicalSolver(classicalTransformer());
     }
 
     @Bean

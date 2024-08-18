@@ -1,6 +1,5 @@
 package com.dan323.uses.internal;
 
-import com.dan323.uses.ProofParser;
 import com.dan323.uses.*;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -15,10 +14,9 @@ import java.util.stream.Collectors;
 public class ActionsUseCaseConfiguration {
 
     @Bean
-    public ActionsUseCases useCases(List<LogicalGetActions> getActions, List<LogicalSolver> solvers, List<Transformer> transformers, List<ProofParser> parsers) {
+    public ActionsUseCases useCases(List<LogicalGetActions> getActions, List<Transformer> transformers, List<ProofParser> parsers) {
 
         Map<String, ActionsUseCases.GetActions> actionGetters;
-        Map<String, ActionsUseCases.Solve> problemSolvers;
         Map<String, ActionsUseCases.ParseProof> parserMap;
         Map<String, Transformer> transformerMap;
 
@@ -26,9 +24,6 @@ public class ActionsUseCaseConfiguration {
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 
         actionGetters = getActions.stream()
-                .map(logicalGetActions -> new AbstractMap.SimpleEntry<>(logicalGetActions.getLogicName(), logicalGetActions))
-                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-        problemSolvers = solvers.stream()
                 .map(logicalGetActions -> new AbstractMap.SimpleEntry<>(logicalGetActions.getLogicName(), logicalGetActions))
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
         parserMap = parsers.stream()
@@ -49,7 +44,7 @@ public class ActionsUseCaseConfiguration {
 
             @Override
             public Solve solveProblem(String logicName) {
-                return Optional.ofNullable(problemSolvers.get(logicName)).orElseThrow(IllegalArgumentException::new);
+                return transformers.stream().filter(transformer -> transformer.logic().equals(logicName)).findFirst().map(LogicalSolver::new).orElseThrow(IllegalArgumentException::new);
             }
 
             @Override

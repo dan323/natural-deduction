@@ -1,12 +1,10 @@
 package com.dan323.uses.test;
 
-import com.dan323.uses.ProofParser;
 import com.dan323.uses.ActionsUseCases;
 import com.dan323.uses.LogicalGetActions;
-import com.dan323.uses.LogicalSolver;
+import com.dan323.uses.ProofParser;
 import com.dan323.uses.Transformer;
 import com.dan323.uses.internal.ActionsUseCaseConfiguration;
-import com.dan323.uses.mock.LogicalSolvers;
 import com.dan323.uses.mock.Parsers;
 import com.dan323.uses.mock.Transformers;
 import org.junit.jupiter.api.Test;
@@ -27,16 +25,14 @@ public class ActionsUseCasesTest {
     private final WithParsers useCases = parsers
             -> transformers
             -> getActions
-            -> solvers
-            -> actionsUseCaseConfiguration.useCases(getActions, solvers, transformers, parsers);
+            -> actionsUseCaseConfiguration.useCases(getActions, transformers, parsers);
 
     @Test
     public void solveTest() {
         ActionsUseCases cases = useCases
                 .withNoParsers()
-                .withNoTransformers()
-                .withNoActions()
-                .withSolvers(LogicalSolvers.getLogicalSolvers());
+                .withTransformers(Transformers.getTransformers())
+                .withNoActions();
         var p1 = cases.solveProblem("l1");
         var p2 = cases.solveProblem("l2");
         assertEquals(genericProof("l1"), p1.perform(genericProof("l1")));
@@ -49,8 +45,7 @@ public class ActionsUseCasesTest {
         ActionsUseCases cases = useCases
                 .withNoParsers()
                 .withNoTransformers()
-                .withActionGetters(actionsList())
-                .withoutSolvers();
+                .withActionGetters(actionsList());
         var p1 = cases.getActions("l1");
         var p2 = cases.getActions("l2");
         assertEquals(List.of("l1.A1", "l1.A2", "l1.A3"), p1.perform());
@@ -63,8 +58,7 @@ public class ActionsUseCasesTest {
         var cases = useCases
                 .withNoParsers()
                 .withTransformers(Transformers.getTransformers())
-                .withNoActions()
-                .withoutSolvers();
+                .withNoActions();
         var p = cases.applyAction("l1").perform(actionAddOneStep(), genericProof("l1"));
         assertEquals(genericProof("l1").steps().size() + 1, p.steps().size());
         p = cases.applyAction("l2").perform(invalid(), genericProof("l2"));
@@ -76,8 +70,7 @@ public class ActionsUseCasesTest {
         var cases = useCases
                 .withParsers(Parsers.parsers())
                 .withTransformers(Transformers.getTransformers())
-                .withNoActions()
-                .withoutSolvers();
+                .withNoActions();
         var proof = cases.parseToProof("l1").perform("Something");
         assertEquals(Parsers.expectedLength(), proof.steps().size());
     }
@@ -107,23 +100,12 @@ public class ActionsUseCasesTest {
     @FunctionalInterface
     public interface WithActionGetter {
 
-        WithSolvers withActionGetters(List<LogicalGetActions> actions);
+        ActionsUseCases withActionGetters(List<LogicalGetActions> actions);
 
-        default WithSolvers withNoActions() {
+        default ActionsUseCases withNoActions() {
             return withActionGetters(List.of());
         }
 
     }
-
-    @FunctionalInterface
-    public interface WithSolvers {
-
-        ActionsUseCases withSolvers(List<LogicalSolver> solvers);
-
-        default ActionsUseCases withoutSolvers() {
-            return withSolvers(List.of());
-        }
-    }
-
 
 }
