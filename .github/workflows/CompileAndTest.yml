@@ -48,7 +48,7 @@ jobs:
         env:
           PR: ${{ github.event.pull_request.number }}
       - name: publish jacoco report
-        uses: peaceiris/actions-gh-pages@latest
+        uses: peaceiris/actions-gh-pages@master
         if: github.event_name == 'pull_request'
         env:
           PR: ${{ github.event.pull_request.number }}
@@ -60,7 +60,7 @@ jobs:
           commit_message: "jacoco-report for PR ${PR}"
           keep_files: true
       - name: publish jacoco report
-        uses: peaceiris/actions-gh-pages@latest
+        uses: peaceiris/actions-gh-pages@master
         if: github.event_name != 'pull_request'
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
@@ -107,7 +107,7 @@ jobs:
           commit_message: "pitest-report for PR $PR"
           keep_files: true
       - name: publish pitest report
-        uses: peaceiris/actions-gh-pages@latest
+        uses: peaceiris/actions-gh-pages@master
         if: github.event_name != 'pull_request'
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
