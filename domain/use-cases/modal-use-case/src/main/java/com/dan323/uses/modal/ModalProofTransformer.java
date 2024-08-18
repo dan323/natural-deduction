@@ -53,7 +53,7 @@ public class ModalProofTransformer implements Transformer<ModalOperation, ProofS
         var goal = proof.getGoal().toString();
         var steps = new ArrayList<StepDto>();
         for (var step : proof.getSteps()) {
-            steps.add(new StepDto(step.getStep().toString(), step.getProof().toString(), step.getAssumptionLevel(), Map.of("state", step.getState())));
+            steps.add(new StepDto(step.getStep().toString(), step.getProof().toString(), step.getAssumptionLevel(),  step.getState() != null ? Map.of("state", step.getState()) : Map.of()));
         }
         return new ProofDto(steps.stream().toList(), logic, goal);
 

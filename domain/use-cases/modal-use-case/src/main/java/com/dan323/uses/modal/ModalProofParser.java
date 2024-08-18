@@ -63,13 +63,14 @@ public class ModalProofParser implements ProofParser<ModalNaturalDeduction, Moda
             var rule = startExpression.substring(lastSpace + 2);
             return new ProofStepModal(assmsLevel, (RelationOperation) ParseModalAction.parseExpression(expression), ParseModalAction.parseReason(rule));
         } else {
-            var array = line.substring(i).toCharArray();
+            var array = line.substring(i + 2).toCharArray();
             String state = line.substring(0, i);
+            i = 0;
             while (array[i] == ' ') {
                 i++;
             }
             int assmsLevel = i / 3;
-            var startExpression = line.substring(i + 1);
+            var startExpression = line.substring(i);
             var firstSpace = startExpression.indexOf(" ".repeat(11));
             var lastSpace = startExpression.lastIndexOf("  ");
             var expression = startExpression.substring(0, firstSpace);
