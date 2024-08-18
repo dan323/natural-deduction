@@ -23,33 +23,27 @@ public class ModalProofParser implements ProofParser<ModalNaturalDeduction, Moda
 
     public ProofStepModal parseLine(String line) {
         int i = line.indexOf(':');
-        if (i == -1) {
-            var array = line.toCharArray();
-            i = 0;
-            while (array[i] == ' ') {
-                i++;
-            }
-            int assmsLevel = i / 3;
-            var startExpression = line.substring(i);
-            var firstSpace = startExpression.indexOf(" ".repeat(11));
-            var lastSpace = startExpression.lastIndexOf("  ");
-            var expression = startExpression.substring(0, firstSpace);
-            var rule = startExpression.substring(lastSpace + 2);
+        boolean isRelation = true;
+        String state = null;
+        if (i != -1) {
+            state = line.substring(0, i);
+            isRelation = false;
+            line = line.substring(i + 2);
+        }
+        var array = line.toCharArray();
+        i = 0;
+        while (array[i] == ' ') {
+            i++;
+        }
+        int assmsLevel = i / 3;
+        var startExpression = line.substring(i);
+        var firstSpace = startExpression.indexOf(" ".repeat(11));
+        var lastSpace = startExpression.lastIndexOf("  ");
+        var expression = startExpression.substring(0, firstSpace);
+        var rule = startExpression.substring(lastSpace + 2);
+        if (isRelation) {
             return new ProofStepModal(assmsLevel, (RelationOperation) ParseModalAction.parseExpression(expression), ParseModalAction.parseReason(rule));
         } else {
-            String state = line.substring(0, i);
-            line = line.substring(i + 2);
-            var array = line.toCharArray();
-            i = 0;
-            while (array[i] == ' ') {
-                i++;
-            }
-            int assmsLevel = i / 3;
-            var startExpression = line.substring(i);
-            var firstSpace = startExpression.indexOf(" ".repeat(11));
-            var lastSpace = startExpression.lastIndexOf("  ");
-            var expression = startExpression.substring(0, firstSpace);
-            var rule = startExpression.substring(lastSpace + 2);
             return new ProofStepModal(state, assmsLevel, (ModalLogicalOperation) ParseModalAction.parseExpression(expression), ParseModalAction.parseReason(rule));
         }
     }
