@@ -25,6 +25,12 @@
             <artifactId>implementation.deduction.modal</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>com.dan323</groupId>
+            <artifactId>base-use-case</artifactId>
+            <version>0.1-SNAPSHOT</version>
+            <scope>compile</scope>
+        </dependency>
     </dependencies>
 
 

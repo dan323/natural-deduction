@@ -4,7 +4,6 @@ module use.cases {
     requires spring.context;
     requires org.slf4j;
     requires deduction.model;
-    requires language.implementation.classical;
     requires javaluator;
 
     exports com.dan323.uses;

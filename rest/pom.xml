@@ -12,8 +12,8 @@
     <artifactId>rest</artifactId>
     <packaging>pom</packaging>
     <modules>
-        <module>model</module>
         <module>framework</module>
+        <module>model</module>
     </modules>
 
     <dependencies>

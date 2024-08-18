@@ -1,4 +1,6 @@
-package com.dan323.model;
+package com.dan323.rest.model;
+
+import com.dan323.model.ProofDto;
 
 /**
  * @author danco

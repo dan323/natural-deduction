@@ -1,8 +1,8 @@
 package com.dan323.controller;
 
-import com.dan323.model.ProofActionRequest;
 import com.dan323.model.ProofDto;
-import com.dan323.model.ProofResponse;
+import com.dan323.rest.model.ProofResponse;
+import com.dan323.rest.model.ProofActionRequest;
 import com.dan323.uses.ActionsUseCases;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

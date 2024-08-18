@@ -1,24 +1,31 @@
 package com.dan323.uses.mock;
 
-import com.dan323.classical.ClassicAssume;
-import com.dan323.classical.ClassicCopy;
-import com.dan323.classical.ClassicDeductionTheorem;
 import com.dan323.expressions.base.LogicOperation;
-import com.dan323.expressions.classical.ClassicalLogicOperation;
-import com.dan323.expressions.classical.ImplicationClassic;
-import com.dan323.expressions.classical.VariableClassic;
 import com.dan323.proof.generic.Action;
-import com.dan323.uses.ProofParser;
+import com.dan323.proof.generic.Assume;
+import com.dan323.proof.generic.Copy;
+import com.dan323.proof.generic.DeductionTheorem;
 import com.dan323.proof.generic.proof.Proof;
 import com.dan323.proof.generic.proof.ProofReason;
 import com.dan323.proof.generic.proof.ProofStep;
+import com.dan323.uses.ProofParser;
 
 import java.util.List;
 
 public final class Parsers {
 
-    private static final ClassicalLogicOperation P = new VariableClassic("P");
-    private static final ClassicalLogicOperation Q = new VariableClassic("Q");
+    private static final LogicOperation P = new LogicOperation() {
+        @Override
+        public String toString() {
+            return "P";
+        }
+    };
+    private static final LogicOperation Q = new LogicOperation() {
+        @Override
+        public String toString() {
+            return "Q";
+        }
+    };
     private static final ProofReason ASS = new ProofReason("Ass", List.of());
 
 
@@ -31,15 +38,49 @@ public final class Parsers {
                     @Override
                     public List getSteps() {
                         return List.of(new ProofStep<>(0, P, ASS),
-                                new ProofStep<LogicOperation>(1, Q, ASS),
+                                new ProofStep<>(1, Q, ASS),
                                 new ProofStep<>(1, P, new ProofReason("Rep", List.of(1))),
-                                new ProofStep<LogicOperation>(0, new ImplicationClassic(Q, P), new ProofReason("->I", List.of(2, 3))));
+                                new ProofStep<>(0, new LogicOperation() {
+                                    @Override
+                                    public String toString() {
+                                        return "Q -> P";
+                                    }
+                                }, new ProofReason("->I", List.of(2, 3))));
                     }
 
                     @Override
                     public List<? extends Action> parse() {
-                        return List.of(new ClassicAssume(new VariableClassic("P")), new ClassicAssume(new VariableClassic("Q")),
-                                new ClassicCopy(1), new ClassicDeductionTheorem());
+                        return List.of(new Assume(P) {
+                            @Override
+                            public void apply(Proof pf) {
+                                pf.getSteps().add(new ProofStep<>(0, P, ASS));
+                            }
+                        }, new Assume(Q) {
+                            @Override
+                            public void apply(Proof pf) {
+                                pf.getSteps().add(new ProofStep<>(1, Q, ASS));
+                            }
+                        }, new Copy(1) {
+                            @Override
+                            public void apply(Proof pf) {
+                                pf.getSteps().add(new ProofStep<>(1, P, new ProofReason("Rep", List.of(1))));
+                            }
+                        }, new DeductionTheorem((x, y) -> new LogicOperation() {
+                            @Override
+                            public String toString() {
+                                return "Q -> P";
+                            }
+                        }) {
+                            @Override
+                            public void apply(Proof pf) {
+                                pf.getSteps().add(new ProofStep<>(0, new LogicOperation() {
+                                    @Override
+                                    public String toString() {
+                                        return "Q -> P";
+                                    }
+                                }, new ProofReason("->I [2,3]", List.of(1))));
+                            }
+                        });
                     }
 
                     @Override
