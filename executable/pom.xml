@@ -19,6 +19,7 @@
         <maven.compiler.source>21</maven.compiler.source>
         <maven.compiler.target>21</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <pitest.version>1.16.1</pitest.version>
     </properties>
 
     <dependencies><!-- https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-web -->
@@ -90,14 +91,12 @@
         <dependency>
             <groupId>com.dan323</groupId>
             <artifactId>classical-use-case</artifactId>
-            <version>0.1-SNAPSHOT</version>
-            <scope>compile</scope>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>com.dan323</groupId>
             <artifactId>modal-use-case</artifactId>
-            <version>0.1-SNAPSHOT</version>
-            <scope>compile</scope>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.junit.jupiter</groupId>
@@ -138,6 +137,7 @@
             <plugin>
                 <groupId>org.pitest</groupId>
                 <artifactId>pitest-maven</artifactId>
+                <version>${pitest.version}</version>
                 <configuration>
                     <skip>true</skip>
                 </configuration>
@@ -147,7 +147,7 @@
                 <artifactId>maven-surefire-plugin</artifactId>
                 <executions>
                     <execution>
-                        <id>unit</id>
+                        <id>integration-tests</id>
                         <goals>
                             <goal>test</goal>
                         </goals>

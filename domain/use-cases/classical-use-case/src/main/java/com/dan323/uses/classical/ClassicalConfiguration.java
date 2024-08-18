@@ -29,4 +29,5 @@ public class ClassicalConfiguration {
     public Transformer classicalTransformer() {
         return new ClassicalProofTransformer();
     }
+
 }

@@ -16,6 +16,7 @@
         <module>base-use-case</module>
         <module>classical-use-case</module>
         <module>modal-use-case</module>
+        <module>model</module>
     </modules>
 
     <properties>
