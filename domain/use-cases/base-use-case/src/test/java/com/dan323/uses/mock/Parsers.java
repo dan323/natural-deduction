@@ -90,12 +90,12 @@ public final class Parsers {
 
                     @Override
                     public void automate() {
-
+                        // Do nothing
                     }
 
                     @Override
                     public void initializeProof(List assms, LogicOperation goal) {
-
+                        // Do nothing
                     }
                 };
             }
@@ -103,6 +103,16 @@ public final class Parsers {
             @Override
             public String logic() {
                 return logic;
+            }
+
+            @Override
+            public Proof getNewProof() {
+                throw new UnsupportedOperationException();
+            }
+
+            @Override
+            public ProofStep parseLine(String line) {
+                throw new UnsupportedOperationException();
             }
         };
     }

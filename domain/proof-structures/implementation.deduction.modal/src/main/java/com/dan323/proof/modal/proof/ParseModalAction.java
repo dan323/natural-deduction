@@ -147,8 +147,10 @@ public final class ParseModalAction {
     private static ModalAssume parseAss(ModalOperation atPos, String state) {
         if (atPos instanceof RelationOperation operation) {
             return new ModalAssume(operation);
-        } else {
+        } else if (state != null) {
             return new ModalAssume((ModalLogicalOperation) atPos, state);
+        } else {
+            throw new IllegalArgumentException("State provided is invalid.");
         }
     }
 
@@ -159,7 +161,7 @@ public final class ParseModalAction {
 
     private static int[] parseArray(String proofReason, int reasonLength) {
         return Arrays.stream(proofReason.substring(reasonLength + 2, proofReason.length() - 1)
-                .split(","))
+                        .split(","))
                 .map(String::trim)
                 .mapToInt(Integer::parseInt)
                 .toArray();
@@ -184,9 +186,10 @@ public final class ParseModalAction {
         return modalParser.evaluate(expression);
     }
 
-    public static AbstractModalAction parseAction(String name, List<Integer> sources, ModalOperation extraInfo, String state){
+    public static AbstractModalAction parseAction(String name, List<Integer> sources, ModalOperation extraInfo, String state) {
         return switch (name) {
-            case "Ass" -> extraInfo instanceof RelationOperation relationOperation ? new ModalAssume(relationOperation): new ModalAssume((ModalLogicalOperation)extraInfo, state);
+            case "Ass" ->
+                    extraInfo instanceof RelationOperation relationOperation ? new ModalAssume(relationOperation) : new ModalAssume((ModalLogicalOperation) extraInfo, state);
             case "|I1" -> new ModalOrI1(sources.getFirst(), (ModalLogicalOperation) extraInfo);
             case "|I2" -> new ModalOrI2(sources.getFirst(), (ModalLogicalOperation) extraInfo);
             case "|E" -> new ModalOrE(sources.get(0), sources.get(1), sources.get(2));

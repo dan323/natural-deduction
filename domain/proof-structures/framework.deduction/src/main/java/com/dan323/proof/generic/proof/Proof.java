@@ -9,7 +9,7 @@ import java.util.List;
 
 public abstract class Proof<T extends LogicOperation, Q extends ProofStep<T>> {
 
-    private List<T> assms;
+    private List<T> assms = List.of();
     private T goal;
     private final List<Q> steps = new ArrayList<>();
 
