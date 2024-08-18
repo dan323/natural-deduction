@@ -100,10 +100,10 @@ public final class ModalAutomate {
      * @return true if the last goal is equal to the last statement in the proof
      */
     private boolean isGoalReached() {
-        var lastGoal = goals.get(goals.size() - 1);
+        var lastGoal = goals.getLast();
         return !proof.getSteps().isEmpty() &&
-                lastGoal.getValue().equals(proof.getSteps().get(proof.getSteps().size() - 1).getStep())
-                && lastGoal.getKey().equals(proof.getSteps().get(proof.getSteps().size() - 1).getState());
+                lastGoal.getValue().equals(proof.getSteps().getLast().getStep())
+                && lastGoal.getKey().equals(proof.getSteps().getLast().getState());
     }
 
     /**
@@ -129,7 +129,7 @@ public final class ModalAutomate {
             intro.apply(proof);
         }
         attainFalseGoal();
-        goals.remove(goals.size() - 1);
+        goals.removeLast();
         usedForGoal.remove(goals.size() + 2);
     }
 
@@ -138,11 +138,11 @@ public final class ModalAutomate {
      * we use it to reach the goal
      */
     private void attainFalseGoal() {
-        if (goals.size() > 1 && goals.get(goals.size() - 1).getValue().equals(ConstantModal.FALSE)) {
+        if (goals.size() > 1 && goals.getLast().getValue().equals(ConstantModal.FALSE)) {
             ModalNotI cla = new ModalNotI();
             if (cla.isValid(proof)) {
                 cla.apply(proof);
-                goals.remove(goals.size() - 1);
+                goals.removeLast();
             }
         }
     }
@@ -156,15 +156,15 @@ public final class ModalAutomate {
         if (proof.getSteps().isEmpty()) {
             return Optional.empty();
         }
-        ModalOperation goal = goals.get(goals.size() - 1).getValue();
-        String state = goals.get(goals.size() - 1).getKey();
+        ModalOperation goal = goals.getLast().getValue();
+        String state = goals.getLast().getKey();
         for (int i = 0; i < proof.getSteps().size()-1; i++) {
             if (proof.getSteps().get(i).isValid() &&
                     goal.equals(proof.getSteps().get(i).getStep()) &&
                     state.equals(proof.getSteps().get(i).getState())) {
-                if (!goal.equals(proof.getSteps().get(proof.getSteps().size()-1).getStep()) ||
+                if (!goal.equals(proof.getSteps().getLast().getStep()) ||
                     !(goal.equals(ConstantModal.FALSE) ||
-                            state.equals(proof.getSteps().get(proof.getSteps().size()-1).getState()))) {
+                            state.equals(proof.getSteps().getLast().getState()))) {
                     return Optional.of(new ModalCopy(i + 1));
                 }
             }
@@ -214,7 +214,7 @@ public final class ModalAutomate {
     private Optional<AbstractModalAction> introRuleForGoalAlways(Always goal, String state) {
         ModalLogicalOperation element = goal.getElement();
         int i = 0;
-        int assmsLevel = proof.getSteps().get(proof.getSteps().size() - 1).getAssumptionLevel();
+        int assmsLevel = proof.getSteps().getLast().getAssumptionLevel();
         while (proof.getSteps().size() - 1 - i >= 0 && proof.getSteps().get(proof.getSteps().size() - 1 - i).getAssumptionLevel() >= assmsLevel) {
             i++;
         }
@@ -222,7 +222,7 @@ public final class ModalAutomate {
             var finalState = lessEqual.getRight();
             for (int k = 0; k < proof.getSteps().size(); k++) {
                 if (proof.getSteps().get(k).isValid() && proof.getSteps().get(k).getStep().equals(element) && proof.getSteps().get(k).getState().equals(finalState)) {
-                    if (k + 1 < proof.getSteps().size() && !proof.getSteps().get(proof.getSteps().size() - 1).getStep().equals(proof.getSteps().get(k).getStep())) {
+                    if (k + 1 < proof.getSteps().size() && !proof.getSteps().getLast().getStep().equals(proof.getSteps().get(k).getStep())) {
                         (new ModalCopy(k + 1)).apply(proof);
                     }
                     return Optional.of(new ModalBoxI());
@@ -260,7 +260,7 @@ public final class ModalAutomate {
     private Optional<AbstractModalAction> introRuleForGoalNegation(NegationModal goal, String state) {
         ModalOperation element = goal.getElement();
         int i = 0;
-        int assmsLevel = proof.getSteps().get(proof.getSteps().size() - 1).getAssumptionLevel();
+        int assmsLevel = proof.getSteps().getLast().getAssumptionLevel();
         while (proof.getSteps().size() - 1 - i >= 0 && proof.getSteps().get(proof.getSteps().size() - 1 - i).getAssumptionLevel() >= assmsLevel) {
             i++;
         }
@@ -333,14 +333,14 @@ public final class ModalAutomate {
         ModalLogicalOperation left = (goal).getLeft();
         ModalLogicalOperation right = (goal).getRight();
         int i = 0;
-        int assmsLevel = proof.getSteps().get(proof.getSteps().size() - 1).getAssumptionLevel();
+        int assmsLevel = proof.getSteps().getLast().getAssumptionLevel();
         while (proof.getSteps().size() - 1 - i >= 0 && proof.getSteps().get(proof.getSteps().size() - 1 - i).getAssumptionLevel() >= assmsLevel) {
             i++;
         }
         if (proof.getSteps().get(proof.getSteps().size() - i).getStep().equals(left) && proof.getSteps().get(proof.getSteps().size() - i).getState().equals(state)) {
             for (int k = 0; k < proof.getSteps().size(); k++) {
                 if (proof.getSteps().get(k).isValid() && proof.getSteps().get(k).getStep().equals(right) && proof.getSteps().get(k).getState().equals(state)) {
-                    if (k + 1 < proof.getSteps().size() && !proof.getSteps().get(proof.getSteps().size() - 1).getStep().equals(proof.getSteps().get(k).getStep())) {
+                    if (k + 1 < proof.getSteps().size() && !proof.getSteps().getLast().getStep().equals(proof.getSteps().get(k).getStep())) {
                         (new ModalCopy(k + 1)).apply(proof);
                     }
                     return Optional.of(new ModalDeductionTheorem());
@@ -477,21 +477,17 @@ public final class ModalAutomate {
      * Add a new goal to make easier to reach the current goal, if possible
      */
     private void updateGoal() {
-        if (goals.get(goals.size() - 1).getValue().equals(ConstantModal.FALSE)) {
+        if (goals.getLast().getValue().equals(ConstantModal.FALSE)) {
             lastGoalFalse();
         } else {
-            var state = goals.get(goals.size() - 1).getKey();
-            ModalLogicalOperation goal = (ModalLogicalOperation) goals.get(goals.size() - 1).getValue();
-            if (goal instanceof ConjunctionModal conj) {
-                updateGoalConjunction(conj, state);
-            } else if (goal instanceof ImplicationModal imp) {
-                updateGoalImplication(imp, state);
-            } else if (goal instanceof NegationModal neg) {
-                updateGoalNegation(neg, state);
-            } else if (goal instanceof Always always) {
-                updateGoalAlways(always, state);
-            } else {
-                updateGoalContradiction(goal, state);
+            var state = goals.getLast().getKey();
+            ModalLogicalOperation goal = (ModalLogicalOperation) goals.getLast().getValue();
+            switch (goal) {
+                case ConjunctionModal conj -> updateGoalConjunction(conj, state);
+                case ImplicationModal imp -> updateGoalImplication(imp, state);
+                case NegationModal neg -> updateGoalNegation(neg, state);
+                case Always always -> updateGoalAlways(always, state);
+                case null, default -> updateGoalContradiction(goal, state);
             }
         }
     }
@@ -506,16 +502,14 @@ public final class ModalAutomate {
             if (!usedForGoal.containsValue(i) && proof.getSteps().get(i).isValid()) {
                 String state = proof.getSteps().get(i).getState();
                 LogicOperation log = proof.getSteps().get(i).getStep();
-                if (log instanceof NegationModal neg) {
-                    goals.add(new AbstractMap.SimpleEntry<>(state, neg.getElement()));
-                } else if (log instanceof DisjunctionModal disj) {
-                    goals.add(new AbstractMap.SimpleEntry<>(state, new NegationModal(disj.getLeft())));
-                } else if (log instanceof ImplicationModal imp) {
-                    goals.add(new AbstractMap.SimpleEntry<>(state, imp.getLeft()));
-                } else if (log instanceof Sometime some){
-                    goals.add(new AbstractMap.SimpleEntry<>(state, new Always(new NegationModal(some.getElement())) ));
-                }else {
-                    b = false;
+                switch (log) {
+                    case NegationModal neg -> goals.add(new AbstractMap.SimpleEntry<>(state, neg.getElement()));
+                    case DisjunctionModal disj ->
+                            goals.add(new AbstractMap.SimpleEntry<>(state, new NegationModal(disj.getLeft())));
+                    case ImplicationModal imp -> goals.add(new AbstractMap.SimpleEntry<>(state, imp.getLeft()));
+                    case Sometime some ->
+                            goals.add(new AbstractMap.SimpleEntry<>(state, new Always(new NegationModal(some.getElement()))));
+                    case null, default -> b = false;
                 }
                 if (b) {
                     j = i;

@@ -6,15 +6,16 @@ import com.dan323.uses.modal.ModalProofTransformer;
 import com.dan323.uses.modal.mock.ModalProof;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class ModalUseTest {
 
     @Test
     public void modalSolver() {
         var solver = (new ModalConfiguration()).modalSolver();
-        var e = assertThrows(UnsupportedOperationException.class, () -> solver.perform(new ModalProofTransformer().fromProof(ModalProof.naturalDeductionNoAssms())));
-        assertEquals("This is not yet implemented", e.getMessage());
+        var e = solver.perform(new ModalProofTransformer().fromProof(ModalProof.naturalDeductionNoAssms()));
+        assertTrue(e.isDone());
     }
 
     @Test
