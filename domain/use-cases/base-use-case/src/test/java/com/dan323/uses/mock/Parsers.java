@@ -90,12 +90,12 @@ public final class Parsers {
 
                     @Override
                     public void automate() {
-
+                        // Do nothing
                     }
 
                     @Override
                     public void initializeProof(List assms, LogicOperation goal) {
-
+                        // Do nothing
                     }
                 };
             }

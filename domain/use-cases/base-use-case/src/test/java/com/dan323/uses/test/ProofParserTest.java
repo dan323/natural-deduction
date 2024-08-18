@@ -44,7 +44,7 @@ public class ProofParserTest {
 
                 @Override
                 public void automate() {
-
+                    // Do nothing
                 }
 
                 @Override
