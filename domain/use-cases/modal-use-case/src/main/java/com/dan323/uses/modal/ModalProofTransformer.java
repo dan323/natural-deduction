@@ -1,6 +1,7 @@
 package com.dan323.uses.modal;
 
 import com.dan323.expressions.ModalLogicParser;
+import com.dan323.expressions.modal.ModalLogicalOperation;
 import com.dan323.expressions.modal.ModalOperation;
 import com.dan323.model.ActionDto;
 import com.dan323.model.ProofDto;
@@ -29,8 +30,17 @@ public class ModalProofTransformer implements Transformer<ModalOperation, ProofS
         List<ModalOperation> assmsLst = new ArrayList<>();
         boolean assms = true;
         for (StepDto step : proof.steps()) {
-            if (assms && step.assmsLevel() == 0) {
-                assmsLst.add(ParseModalAction.parseExpression(step.expression()));
+            if (assms && step.assmsLevel() == 0 && step.rule().equals("Ass")) {
+                var operation = ParseModalAction.parseExpression(step.expression());
+                if (operation instanceof ModalLogicalOperation) {
+                    if (step.extraParameters().containsKey("state") && step.extraParameters().get("state").equals(nd.getState0())) {
+                        assmsLst.add(operation);
+                    } else {
+                        throw new IllegalArgumentException("The assumptions are not in a valid state");
+                    }
+                } else {
+                    assmsLst.add(ParseModalAction.parseExpression(step.expression()));
+                }
             } else {
                 if (assms) {
                     assms = false;
@@ -38,6 +48,9 @@ public class ModalProofTransformer implements Transformer<ModalOperation, ProofS
                 }
                 ParseModalAction.parseWithReason(nd, ParseModalAction.parseExpression(step.expression()), ParseModalAction.parseReason(step.rule()), step.extraParameters().get("state")).apply(nd);
             }
+        }
+        if (assms) {
+            nd.initializeProof(assmsLst, ParseModalAction.parseExpression(proof.goal()));
         }
         return nd;
     }

@@ -31,7 +31,7 @@ public class ClassicalProofTransformer implements Transformer<ClassicalLogicOper
             nd.initializeProof(List.of(), ParseClassicalAction.parseExpression(proof.goal()));
         } else {
             for (StepDto step : proof.steps()) {
-                if (assms && step.assmsLevel() == 0) {
+                if (assms && step.assmsLevel() == 0 && step.rule().equals("Ass")) {
                     assmsLst.add(ParseClassicalAction.parseExpression(step.expression()));
                 } else {
                     if (assms) {
