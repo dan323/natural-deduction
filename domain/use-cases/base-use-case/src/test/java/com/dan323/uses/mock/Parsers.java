@@ -104,6 +104,16 @@ public final class Parsers {
             public String logic() {
                 return logic;
             }
+
+            @Override
+            public Proof getNewProof() {
+                throw new UnsupportedOperationException();
+            }
+
+            @Override
+            public ProofStep parseLine(String line) {
+                throw new UnsupportedOperationException();
+            }
         };
     }
 
