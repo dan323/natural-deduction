@@ -51,6 +51,6 @@ public abstract class ModusPonens<T extends LogicOperation, Q extends ProofStep<
     public void applyStepSupplier(P pf, ProofStepSupplier<T, Q> supp) {
         T sol = ((BinaryOperation<T>) pf.getSteps().get(applyAt1 - 1).getStep()).getRight();
         int assLevel = RuleUtils.getLastAssumptionLevel(pf);
-        pf.getSteps().add(supp.generateProofStep(assLevel, sol, new ProofReason("->E", List.of(applyAt1, applyAt2))));
+        pf.getSteps().add(supp.generateProofStep(assLevel, sol, new ProofReason("->E", List.of(), List.of(applyAt1, applyAt2))));
     }
 }

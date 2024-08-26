@@ -1,5 +1,6 @@
 package com.dan323.classical;
 
+import com.dan323.classical.proof.AvailableAction;
 import com.dan323.classical.proof.NaturalDeduction;
 import com.dan323.expressions.classical.ClassicalLogicOperation;
 import com.dan323.proof.generic.ModusPonens;
@@ -11,4 +12,8 @@ public final class ClassicModusPonens extends ModusPonens<ClassicalLogicOperatio
         super(a, b);
     }
 
+    @Override
+    public AvailableAction getAction() {
+        return AvailableAction.MP;
+    }
 }

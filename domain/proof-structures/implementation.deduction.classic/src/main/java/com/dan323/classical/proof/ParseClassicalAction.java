@@ -130,22 +130,21 @@ public final class ParseClassicalAction {
     }
 
     public static ClassicalAction parseAction(String name, List<Integer> sources, ClassicalLogicOperation extraInfo){
-        return switch (name) {
-            case "ClassicAssume" -> new ClassicAssume(extraInfo);
-            case "ClassicOrI1" -> new ClassicOrI1(sources.get(0), extraInfo);
-            case "ClassicOrI2" -> new ClassicOrI2(sources.get(0), extraInfo);
-            case "ClassicOrE" -> new ClassicOrE(sources.get(0), sources.get(1), sources.get(2));
-            case "ClassicAndI" -> new ClassicAndI(sources.get(0), sources.get(1));
-            case "ClassicAndE1" -> new ClassicAndE1(sources.get(0));
-            case "ClassicAndE2" -> new ClassicAndE2(sources.get(0));
-            case "ClassicCopy" -> new ClassicCopy(sources.getFirst());
-            case "ClassicNotE" -> new ClassicNotE(sources.getFirst());
-            case "ClassicNotI" -> new ClassicNotI();
-            case "ClassicDeductionTheorem" -> new ClassicDeductionTheorem();
-            case "ClassicModusPonens" -> new ClassicModusPonens(sources.get(0), sources.get(1));
-            case "ClassicFE" -> new ClassicFE(sources.get(0), extraInfo);
-            case "ClassicFI" -> new ClassicFI(sources.get(0), sources.get(1));
-            default -> throw new IllegalArgumentException("The rule " + name + " is not valid.");
+        return switch (AvailableAction.valueOf(AvailableAction.class, name)) {
+            case ASSUME -> new ClassicAssume(extraInfo);
+            case ORI1 -> new ClassicOrI1(sources.get(0), extraInfo);
+            case ORI2 -> new ClassicOrI2(sources.get(0), extraInfo);
+            case ORE -> new ClassicOrE(sources.get(0), sources.get(1), sources.get(2));
+            case ANDI -> new ClassicAndI(sources.get(0), sources.get(1));
+            case ANDE1 -> new ClassicAndE1(sources.get(0));
+            case ANDE2 -> new ClassicAndE2(sources.get(0));
+            case COPY -> new ClassicCopy(sources.getFirst());
+            case NOTE -> new ClassicNotE(sources.getFirst());
+            case NOTI -> new ClassicNotI();
+            case DT -> new ClassicDeductionTheorem();
+            case MP -> new ClassicModusPonens(sources.get(0), sources.get(1));
+            case FE -> new ClassicFE(sources.get(0), extraInfo);
+            case FI -> new ClassicFI(sources.get(0), sources.get(1));
         };
     }
 }

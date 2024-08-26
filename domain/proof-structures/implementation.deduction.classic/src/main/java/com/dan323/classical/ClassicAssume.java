@@ -1,5 +1,6 @@
 package com.dan323.classical;
 
+import com.dan323.classical.proof.AvailableAction;
 import com.dan323.classical.proof.NaturalDeduction;
 import com.dan323.expressions.classical.ClassicalLogicOperation;
 import com.dan323.proof.generic.Assume;
@@ -25,5 +26,10 @@ public final class ClassicAssume extends Assume<ClassicalLogicOperation, ProofSt
         } else {
             return false;
         }
+    }
+
+    @Override
+    public AvailableAction getAction() {
+        return AvailableAction.ASSUME;
     }
 }

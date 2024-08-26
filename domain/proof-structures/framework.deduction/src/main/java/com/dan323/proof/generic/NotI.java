@@ -38,9 +38,8 @@ public abstract class NotI<T extends LogicOperation, Q extends ProofStep<T>, P e
         if (assLevel == 0) {
             return false;
         }
-        LogicOperation lo = pf.getSteps().get(pf.getSteps().size() - 1).getStep();
-        if (lo instanceof Constant) {
-            Constant cons = (Constant) lo;
+        LogicOperation lo = pf.getSteps().getLast().getStep();
+        if (lo instanceof Constant cons) {
             if (!cons.isFalsehood()) {
                 return false;
             }
@@ -56,7 +55,7 @@ public abstract class NotI<T extends LogicOperation, Q extends ProofStep<T>, P e
     public void applyStepSupplier(P pf, ProofStepSupplier<T, Q> supp) {
         int assLevel = RuleUtils.getLastAssumptionLevel(pf);
         int i = RuleUtils.disableUntilLastAssumption(pf, assLevel);
-        List<Integer> lst = List.of(pf.getSteps().size() - i + 1, pf.getSteps().size());
-        pf.getSteps().add(supp.generateProofStep(assLevel - 1, negate.apply(pf.getSteps().get(pf.getSteps().size() - i).getStep()).castToLanguage(), new ProofReason("-I", lst)));
+        var lst = new ProofReason.Range(pf.getSteps().size() - i + 1, pf.getSteps().size());
+        pf.getSteps().add(supp.generateProofStep(assLevel - 1, negate.apply(pf.getSteps().get(pf.getSteps().size() - i).getStep()).castToLanguage(), new ProofReason("-I", List.of(lst), List.of())));
     }
 }

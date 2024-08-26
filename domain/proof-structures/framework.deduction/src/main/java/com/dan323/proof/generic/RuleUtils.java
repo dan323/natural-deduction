@@ -17,7 +17,7 @@ public final class RuleUtils {
 
 
     public static <P extends Proof<?, ?>> int getLastAssumptionLevel(P proof) {
-        return proof.getSteps().isEmpty() ? 0 : proof.getSteps().get(proof.getSteps().size() - 1).getAssumptionLevel();
+        return proof.getSteps().isEmpty() ? 0 : proof.getSteps().getLast().getAssumptionLevel();
     }
 
     public static <P extends Proof<?, ?>> int disableUntilLastAssumption(P proof, int assLevel) {

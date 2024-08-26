@@ -39,7 +39,7 @@ public class ProofParserTest {
 
                 @Override
                 protected ProofStep<LogicOperation> generateAssm(LogicOperation logicexpression) {
-                    return new ProofStep<>(0, logicexpression, new ProofReason("Ass", List.of()));
+                    return new ProofStep<>(0, logicexpression, new ProofReason("Ass", List.of(), List.of()));
                 }
 
                 @Override
@@ -62,7 +62,7 @@ public class ProofParserTest {
                 public String toString() {
                     return "P";
                 }
-            }, new ProofReason("Ass", List.of()));
+            }, new ProofReason("Ass", List.of(), List.of()));
         }
     }
 }

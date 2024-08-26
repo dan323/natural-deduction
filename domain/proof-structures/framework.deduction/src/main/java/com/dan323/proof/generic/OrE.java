@@ -78,7 +78,7 @@ public abstract class OrE<T extends LogicOperation, Q extends ProofStep<T>, P ex
     @Override
     public void applyStepSupplier(P pf, ProofStepSupplier<T, Q> supp) {
         T sol = ((BinaryOperation<T>) pf.getSteps().get(rule1 - 1).getStep()).getRight();
-        int assLevel = pf.getSteps().get(pf.getSteps().size() - 1).getAssumptionLevel();
-        pf.getSteps().add(supp.generateProofStep(assLevel, sol, new ProofReason("|E", List.of(disj, rule1, rule2))));
+        int assLevel = pf.getSteps().getLast().getAssumptionLevel();
+        pf.getSteps().add(supp.generateProofStep(assLevel, sol, new ProofReason("|E", List.of(), List.of(disj, rule1, rule2))));
     }
 }

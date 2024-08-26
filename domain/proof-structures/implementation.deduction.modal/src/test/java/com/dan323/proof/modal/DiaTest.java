@@ -37,13 +37,13 @@ public class DiaTest {
 
         assume.apply(pf);
         assume2.apply(pf);
-        pf.getSteps().add(new ProofStepModal(STATE_0, 2, conclusion, new ProofReason("TST", List.of())));
+        pf.getSteps().add(new ProofStepModal(STATE_0, 2, conclusion, new ProofReason("TST", List.of(), List.of())));
         diaE.apply(pf);
 
-        Assertions.assertEquals("Q", pf.getSteps().get(pf.getSteps().size() - 1).getStep().toString());
-        Assertions.assertEquals(0, pf.getSteps().get(pf.getSteps().size() - 1).getAssumptionLevel());
-        Assertions.assertEquals("<>E [1, 2, 4]", pf.getSteps().get(pf.getSteps().size() - 1).getProof().toString());
-        Assertions.assertEquals("s0: Q           <>E [1, 2, 4]", pf.getSteps().get(pf.getSteps().size() - 1).toString());
+        Assertions.assertEquals("Q", pf.getSteps().getLast().getStep().toString());
+        Assertions.assertEquals(0, pf.getSteps().getLast().getAssumptionLevel());
+        Assertions.assertEquals("<>E [1, 2-4]", pf.getSteps().getLast().getProof().toString());
+        Assertions.assertEquals("s0: Q           <>E [1, 2-4]", pf.getSteps().getLast().toString());
     }
 
     @Test
@@ -59,10 +59,10 @@ public class DiaTest {
         assume.apply(pf);
         diaI.apply(pf);
 
-        Assertions.assertEquals("<> P", pf.getSteps().get(pf.getSteps().size() - 1).getStep().toString());
-        Assertions.assertEquals(1, pf.getSteps().get(pf.getSteps().size() - 1).getAssumptionLevel());
-        Assertions.assertEquals("<>I [2, 1]", pf.getSteps().get(pf.getSteps().size() - 1).getProof().toString());
-        Assertions.assertEquals("s0:    <> P           <>I [2, 1]", pf.getSteps().get(pf.getSteps().size() - 1).toString());
+        Assertions.assertEquals("<> P", pf.getSteps().getLast().getStep().toString());
+        Assertions.assertEquals(1, pf.getSteps().getLast().getAssumptionLevel());
+        Assertions.assertEquals("<>I [2, 1]", pf.getSteps().getLast().getProof().toString());
+        Assertions.assertEquals("s0:    <> P           <>I [2, 1]", pf.getSteps().getLast().toString());
     }
 
     @Test
@@ -94,7 +94,7 @@ public class DiaTest {
         assertFalse(diaE.isValid(proof));
 
         // Valid conclusion
-        proof.getSteps().add(new ProofStepModal(STATE_0, 2, mock(ModalLogicalOperation.class), new ProofReason("TST", List.of())));
+        proof.getSteps().add(new ProofStepModal(STATE_0, 2, mock(ModalLogicalOperation.class), new ProofReason("TST", List.of(), List.of())));
         assertTrue(diaE.isValid(proof));
 
         // assms are not of correct type
@@ -109,16 +109,16 @@ public class DiaTest {
 
         assume2.apply(proof);
         assume3.apply(proof);
-        proof.getSteps().add(new ProofStepModal(3, mock(RelationOperation.class), new ProofReason("TST", List.of())));
+        proof.getSteps().add(new ProofStepModal(3, mock(RelationOperation.class), new ProofReason("TST", List.of(), List.of())));
         assertFalse(diaE.isValid(proof));
 
         // Invalid expression before last assumption
         proof.initializeProof(Collections.singletonList(initStep), mock(ModalLogicalOperation.class));
 
         assume2.apply(proof);
-        proof.getSteps().get(proof.getSteps().size() - 1).disable();
+        proof.getSteps().getLast().disable();
         assume3.apply(proof);
-        proof.getSteps().add(new ProofStepModal(proof.getSteps().get(proof.getSteps().size() - 1).getAssumptionLevel(), mock(RelationOperation.class), new ProofReason("TST", List.of())));
+        proof.getSteps().add(new ProofStepModal(proof.getSteps().getLast().getAssumptionLevel(), mock(RelationOperation.class), new ProofReason("TST", List.of(), List.of())));
         assertFalse(diaE.isValid(proof));
 
         // Invalid assumption level before last assumption
@@ -126,8 +126,8 @@ public class DiaTest {
 
         assume2.apply(proof);
         assume3.apply(proof);
-        proof.getSteps().add(new ProofStepModal(3, mock(RelationOperation.class), new ProofReason("TST", List.of())));
-        proof.getSteps().add(new ProofStepModal(3, mock(RelationOperation.class), new ProofReason("TST", List.of())));
+        proof.getSteps().add(new ProofStepModal(3, mock(RelationOperation.class), new ProofReason("TST", List.of(), List.of())));
+        proof.getSteps().add(new ProofStepModal(3, mock(RelationOperation.class), new ProofReason("TST", List.of(), List.of())));
         assertFalse(diaE.isValid(proof));
 
         // Invalid conclusion
@@ -135,7 +135,7 @@ public class DiaTest {
 
         assume2.apply(proof);
         assume3.apply(proof);
-        proof.getSteps().add(new ProofStepModal(STATE_1, 2, mock(ModalLogicalOperation.class), new ProofReason("TST", List.of())));
+        proof.getSteps().add(new ProofStepModal(STATE_1, 2, mock(ModalLogicalOperation.class), new ProofReason("TST", List.of(), List.of())));
         assertFalse(diaE.isValid(proof));
 
         // Invalid <= assms
@@ -143,7 +143,7 @@ public class DiaTest {
 
         assume2.apply(proof);
         assume4.apply(proof);
-        proof.getSteps().add(new ProofStepModal(STATE_0, 2, mock(ModalLogicalOperation.class), new ProofReason("TST", List.of())));
+        proof.getSteps().add(new ProofStepModal(STATE_0, 2, mock(ModalLogicalOperation.class), new ProofReason("TST", List.of(), List.of())));
         assertFalse(diaE.isValid(proof));
 
         //Invalid logic expression assms
@@ -151,7 +151,7 @@ public class DiaTest {
 
         assume.apply(proof);
         assume3.apply(proof);
-        proof.getSteps().add(new ProofStepModal(STATE_0, 2, mock(ModalLogicalOperation.class), new ProofReason("TST", List.of())));
+        proof.getSteps().add(new ProofStepModal(STATE_0, 2, mock(ModalLogicalOperation.class), new ProofReason("TST", List.of(), List.of())));
         assertFalse(diaE.isValid(proof));
 
         // Invalid y in x<=y conclusion
@@ -160,7 +160,7 @@ public class DiaTest {
         var lessEq = new LessEqual(STATE_0, STATE_1);
         assume2.apply(proof);
         assume3.apply(proof);
-        proof.getSteps().add(new ProofStepModal(2, lessEq, new ProofReason("TST", List.of())));
+        proof.getSteps().add(new ProofStepModal(2, lessEq, new ProofReason("TST", List.of(), List.of())));
         assertFalse(diaE.isValid(proof));
 
         // Invalid x in x<=y conclusion
@@ -169,7 +169,7 @@ public class DiaTest {
         lessEq = new LessEqual(STATE_1, STATE_0);
         assume2.apply(proof);
         assume3.apply(proof);
-        proof.getSteps().add(new ProofStepModal(2, lessEq, new ProofReason("TST", List.of())));
+        proof.getSteps().add(new ProofStepModal(2, lessEq, new ProofReason("TST", List.of(), List.of())));
         assertFalse(diaE.isValid(proof));
 
         // Valid x<=y conclusion
@@ -178,7 +178,7 @@ public class DiaTest {
         lessEq = new LessEqual(STATE_0, STATE_0);
         assume2.apply(proof);
         assume3.apply(proof);
-        proof.getSteps().add(new ProofStepModal(2, lessEq, new ProofReason("TST", List.of())));
+        proof.getSteps().add(new ProofStepModal(2, lessEq, new ProofReason("TST", List.of(), List.of())));
         assertTrue(diaE.isValid(proof));
     }
 
@@ -200,7 +200,7 @@ public class DiaTest {
         assume.apply(proof);
         assertTrue(diaI.isValid(proof));
         // Expression is no longer valid
-        proof.getSteps().get(proof.getSteps().size() - 1).disable();
+        proof.getSteps().getLast().disable();
         assertFalse(diaI.isValid(proof));
 
         // Invalid states to apply the rule

@@ -69,20 +69,19 @@ public class RuleBaseTest {
         doReturn(true).when(list).isEmpty();
         assms.applyStepSupplier(pf, ProofStep::new);
 
-        assertEquals(1, record.get(0).getAssumptionLevel());
-        assertEquals("Ass", record.get(0).getProof().toString());
-        assertEquals(log, record.get(0).getStep());
+        assertEquals(1, record.getFirst().getAssumptionLevel());
+        assertEquals("Ass", record.getFirst().getProof().toString());
+        assertEquals(log, record.getFirst().getStep());
 
         record.clear();
         doReturn(false).when(list).isEmpty();
-        doReturn(2).when(list).size();
-        doReturn(pStep0).when(list).get(eq(1));
+        doReturn(pStep0).when(list).getLast();
         doReturn(2).when(pStep0).getAssumptionLevel();
         assms.applyStepSupplier(pf, ProofStep::new);
 
-        assertEquals(3, record.get(0).getAssumptionLevel());
-        assertEquals("Ass", record.get(0).getProof().toString());
-        assertEquals(log, record.get(0).getStep());
+        assertEquals(3, record.getFirst().getAssumptionLevel());
+        assertEquals("Ass", record.getFirst().getProof().toString());
+        assertEquals(log, record.getFirst().getStep());
     }
 
     @Test
@@ -93,14 +92,13 @@ public class RuleBaseTest {
         doReturn(list).when(pf).getSteps();
         doReturn(pStep0).when(list).get(0);
         doReturn(mock(LogicOperation.class)).when(pStep0).getStep();
-        doReturn(pStep1).when(list).get(1);
-        doReturn(2).when(list).size();
+        doReturn(pStep1).when(list).getLast();
         doReturn(3).when(pStep1).getAssumptionLevel();
         copy.applyStepSupplier(pf, ProofStep::new);
 
-        assertEquals(3, record.get(0).getAssumptionLevel());
-        assertEquals(pStep0.getStep(), record.get(0).getStep());
-        assertEquals("Rep [1]", record.get(0).getProof().toString());
+        assertEquals(3, record.getFirst().getAssumptionLevel());
+        assertEquals(pStep0.getStep(), record.getFirst().getStep());
+        assertEquals("Rep [1]", record.getFirst().getProof().toString());
     }
 
     public static class AssumeStub extends Assume<LogicOperation, ProofStep<LogicOperation>, ProofTest.ProofStub> {

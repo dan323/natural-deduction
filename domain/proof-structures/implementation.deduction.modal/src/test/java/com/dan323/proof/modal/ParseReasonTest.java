@@ -12,13 +12,13 @@ public class ParseReasonTest {
 
     @Test
     public void parseBoxITest() {
-        ProofReason reason = parseReason("[]I [1,2]");
-        assertEquals(new ProofReason("[]I", List.of(1,2)), reason);
+        ProofReason reason = parseReason("[]I [1-2]");
+        assertEquals(new ProofReason("[]I", List.of(new ProofReason.Range(1,2)), List.of()), reason);
     }
 
     @Test
     public void parseDiaITest() {
-        ProofReason reason = parseReason("<>I [1,2]");
-        assertEquals(new ProofReason("<>I", List.of(1, 2)), reason);
+        ProofReason reason = parseReason("<>I [1, 2]");
+        assertEquals(new ProofReason("<>I", List.of(), List.of(1, 2)), reason);
     }
 }

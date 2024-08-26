@@ -25,13 +25,13 @@ public class ClassicNotTest {
         NaturalDeduction pf = new NaturalDeduction();
 
         assume.apply(pf);
-        pf.getSteps().add(new ProofStep<>(1, bottom, new ProofReason("TST", List.of())));
+        pf.getSteps().add(new ProofStep<>(1, bottom, new ProofReason("TST", List.of(), List.of())));
         classicNotI.apply(pf);
 
-        Assertions.assertEquals("- P", pf.getSteps().get(pf.getSteps().size() - 1).getStep().toString());
-        Assertions.assertEquals(0, pf.getSteps().get(pf.getSteps().size() - 1).getAssumptionLevel());
-        Assertions.assertEquals("-I [1, 2]", pf.getSteps().get(pf.getSteps().size() - 1).getProof().toString());
-        Assertions.assertEquals("- P           -I [1, 2]", pf.getSteps().get(pf.getSteps().size() - 1).toString());
+        Assertions.assertEquals("- P", pf.getSteps().getLast().getStep().toString());
+        Assertions.assertEquals(0, pf.getSteps().getLast().getAssumptionLevel());
+        Assertions.assertEquals("-I [1-2]", pf.getSteps().getLast().getProof().toString());
+        Assertions.assertEquals("- P           -I [1-2]", pf.getSteps().getLast().toString());
     }
 
     @Test
@@ -44,9 +44,9 @@ public class ClassicNotTest {
         assume.apply(pf);
         notE.apply(pf);
 
-        Assertions.assertEquals("P", pf.getSteps().get(pf.getSteps().size() - 1).getStep().toString());
-        Assertions.assertEquals(1, pf.getSteps().get(pf.getSteps().size() - 1).getAssumptionLevel());
-        Assertions.assertEquals("-E [1]", pf.getSteps().get(pf.getSteps().size() - 1).getProof().toString());
-        Assertions.assertEquals("   P           -E [1]", pf.getSteps().get(pf.getSteps().size() - 1).toString());
+        Assertions.assertEquals("P", pf.getSteps().getLast().getStep().toString());
+        Assertions.assertEquals(1, pf.getSteps().getLast().getAssumptionLevel());
+        Assertions.assertEquals("-E [1]", pf.getSteps().getLast().getProof().toString());
+        Assertions.assertEquals("   P           -E [1]", pf.getSteps().getLast().toString());
     }
 }

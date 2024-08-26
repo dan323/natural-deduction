@@ -11,7 +11,6 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Answers;
-import org.mockito.ArgumentMatchers;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -19,7 +18,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.intThat;
 import static org.mockito.Mockito.*;
 
 /**
@@ -68,7 +66,9 @@ public class RuleImplicationTest {
 
         doReturn(2).when(list).size();
         doReturn(false).when(list).isEmpty();
-        doReturn(pStep0).when(list).get(ArgumentMatchers.intThat(i -> 0 <= i && i <= 1));
+        doReturn(pStep0).when(list).get(0);
+        doReturn(pStep0).when(list).get(1);
+        doReturn(pStep0).when(list).getLast();
 
         Assertions.assertFalse(ded.isValid(pf));
 
@@ -83,7 +83,9 @@ public class RuleImplicationTest {
         List<ProofStep<LogicOperation>> record = new ArrayList<>();
         doReturn(list).when(pf).getSteps();
         doReturn(2).when(list).size();
-        doReturn(pStep0).when(list).get(intThat(i -> 0 <= i && i < 2));
+        doReturn(pStep0).when(list).get(0);
+        doReturn(pStep0).when(list).get(1);
+        doReturn(pStep0).when(list).getLast();
         doReturn(1).when(pStep0).getAssumptionLevel();
         Variable variable = mock(Variable.class, Answers.CALLS_REAL_METHODS);
         doReturn("P").when(variable).toString();
@@ -93,10 +95,10 @@ public class RuleImplicationTest {
         DeductionTheoremStub ded = new DeductionTheoremStub();
         ded.applyStepSupplier(pf, ProofStep::new);
 
-        Assertions.assertEquals(new ProofReason("->I", List.of(1, 2)), record.get(0).getProof());
-        Assertions.assertEquals(0, record.get(0).getAssumptionLevel());
-        Assertions.assertEquals("P -> P", record.get(0).getStep().toString());
-        Assertions.assertTrue(record.get(0).isValid());
+        Assertions.assertEquals(new ProofReason("->I", List.of(new ProofReason.Range(1, 2)), List.of()), record.getFirst().getProof());
+        Assertions.assertEquals(0, record.getFirst().getAssumptionLevel());
+        Assertions.assertEquals("P -> P", record.getFirst().getStep().toString());
+        Assertions.assertTrue(record.getFirst().isValid());
     }
 
     @Test
@@ -131,9 +133,8 @@ public class RuleImplicationTest {
     public void modusPonensApplyTest() {
         List<ProofStep<LogicOperation>> record = new ArrayList<>();
         doReturn(list).when(pf).getSteps();
-        doReturn(2).when(list).size();
         doReturn(pStep0).when(list).get(eq(0));
-        doReturn(pStep1).when(list).get(eq(1));
+        doReturn(pStep1).when(list).getLast();
         Variable variable = mock(Variable.class, Answers.CALLS_REAL_METHODS);
         doReturn("P").when(variable).toString();
         doReturn(mockImplication(variable, variable)).when(pStep0).getStep();
@@ -142,10 +143,10 @@ public class RuleImplicationTest {
         ModusPonensStub ded = new ModusPonensStub(1, 2);
         ded.applyStepSupplier(pf, ProofStep::new);
 
-        Assertions.assertEquals(new ProofReason("->E", List.of(1, 2)), record.get(0).getProof());
-        Assertions.assertEquals(0, record.get(0).getAssumptionLevel());
-        Assertions.assertEquals("P", record.get(0).getStep().toString());
-        Assertions.assertTrue(record.get(0).isValid());
+        Assertions.assertEquals(new ProofReason("->E", List.of(), List.of(1, 2)), record.getFirst().getProof());
+        Assertions.assertEquals(0, record.getFirst().getAssumptionLevel());
+        Assertions.assertEquals("P", record.getFirst().getStep().toString());
+        Assertions.assertTrue(record.getFirst().isValid());
     }
 
     @Test

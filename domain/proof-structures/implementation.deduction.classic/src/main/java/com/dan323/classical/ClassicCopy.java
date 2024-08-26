@@ -1,5 +1,6 @@
 package com.dan323.classical;
 
+import com.dan323.classical.proof.AvailableAction;
 import com.dan323.expressions.classical.ClassicalLogicOperation;
 import com.dan323.classical.proof.NaturalDeduction;
 import com.dan323.proof.generic.Copy;
@@ -25,5 +26,10 @@ public final class ClassicCopy extends Copy<ClassicalLogicOperation, ProofStep<C
         } else {
             return false;
         }
+    }
+
+    @Override
+    public AvailableAction getAction() {
+        return AvailableAction.COPY;
     }
 }

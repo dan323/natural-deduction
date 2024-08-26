@@ -1,5 +1,6 @@
 package com.dan323.classical;
 
+import com.dan323.classical.proof.AvailableAction;
 import com.dan323.classical.proof.NaturalDeduction;
 import com.dan323.expressions.classical.ClassicalLogicOperation;
 import com.dan323.proof.generic.AbstractAction;
@@ -12,4 +13,6 @@ public interface ClassicalAction extends Action<ClassicalLogicOperation, ProofSt
     default void apply(NaturalDeduction pf) {
         applyStepSupplier(pf, ProofStep::new);
     }
+
+    AvailableAction getAction();
 }

@@ -68,7 +68,7 @@ public class ModalParserTest {
         var parser = new ModalProofParser();
         var nd = new ModalNaturalDeduction();
         nd.initializeProof(List.of(P), QimpP);
-        nd.getSteps().add(new ProofStepModal("s0", 1, Q, new ProofReason("Ass", List.of())));
+        nd.getSteps().add(new ProofStepModal("s0", 1, Q, new ProofReason("Ass", List.of(), List.of())));
         var exception = assertThrowsExactly(IllegalArgumentException.class, () -> parser.parseProof(nd.toString()));
         assertTrue(exception.getMessage().contains("invalid"));
     }

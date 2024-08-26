@@ -87,7 +87,7 @@ public class RestServiceIT {
         NaturalDeduction nd = new NaturalDeduction();
         var p = new VariableClassic("P");
         var proof = new ProofDto(List.of(new StepDto("P", "Ass", 1, Map.of()),
-                new StepDto("P -> P", "->I [1, 1]", 0, Map.of())
+                new StepDto("P -> P", "->I [1-1]", 0, Map.of())
         ), "classical", "P -> P");
         nd.initializeProof(List.of(), new ImplicationClassic(p, p));
         nd.automate();

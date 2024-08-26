@@ -11,6 +11,7 @@ import com.dan323.proof.modal.proof.ModalNaturalDeduction;
 import com.dan323.proof.modal.proof.ProofStepModal;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
 
 public final class ModalDiaI implements ModalAction {
@@ -37,7 +38,7 @@ public final class ModalDiaI implements ModalAction {
     @Override
     public void applyStepSupplier(ModalNaturalDeduction pf, ProofStepSupplier<ModalOperation, ProofStepModal> supp) {
         ModalLogicalOperation log = (ModalLogicalOperation) pf.getSteps().get(i - 1).getStep();
-        pf.getSteps().add(supp.generateProofStep(pf.getSteps().get(pf.getSteps().size() - 1).getAssumptionLevel(), new Sometime(log), new ProofReason("<>I", Arrays.asList(i, j))));
+        pf.getSteps().add(supp.generateProofStep(pf.getSteps().getLast().getAssumptionLevel(), new Sometime(log), new ProofReason("<>I", List.of(), Arrays.asList(i, j))));
     }
 
     @Override

@@ -37,11 +37,11 @@ public final class ModalBoxI implements ModalAction {
             return false;
         }
         String stateGreater = ((LessEqual) log.getStep()).getRight();
-        ProofStepModal conclusion = pf.getSteps().get(pf.getSteps().size() - 1);
+        ProofStepModal conclusion = pf.getSteps().getLast();
         if (!(conclusion.getStep() instanceof ModalLogicalOperation)) {
             return false;
         }
-        if (!(pf.getSteps().get(pf.getSteps().size() - 1)).getState().equals(stateGreater)) {
+        if (!(pf.getSteps().getLast()).getState().equals(stateGreater)) {
             return false;
         }
         return !pf.stateIsUsedBefore(stateGreater, pf.getSteps().size() - lastAssumption);
@@ -50,8 +50,8 @@ public final class ModalBoxI implements ModalAction {
     @Override
     public void applyStepSupplier(ModalNaturalDeduction pf, ProofStepSupplier<ModalOperation, ProofStepModal> supp) {
         int assLevel = RuleUtils.getLastAssumptionLevel(pf);
-        pf.getSteps().add(supp.generateProofStep(assLevel - 1, new Always((ModalLogicalOperation) pf.getSteps().get(pf.getSteps().size() - 1).getStep()), new ProofReason("[]I",
-                List.of(pf.getSteps().size() - getLastAssumption(pf) + 1, pf.getSteps().size()))));
+        pf.getSteps().add(supp.generateProofStep(assLevel - 1, new Always((ModalLogicalOperation) pf.getSteps().getLast().getStep()), new ProofReason("[]I",
+                List.of(new ProofReason.Range(pf.getSteps().size() - getLastAssumption(pf) + 1, pf.getSteps().size())), List.of())));
     }
 
     private int getLastAssumption(ModalNaturalDeduction pf) {

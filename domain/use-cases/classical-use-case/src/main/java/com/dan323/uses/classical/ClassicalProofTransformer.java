@@ -50,7 +50,9 @@ public class ClassicalProofTransformer implements Transformer<ClassicalLogicOper
 
     public ClassicalAction from(ActionDto action) {
         var parser = new ClassicalParser();
-        return ParseClassicalAction.parseAction(action.name(), action.sources(), Optional.ofNullable(action.extraParameters().get("expression")).map(parser::evaluate).orElse(null));
+        return ParseClassicalAction.parseAction(action.name(), action.sources(), Optional.ofNullable(action.extraParameters())
+                .flatMap(params -> Optional.ofNullable(params.get("expression")))
+                .map(parser::evaluate).orElse(null));
     }
 
     @Override

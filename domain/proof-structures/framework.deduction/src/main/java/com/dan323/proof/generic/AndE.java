@@ -7,7 +7,7 @@ import com.dan323.proof.generic.proof.ProofReason;
 import com.dan323.proof.generic.proof.ProofStep;
 import com.dan323.proof.generic.proof.ProofStepSupplier;
 
-import java.util.Collections;
+import java.util.List;
 import java.util.function.Function;
 
 /**
@@ -50,7 +50,7 @@ public abstract class AndE<T extends LogicOperation, Q extends ProofStep<T>, P e
     }
 
     private ProofReason getReason() {
-        return new ProofReason("&E", Collections.singletonList(applyAt));
+        return new ProofReason("&E", List.of(), List.of(applyAt));
     }
 
     protected int getAppliedAt() {

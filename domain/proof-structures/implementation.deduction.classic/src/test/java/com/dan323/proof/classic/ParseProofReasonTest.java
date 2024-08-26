@@ -12,25 +12,25 @@ public class ParseProofReasonTest {
 
     @Test
     public void parseArrowITest() {
-        ProofReason reason = parseReason("->I");
-        assertEquals(new ProofReason("->I", List.of()), reason);
+        ProofReason reason = parseReason("->I [2-3]");
+        assertEquals(new ProofReason("->I", List.of(new ProofReason.Range(2,3)), List.of()), reason);
     }
 
     @Test
     public void parseArrowETest() {
         ProofReason reason = parseReason("->E [1,2]");
-        assertEquals(new ProofReason("->E", List.of(1, 2)), reason);
+        assertEquals(new ProofReason("->E", List.of(), List.of(1, 2)), reason);
     }
 
     @Test
     public void parseAndETest() {
         ProofReason reason = parseReason("&E [1]");
-        assertEquals(new ProofReason("&E", List.of(1)), reason);
+        assertEquals(new ProofReason("&E", List.of(), List.of(1)), reason);
     }
 
     @Test
     public void parseAndITest() {
         ProofReason reason = parseReason("&I [1,5]");
-        assertEquals(new ProofReason("&I", List.of(1, 5)), reason);
+        assertEquals(new ProofReason("&I", List.of(), List.of(1, 5)), reason);
     }
 }

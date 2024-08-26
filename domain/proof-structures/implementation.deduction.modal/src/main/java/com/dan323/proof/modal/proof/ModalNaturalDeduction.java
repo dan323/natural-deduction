@@ -45,9 +45,9 @@ public final class ModalNaturalDeduction extends Proof<ModalOperation, ProofStep
     @Override
     protected ProofStepModal generateAssm(ModalOperation lo) {
         if (lo instanceof ModalLogicalOperation) {
-            return new ProofStepModal(state0, 0, (ModalLogicalOperation) lo, new ProofReason("Ass", List.of()));
+            return new ProofStepModal(state0, 0, (ModalLogicalOperation) lo, new ProofReason("Ass", List.of(), List.of()));
         } else {
-            return new ProofStepModal(0, (RelationOperation) lo, new ProofReason("Ass", List.of()));
+            return new ProofStepModal(0, (RelationOperation) lo, new ProofReason("Ass", List.of(), List.of()));
         }
     }
 

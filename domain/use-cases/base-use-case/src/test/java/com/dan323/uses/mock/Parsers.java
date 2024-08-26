@@ -26,7 +26,7 @@ public final class Parsers {
             return "Q";
         }
     };
-    private static final ProofReason ASS = new ProofReason("Ass", List.of());
+    private static final ProofReason ASS = new ProofReason("Ass", List.of(), List.of());
 
 
     static ProofParser parser(String logic) {
@@ -39,13 +39,13 @@ public final class Parsers {
                     public List getSteps() {
                         return List.of(new ProofStep<>(0, P, ASS),
                                 new ProofStep<>(1, Q, ASS),
-                                new ProofStep<>(1, P, new ProofReason("Rep", List.of(1))),
+                                new ProofStep<>(1, P, new ProofReason("Rep", List.of(),  List.of(1))),
                                 new ProofStep<>(0, new LogicOperation() {
                                     @Override
                                     public String toString() {
                                         return "Q -> P";
                                     }
-                                }, new ProofReason("->I", List.of(2, 3))));
+                                }, new ProofReason("->I", List.of(new ProofReason.Range(2, 3)), List.of())));
                     }
 
                     @Override
@@ -63,7 +63,7 @@ public final class Parsers {
                         }, new Copy(1) {
                             @Override
                             public void apply(Proof pf) {
-                                pf.getSteps().add(new ProofStep<>(1, P, new ProofReason("Rep", List.of(1))));
+                                pf.getSteps().add(new ProofStep<>(1, P, new ProofReason("Rep", List.of(), List.of(1))));
                             }
                         }, new DeductionTheorem((x, y) -> new LogicOperation() {
                             @Override
@@ -78,14 +78,14 @@ public final class Parsers {
                                     public String toString() {
                                         return "Q -> P";
                                     }
-                                }, new ProofReason("->I [2,3]", List.of(1))));
+                                }, new ProofReason("->I", List.of(new ProofReason.Range(2,3)), List.of(1))));
                             }
                         });
                     }
 
                     @Override
                     protected ProofStep generateAssm(LogicOperation logicexpression) {
-                        return new ProofStep(0, logicexpression, new ProofReason("Ass", List.of()));
+                        return new ProofStep(0, logicexpression, new ProofReason("Ass", List.of(), List.of()));
                     }
 
                     @Override
