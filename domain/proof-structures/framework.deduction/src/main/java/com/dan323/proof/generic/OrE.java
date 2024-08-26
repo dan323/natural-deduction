@@ -61,10 +61,9 @@ public abstract class OrE<T extends LogicOperation, Q extends ProofStep<T>, P ex
         if (this == o) {
             return true;
         }
-        if (!(o instanceof OrE)) {
+        if (!(o instanceof OrE<?, ?, ?> orE)) {
             return false;
         }
-        OrE<?, ?, ?> orE = (OrE<?, ?, ?>) o;
         return disj == orE.disj &&
                 rule1 == orE.rule1 &&
                 rule2 == orE.rule2;

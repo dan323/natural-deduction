@@ -126,7 +126,7 @@ public class RuleOrTest {
         Assertions.assertFalse(orI.isValid(pf));
 
         doReturn(2).when(list).size();
-        doReturn(pStep1).when(list).get(eq(1));
+        doReturn(pStep1).when(list).get(1);
         doReturn(false).when(pStep1).isValid();
 
         Assertions.assertFalse(orI.isValid(pf));
@@ -143,10 +143,10 @@ public class RuleOrTest {
         List<ProofStep<LogicOperation>> record = new ArrayList<>();
         doReturn(list).when(pf).getSteps();
         Variable variable = mock(Variable.class);
-        doReturn(2).when(list).size();
         Implication<LogicOperation> implication = mockImplication(variable, variable);
         doReturn("P").when(variable).toString();
-        doReturn(pStep1).when(list).get(eq(1));
+        doReturn(pStep1).when(list).getLast();
+        doReturn(pStep1).when(list).get(1);
         doReturn(1).when(pStep1).getAssumptionLevel();
         doReturn(implication).when(pStep1).getStep();
         doAnswer(invocationOnMock -> record.add(invocationOnMock.getArgument(0))).when(list).add(any(ProofStep.class));
