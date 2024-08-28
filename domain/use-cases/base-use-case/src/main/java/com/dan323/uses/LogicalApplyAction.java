@@ -7,11 +7,11 @@ import com.dan323.proof.generic.Action;
 import com.dan323.proof.generic.proof.Proof;
 import com.dan323.proof.generic.proof.ProofStep;
 
-public class LogicalApplyAction<T extends LogicOperation, Q extends ProofStep<T>, P extends Proof<T,Q>, A extends Action<T,Q,P>> implements ActionsUseCases.ApplyAction {
+public class LogicalApplyAction<T extends LogicOperation, Q extends ProofStep<T>, P extends Proof<T, Q>, A extends Action<T, Q, P>> implements ActionsUseCases.ApplyAction {
 
-    private final Transformer<T,Q,P,A> logic;
+    private final Transformer<T, Q, P, A> logic;
 
-    public LogicalApplyAction(Transformer<T,Q,P,A> transformer){
+    public LogicalApplyAction(Transformer<T, Q, P, A> transformer) {
         this.logic = transformer;
     }
 

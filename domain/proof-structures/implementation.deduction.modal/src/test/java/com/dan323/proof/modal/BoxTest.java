@@ -36,7 +36,7 @@ public class BoxTest {
 
         // Valid proof
         assume.apply(proof);
-        proof.getSteps().add(new ProofStepModal(STATE_1, 1, prop, new ProofReason("TST", Collections.emptyList())));
+        proof.getSteps().add(new ProofStepModal(STATE_1, 1, prop, new ProofReason("TST", List.of(), Collections.emptyList())));
 
         assertTrue(boxI.isValid(proof));
 
@@ -45,28 +45,28 @@ public class BoxTest {
         assertFalse(boxI.isValid(proof));
         // Conclusion is not valid
         assume.apply(proof);
-        proof.getSteps().add(new ProofStepModal(1, mock(RelationOperation.class), new ProofReason("TST", Collections.emptyList())));
+        proof.getSteps().add(new ProofStepModal(1, mock(RelationOperation.class), new ProofReason("TST", List.of(), Collections.emptyList())));
 
         assertFalse(boxI.isValid(proof));
 
         // No assumption level
         proof.initializeProof(Collections.emptyList(), mock(ModalOperation.class));
         assume.apply(proof);
-        proof.getSteps().add(new ProofStepModal(0, mock(RelationOperation.class), new ProofReason("TST", Collections.emptyList())));
+        proof.getSteps().add(new ProofStepModal(0, mock(RelationOperation.class), new ProofReason("TST", List.of(), Collections.emptyList())));
 
         assertFalse(boxI.isValid(proof));
 
         // Assumption not valid
         proof.initializeProof(Collections.emptyList(), mock(ModalOperation.class));
         assume2.apply(proof);
-        proof.getSteps().add(new ProofStepModal(1, mock(RelationOperation.class), new ProofReason("TST", Collections.emptyList())));
+        proof.getSteps().add(new ProofStepModal(1, mock(RelationOperation.class), new ProofReason("TST", List.of(), Collections.emptyList())));
 
         assertFalse(boxI.isValid(proof));
 
         // Not valid conclusion state
         proof.initializeProof(Collections.emptyList(), mock(ModalOperation.class));
         assume.apply(proof);
-        proof.getSteps().add(new ProofStepModal(STATE_0, 1, prop, new ProofReason("TST", List.of())));
+        proof.getSteps().add(new ProofStepModal(STATE_0, 1, prop, new ProofReason("TST", List.of(), List.of())));
 
         assertFalse(boxI.isValid(proof));
 
@@ -74,7 +74,7 @@ public class BoxTest {
         proof.initializeProof(List.of(), mock(ModalOperation.class));
         assume3.apply(proof);
         assume.apply(proof);
-        proof.getSteps().add(new ProofStepModal(STATE_1, 2, prop, new ProofReason("TST", Collections.emptyList())));
+        proof.getSteps().add(new ProofStepModal(STATE_1, 2, prop, new ProofReason("TST", List.of(), Collections.emptyList())));
 
         assertFalse(boxI.isValid(proof));
     }
@@ -125,13 +125,13 @@ public class BoxTest {
 
         // Valid proof
         assume.apply(pf);
-        pf.getSteps().add(new ProofStepModal(STATE_1, 1, prop, new ProofReason("TST", Collections.emptyList())));
+        pf.getSteps().add(new ProofStepModal(STATE_1, 1, prop, new ProofReason("TST", List.of(), Collections.emptyList())));
         boxI.apply(pf);
 
         Assertions.assertEquals("[] P", pf.getSteps().getLast().getStep().toString());
         Assertions.assertEquals(0, pf.getSteps().getLast().getAssumptionLevel());
-        Assertions.assertEquals("[]I [1, 2]", pf.getSteps().getLast().getProof().toString());
-        Assertions.assertEquals("s0: [] P           []I [1, 2]", pf.getSteps().getLast().toString());
+        Assertions.assertEquals("[]I [1-2]", pf.getSteps().getLast().getProof().toString());
+        Assertions.assertEquals("s0: [] P           []I [1-2]", pf.getSteps().getLast().toString());
     }
 
     @Test

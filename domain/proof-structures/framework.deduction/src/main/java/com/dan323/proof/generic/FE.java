@@ -7,7 +7,7 @@ import com.dan323.proof.generic.proof.ProofReason;
 import com.dan323.proof.generic.proof.ProofStep;
 import com.dan323.proof.generic.proof.ProofStepSupplier;
 
-import java.util.Collections;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -26,8 +26,7 @@ public abstract class FE<T extends LogicOperation, Q extends ProofStep<T>, P ext
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof FE)) return false;
-        FE<?, ?, ?> fe = (FE<?, ?, ?>) o;
+        if (!(o instanceof FE<?, ?, ?> fe)) return false;
         return o.getClass().equals(getClass()) && falseIndex == fe.falseIndex &&
                 Objects.equals(intro, fe.intro);
     }
@@ -52,6 +51,6 @@ public abstract class FE<T extends LogicOperation, Q extends ProofStep<T>, P ext
     }
 
     private ProofReason getReason() {
-        return new ProofReason("FE", Collections.singletonList(falseIndex));
+        return new ProofReason("FE", List.of(), List.of(falseIndex));
     }
 }

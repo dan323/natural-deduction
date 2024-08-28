@@ -130,8 +130,7 @@ public class RuleFalseTest {
     public void fEApplyTest() {
         List<ProofStep<LogicOperation>> record = new ArrayList<>();
         doReturn(list).when(pf).getSteps();
-        doReturn(1).when(list).size();
-        doReturn(pStep0).when(list).get(eq(0));
+        doReturn(pStep0).when(list).getLast();
         doReturn(1).when(pStep0).getAssumptionLevel();
         doAnswer(invocationOnMock -> record.add(invocationOnMock.getArgument(0))).when(list).add(any(ProofStep.class));
         Variable variable = mock(Variable.class, Answers.CALLS_REAL_METHODS);
@@ -140,28 +139,27 @@ public class RuleFalseTest {
         FEStub notE = new RuleFalseTest.FEStub(variable, 1);
         notE.applyStepSupplier(pf, ProofStep::new);
 
-        assertEquals(new ProofReason("FE", List.of(1)), record.get(0).getProof());
-        assertEquals(1, record.get(0).getAssumptionLevel());
-        assertEquals("P", record.get(0).getStep().toString());
-        assertTrue(record.get(0).isValid());
+        assertEquals(new ProofReason("FE", List.of(), List.of(1)), record.getFirst().getProof());
+        assertEquals(1, record.getFirst().getAssumptionLevel());
+        assertEquals("P", record.getFirst().getStep().toString());
+        assertTrue(record.getFirst().isValid());
     }
 
     @Test
     public void fIApplyTest() {
         List<ProofStep<LogicOperation>> record = new ArrayList<>();
         doReturn(list).when(pf).getSteps();
-        doReturn(2).when(list).size();
-        doReturn(pStep1).when(list).get(eq(1));
+        doReturn(pStep1).when(list).getLast();
         doReturn(1).when(pStep1).getAssumptionLevel();
         doAnswer(invocationOnMock -> record.add(invocationOnMock.getArgument(0))).when(list).add(any(ProofStep.class));
 
         FIStub notI = new RuleFalseTest.FIStub(1, 2);
         notI.applyStepSupplier(pf, ProofStep::new);
 
-        assertEquals(new ProofReason("FI", List.of(1, 2)), record.get(0).getProof());
-        assertEquals(1, record.get(0).getAssumptionLevel());
-        assertTrue(((Constant) record.get(0).getStep()).isFalsehood());
-        assertTrue(record.get(0).isValid());
+        assertEquals(new ProofReason("FI", List.of(), List.of(1, 2)), record.getFirst().getProof());
+        assertEquals(1, record.getFirst().getAssumptionLevel());
+        assertTrue(((Constant) record.getFirst().getStep()).isFalsehood());
+        assertTrue(record.getFirst().isValid());
     }
 
     public static <T extends LogicOperation> Constant getFalse() {

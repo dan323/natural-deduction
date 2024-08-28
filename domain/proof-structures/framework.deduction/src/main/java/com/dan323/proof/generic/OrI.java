@@ -6,7 +6,7 @@ import com.dan323.proof.generic.proof.ProofReason;
 import com.dan323.proof.generic.proof.ProofStep;
 import com.dan323.proof.generic.proof.ProofStepSupplier;
 
-import java.util.Collections;
+import java.util.List;
 import java.util.Objects;
 import java.util.function.BinaryOperator;
 
@@ -14,7 +14,6 @@ import java.util.function.BinaryOperator;
  * @author danco
  */
 public abstract class OrI<T extends LogicOperation, Q extends ProofStep<T>, P extends Proof<T, Q>> implements Action<T, Q, P>, AbstractAction<T,Q,P> {
-
     private final int applyAt;
     private final T intro;
     private final BinaryOperator<T> disjunction;
@@ -27,21 +26,21 @@ public abstract class OrI<T extends LogicOperation, Q extends ProofStep<T>, P ex
 
     @Override
     public boolean isValid(P pf) {
-        return RuleUtils.isValidIndexAndProp(pf, applyAt);
+        return RuleUtils.isValidIndexAndProp(pf, applyAt) && intro != null;
     }
 
     @Override
     public void applyStepSupplier(P pf, ProofStepSupplier<T, Q> supp) {
         int assLevel = 0;
         if (!pf.getSteps().isEmpty()) {
-            assLevel = pf.getSteps().get(pf.getSteps().size() - 1).getAssumptionLevel();
+            assLevel = pf.getSteps().getLast().getAssumptionLevel();
         }
         T result = disjunction.apply(pf.getSteps().get(applyAt - 1).getStep(), intro);
         pf.getSteps().add(supp.generateProofStep(assLevel, result, getReason()));
     }
 
     private ProofReason getReason() {
-        return new ProofReason("|I", Collections.singletonList(applyAt));
+        return new ProofReason("|I", List.of(), List.of(applyAt));
     }
 
     protected int getAt() {
@@ -59,5 +58,10 @@ public abstract class OrI<T extends LogicOperation, Q extends ProofStep<T>, P ex
     @Override
     public int hashCode() {
         return Objects.hash(applyAt, intro, getClass());
+    }
+
+    @Override
+    public String toString() {
+        return "{line:"+ getAt() +", expression:" + intro + "}";
     }
 }

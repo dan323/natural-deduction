@@ -6,7 +6,7 @@ import com.dan323.proof.generic.proof.ProofReason;
 import com.dan323.proof.generic.proof.ProofStep;
 import com.dan323.proof.generic.proof.ProofStepSupplier;
 
-import java.util.Collections;
+import java.util.List;
 
 /**
  * @author danco
@@ -31,6 +31,6 @@ public abstract class Assume<T extends LogicOperation, Q extends ProofStep<T>, P
     }
 
     protected ProofReason getReason() {
-        return new ProofReason("Ass", Collections.emptyList());
+        return new ProofReason("Ass", List.of(), List.of());
     }
 }

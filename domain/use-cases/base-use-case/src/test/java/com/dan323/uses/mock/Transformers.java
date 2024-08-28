@@ -64,7 +64,7 @@ public final class Transformers {
                             public String toString() {
                                 return "P";
                             }
-                        }, new ProofReason("R", List.of())));
+                        }, new ProofReason("R", List.of(), List.of())));
                     }
                 };
             }

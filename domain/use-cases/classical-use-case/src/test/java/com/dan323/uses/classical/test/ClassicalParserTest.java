@@ -46,7 +46,7 @@ public class ClassicalParserTest {
         ParseClassicalProof parser = new ParseClassicalProof();
         NaturalDeduction nd = new NaturalDeduction();
         nd.initializeProof(List.of(P), QimpP);
-        nd.getSteps().add(new ProofStep<>(1, Q, new ProofReason("Ass", List.of())));
+        nd.getSteps().add(new ProofStep<>(1, Q, new ProofReason("Ass", List.of(), List.of())));
         var exception = assertThrowsExactly(IllegalArgumentException.class, () -> parser.parseProof(nd.toString()));
         assertTrue(exception.getMessage().contains("invalid"));
     }

@@ -1,5 +1,6 @@
 package com.dan323.classical;
 
+import com.dan323.classical.proof.AvailableAction;
 import com.dan323.expressions.classical.ClassicalLogicOperation;
 import com.dan323.expressions.classical.ConjunctionClassic;
 import com.dan323.classical.proof.NaturalDeduction;
@@ -12,4 +13,8 @@ public final class ClassicAndI extends AndI<ClassicalLogicOperation, ProofStep<C
         super(i1, i2, ConjunctionClassic::new);
     }
 
+    @Override
+    public AvailableAction getAction() {
+        return AvailableAction.ANDI;
+    }
 }

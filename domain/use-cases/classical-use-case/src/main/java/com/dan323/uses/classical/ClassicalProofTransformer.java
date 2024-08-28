@@ -4,7 +4,6 @@ import com.dan323.classical.ClassicalAction;
 import com.dan323.classical.proof.NaturalDeduction;
 import com.dan323.classical.proof.ParseClassicalAction;
 import com.dan323.expressions.classical.ClassicalLogicOperation;
-import com.dan323.expressions.classical.ClassicalParser;
 import com.dan323.model.ActionDto;
 import com.dan323.model.ProofDto;
 import com.dan323.model.StepDto;
@@ -15,6 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Predicate;
 
 public class ClassicalProofTransformer implements Transformer<ClassicalLogicOperation, ProofStep<ClassicalLogicOperation>, NaturalDeduction, ClassicalAction> {
 
@@ -49,8 +49,10 @@ public class ClassicalProofTransformer implements Transformer<ClassicalLogicOper
     }
 
     public ClassicalAction from(ActionDto action) {
-        var parser = new ClassicalParser();
-        return ParseClassicalAction.parseAction(action.name(), action.sources(), Optional.ofNullable(action.extraParameters().get("expression")).map(parser::evaluate).orElse(null));
+        return ParseClassicalAction.parseAction(action.name(), action.sources(), Optional.ofNullable(action.extraParameters())
+                .flatMap(params -> Optional.ofNullable(params.get("expression")))
+                .filter(Predicate.not(""::equals))
+                .map(ParseClassicalAction::parseExpression).orElse(null));
     }
 
     @Override

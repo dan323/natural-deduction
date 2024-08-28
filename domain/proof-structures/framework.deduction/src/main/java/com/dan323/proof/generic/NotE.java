@@ -7,7 +7,7 @@ import com.dan323.proof.generic.proof.ProofReason;
 import com.dan323.proof.generic.proof.ProofStep;
 import com.dan323.proof.generic.proof.ProofStepSupplier;
 
-import java.util.Collections;
+import java.util.List;
 
 /**
  * @author danco
@@ -45,13 +45,13 @@ public abstract class NotE<T extends LogicOperation, Q extends ProofStep<T>, P e
 
     @Override
     public void applyStepSupplier(P pf, ProofStepSupplier<T, Q> supp) {
-        int assLevel = pf.getSteps().get(pf.getSteps().size() - 1).getAssumptionLevel();
+        int assLevel = pf.getSteps().getLast().getAssumptionLevel();
         T sol = ((Negation<Negation<T>>) (pf.getSteps().get(neg - 1).getStep())).getElement().getElement();
         pf.getSteps().add(supp.generateProofStep(assLevel, sol, getReason()));
     }
 
     private ProofReason getReason() {
-        return new ProofReason("-E", Collections.singletonList(neg));
+        return new ProofReason("-E", List.of(), List.of(neg));
     }
 
     protected int getNeg() {

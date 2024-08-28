@@ -27,24 +27,24 @@ public class ModalNotTest {
         var pf = new ModalNaturalDeduction("s0");
 
         assume.apply(pf);
-        pf.getSteps().add(new ProofStepModal(state, 1, bottom, new ProofReason("TST", List.of())));
+        pf.getSteps().add(new ProofStepModal(state, 1, bottom, new ProofReason("TST", List.of(), List.of())));
         modalnoti.apply(pf);
 
-        Assertions.assertEquals("- P", pf.getSteps().get(pf.getSteps().size() - 1).getStep().toString());
-        Assertions.assertEquals(0, pf.getSteps().get(pf.getSteps().size() - 1).getAssumptionLevel());
-        Assertions.assertEquals("-I [1, 2]", pf.getSteps().get(pf.getSteps().size() - 1).getProof().toString());
-        Assertions.assertEquals("i: - P           -I [1, 2]", pf.getSteps().get(pf.getSteps().size() - 1).toString());
+        Assertions.assertEquals("- P", pf.getSteps().getLast().getStep().toString());
+        Assertions.assertEquals(0, pf.getSteps().getLast().getAssumptionLevel());
+        Assertions.assertEquals("-I [1-2]", pf.getSteps().getLast().getProof().toString());
+        Assertions.assertEquals("i: - P           -I [1-2]", pf.getSteps().getLast().toString());
 
         assume2.apply(pf);
         assume3.apply(pf);
         assume.apply(pf);
-        pf.getSteps().add(new ProofStepModal(state, 3, bottom, new ProofReason("TST", List.of())));
+        pf.getSteps().add(new ProofStepModal(state, 3, bottom, new ProofReason("TST", List.of(), List.of())));
         modalnoti.apply(pf);
 
-        Assertions.assertEquals("- P", pf.getSteps().get(pf.getSteps().size() - 1).getStep().toString());
-        Assertions.assertEquals(2, pf.getSteps().get(pf.getSteps().size() - 1).getAssumptionLevel());
-        Assertions.assertEquals("-I [6, 7]", pf.getSteps().get(pf.getSteps().size() - 1).getProof().toString());
-        Assertions.assertEquals("i:       - P           -I [6, 7]", pf.getSteps().get(pf.getSteps().size() - 1).toString());
+        Assertions.assertEquals("- P", pf.getSteps().getLast().getStep().toString());
+        Assertions.assertEquals(2, pf.getSteps().getLast().getAssumptionLevel());
+        Assertions.assertEquals("-I [6-7]", pf.getSteps().getLast().getProof().toString());
+        Assertions.assertEquals("i:       - P           -I [6-7]", pf.getSteps().getLast().toString());
     }
 
     @Test
@@ -58,9 +58,9 @@ public class ModalNotTest {
         assume.apply(pf);
         notE.apply(pf);
 
-        Assertions.assertEquals("P", pf.getSteps().get(pf.getSteps().size() - 1).getStep().toString());
-        Assertions.assertEquals(1, pf.getSteps().get(pf.getSteps().size() - 1).getAssumptionLevel());
-        Assertions.assertEquals("-E [1]", pf.getSteps().get(pf.getSteps().size() - 1).getProof().toString());
-        Assertions.assertEquals("i:    P           -E [1]", pf.getSteps().get(pf.getSteps().size() - 1).toString());
+        Assertions.assertEquals("P", pf.getSteps().getLast().getStep().toString());
+        Assertions.assertEquals(1, pf.getSteps().getLast().getAssumptionLevel());
+        Assertions.assertEquals("-E [1]", pf.getSteps().getLast().getProof().toString());
+        Assertions.assertEquals("i:    P           -E [1]", pf.getSteps().getLast().toString());
     }
 }

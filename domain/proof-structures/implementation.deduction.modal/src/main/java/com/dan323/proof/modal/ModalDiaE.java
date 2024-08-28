@@ -74,29 +74,29 @@ public final class ModalDiaE implements ModalAction {
     }
 
     private boolean isNotFresh(ModalNaturalDeduction pf, int i) {
-        if ((pf.getSteps().get(pf.getSteps().size() - 1).getStep()) instanceof ModalLogicalOperation) {
-            String last = (pf.getSteps().get(pf.getSteps().size() - 1)).getState();
+        if ((pf.getSteps().getLast().getStep()) instanceof ModalLogicalOperation) {
+            String last = (pf.getSteps().getLast()).getState();
             return pf.stateIsUsedBefore(last, i);
         } else {
-            RelationOperation operation = (RelationOperation) (pf.getSteps().get(pf.getSteps().size() - 1).getStep());
+            RelationOperation operation = (RelationOperation) (pf.getSteps().getLast().getStep());
             return pf.stateIsUsedBefore(operation.getLeft(), i) &&
                     pf.stateIsUsedBefore(operation.getRight(), i);
         }
     }
 
     public void applyStepSupplier(ModalNaturalDeduction pf, ProofStepSupplier<ModalOperation, ProofStepModal> supp) {
-        ProofStepModal psm = pf.getSteps().get(pf.getSteps().size() - 1);
+        ProofStepModal psm = pf.getSteps().getLast();
         int i = RuleUtils.getToLastAssumption(pf, psm.getAssumptionLevel());
         ProofStepModal log = pf.getSteps().get(pf.getSteps().size() - i - 1);
 
         RuleUtils.disableUntilLastAssumption(pf, log.getAssumptionLevel());
-        List<Integer> lst = List.of(j, pf.getSteps().size() - i, pf.getSteps().size());
-        pf.getSteps().add(supp.generateProofStep(psm.getAssumptionLevel() - 2, psm.getStep(), new ProofReason("<>E", lst)));
+        var lst = List.of(new ProofReason.Range(pf.getSteps().size() - i, pf.getSteps().size()));
+        pf.getSteps().add(supp.generateProofStep(psm.getAssumptionLevel() - 2, psm.getStep(), new ProofReason("<>E", lst, List.of(j))));
     }
 
     @Override
     public void apply(ModalNaturalDeduction pf) {
-        ProofStepModal psm = pf.getSteps().get(pf.getSteps().size() - 1);
+        ProofStepModal psm = pf.getSteps().getLast();
         applyStepSupplier(pf, ((assLevel, log, reason) -> new ProofStepModal(psm.getState(), assLevel, (ModalLogicalOperation) log, reason)));
     }
 

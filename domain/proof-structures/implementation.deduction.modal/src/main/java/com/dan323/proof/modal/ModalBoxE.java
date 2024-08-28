@@ -41,7 +41,7 @@ public final class ModalBoxE implements ModalAction {
         }
         ProofStepModal ps = pf.getSteps().get(i - 1);
         Always al = (Always) ps.getStep();
-        pf.getSteps().add(supp.generateProofStep(assLevel, al.getElement(), new ProofReason("[]E", List.of(i, q))));
+        pf.getSteps().add(supp.generateProofStep(assLevel, al.getElement(), new ProofReason("[]E", List.of(), List.of(i, q))));
     }
 
     @Override

@@ -140,8 +140,12 @@ public final class ParseModalAction {
     }
 
     private static int[] parseArray(ProofReason proofReason) {
-        return Arrays.stream(proofReason.toString().substring(proofReason.getNameProof().length() + 2, proofReason.toString().length() - 1).split(","))
-                .map(String::trim).mapToInt(Integer::parseInt).toArray();
+        return Arrays.stream(proofReason.toString().substring(proofReason.getNameProof().length() + 2, proofReason.toString().length() - 1)
+                        .split(","))
+                .map(String::trim)
+                .filter(split -> !split.contains("-"))
+                .mapToInt(Integer::parseInt)
+                .toArray();
     }
 
     private static ModalAssume parseAss(ModalOperation atPos, String state) {
@@ -167,13 +171,26 @@ public final class ParseModalAction {
                 .toArray();
     }
 
+    private static int[] parseRange(String proofReason) {
+        return Arrays.stream(proofReason.split("-"))
+                .mapToInt(Integer::parseInt)
+                .toArray();
+    }
+
     private static final Map<String, Function<String, ProofReason>> MODAL_RULES =
-            Map.of("[]I", st -> new ProofReason("[]I", Arrays.stream(parseArray(st, 3)).boxed().toList()),
-                    "[]E", st -> new ProofReason("[]E", Arrays.stream(parseArray(st, 3)).boxed().toList()),
-                    "<>I", st -> new ProofReason("<>I", Arrays.stream(parseArray(st, 3)).boxed().toList()),
-                    "<>E", st -> new ProofReason("<>E", Arrays.stream(parseArray(st, 3)).boxed().toList()),
-                    "Ref", st -> new ProofReason(REFL, Arrays.stream(parseArray(st, 4)).boxed().toList()),
-                    "Tra", st -> new ProofReason(TRANS, Arrays.stream(parseArray(st, 5)).boxed().toList()));
+            Map.of("[]I", st -> {
+                        var lst = parseRange(st.substring(5, st.length()-1));
+                        return new ProofReason("[]I", List.of(new ProofReason.Range(lst[0], lst[1])), List.of());
+                    },
+                    "[]E", st -> new ProofReason("[]E", List.of(), Arrays.stream(parseArray(st, 3)).boxed().toList()),
+                    "<>I", st -> new ProofReason("<>I", List.of(), Arrays.stream(parseArray(st, 3)).boxed().toList()),
+                    "<>E", st -> {
+                        var lst = Arrays.stream(st.substring(5, st.length() -1).split(",")).map(String::trim).toArray(String[]::new);
+                        var range = parseRange(lst[1]);
+                        return new ProofReason("<>E", List.of(new ProofReason.Range(range[0], range[1])), List.of(Integer.parseInt(lst[0])));
+                    },
+                    "Ref", st -> new ProofReason(REFL, List.of(), Arrays.stream(parseArray(st, 4)).boxed().toList()),
+                    "Tra", st -> new ProofReason(TRANS, List.of(), Arrays.stream(parseArray(st, 5)).boxed().toList()));
 
 
     public static ProofReason parseReason(String ruleString) {

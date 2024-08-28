@@ -1,5 +1,6 @@
 package com.dan323.classical;
 
+import com.dan323.classical.proof.AvailableAction;
 import com.dan323.expressions.base.BinaryOperation;
 import com.dan323.expressions.classical.ClassicalLogicOperation;
 import com.dan323.classical.proof.NaturalDeduction;
@@ -10,5 +11,10 @@ public final class ClassicAndE2 extends AndE<ClassicalLogicOperation, ProofStep<
 
     public ClassicAndE2(int i) {
         super(i, BinaryOperation::getRight);
+    }
+
+    @Override
+    public AvailableAction getAction() {
+        return AvailableAction.ANDE2;
     }
 }

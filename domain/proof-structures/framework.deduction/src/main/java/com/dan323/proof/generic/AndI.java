@@ -54,7 +54,7 @@ public abstract class AndI<T extends LogicOperation, Q extends ProofStep<T>, P e
     }
 
     private ProofReason getReason() {
-        return new ProofReason("&I", List.of(applyAt1, applyAt2));
+        return new ProofReason("&I", List.of(), List.of(applyAt1, applyAt2));
     }
 
     protected int get1() {

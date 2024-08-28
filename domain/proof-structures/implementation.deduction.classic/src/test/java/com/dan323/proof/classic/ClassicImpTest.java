@@ -21,10 +21,10 @@ public class ClassicImpTest {
         assume.apply(pf);
         deductionTheorem.apply(pf);
 
-        Assertions.assertEquals("P -> P", pf.getSteps().get(pf.getSteps().size() - 1).getStep().toString());
-        Assertions.assertEquals(0, pf.getSteps().get(pf.getSteps().size() - 1).getAssumptionLevel());
-        Assertions.assertEquals("->I [1, 1]", pf.getSteps().get(pf.getSteps().size() - 1).getProof().toString());
-        Assertions.assertEquals("P -> P           ->I [1, 1]", pf.getSteps().get(pf.getSteps().size() - 1).toString());
+        Assertions.assertEquals("P -> P", pf.getSteps().getLast().getStep().toString());
+        Assertions.assertEquals(0, pf.getSteps().getLast().getAssumptionLevel());
+        Assertions.assertEquals("->I [1-1]", pf.getSteps().getLast().getProof().toString());
+        Assertions.assertEquals("P -> P           ->I [1-1]", pf.getSteps().getLast().toString());
     }
 
     @Test
@@ -40,9 +40,9 @@ public class ClassicImpTest {
         assume.apply(pf);
         modusPonens.apply(pf);
 
-        Assertions.assertEquals("P", pf.getSteps().get(pf.getSteps().size() - 1).getStep().toString());
-        Assertions.assertEquals(2, pf.getSteps().get(pf.getSteps().size() - 1).getAssumptionLevel());
-        Assertions.assertEquals("->E [1, 2]", pf.getSteps().get(pf.getSteps().size() - 1).getProof().toString());
-        Assertions.assertEquals("      P           ->E [1, 2]", pf.getSteps().get(pf.getSteps().size() - 1).toString());
+        Assertions.assertEquals("P", pf.getSteps().getLast().getStep().toString());
+        Assertions.assertEquals(2, pf.getSteps().getLast().getAssumptionLevel());
+        Assertions.assertEquals("->E [1, 2]", pf.getSteps().getLast().getProof().toString());
+        Assertions.assertEquals("      P           ->E [1, 2]", pf.getSteps().getLast().toString());
     }
 }

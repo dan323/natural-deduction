@@ -63,6 +63,7 @@ public class RuleNotTest {
         doReturn(false).when(list).isEmpty();
         doReturn(pStep0).when(list).get(eq(0));
         doReturn(pStep1).when(list).get(eq(1));
+        doReturn(pStep1).when(list).getLast();
         doReturn(0).when(pStep1).getAssumptionLevel();
 
         Assertions.assertFalse(notI.isValid(pf));
@@ -116,8 +117,8 @@ public class RuleNotTest {
     public void notEApplyTest() {
         List<ProofStep<LogicOperation>> record = new ArrayList<>();
         doReturn(list).when(pf).getSteps();
-        doReturn(1).when(list).size();
         doReturn(pStep0).when(list).get(eq(0));
+        doReturn(pStep0).when(list).getLast();
         doReturn(0).when(pStep0).getAssumptionLevel();
         Variable variable = mock(Variable.class, Answers.CALLS_REAL_METHODS);
         doReturn("P").when(variable).toString();
@@ -128,10 +129,10 @@ public class RuleNotTest {
         NotEStub notE = new NotEStub(1);
         notE.applyStepSupplier(pf, ProofStep::new);
 
-        Assertions.assertEquals(new ProofReason("-E", List.of(1)), record.get(0).getProof());
-        Assertions.assertEquals(0, record.get(0).getAssumptionLevel());
-        Assertions.assertEquals("P", record.get(0).getStep().toString());
-        Assertions.assertTrue(record.get(0).isValid());
+        Assertions.assertEquals(new ProofReason("-E", List.of(), List.of(1)), record.getFirst().getProof());
+        Assertions.assertEquals(0, record.getFirst().getAssumptionLevel());
+        Assertions.assertEquals("P", record.getFirst().getStep().toString());
+        Assertions.assertTrue(record.getFirst().isValid());
     }
 
     @Test
@@ -141,6 +142,7 @@ public class RuleNotTest {
         doReturn(2).when(list).size();
         doReturn(pStep0).when(list).get(eq(0));
         doReturn(pStep1).when(list).get(eq(1));
+        doReturn(pStep1).when(list).getLast();
         doReturn(1).when(pStep1).getAssumptionLevel();
         doReturn(1).when(pStep0).getAssumptionLevel();
         Variable variable = mock(Variable.class, Answers.CALLS_REAL_METHODS);
@@ -151,10 +153,10 @@ public class RuleNotTest {
         NotIStub notI = new NotIStub();
         notI.applyStepSupplier(pf, ProofStep::new);
 
-        Assertions.assertEquals(new ProofReason("-I", List.of(1, 2)), record.get(0).getProof());
-        Assertions.assertEquals(0, record.get(0).getAssumptionLevel());
-        Assertions.assertEquals("- P", record.get(0).getStep().toString());
-        Assertions.assertTrue(record.get(0).isValid());
+        Assertions.assertEquals(new ProofReason("-I", List.of(new ProofReason.Range(1, 2)), List.of()), record.getFirst().getProof());
+        Assertions.assertEquals(0, record.getFirst().getAssumptionLevel());
+        Assertions.assertEquals("- P", record.getFirst().getStep().toString());
+        Assertions.assertTrue(record.getFirst().isValid());
     }
 
     public static class NotIStub extends NotI<LogicOperation, ProofStep<LogicOperation>, ProofTest.ProofStub> {

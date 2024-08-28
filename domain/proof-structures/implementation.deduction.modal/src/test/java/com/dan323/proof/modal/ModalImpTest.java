@@ -25,7 +25,7 @@ public class ModalImpTest {
         assume.apply(pf);
         assertTrue(deductionTheorem.isValid(pf));
 
-        pf.getSteps().add(new ProofStepModal("j", 1, new VariableModal("Q"), new ProofReason("TST", List.of())));
+        pf.getSteps().add(new ProofStepModal("j", 1, new VariableModal("Q"), new ProofReason("TST", List.of(), List.of())));
         assertFalse(deductionTheorem.isValid(pf));
     }
 
@@ -42,8 +42,8 @@ public class ModalImpTest {
 
         Assertions.assertEquals("P -> P", pf.getSteps().getLast().getStep().toString());
         Assertions.assertEquals(0, pf.getSteps().getLast().getAssumptionLevel());
-        Assertions.assertEquals("->I [1, 1]", pf.getSteps().getLast().getProof().toString());
-        Assertions.assertEquals("i: P -> P           ->I [1, 1]", pf.getSteps().getLast().toString());
+        Assertions.assertEquals("->I [1-1]", pf.getSteps().getLast().getProof().toString());
+        Assertions.assertEquals("i: P -> P           ->I [1-1]", pf.getSteps().getLast().toString());
     }
 
     @Test

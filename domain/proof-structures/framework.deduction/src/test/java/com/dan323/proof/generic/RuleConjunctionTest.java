@@ -90,9 +90,10 @@ public class RuleConjunctionTest {
     public void andIApply() {
         List<ProofStep<LogicOperation>> record = new ArrayList<>();
         doReturn(list).when(pf).getSteps();
-        doReturn(2).when(list).size();
         doReturn(false).when(list).isEmpty();
-        doReturn(pStep).when(list).get(intThat(i -> 0 <= i && i < 2));
+        doReturn(pStep).when(list).getLast();
+        doReturn(pStep).when(list).get(0);
+        doReturn(pStep).when(list).get(1);
         doReturn(1).when(pStep).getAssumptionLevel();
         Variable variable = mock(Variable.class, Answers.CALLS_REAL_METHODS);
         doReturn("P").when(variable).toString();
@@ -104,19 +105,19 @@ public class RuleConjunctionTest {
         AndIStub andI = new AndIStub(1, 2);
         andI.applyStepSupplier(pf, ProofStep::new);
 
-        Assertions.assertEquals("P & P", record.get(0).getStep().toString());
-        Assertions.assertEquals(1, record.get(0).getAssumptionLevel());
-        Assertions.assertEquals("&I [1, 2]", record.get(0).getProof().toString());
-        Assertions.assertEquals("   P & P           &I [1, 2]", record.get(0).toString());
+        Assertions.assertEquals("P & P", record.getFirst().getStep().toString());
+        Assertions.assertEquals(1, record.getFirst().getAssumptionLevel());
+        Assertions.assertEquals("&I [1, 2]", record.getFirst().getProof().toString());
+        Assertions.assertEquals("   P & P           &I [1, 2]", record.getFirst().toString());
     }
 
     @Test
     public void andEApply() {
         List<ProofStep<LogicOperation>> record = new ArrayList<>();
         doReturn(list).when(pf).getSteps();
-        doReturn(1).when(list).size();
         doReturn(false).when(list).isEmpty();
-        doReturn(pStep).when(list).get(intThat(i -> i == 0));
+        doReturn(pStep).when(list).get(0);
+        doReturn(pStep).when(list).getLast();
         doReturn(1).when(pStep).getAssumptionLevel();
         Variable variable = mock(Variable.class, Answers.CALLS_REAL_METHODS);
         doReturn("P").when(variable).toString();
@@ -126,10 +127,10 @@ public class RuleConjunctionTest {
         AndEStub andE = new AndEStub(1);
         andE.applyStepSupplier(pf, ProofStep::new);
 
-        Assertions.assertEquals("P", record.get(0).getStep().toString());
-        Assertions.assertEquals(1, record.get(0).getAssumptionLevel());
-        Assertions.assertEquals("&E [1]", record.get(0).getProof().toString());
-        Assertions.assertEquals("   P           &E [1]", record.get(0).toString());
+        Assertions.assertEquals("P", record.getFirst().getStep().toString());
+        Assertions.assertEquals(1, record.getFirst().getAssumptionLevel());
+        Assertions.assertEquals("&E [1]", record.getFirst().getProof().toString());
+        Assertions.assertEquals("   P           &E [1]", record.getFirst().toString());
 
         AndEStub2 andE2 = new AndEStub2(1);
         andE2.applyStepSupplier(pf, ProofStep::new);

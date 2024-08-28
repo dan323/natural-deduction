@@ -1,5 +1,6 @@
 package com.dan323.integration;
 
+import com.dan323.classical.proof.AvailableAction;
 import com.dan323.classical.proof.NaturalDeduction;
 import com.dan323.expressions.classical.ImplicationClassic;
 import com.dan323.expressions.classical.VariableClassic;
@@ -21,12 +22,13 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
-import static org.junit.jupiter.api.Assertions.assertArrayEquals;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(classes = {Application.class, ApplicationConfiguration.class},
@@ -41,28 +43,14 @@ public class RestServiceIT {
 
     @Test
     public void getActions() {
-        var actionArray = new String[]{
-                "ClassicOrI2",
-                "ClassicOrI1",
-                "ClassicModusPonens",
-                "ClassicNotI",
-                "ClassicDeductionTheorem",
-                "ClassicFE",
-                "ClassicOrE",
-                "ClassicAndI",
-                "ClassicFI",
-                "ClassicAssume",
-                "ClassicNotE",
-                "ClassicCopy",
-                "ClassicAndE2",
-                "ClassicAndE1"};
+        var actionArray = Arrays.stream(AvailableAction.values()).map(AvailableAction::name).collect(Collectors.toSet());
         var response = restTemplate
                 .exchange(createURLWithPort("/logic/classical/actions"),
                         HttpMethod.GET,
                         new HttpEntity<>(null, headers),
                         String[].class);
         assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertArrayEquals(actionArray, response.getBody());
+        assertEquals(actionArray, Arrays.stream(response.getBody()).map(act -> act.split("\\(")[0]).collect(Collectors.toSet()));
     }
 
     private String createURLWithPort(String uri) {
@@ -73,7 +61,7 @@ public class RestServiceIT {
     public void doAction() {
         ProofDto proofDto = new ProofDto(List.of(new StepDto("P", "Ass", 0, Map.of()),
                 new StepDto("Q", "Ass", 1, Map.of())), "classical", "Q->P");
-        ActionDto actionDto = new ActionDto("ClassicCopy", List.of(1), Map.of());
+        ActionDto actionDto = new ActionDto("COPY", List.of(1), Map.of());
         ProofActionRequest request = new ProofActionRequest(actionDto, proofDto);
         var response = restTemplate.exchange(createURLWithPort("/logic/classical/action"), HttpMethod.POST, new HttpEntity<>(request, headers), ProofResponse.class);
         assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -87,7 +75,7 @@ public class RestServiceIT {
         NaturalDeduction nd = new NaturalDeduction();
         var p = new VariableClassic("P");
         var proof = new ProofDto(List.of(new StepDto("P", "Ass", 1, Map.of()),
-                new StepDto("P -> P", "->I [1, 1]", 0, Map.of())
+                new StepDto("P -> P", "->I [1-1]", 0, Map.of())
         ), "classical", "P -> P");
         nd.initializeProof(List.of(), new ImplicationClassic(p, p));
         nd.automate();

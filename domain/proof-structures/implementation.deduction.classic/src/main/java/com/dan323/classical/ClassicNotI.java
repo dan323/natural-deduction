@@ -1,5 +1,6 @@
 package com.dan323.classical;
 
+import com.dan323.classical.proof.AvailableAction;
 import com.dan323.expressions.classical.ClassicalLogicOperation;
 import com.dan323.expressions.classical.NegationClassic;
 import com.dan323.classical.proof.NaturalDeduction;
@@ -12,4 +13,8 @@ public final class ClassicNotI extends NotI<ClassicalLogicOperation, ProofStep<C
         super(NegationClassic::new);
     }
 
+    @Override
+    public AvailableAction getAction() {
+        return AvailableAction.NOTI;
+    }
 }

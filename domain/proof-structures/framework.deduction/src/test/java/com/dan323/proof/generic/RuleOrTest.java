@@ -126,7 +126,7 @@ public class RuleOrTest {
         Assertions.assertFalse(orI.isValid(pf));
 
         doReturn(2).when(list).size();
-        doReturn(pStep1).when(list).get(eq(1));
+        doReturn(pStep1).when(list).get(1);
         doReturn(false).when(pStep1).isValid();
 
         Assertions.assertFalse(orI.isValid(pf));
@@ -143,10 +143,10 @@ public class RuleOrTest {
         List<ProofStep<LogicOperation>> record = new ArrayList<>();
         doReturn(list).when(pf).getSteps();
         Variable variable = mock(Variable.class);
-        doReturn(2).when(list).size();
         Implication<LogicOperation> implication = mockImplication(variable, variable);
         doReturn("P").when(variable).toString();
-        doReturn(pStep1).when(list).get(eq(1));
+        doReturn(pStep1).when(list).getLast();
+        doReturn(pStep1).when(list).get(1);
         doReturn(1).when(pStep1).getAssumptionLevel();
         doReturn(implication).when(pStep1).getStep();
         doAnswer(invocationOnMock -> record.add(invocationOnMock.getArgument(0))).when(list).add(any(ProofStep.class));
@@ -154,18 +154,18 @@ public class RuleOrTest {
         OrEStub orE = new RuleOrTest.OrEStub(1, 2, 2);
         orE.applyStepSupplier(pf, ProofStep::new);
 
-        assertEquals(new ProofReason("|E", List.of(1, 2, 2)), record.get(0).getProof());
-        assertEquals(1, record.get(0).getAssumptionLevel());
-        assertEquals("P", record.get(0).getStep().toString());
-        Assertions.assertTrue(record.get(0).isValid());
+        assertEquals(new ProofReason("|E", List.of(), List.of(1, 2, 2)), record.getFirst().getProof());
+        assertEquals(1, record.getFirst().getAssumptionLevel());
+        assertEquals("P", record.getFirst().getStep().toString());
+        Assertions.assertTrue(record.getFirst().isValid());
     }
 
     @Test
     public void orIApplyTest() {
         List<ProofStep<LogicOperation>> record = new ArrayList<>();
         doReturn(list).when(pf).getSteps();
-        doReturn(1).when(list).size();
         doReturn(pStep0).when(list).get(eq(0));
+        doReturn(pStep0).when(list).getLast();
         doReturn(1).when(pStep0).getAssumptionLevel();
         Variable variable = mock(Variable.class, Answers.CALLS_REAL_METHODS);
         doReturn("P").when(variable).toString();
@@ -175,10 +175,10 @@ public class RuleOrTest {
         OrIStub orI = new RuleOrTest.OrIStub(1, variable);
         orI.applyStepSupplier(pf, ProofStep::new);
 
-        assertEquals(new ProofReason("|I", List.of(1)), record.get(0).getProof());
-        assertEquals(1, record.get(0).getAssumptionLevel());
-        assertEquals("P | P", record.get(0).getStep().toString());
-        Assertions.assertTrue(record.get(0).isValid());
+        assertEquals(new ProofReason("|I", List.of(), List.of(1)), record.getFirst().getProof());
+        assertEquals(1, record.getFirst().getAssumptionLevel());
+        assertEquals("P | P", record.getFirst().getStep().toString());
+        Assertions.assertTrue(record.getFirst().isValid());
     }
 
     public static class OrIStub extends OrI<LogicOperation, ProofStep<LogicOperation>, ProofTest.ProofStub> {

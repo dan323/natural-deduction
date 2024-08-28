@@ -17,7 +17,7 @@ public final class RuleUtils {
 
 
     public static <P extends Proof<?, ?>> int getLastAssumptionLevel(P proof) {
-        return proof.getSteps().isEmpty() ? 0 : proof.getSteps().get(proof.getSteps().size() - 1).getAssumptionLevel();
+        return proof.getSteps().isEmpty() ? 0 : proof.getSteps().getLast().getAssumptionLevel();
     }
 
     public static <P extends Proof<?, ?>> int disableUntilLastAssumption(P proof, int assLevel) {
@@ -51,7 +51,7 @@ public final class RuleUtils {
 
 
     public static <P extends Proof<?, ?>> boolean isValidModusPonens(P pf, int applyAt1, int applyAt2) {
-        return isValidIndexAndProp(pf, applyAt1) &&  // applyAt1 is an valid index
+        return isValidIndexAndProp(pf, applyAt1) &&  // applyAt1 is a valid index
                 // applyAt1 gives result to an active proposition
                 isValidIndexAndProp(pf, applyAt2) && // applyAt2 is a valid index
                 // applyAt2 gives result to an active proposition
@@ -61,7 +61,9 @@ public final class RuleUtils {
     }
 
     public static <P extends Proof<?, ?>> boolean isValidIndex(P pf, int index) {
-        return 1 <= index && pf.getSteps().size() >= index;
+        var check1 = 1 <= index;
+        var check2 = pf.getSteps().size() >= index;
+        return check1 && check2;
     }
 
     public static <P extends Proof<?, ?>> boolean isValidPropAtIndex(P pf, int index) {
