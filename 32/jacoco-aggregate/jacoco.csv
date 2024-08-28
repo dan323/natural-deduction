@@ -61,8 +61,8 @@ jacoco-report-aggregate/implementation.deduction.modal,com.dan323.proof.modal.re
 jacoco-report-aggregate/implementation.deduction.modal,com.dan323.proof.modal.relational,Reflexive,18,68,2,2,2,10,3,5,1,5
 jacoco-report-aggregate/implementation.deduction.modal,com.dan323.proof.modal.relational,Transitive,22,122,3,7,1,14,4,6,1,4
 jacoco-report-aggregate/framework.deduction,com.dan323.proof.generic,DeductionTheorem,1,103,2,4,0,17,2,6,0,5
-jacoco-report-aggregate/framework.deduction,com.dan323.proof.generic,RuleUtils,11,165,4,24,3,24,5,23,1,13
-jacoco-report-aggregate/framework.deduction,com.dan323.proof.generic,OrI,7,129,5,9,1,20,6,10,1,8
+jacoco-report-aggregate/framework.deduction,com.dan323.proof.generic,RuleUtils,7,159,3,23,2,22,4,22,1,12
+jacoco-report-aggregate/framework.deduction,com.dan323.proof.generic,OrI,7,122,5,9,1,18,6,9,1,7
 jacoco-report-aggregate/framework.deduction,com.dan323.proof.generic,AndE,0,97,2,8,0,15,2,10,0,7
 jacoco-report-aggregate/framework.deduction,com.dan323.proof.generic,OrE,0,202,8,18,0,28,8,13,0,8
 jacoco-report-aggregate/framework.deduction,com.dan323.proof.generic,ModusPonens,0,94,1,7,0,15,1,10,0,7
