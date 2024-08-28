@@ -21,7 +21,6 @@ import java.util.List;
 public class ControllerInterface {
 
     private final ActionsUseCases useCase;
-    private static final Logger LOGGER = LoggerFactory.getLogger(ControllerInterface.class);
 
     @Inject
     public ControllerInterface(ActionsUseCases useCase) {
@@ -30,7 +29,6 @@ public class ControllerInterface {
 
     @GetMapping("{logic}/actions")
     public ResponseEntity<List<String>> getAllPossibleActions(@PathVariable("logic") String logic) {
-        LOGGER.info("The logic called is {}", logic);
         var actions = useCase.getActions(logic).perform();
         if (actions.isEmpty()) {
             return ResponseEntity.noContent().build();
@@ -57,7 +55,6 @@ public class ControllerInterface {
     @PostMapping("{logic}/action")
     public ResponseEntity<ProofResponse> doAction(@RequestBody ProofActionRequest proofActionRequest, @PathVariable("logic") String logic) {
         var action = proofActionRequest.actionDto();
-        LOGGER.info("ACT input: " + action.toString());
         var proof = proofActionRequest.proofDto();
         var afterAction = useCase.applyAction(logic).perform(action, proof);
         ProofResponse response = new ProofResponse(afterAction, afterAction.steps().size() > proofActionRequest.proofDto().steps().size());

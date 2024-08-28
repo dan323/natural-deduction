@@ -20,8 +20,6 @@ import java.util.function.Predicate;
 
 public class ClassicalProofTransformer implements Transformer<ClassicalLogicOperation, ProofStep<ClassicalLogicOperation>, NaturalDeduction, ClassicalAction> {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ClassicalProofTransformer.class);
-
     @Override
     public String logic() {
         return "classical";
@@ -53,7 +51,6 @@ public class ClassicalProofTransformer implements Transformer<ClassicalLogicOper
     }
 
     public ClassicalAction from(ActionDto action) {
-        LOGGER.info("PARAMS: " + action.extraParameters());
         return ParseClassicalAction.parseAction(action.name(), action.sources(), Optional.ofNullable(action.extraParameters())
                 .flatMap(params -> Optional.ofNullable(params.get("expression")))
                 .filter(Predicate.not(""::equals))

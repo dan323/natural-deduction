@@ -15,11 +15,8 @@ import java.util.stream.Collectors;
 
 public class ClassicGetActions implements LogicalGetActions {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ClassicGetActions.class);
-
     @Override
     public List<String> perform() {
-        LOGGER.debug("Getting actions for classical logic.");
         Reflections reflections = new Reflections("com.dan323.classical");
         return
                 reflections.getSubTypesOf(ClassicalAction.class)

@@ -11,7 +11,6 @@ import org.slf4j.LoggerFactory;
 
 public class LogicalApplyAction<T extends LogicOperation, Q extends ProofStep<T>, P extends Proof<T, Q>, A extends Action<T, Q, P>> implements ActionsUseCases.ApplyAction {
 
-    private final Logger LOGGER = LoggerFactory.getLogger(LogicalApplyAction.class);
     private final Transformer<T, Q, P, A> logic;
 
     public LogicalApplyAction(Transformer<T, Q, P, A> transformer) {
@@ -21,14 +20,10 @@ public class LogicalApplyAction<T extends LogicOperation, Q extends ProofStep<T>
     @Override
     public ProofDto perform(ActionDto action, ProofDto proof) {
         var act = logic.from(action);
-        LOGGER.info("ACTION:\n" + act.toString());
         var pr = logic.from(proof);
-        LOGGER.info("BEFORE:\n" + pr);
         if (act.isValid(pr)) {
-            LOGGER.info("The action " + action.name() + " is valid");
             act.apply(pr);
         }
-        LOGGER.info("AFTER:\n" + pr);
         return logic.fromProof(pr);
     }
 }

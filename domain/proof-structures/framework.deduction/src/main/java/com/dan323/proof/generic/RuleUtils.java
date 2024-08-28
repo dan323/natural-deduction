@@ -13,8 +13,6 @@ import org.slf4j.LoggerFactory;
  */
 public final class RuleUtils {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(RuleUtils.class);
-
     private RuleUtils() {
         throw new UnsupportedOperationException();
     }
@@ -55,7 +53,7 @@ public final class RuleUtils {
 
 
     public static <P extends Proof<?, ?>> boolean isValidModusPonens(P pf, int applyAt1, int applyAt2) {
-        return isValidIndexAndProp(pf, applyAt1) &&  // applyAt1 is an valid index
+        return isValidIndexAndProp(pf, applyAt1) &&  // applyAt1 is a valid index
                 // applyAt1 gives result to an active proposition
                 isValidIndexAndProp(pf, applyAt2) && // applyAt2 is a valid index
                 // applyAt2 gives result to an active proposition
@@ -67,9 +65,6 @@ public final class RuleUtils {
     public static <P extends Proof<?, ?>> boolean isValidIndex(P pf, int index) {
         var check1 = 1 <= index;
         var check2 = pf.getSteps().size() >= index;
-        if (!check1){
-            LOGGER.info(index+ " < 1");
-        }
         return check1 && check2;
     }
 

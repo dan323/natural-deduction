@@ -16,8 +16,6 @@ import java.util.function.BinaryOperator;
  * @author danco
  */
 public abstract class OrI<T extends LogicOperation, Q extends ProofStep<T>, P extends Proof<T, Q>> implements Action<T, Q, P>, AbstractAction<T,Q,P> {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(OrI.class);
     private final int applyAt;
     private final T intro;
     private final BinaryOperator<T> disjunction;
@@ -30,7 +28,6 @@ public abstract class OrI<T extends LogicOperation, Q extends ProofStep<T>, P ex
 
     @Override
     public boolean isValid(P pf) {
-        LOGGER.info("CHECKING OR-I validity");
         return RuleUtils.isValidIndexAndProp(pf, applyAt) && intro != null;
     }
 

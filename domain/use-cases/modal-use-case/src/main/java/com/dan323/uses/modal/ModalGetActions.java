@@ -11,11 +11,8 @@ import java.util.stream.Collectors;
 
 public class ModalGetActions implements LogicalGetActions {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ModalGetActions.class);
-
     @Override
     public List<String> perform() {
-        LOGGER.debug("Getting actions for modal logic.");
         var reflections = new Reflections("com.dan323.proof.modal");
         return reflections.getSubTypesOf(AbstractModalAction.class).stream()
                 .filter(clazz -> !clazz.getName().contains("complex"))
