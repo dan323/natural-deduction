@@ -5,8 +5,6 @@ import com.dan323.expressions.base.LogicOperation;
 import com.dan323.proof.generic.proof.Proof;
 
 import java.util.function.IntConsumer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * @author danco

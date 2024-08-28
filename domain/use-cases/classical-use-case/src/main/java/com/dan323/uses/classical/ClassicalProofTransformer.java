@@ -9,8 +9,6 @@ import com.dan323.model.ProofDto;
 import com.dan323.model.StepDto;
 import com.dan323.proof.generic.proof.ProofStep;
 import com.dan323.uses.Transformer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;

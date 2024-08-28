@@ -6,8 +6,6 @@ import com.dan323.model.ProofDto;
 import com.dan323.proof.generic.Action;
 import com.dan323.proof.generic.proof.Proof;
 import com.dan323.proof.generic.proof.ProofStep;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class LogicalApplyAction<T extends LogicOperation, Q extends ProofStep<T>, P extends Proof<T, Q>, A extends Action<T, Q, P>> implements ActionsUseCases.ApplyAction {
 

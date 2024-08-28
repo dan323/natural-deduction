@@ -4,8 +4,6 @@ import com.dan323.classical.ClassicalAction;
 import com.dan323.classical.proof.AvailableAction;
 import com.dan323.uses.LogicalGetActions;
 import org.reflections.Reflections;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Parameter;
 import java.lang.reflect.Type;

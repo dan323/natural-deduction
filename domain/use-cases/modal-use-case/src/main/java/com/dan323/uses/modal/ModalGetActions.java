@@ -3,8 +3,6 @@ package com.dan323.uses.modal;
 import com.dan323.proof.modal.AbstractModalAction;
 import com.dan323.uses.LogicalGetActions;
 import org.reflections.Reflections;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.stream.Collectors;
