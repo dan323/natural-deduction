@@ -140,76 +140,93 @@ public final class ParseModalAction {
     }
 
     private static int[] parseArray(ProofReason proofReason) {
-<span class="fc" id="L143">        return Arrays.stream(proofReason.toString().substring(proofReason.getNameProof().length() + 2, proofReason.toString().length() - 1).split(&quot;,&quot;))</span>
-<span class="fc" id="L144">                .map(String::trim).mapToInt(Integer::parseInt).toArray();</span>
+<span class="fc" id="L143">        return Arrays.stream(proofReason.toString().substring(proofReason.getNameProof().length() + 2, proofReason.toString().length() - 1)</span>
+<span class="fc" id="L144">                        .split(&quot;,&quot;))</span>
+<span class="fc" id="L145">                .map(String::trim)</span>
+<span class="fc bfc" id="L146" title="All 2 branches covered.">                .filter(split -&gt; !split.contains(&quot;-&quot;))</span>
+<span class="fc" id="L147">                .mapToInt(Integer::parseInt)</span>
+<span class="fc" id="L148">                .toArray();</span>
     }
 
     private static ModalAssume parseAss(ModalOperation atPos, String state) {
-<span class="fc bfc" id="L148" title="All 2 branches covered.">        if (atPos instanceof RelationOperation operation) {</span>
-<span class="fc" id="L149">            return new ModalAssume(operation);</span>
-<span class="pc bpc" id="L150" title="1 of 2 branches missed.">        } else if (state != null) {</span>
-<span class="fc" id="L151">            return new ModalAssume((ModalLogicalOperation) atPos, state);</span>
+<span class="fc bfc" id="L152" title="All 2 branches covered.">        if (atPos instanceof RelationOperation operation) {</span>
+<span class="fc" id="L153">            return new ModalAssume(operation);</span>
+<span class="pc bpc" id="L154" title="1 of 2 branches missed.">        } else if (state != null) {</span>
+<span class="fc" id="L155">            return new ModalAssume((ModalLogicalOperation) atPos, state);</span>
         } else {
-<span class="nc" id="L153">            throw new IllegalArgumentException(&quot;State provided is invalid.&quot;);</span>
+<span class="nc" id="L157">            throw new IllegalArgumentException(&quot;State provided is invalid.&quot;);</span>
         }
     }
 
     private static ModalOrE parseOrE(ProofReason reason) {
-<span class="fc" id="L158">        int[] ints = parseArray(reason);</span>
-<span class="fc" id="L159">        return new ModalOrE(ints[0], ints[1], ints[2]);</span>
+<span class="fc" id="L162">        int[] ints = parseArray(reason);</span>
+<span class="fc" id="L163">        return new ModalOrE(ints[0], ints[1], ints[2]);</span>
     }
 
     private static int[] parseArray(String proofReason, int reasonLength) {
-<span class="fc" id="L163">        return Arrays.stream(proofReason.substring(reasonLength + 2, proofReason.length() - 1)</span>
-<span class="fc" id="L164">                        .split(&quot;,&quot;))</span>
-<span class="fc" id="L165">                .map(String::trim)</span>
-<span class="fc" id="L166">                .mapToInt(Integer::parseInt)</span>
-<span class="fc" id="L167">                .toArray();</span>
+<span class="fc" id="L167">        return Arrays.stream(proofReason.substring(reasonLength + 2, proofReason.length() - 1)</span>
+<span class="fc" id="L168">                        .split(&quot;,&quot;))</span>
+<span class="fc" id="L169">                .map(String::trim)</span>
+<span class="fc" id="L170">                .mapToInt(Integer::parseInt)</span>
+<span class="fc" id="L171">                .toArray();</span>
     }
 
-<span class="fc" id="L170">    private static final Map&lt;String, Function&lt;String, ProofReason&gt;&gt; MODAL_RULES =</span>
-<span class="fc" id="L171">            Map.of(&quot;[]I&quot;, st -&gt; new ProofReason(&quot;[]I&quot;, Arrays.stream(parseArray(st, 3)).boxed().toList()),</span>
-<span class="nc" id="L172">                    &quot;[]E&quot;, st -&gt; new ProofReason(&quot;[]E&quot;, Arrays.stream(parseArray(st, 3)).boxed().toList()),</span>
-<span class="fc" id="L173">                    &quot;&lt;&gt;I&quot;, st -&gt; new ProofReason(&quot;&lt;&gt;I&quot;, Arrays.stream(parseArray(st, 3)).boxed().toList()),</span>
-<span class="nc" id="L174">                    &quot;&lt;&gt;E&quot;, st -&gt; new ProofReason(&quot;&lt;&gt;E&quot;, Arrays.stream(parseArray(st, 3)).boxed().toList()),</span>
-<span class="nc" id="L175">                    &quot;Ref&quot;, st -&gt; new ProofReason(REFL, Arrays.stream(parseArray(st, 4)).boxed().toList()),</span>
-<span class="nc" id="L176">                    &quot;Tra&quot;, st -&gt; new ProofReason(TRANS, Arrays.stream(parseArray(st, 5)).boxed().toList()));</span>
+    private static int[] parseRange(String proofReason) {
+<span class="fc" id="L175">        return Arrays.stream(proofReason.split(&quot;-&quot;))</span>
+<span class="fc" id="L176">                .mapToInt(Integer::parseInt)</span>
+<span class="fc" id="L177">                .toArray();</span>
+    }
+
+<span class="fc" id="L180">    private static final Map&lt;String, Function&lt;String, ProofReason&gt;&gt; MODAL_RULES =</span>
+<span class="fc" id="L181">            Map.of(&quot;[]I&quot;, st -&gt; {</span>
+<span class="fc" id="L182">                        var lst = parseRange(st.substring(5, st.length()-1));</span>
+<span class="fc" id="L183">                        return new ProofReason(&quot;[]I&quot;, List.of(new ProofReason.Range(lst[0], lst[1])), List.of());</span>
+                    },
+<span class="nc" id="L185">                    &quot;[]E&quot;, st -&gt; new ProofReason(&quot;[]E&quot;, List.of(), Arrays.stream(parseArray(st, 3)).boxed().toList()),</span>
+<span class="fc" id="L186">                    &quot;&lt;&gt;I&quot;, st -&gt; new ProofReason(&quot;&lt;&gt;I&quot;, List.of(), Arrays.stream(parseArray(st, 3)).boxed().toList()),</span>
+                    &quot;&lt;&gt;E&quot;, st -&gt; {
+<span class="nc" id="L188">                        var lst = Arrays.stream(st.substring(5, st.length() -1).split(&quot;,&quot;)).map(String::trim).toArray(String[]::new);</span>
+<span class="nc" id="L189">                        var range = parseRange(lst[1]);</span>
+<span class="nc" id="L190">                        return new ProofReason(&quot;&lt;&gt;E&quot;, List.of(new ProofReason.Range(range[0], range[1])), List.of(Integer.parseInt(lst[0])));</span>
+                    },
+<span class="nc" id="L192">                    &quot;Ref&quot;, st -&gt; new ProofReason(REFL, List.of(), Arrays.stream(parseArray(st, 4)).boxed().toList()),</span>
+<span class="nc" id="L193">                    &quot;Tra&quot;, st -&gt; new ProofReason(TRANS, List.of(), Arrays.stream(parseArray(st, 5)).boxed().toList()));</span>
 
 
     public static ProofReason parseReason(String ruleString) {
-<span class="fc" id="L180">        return ProofReason.parseReason(ruleString, MODAL_RULES);</span>
+<span class="fc" id="L197">        return ProofReason.parseReason(ruleString, MODAL_RULES);</span>
     }
 
-<span class="fc" id="L183">    private static final ModalLogicParser modalParser = new ModalLogicParser();</span>
+<span class="fc" id="L200">    private static final ModalLogicParser modalParser = new ModalLogicParser();</span>
 
     public static ModalOperation parseExpression(String expression) {
-<span class="nc" id="L186">        return modalParser.evaluate(expression);</span>
+<span class="nc" id="L203">        return modalParser.evaluate(expression);</span>
     }
 
     public static AbstractModalAction parseAction(String name, List&lt;Integer&gt; sources, ModalOperation extraInfo, String state) {
-<span class="pc bpc" id="L190" title="15 of 21 branches missed.">        return switch (name) {</span>
+<span class="pc bpc" id="L207" title="15 of 21 branches missed.">        return switch (name) {</span>
             case &quot;Ass&quot; -&gt;
-<span class="pc bpc" id="L192" title="1 of 2 branches missed.">                    extraInfo instanceof RelationOperation relationOperation ? new ModalAssume(relationOperation) : new ModalAssume((ModalLogicalOperation) extraInfo, state);</span>
-<span class="nc" id="L193">            case &quot;|I1&quot; -&gt; new ModalOrI1(sources.getFirst(), (ModalLogicalOperation) extraInfo);</span>
-<span class="nc" id="L194">            case &quot;|I2&quot; -&gt; new ModalOrI2(sources.getFirst(), (ModalLogicalOperation) extraInfo);</span>
-<span class="nc" id="L195">            case &quot;|E&quot; -&gt; new ModalOrE(sources.get(0), sources.get(1), sources.get(2));</span>
-<span class="nc" id="L196">            case &quot;&amp;I&quot; -&gt; new ModalAndI(sources.get(0), sources.get(1));</span>
-<span class="nc" id="L197">            case &quot;&amp;E1&quot; -&gt; new ModalAndE1(sources.getFirst());</span>
-<span class="nc" id="L198">            case &quot;&amp;E2&quot; -&gt; new ModalAndE2(sources.getFirst());</span>
-<span class="fc" id="L199">            case &quot;Rep&quot; -&gt; new ModalCopy(sources.getFirst());</span>
-<span class="fc" id="L200">            case &quot;-E&quot; -&gt; new ModalNotE(sources.getFirst());</span>
-<span class="nc" id="L201">            case &quot;-I&quot; -&gt; new ModalNotI();</span>
-<span class="fc" id="L202">            case &quot;-&gt;I&quot; -&gt; new ModalDeductionTheorem();</span>
-<span class="fc" id="L203">            case &quot;-&gt;E&quot; -&gt; new ModalModusPonens(sources.get(0), sources.get(1));</span>
-<span class="nc" id="L204">            case &quot;FE&quot; -&gt; new ModalFE(sources.get(0), (ModalLogicalOperation) extraInfo, state);</span>
-<span class="nc" id="L205">            case &quot;FI&quot; -&gt; new ModalFI(sources.get(0), sources.get(1));</span>
-<span class="nc" id="L206">            case &quot;[]I&quot; -&gt; new ModalBoxI();</span>
-<span class="nc" id="L207">            case &quot;[]E&quot; -&gt; new ModalBoxE(sources.get(0), sources.get(1));</span>
-<span class="nc" id="L208">            case &quot;&lt;&gt;I&quot; -&gt; new ModalDiaI(sources.get(0), sources.get(1));</span>
-<span class="nc" id="L209">            case &quot;&lt;&gt;E&quot; -&gt; new ModalDiaE(sources.get(0));</span>
-<span class="fc" id="L210">            case REFL -&gt; new Reflexive(sources.get(0));</span>
-<span class="nc" id="L211">            case TRANS -&gt; new Transitive(sources.get(0), sources.get(1));</span>
-<span class="nc" id="L212">            default -&gt; throw new IllegalArgumentException(&quot;The rule &quot; + name + &quot; is not valid.&quot;);</span>
+<span class="pc bpc" id="L209" title="1 of 2 branches missed.">                    extraInfo instanceof RelationOperation relationOperation ? new ModalAssume(relationOperation) : new ModalAssume((ModalLogicalOperation) extraInfo, state);</span>
+<span class="nc" id="L210">            case &quot;|I1&quot; -&gt; new ModalOrI1(sources.getFirst(), (ModalLogicalOperation) extraInfo);</span>
+<span class="nc" id="L211">            case &quot;|I2&quot; -&gt; new ModalOrI2(sources.getFirst(), (ModalLogicalOperation) extraInfo);</span>
+<span class="nc" id="L212">            case &quot;|E&quot; -&gt; new ModalOrE(sources.get(0), sources.get(1), sources.get(2));</span>
+<span class="nc" id="L213">            case &quot;&amp;I&quot; -&gt; new ModalAndI(sources.get(0), sources.get(1));</span>
+<span class="nc" id="L214">            case &quot;&amp;E1&quot; -&gt; new ModalAndE1(sources.getFirst());</span>
+<span class="nc" id="L215">            case &quot;&amp;E2&quot; -&gt; new ModalAndE2(sources.getFirst());</span>
+<span class="fc" id="L216">            case &quot;Rep&quot; -&gt; new ModalCopy(sources.getFirst());</span>
+<span class="fc" id="L217">            case &quot;-E&quot; -&gt; new ModalNotE(sources.getFirst());</span>
+<span class="nc" id="L218">            case &quot;-I&quot; -&gt; new ModalNotI();</span>
+<span class="fc" id="L219">            case &quot;-&gt;I&quot; -&gt; new ModalDeductionTheorem();</span>
+<span class="fc" id="L220">            case &quot;-&gt;E&quot; -&gt; new ModalModusPonens(sources.get(0), sources.get(1));</span>
+<span class="nc" id="L221">            case &quot;FE&quot; -&gt; new ModalFE(sources.get(0), (ModalLogicalOperation) extraInfo, state);</span>
+<span class="nc" id="L222">            case &quot;FI&quot; -&gt; new ModalFI(sources.get(0), sources.get(1));</span>
+<span class="nc" id="L223">            case &quot;[]I&quot; -&gt; new ModalBoxI();</span>
+<span class="nc" id="L224">            case &quot;[]E&quot; -&gt; new ModalBoxE(sources.get(0), sources.get(1));</span>
+<span class="nc" id="L225">            case &quot;&lt;&gt;I&quot; -&gt; new ModalDiaI(sources.get(0), sources.get(1));</span>
+<span class="nc" id="L226">            case &quot;&lt;&gt;E&quot; -&gt; new ModalDiaE(sources.get(0));</span>
+<span class="fc" id="L227">            case REFL -&gt; new Reflexive(sources.get(0));</span>
+<span class="nc" id="L228">            case TRANS -&gt; new Transitive(sources.get(0), sources.get(1));</span>
+<span class="nc" id="L229">            default -&gt; throw new IllegalArgumentException(&quot;The rule &quot; + name + &quot; is not valid.&quot;);</span>
         };
     }
 }

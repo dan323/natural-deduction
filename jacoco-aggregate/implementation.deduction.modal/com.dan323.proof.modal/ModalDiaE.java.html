@@ -74,29 +74,29 @@ public final class ModalDiaE implements ModalAction {
     }
 
     private boolean isNotFresh(ModalNaturalDeduction pf, int i) {
-<span class="fc bfc" id="L77" title="All 2 branches covered.">        if ((pf.getSteps().get(pf.getSteps().size() - 1).getStep()) instanceof ModalLogicalOperation) {</span>
-<span class="fc" id="L78">            String last = (pf.getSteps().get(pf.getSteps().size() - 1)).getState();</span>
+<span class="fc bfc" id="L77" title="All 2 branches covered.">        if ((pf.getSteps().getLast().getStep()) instanceof ModalLogicalOperation) {</span>
+<span class="fc" id="L78">            String last = (pf.getSteps().getLast()).getState();</span>
 <span class="fc" id="L79">            return pf.stateIsUsedBefore(last, i);</span>
         } else {
-<span class="fc" id="L81">            RelationOperation operation = (RelationOperation) (pf.getSteps().get(pf.getSteps().size() - 1).getStep());</span>
+<span class="fc" id="L81">            RelationOperation operation = (RelationOperation) (pf.getSteps().getLast().getStep());</span>
 <span class="fc bfc" id="L82" title="All 2 branches covered.">            return pf.stateIsUsedBefore(operation.getLeft(), i) &amp;&amp;</span>
 <span class="fc bfc" id="L83" title="All 2 branches covered.">                    pf.stateIsUsedBefore(operation.getRight(), i);</span>
         }
     }
 
     public void applyStepSupplier(ModalNaturalDeduction pf, ProofStepSupplier&lt;ModalOperation, ProofStepModal&gt; supp) {
-<span class="fc" id="L88">        ProofStepModal psm = pf.getSteps().get(pf.getSteps().size() - 1);</span>
+<span class="fc" id="L88">        ProofStepModal psm = pf.getSteps().getLast();</span>
 <span class="fc" id="L89">        int i = RuleUtils.getToLastAssumption(pf, psm.getAssumptionLevel());</span>
 <span class="fc" id="L90">        ProofStepModal log = pf.getSteps().get(pf.getSteps().size() - i - 1);</span>
 
 <span class="fc" id="L92">        RuleUtils.disableUntilLastAssumption(pf, log.getAssumptionLevel());</span>
-<span class="fc" id="L93">        List&lt;Integer&gt; lst = List.of(j, pf.getSteps().size() - i, pf.getSteps().size());</span>
-<span class="fc" id="L94">        pf.getSteps().add(supp.generateProofStep(psm.getAssumptionLevel() - 2, psm.getStep(), new ProofReason(&quot;&lt;&gt;E&quot;, lst)));</span>
+<span class="fc" id="L93">        var lst = List.of(new ProofReason.Range(pf.getSteps().size() - i, pf.getSteps().size()));</span>
+<span class="fc" id="L94">        pf.getSteps().add(supp.generateProofStep(psm.getAssumptionLevel() - 2, psm.getStep(), new ProofReason(&quot;&lt;&gt;E&quot;, lst, List.of(j))));</span>
 <span class="fc" id="L95">    }</span>
 
     @Override
     public void apply(ModalNaturalDeduction pf) {
-<span class="fc" id="L99">        ProofStepModal psm = pf.getSteps().get(pf.getSteps().size() - 1);</span>
+<span class="fc" id="L99">        ProofStepModal psm = pf.getSteps().getLast();</span>
 <span class="fc" id="L100">        applyStepSupplier(pf, ((assLevel, log, reason) -&gt; new ProofStepModal(psm.getState(), assLevel, (ModalLogicalOperation) log, reason)));</span>
 <span class="fc" id="L101">    }</span>
 

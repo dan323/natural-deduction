@@ -26,7 +26,7 @@ import java.util.List;
 
     @Override
     protected ProofStep&lt;ClassicalLogicOperation&gt; generateAssm(ClassicalLogicOperation logicExpression) {
-<span class="fc" id="L29">        return new ProofStep&lt;&gt;(0, logicExpression, new ProofReason(&quot;Ass&quot;, List.of()));</span>
+<span class="fc" id="L29">        return new ProofStep&lt;&gt;(0, logicExpression, new ProofReason(&quot;Ass&quot;, List.of(), List.of()));</span>
     }
 
     public void automate() {

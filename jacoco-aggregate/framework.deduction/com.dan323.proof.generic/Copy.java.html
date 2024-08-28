@@ -6,7 +6,7 @@ import com.dan323.proof.generic.proof.ProofReason;
 import com.dan323.proof.generic.proof.ProofStep;
 import com.dan323.proof.generic.proof.ProofStepSupplier;
 
-import java.util.Collections;
+import java.util.List;
 
 /**
  * @author danco
@@ -34,7 +34,7 @@ public abstract class Copy&lt;T extends LogicOperation, Q extends ProofStep&lt;T
     }
 
     protected ProofReason getReason() {
-<span class="fc" id="L37">        return new ProofReason(&quot;Rep&quot;, Collections.singletonList(source));</span>
+<span class="fc" id="L37">        return new ProofReason(&quot;Rep&quot;, List.of(), List.of(source));</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

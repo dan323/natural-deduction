@@ -23,7 +23,7 @@ public final class Reflexive extends RelationalAction {
     @Override
     public void applyStepSupplier(ModalNaturalDeduction pf, ProofStepSupplier&lt;ModalOperation, ProofStepModal&gt; supp) {
 <span class="fc" id="L25">        String state = pf.getSteps().get(step - 1).getState();</span>
-<span class="fc" id="L26">        pf.getSteps().add(supp.generateProofStep(RuleUtils.getLastAssumptionLevel(pf), new LessEqual(state, state), new ProofReason(&quot;Refl&quot;, List.of(step))));</span>
+<span class="fc" id="L26">        pf.getSteps().add(supp.generateProofStep(RuleUtils.getLastAssumptionLevel(pf), new LessEqual(state, state), new ProofReason(&quot;Refl&quot;, List.of(), List.of(step))));</span>
 <span class="fc" id="L27">    }</span>
 
     public int getStep(){

@@ -45,7 +45,7 @@ public abstract class DeductionTheorem&lt;T extends LogicOperation, Q extends Pr
 <span class="fc" id="L45">        int i = RuleUtils.disableUntilLastAssumption(pf, assLevel);</span>
 <span class="fc" id="L46">        pf.getSteps().add(supp.generateProofStep(assLevel - 1,</span>
 <span class="fc" id="L47">                constructor.apply(pf.getSteps().get(pf.getSteps().size() - i).getStep(),</span>
-<span class="fc" id="L48">                        pf.getSteps().get(pf.getSteps().size() - 1).getStep()), new ProofReason(&quot;-&gt;I&quot;, List.of(pf.getSteps().size() - i + 1, pf.getSteps().size()))));</span>
+<span class="fc" id="L48">                        pf.getSteps().getLast().getStep()), new ProofReason(&quot;-&gt;I&quot;, List.of(new ProofReason.Range(pf.getSteps().size() - i + 1, pf.getSteps().size())), List.of())));</span>
 <span class="fc" id="L49">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

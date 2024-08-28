@@ -6,7 +6,7 @@ import com.dan323.proof.generic.proof.ProofReason;
 import com.dan323.proof.generic.proof.ProofStep;
 import com.dan323.proof.generic.proof.ProofStepSupplier;
 
-import java.util.Collections;
+import java.util.List;
 import java.util.Objects;
 import java.util.function.BinaryOperator;
 
@@ -14,51 +14,55 @@ import java.util.function.BinaryOperator;
  * @author danco
  */
 public abstract class OrI&lt;T extends LogicOperation, Q extends ProofStep&lt;T&gt;, P extends Proof&lt;T, Q&gt;&gt; implements Action&lt;T, Q, P&gt;, AbstractAction&lt;T,Q,P&gt; {
-
     private final int applyAt;
     private final T intro;
     private final BinaryOperator&lt;T&gt; disjunction;
 
-<span class="fc" id="L22">    public OrI(int app, T lo, BinaryOperator&lt;T&gt; disjunction) {</span>
-<span class="fc" id="L23">        applyAt = app;</span>
-<span class="fc" id="L24">        intro = lo;</span>
-<span class="fc" id="L25">        this.disjunction = disjunction;</span>
-<span class="fc" id="L26">    }</span>
+<span class="fc" id="L21">    public OrI(int app, T lo, BinaryOperator&lt;T&gt; disjunction) {</span>
+<span class="fc" id="L22">        applyAt = app;</span>
+<span class="fc" id="L23">        intro = lo;</span>
+<span class="fc" id="L24">        this.disjunction = disjunction;</span>
+<span class="fc" id="L25">    }</span>
 
     @Override
     public boolean isValid(P pf) {
-<span class="fc" id="L30">        return RuleUtils.isValidIndexAndProp(pf, applyAt);</span>
+<span class="pc bpc" id="L29" title="1 of 4 branches missed.">        return RuleUtils.isValidIndexAndProp(pf, applyAt) &amp;&amp; intro != null;</span>
     }
 
     @Override
     public void applyStepSupplier(P pf, ProofStepSupplier&lt;T, Q&gt; supp) {
-<span class="fc" id="L35">        int assLevel = 0;</span>
-<span class="pc bpc" id="L36" title="1 of 2 branches missed.">        if (!pf.getSteps().isEmpty()) {</span>
-<span class="fc" id="L37">            assLevel = pf.getSteps().get(pf.getSteps().size() - 1).getAssumptionLevel();</span>
+<span class="fc" id="L34">        int assLevel = 0;</span>
+<span class="pc bpc" id="L35" title="1 of 2 branches missed.">        if (!pf.getSteps().isEmpty()) {</span>
+<span class="fc" id="L36">            assLevel = pf.getSteps().getLast().getAssumptionLevel();</span>
         }
-<span class="fc" id="L39">        T result = disjunction.apply(pf.getSteps().get(applyAt - 1).getStep(), intro);</span>
-<span class="fc" id="L40">        pf.getSteps().add(supp.generateProofStep(assLevel, result, getReason()));</span>
-<span class="fc" id="L41">    }</span>
+<span class="fc" id="L38">        T result = disjunction.apply(pf.getSteps().get(applyAt - 1).getStep(), intro);</span>
+<span class="fc" id="L39">        pf.getSteps().add(supp.generateProofStep(assLevel, result, getReason()));</span>
+<span class="fc" id="L40">    }</span>
 
     private ProofReason getReason() {
-<span class="fc" id="L44">        return new ProofReason(&quot;|I&quot;, Collections.singletonList(applyAt));</span>
+<span class="fc" id="L43">        return new ProofReason(&quot;|I&quot;, List.of(), List.of(applyAt));</span>
     }
 
     protected int getAt() {
-<span class="fc" id="L48">        return applyAt;</span>
+<span class="fc" id="L47">        return applyAt;</span>
     }
 
     @Override
     public boolean equals(Object o) {
-<span class="fc bfc" id="L53" title="All 2 branches covered.">        return o instanceof OrI &amp;&amp;</span>
-<span class="pc bpc" id="L54" title="2 of 4 branches missed.">                o.getClass().equals(getClass()) &amp;&amp;</span>
+<span class="fc bfc" id="L52" title="All 2 branches covered.">        return o instanceof OrI &amp;&amp;</span>
+<span class="pc bpc" id="L53" title="2 of 4 branches missed.">                o.getClass().equals(getClass()) &amp;&amp;</span>
                 ((OrI&lt;?, ?, ?&gt;) o).applyAt == applyAt &amp;&amp;
-<span class="pc bpc" id="L56" title="1 of 2 branches missed.">                Objects.equals(((OrI&lt;?, ?, ?&gt;) o).intro, intro);</span>
+<span class="pc bpc" id="L55" title="1 of 2 branches missed.">                Objects.equals(((OrI&lt;?, ?, ?&gt;) o).intro, intro);</span>
     }
 
     @Override
     public int hashCode() {
-<span class="fc" id="L61">        return Objects.hash(applyAt, intro, getClass());</span>
+<span class="fc" id="L60">        return Objects.hash(applyAt, intro, getClass());</span>
+    }
+
+    @Override
+    public String toString() {
+<span class="nc" id="L65">        return &quot;{line:&quot;+ getAt() +&quot;, expression:&quot; + intro + &quot;}&quot;;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

@@ -7,7 +7,7 @@ import com.dan323.proof.generic.proof.ProofReason;
 import com.dan323.proof.generic.proof.ProofStep;
 import com.dan323.proof.generic.proof.ProofStepSupplier;
 
-import java.util.Collections;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -26,33 +26,32 @@ public abstract class FE&lt;T extends LogicOperation, Q extends ProofStep&lt;T&g
     @Override
     public boolean equals(Object o) {
 <span class="fc bfc" id="L28" title="All 2 branches covered.">        if (this == o) return true;</span>
-<span class="fc bfc" id="L29" title="All 2 branches covered.">        if (!(o instanceof FE)) return false;</span>
-<span class="fc" id="L30">        FE&lt;?, ?, ?&gt; fe = (FE&lt;?, ?, ?&gt;) o;</span>
-<span class="pc bpc" id="L31" title="1 of 4 branches missed.">        return o.getClass().equals(getClass()) &amp;&amp; falseIndex == fe.falseIndex &amp;&amp;</span>
-<span class="pc bpc" id="L32" title="1 of 2 branches missed.">                Objects.equals(intro, fe.intro);</span>
+<span class="fc bfc" id="L29" title="All 2 branches covered.">        if (!(o instanceof FE&lt;?, ?, ?&gt; fe)) return false;</span>
+<span class="pc bpc" id="L30" title="1 of 4 branches missed.">        return o.getClass().equals(getClass()) &amp;&amp; falseIndex == fe.falseIndex &amp;&amp;</span>
+<span class="pc bpc" id="L31" title="1 of 2 branches missed.">                Objects.equals(intro, fe.intro);</span>
     }
 
     @Override
     public int hashCode() {
-<span class="fc" id="L37">        return Objects.hash(intro, falseIndex, getClass());</span>
+<span class="fc" id="L36">        return Objects.hash(intro, falseIndex, getClass());</span>
     }
 
     @Override
     public boolean isValid(P pf) {
-<span class="fc bfc" id="L42" title="All 4 branches covered.">        if (RuleUtils.isValidIndexAndProp(pf, falseIndex) &amp;&amp; RuleUtils.isOperation(pf, falseIndex, Constant.class)) {</span>
-<span class="fc" id="L43">            Constant cons = (Constant) pf.getSteps().get(falseIndex - 1).getStep();</span>
-<span class="fc" id="L44">            return cons.isFalsehood();</span>
+<span class="fc bfc" id="L41" title="All 4 branches covered.">        if (RuleUtils.isValidIndexAndProp(pf, falseIndex) &amp;&amp; RuleUtils.isOperation(pf, falseIndex, Constant.class)) {</span>
+<span class="fc" id="L42">            Constant cons = (Constant) pf.getSteps().get(falseIndex - 1).getStep();</span>
+<span class="fc" id="L43">            return cons.isFalsehood();</span>
         }
-<span class="fc" id="L46">        return false;</span>
+<span class="fc" id="L45">        return false;</span>
     }
 
     @Override
     public void applyStepSupplier(P pf, ProofStepSupplier&lt;T, Q&gt; supp) {
-<span class="fc" id="L51">        pf.getSteps().add(supp.generateProofStep(RuleUtils.getLastAssumptionLevel(pf), intro, getReason()));</span>
-<span class="fc" id="L52">    }</span>
+<span class="fc" id="L50">        pf.getSteps().add(supp.generateProofStep(RuleUtils.getLastAssumptionLevel(pf), intro, getReason()));</span>
+<span class="fc" id="L51">    }</span>
 
     private ProofReason getReason() {
-<span class="fc" id="L55">        return new ProofReason(&quot;FE&quot;, Collections.singletonList(falseIndex));</span>
+<span class="fc" id="L54">        return new ProofReason(&quot;FE&quot;, List.of(), List.of(falseIndex));</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

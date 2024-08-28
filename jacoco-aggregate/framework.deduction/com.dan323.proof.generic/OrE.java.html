@@ -61,25 +61,24 @@ public abstract class OrE&lt;T extends LogicOperation, Q extends ProofStep&lt;T&
 <span class="fc bfc" id="L61" title="All 2 branches covered.">        if (this == o) {</span>
 <span class="fc" id="L62">            return true;</span>
         }
-<span class="fc bfc" id="L64" title="All 2 branches covered.">        if (!(o instanceof OrE)) {</span>
+<span class="fc bfc" id="L64" title="All 2 branches covered.">        if (!(o instanceof OrE&lt;?, ?, ?&gt; orE)) {</span>
 <span class="fc" id="L65">            return false;</span>
         }
-<span class="fc" id="L67">        OrE&lt;?, ?, ?&gt; orE = (OrE&lt;?, ?, ?&gt;) o;</span>
-<span class="pc bpc" id="L68" title="2 of 6 branches missed.">        return disj == orE.disj &amp;&amp;</span>
+<span class="pc bpc" id="L67" title="2 of 6 branches missed.">        return disj == orE.disj &amp;&amp;</span>
                 rule1 == orE.rule1 &amp;&amp;
                 rule2 == orE.rule2;
     }
 
     @Override
     public int hashCode() {
-<span class="fc" id="L75">        return Objects.hash(disj, rule1, rule2);</span>
+<span class="fc" id="L74">        return Objects.hash(disj, rule1, rule2);</span>
     }
 
     @Override
     public void applyStepSupplier(P pf, ProofStepSupplier&lt;T, Q&gt; supp) {
-<span class="fc" id="L80">        T sol = ((BinaryOperation&lt;T&gt;) pf.getSteps().get(rule1 - 1).getStep()).getRight();</span>
-<span class="fc" id="L81">        int assLevel = pf.getSteps().get(pf.getSteps().size() - 1).getAssumptionLevel();</span>
-<span class="fc" id="L82">        pf.getSteps().add(supp.generateProofStep(assLevel, sol, new ProofReason(&quot;|E&quot;, List.of(disj, rule1, rule2))));</span>
-<span class="fc" id="L83">    }</span>
+<span class="fc" id="L79">        T sol = ((BinaryOperation&lt;T&gt;) pf.getSteps().get(rule1 - 1).getStep()).getRight();</span>
+<span class="fc" id="L80">        int assLevel = pf.getSteps().getLast().getAssumptionLevel();</span>
+<span class="fc" id="L81">        pf.getSteps().add(supp.generateProofStep(assLevel, sol, new ProofReason(&quot;|E&quot;, List.of(), List.of(disj, rule1, rule2))));</span>
+<span class="fc" id="L82">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

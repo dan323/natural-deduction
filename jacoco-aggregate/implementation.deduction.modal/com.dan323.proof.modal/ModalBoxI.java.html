@@ -37,11 +37,11 @@ import java.util.Objects;
 <span class="fc" id="L37">            return false;</span>
         }
 <span class="fc" id="L39">        String stateGreater = ((LessEqual) log.getStep()).getRight();</span>
-<span class="fc" id="L40">        ProofStepModal conclusion = pf.getSteps().get(pf.getSteps().size() - 1);</span>
+<span class="fc" id="L40">        ProofStepModal conclusion = pf.getSteps().getLast();</span>
 <span class="fc bfc" id="L41" title="All 2 branches covered.">        if (!(conclusion.getStep() instanceof ModalLogicalOperation)) {</span>
 <span class="fc" id="L42">            return false;</span>
         }
-<span class="fc bfc" id="L44" title="All 2 branches covered.">        if (!(pf.getSteps().get(pf.getSteps().size() - 1)).getState().equals(stateGreater)) {</span>
+<span class="fc bfc" id="L44" title="All 2 branches covered.">        if (!(pf.getSteps().getLast()).getState().equals(stateGreater)) {</span>
 <span class="fc" id="L45">            return false;</span>
         }
 <span class="fc bfc" id="L47" title="All 2 branches covered.">        return !pf.stateIsUsedBefore(stateGreater, pf.getSteps().size() - lastAssumption);</span>
@@ -50,8 +50,8 @@ import java.util.Objects;
     @Override
     public void applyStepSupplier(ModalNaturalDeduction pf, ProofStepSupplier&lt;ModalOperation, ProofStepModal&gt; supp) {
 <span class="fc" id="L52">        int assLevel = RuleUtils.getLastAssumptionLevel(pf);</span>
-<span class="fc" id="L53">        pf.getSteps().add(supp.generateProofStep(assLevel - 1, new Always((ModalLogicalOperation) pf.getSteps().get(pf.getSteps().size() - 1).getStep()), new ProofReason(&quot;[]I&quot;,</span>
-<span class="fc" id="L54">                List.of(pf.getSteps().size() - getLastAssumption(pf) + 1, pf.getSteps().size()))));</span>
+<span class="fc" id="L53">        pf.getSteps().add(supp.generateProofStep(assLevel - 1, new Always((ModalLogicalOperation) pf.getSteps().getLast().getStep()), new ProofReason(&quot;[]I&quot;,</span>
+<span class="fc" id="L54">                List.of(new ProofReason.Range(pf.getSteps().size() - getLastAssumption(pf) + 1, pf.getSteps().size())), List.of())));</span>
 <span class="fc" id="L55">    }</span>
 
     private int getLastAssumption(ModalNaturalDeduction pf) {
