@@ -5,11 +5,15 @@ import com.dan323.expressions.base.LogicOperation;
 import com.dan323.proof.generic.proof.Proof;
 
 import java.util.function.IntConsumer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author danco
  */
 public final class RuleUtils {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(RuleUtils.class);
 
     private RuleUtils() {
         throw new UnsupportedOperationException();
@@ -61,7 +65,12 @@ public final class RuleUtils {
     }
 
     public static <P extends Proof<?, ?>> boolean isValidIndex(P pf, int index) {
-        return 1 <= index && pf.getSteps().size() >= index;
+        var check1 = 1 <= index;
+        var check2 = pf.getSteps().size() >= index;
+        if (!check1){
+            LOGGER.info(index+ " < 1");
+        }
+        return check1 && check2;
     }
 
     public static <P extends Proof<?, ?>> boolean isValidPropAtIndex(P pf, int index) {

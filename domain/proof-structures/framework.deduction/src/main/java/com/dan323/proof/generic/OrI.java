@@ -5,6 +5,8 @@ import com.dan323.proof.generic.proof.Proof;
 import com.dan323.proof.generic.proof.ProofReason;
 import com.dan323.proof.generic.proof.ProofStep;
 import com.dan323.proof.generic.proof.ProofStepSupplier;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Objects;
@@ -15,6 +17,7 @@ import java.util.function.BinaryOperator;
  */
 public abstract class OrI<T extends LogicOperation, Q extends ProofStep<T>, P extends Proof<T, Q>> implements Action<T, Q, P>, AbstractAction<T,Q,P> {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(OrI.class);
     private final int applyAt;
     private final T intro;
     private final BinaryOperator<T> disjunction;
@@ -27,7 +30,8 @@ public abstract class OrI<T extends LogicOperation, Q extends ProofStep<T>, P ex
 
     @Override
     public boolean isValid(P pf) {
-        return RuleUtils.isValidIndexAndProp(pf, applyAt);
+        LOGGER.info("CHECKING OR-I validity");
+        return RuleUtils.isValidIndexAndProp(pf, applyAt) && intro != null;
     }
 
     @Override
@@ -59,5 +63,10 @@ public abstract class OrI<T extends LogicOperation, Q extends ProofStep<T>, P ex
     @Override
     public int hashCode() {
         return Objects.hash(applyAt, intro, getClass());
+    }
+
+    @Override
+    public String toString() {
+        return "{line:"+ getAt() +", expression:" + intro + "}";
     }
 }

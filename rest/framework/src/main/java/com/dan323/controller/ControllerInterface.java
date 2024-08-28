@@ -57,6 +57,7 @@ public class ControllerInterface {
     @PostMapping("{logic}/action")
     public ResponseEntity<ProofResponse> doAction(@RequestBody ProofActionRequest proofActionRequest, @PathVariable("logic") String logic) {
         var action = proofActionRequest.actionDto();
+        LOGGER.info("ACT input: " + action.toString());
         var proof = proofActionRequest.proofDto();
         var afterAction = useCase.applyAction(logic).perform(action, proof);
         ProofResponse response = new ProofResponse(afterAction, afterAction.steps().size() > proofActionRequest.proofDto().steps().size());

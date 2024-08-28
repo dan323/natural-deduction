@@ -21,9 +21,11 @@ public class LogicalApplyAction<T extends LogicOperation, Q extends ProofStep<T>
     @Override
     public ProofDto perform(ActionDto action, ProofDto proof) {
         var act = logic.from(action);
+        LOGGER.info("ACTION:\n" + act.toString());
         var pr = logic.from(proof);
         LOGGER.info("BEFORE:\n" + pr);
         if (act.isValid(pr)) {
+            LOGGER.info("The action " + action.name() + " is valid");
             act.apply(pr);
         }
         LOGGER.info("AFTER:\n" + pr);

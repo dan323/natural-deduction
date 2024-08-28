@@ -17,4 +17,6 @@ public final class ClassicOrI1 extends OrI<ClassicalLogicOperation, ProofStep<Cl
     public AvailableAction getAction() {
         return AvailableAction.ORI1;
     }
+
+
 }
