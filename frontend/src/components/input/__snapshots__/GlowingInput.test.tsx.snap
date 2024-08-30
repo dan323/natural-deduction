@@ -1,0 +1,45 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Glowing input matches snapshot when shouldGlow is false 1`] = `
+<DocumentFragment>
+  <div
+    class="input-item"
+  >
+    <label
+      class="input-label"
+      for="glowing-input-0"
+    >
+      Enter line number:
+    </label>
+    <input
+      class="input-field "
+      id="glowing-input-0"
+      style="box-shadow: none;"
+      type="text"
+      value=""
+    />
+  </div>
+</DocumentFragment>
+`;
+
+exports[`Glowing input matches snapshot when shouldGlow is true 1`] = `
+<DocumentFragment>
+  <div
+    class="input-item"
+  >
+    <label
+      class="input-label"
+      for="glowing-input-0"
+    >
+      Enter line number:
+    </label>
+    <input
+      class="input-field "
+      id="glowing-input-0"
+      style="box-shadow: none;"
+      type="text"
+      value=""
+    />
+  </div>
+</DocumentFragment>
+`;

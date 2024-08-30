@@ -1,0 +1,89 @@
+/* Menu Container */
+.menu {
+    background-color: #f8f9fa;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    max-width: 600px;
+    margin: 20px auto;
+    text-align: center;
+    font-family: Arial, sans-serif;
+}
+
+/* Label for Select */
+.menu-label {
+    display: block;
+    font-size: 1.5rem;
+    color: #333;
+    margin-bottom: 10px;
+}
+
+/* Select Dropdown */
+.menu-select {
+    width: 100%;
+    padding: 10px;
+    font-size: 1.2rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    margin-bottom: 20px;
+    background-color: #fff;
+}
+
+/* Input Container */
+.input-container {
+    margin-bottom: 20px;
+}
+
+/* Individual Input Item */
+.input-item {
+    margin-bottom: 15px;
+    text-align: left;
+}
+
+/* Label for Inputs */
+.input-label {
+    font-size: 1.2rem;
+    color: #555;
+    display: block;
+    margin-bottom: 5px;
+}
+
+/* Input Field */
+.input-field {
+    width: 100%;
+    padding: 8px;
+    font-size: 1.1rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    outline: none;
+    transition: box-shadow 0.3s ease;
+}
+
+/* Glowing Input Field */
+.glowing-input {
+    box-shadow: 0 0 10px var(--glow-color), 0 0 40px var(--glow-color), 0 0 80px var(--glow-color);
+    border-color: var(--glow-color);
+}
+
+/* No Inputs Message */
+.no-inputs {
+    font-size: 1.2rem;
+    color: #666;
+    margin-bottom: 20px;
+}
+
+/* Action Button */
+.menu-button {
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    padding: 12px 24px;
+    font-size: 1.2rem;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.menu-button:hover {
+    background-color: #0056b3;
+}

@@ -2,7 +2,7 @@
 # when a push or pull request action on master is activated
 # or when a push is done in a release
 
-name: Main Workflow
+name: BackEnd Workflow
 
 on:
   push:

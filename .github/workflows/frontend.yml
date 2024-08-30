@@ -1,0 +1,26 @@
+name: FrontEnd Workflow
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  react_test:
+    runs-on: ubuntu-latest
+    name: test front
+    steps:
+    - uses: actions/checkout@master
+      with:
+       fetch-depth: 0
+    - name: npm set up
+      uses: actions/setup-node@v4.0.3
+      with:
+        node-version: 20
+    - name: compile
+      run: npm install
+    - name: test
+      run: npm run test
