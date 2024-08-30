@@ -1,0 +1,29 @@
+/* Individual Input Item */
+.input-item {
+    margin-bottom: 15px;
+    text-align: left;
+}
+
+/* Label for Inputs */
+.input-label {
+    font-size: 1.2rem;
+    color: #555;
+    display: block;
+    margin-bottom: 5px;
+}
+
+/* Input Field */
+.input-field {
+    width: 100%;
+    padding: 8px;
+    font-size: 1.1rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    outline: none;
+    transition: box-shadow 0.3s ease;
+}
+
+/* Glowing Input Field */
+.glowing-input {
+    border-color: transparent;
+}

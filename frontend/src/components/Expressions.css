@@ -1,0 +1,96 @@
+/* App Container */
+.app {
+    font-family: Arial, sans-serif;
+    padding: 20px;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+/* Table Styles */
+.proof-viewer table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px auto;
+    /* Top and bottom margin, auto for left and right */
+    padding: 0;
+    /* Reset padding to avoid unwanted spacing */
+    max-width: 1200px;
+    /* Optional: limit table width */
+}
+
+.proof-viewer th,
+.proof-viewer td {
+    border: none;
+    /* No borders */
+    padding: 4px 8px;
+    /* Reduced padding for closer lines */
+    text-align: left;
+}
+
+/* Header Styles */
+.proof-viewer th {
+    background-color: #f4f4f4;
+    color: #333;
+    text-align: center;
+    /* Center align headers */
+    font-size: 3rem;
+    /* Larger header text size to match expressions */
+}
+
+.proof-viewer td.rule {
+    text-align: right;
+    /* Right align for rule column cells */
+}
+
+/* Expression and Rule Styles with Preformatted Text */
+.step-viewer pre {
+    margin: 0;
+    font-family: "Courier New", Courier, monospace;
+    white-space: pre;
+    font-size: 3rem;
+    /* Large text for expressions */
+    line-height: 1.2;
+    /* Adjust line height to keep it tight */
+}
+
+/* Make Line Numbers and Rules As Big As Expressions */
+.proof-viewer td {
+    font-size: 3rem;
+    /* Large text for both line numbers and rules */
+    line-height: 1.2;
+    /* Keep line height tight for uniformity */
+}
+
+/* No Alternate Row Colors */
+.proof-viewer tbody tr {
+    background-color: transparent;
+    /* Keep the background consistent */
+}
+
+/* Highlight Rows on Hover */
+.proof-viewer tbody tr.highlighted {
+    background-color: #000; /* Black background */
+    color: #ff69b4; /* Pink color for the text */
+    font-weight: bold; /* Make the font thick */
+}
+
+/* Heading Styles */
+h1,
+h2,
+h3 {
+    color: #333;
+}
+
+/* ProofViewer Headings */
+.proof-viewer h2,
+.proof-viewer h3 {
+    margin-bottom: 10px;
+    color: #444;
+}
+
+  .glow {
+    box-shadow: inset 0 0 10px var(--glow-color), 
+                inset 0 0 20px var(--glow-color), 
+                inset 0 0 30px var(--glow-color);
+  }
+  

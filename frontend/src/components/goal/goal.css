@@ -1,0 +1,17 @@
+.goal {
+    display: flex;
+    align-items: center;
+}
+
+.goal-label {
+    font-weight: bold;
+    margin-right: 0.5rem;
+}
+
+.goal-success {
+    color: green;
+}
+
+.goal-failure {
+    color: red;
+}
