@@ -20,8 +20,6 @@ jobs:
       uses: actions/setup-node@v4.0.3
       with:
         node-version: 20
-    - name: global dependecies
-      run: npm install -g sonarqube-scanner
     - name: compile
       run: |
         cd frontend
@@ -38,4 +36,6 @@ jobs:
         SONAR_HOST_URL: https://sonarcloud.io/
       with:
         projectBaseDir: frontend
-        args: -Dsonar.organization=${{ env.SONAR_ORGANIZATION }}
+        args: > 
+          -Dsonar.organization=${{ env.SONAR_ORGANIZATION }}
+          -Dsonar.typescript.tsconfigPaths=.
