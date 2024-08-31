@@ -13,3 +13,4 @@ target/
 # Intellij
 *.iml
 .idea/
+/executable/src/main/resources/public/
