@@ -18,6 +18,8 @@ type ActionParsed = {
     intInputs: number;
 };
 
+const glowingColors: string[] = ['#ffcc00', '#00f2ff', '#ff69b4'];
+
 function parseAction(
     action: string,
     onColorChange: (color: string, line: number) => void,
@@ -26,7 +28,6 @@ function parseAction(
     const name = action.split('(')[0];
     const inputString = action.match(/\[\s*(.*?)\s*\]/)?.[1];
     const inputs = inputString ? inputString.split(',').map(input => input.trim()) : [];
-    const glowingColors: string[] = ['#ffcc00', '#00f2ff', '#ff69b4'];
 
     return {
         name,
@@ -62,6 +63,8 @@ const Menu: FC<MenuProps> = ({ logic, onColorChange, setProof, proof }) => {
     const handleActionChange: ChangeEventHandler<HTMLSelectElement> = (event) => {
         const newAction = event.target.value;
         setSelectedAction(newAction);
+
+        glowingColors.forEach((color) => onColorChange(color,-1));
 
         const selectedActionObj = actions.find(action => action.name === newAction);
         if (selectedActionObj) {
@@ -107,6 +110,7 @@ const Menu: FC<MenuProps> = ({ logic, onColorChange, setProof, proof }) => {
         applyAction(logic, proof, actionDto, (response: ApplyActionResponse) => {
             if (response.success) {
                 setProof(response.proof);
+                glowingColors.forEach((color) => onColorChange(color,-1));
             } else {
                 console.error('Action failed:', response.message);
                 alert(`Action failed: ${response.message}`);
