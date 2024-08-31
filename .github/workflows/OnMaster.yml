@@ -41,5 +41,5 @@ jobs:
           build-number: ${GITHUB_RUN_NUMBER}
         with:
           name: fat-jar
-          path: executable/target/executable-${{ env.build-number }}.jar
+          path: ./executable/target/executable-${{ env.build-number }}.jar
           retention-days: 1
