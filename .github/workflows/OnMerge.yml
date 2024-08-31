@@ -32,6 +32,7 @@ jobs:
         run: |
           cd frontend
           npm run build
+          mkdir ../executable/src/main/resources/public/
           cp -r ./build/* ../executable/src/main/resources/public/
       - name: Setup java
         uses: actions/setup-java@master
