@@ -1,16 +1,15 @@
 import { ProofDto, ActionDto, ApplyActionResponse } from "../types";
-import { BASE_URL } from "../constant";
 
 
 export async function fetchActions(logic: string, consumer: (actions: string[]) => void): Promise<void> {
-    return fetch(`${BASE_URL}logic/${logic}/actions`)
+    return fetch(`/logic/${logic}/actions`)
         .then(response => response.text())
         .then(data => consumer(JSON.parse(data)))
         .catch(err => console.error("Error fetching actions:", err));
 }
 
 export async function applyAction(logic: string, proof: ProofDto, action: ActionDto, consumer: (actions: ApplyActionResponse) => void): Promise<void> {
-    return fetch(`${BASE_URL}logic/${logic}/action`, {
+    return fetch(`/logic/${logic}/action`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
