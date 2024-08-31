@@ -9,6 +9,9 @@ on:
     types:
       - closed
 
+env:
+  build-number: ${GITHUB_RUN_NUMBER}
+
 jobs:
   create_public:
     runs-on: ubuntu-latest
@@ -37,6 +40,12 @@ jobs:
           distribution: 'corretto'
       - name: build
         run: mvn -B -f pom.xml clean package -Dmaven.test.skip=true
+      - run: mkdir staging && mv executable/target/executable-0.1-SNAPSHOT.jar executable/target/executable-${{ env.build-number }}.jar && cp executable/target/*.jar staging
+      - uses: actions/upload-artifact@v3
+        with:
+          name: Package
+          path: staging
+          retention-days: 1
   clean_pages:
     runs-on: ubuntu-latest
     name: delete pr info on github page
