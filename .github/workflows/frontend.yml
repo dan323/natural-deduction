@@ -20,6 +20,8 @@ jobs:
       uses: actions/setup-node@v4.0.3
       with:
         node-version: 20
+    - name: global dependecies
+      run: npm install -g sonarqube-scanner
     - name: compile
       run: |
         cd frontend
@@ -35,5 +37,4 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
         cd frontend
-        npm install -g sonarqube-scanner
         sonarqube-scanner -Dsonar.token=$SONAR_TOKEN -Dsonar.host.url=https://sonarcloud.io/ -Dsonar.organization=$SONAR_ORGANIZATION -Dsonar.projectKey=dan323_natural-deduction-frontend
