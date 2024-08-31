@@ -104,7 +104,7 @@ export const ProofViewer: FC<ProofViewerProps> = ({ proof, coloring }) => {
       />
       <Goal
         expression={proof.goal}
-        success={
+        success={proof && proof.steps && proof.steps.length > 0 &&
           proof.steps[proof.steps.length - 1].assmsLevel === 0 &&
           proof.steps[proof.steps.length - 1].expression === proof.goal
         }

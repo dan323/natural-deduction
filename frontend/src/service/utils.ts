@@ -1,15 +1,14 @@
-
 export function renderLogic(rule: string): string {
-    return rule
-      .replace(/->/g, "→") // Logical implication
-      .replace(/(?<!\d)-(?!\d)/g, "¬")  // Logical negation
-      .replace(/&/g, "∧")  // Logical and
-      .replace(/\|/g, "∨") // Logical or
-      .replace(/\[\]/g, "□") // Modal logical always
-      .replace(/<>/g, "◇")
-      .replace(/I/g, "Intro")
-      .replace(/E/g, "Elim");
-  }
+  return rule
+    .replace(/->/g, "→")          // Logical implication
+    .replace(/(?<!\d)-(?!\d)/g, "¬")  // Logical negation
+    .replace(/&/g, "∧")           // Logical AND
+    .replace(/\|/g, "∨")          // Logical OR
+    .replace(/\[\]/g, "□")        // Modal always
+    .replace(/<>/g, "◇")          // Modal possibly
+    .replace(/I/g, "Intro")       // Introduction
+    .replace(/(?<!FALS)E/g, "Elim"); // Elimination, unless preceded by 'FALS'
+}
 
 // Helper function to generate indentation
 export function getIndentation(assmsLevel: number): string {

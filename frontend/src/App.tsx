@@ -3,64 +3,64 @@ import './App.css';
 import Proof from './components/proof/ProofViewer';
 import Header from './components/Header';
 import Menu from './components/menu/Menu';
-import { StepDto } from './types';
+import NewProofModal from './components/NewProofModal';
+import { StepDto, ProofDto } from './types';
 import { LOGIC } from './constant';
-import { ProofDto } from './types';
-
-
 
 function App() {
   const [coloringMap, setColor] = useState(new Map<number, string>());
-  function onColorChange(color: string, line: number) {
-    // Create a new Map based on the existing one to maintain immutability
-    const newColoringMap = new Map(coloringMap);
+  const [isModalOpen, setModalOpen] = useState(false);
+  const [proof, setProof] = useState<ProofDto>({
+    steps: [],
+    logic: LOGIC,
+    goal: '',
+  });
 
-    // Remove the color from any other lines that have this color
+  const onColorChange = (color: string, line: number) => {
+    const newColoringMap = new Map(coloringMap);
     newColoringMap.forEach((value, key) => {
       if (value === color) {
         newColoringMap.delete(key);
       }
     });
-
-    // Set the new color for the specified line
     if (line >= 0) {
       newColoringMap.set(line, color);
     }
-
-    // Update the state with the new Map
     setColor(newColoringMap);
-  }
-  const steps: Array<StepDto> = [
-    {
-      expression: "P",
-      rule: "Ass",
+  };
+
+  const handleOpenModal = () => setModalOpen(true);
+  const handleCloseModal = () => setModalOpen(false);
+
+  const handleNewProofSubmit = (premises: string[], goal: string) => {
+    const steps: StepDto[] = premises.map((premise) => ({
+      expression: premise,
+      rule: 'Ass',
       assmsLevel: 0,
-      extraParameters: new Map()
-    },
-    {
-      expression: "Q",
-      rule: "Ass",
-      assmsLevel: 1,
-      extraParameters: new Map()
-    },
-    {
-      expression: "P",
-      rule: "Rep [1]",
-      assmsLevel: 1,
-      extraParameters: new Map()
-    },
-  ]
-  const [proof, setProof] = useState<ProofDto>({
-    steps: steps,
-    logic: LOGIC,
-    goal: "Q -> P"
-  });
+      extraParameters: new Map(),
+    }));
+
+    setProof({
+      steps: steps,
+      logic: LOGIC,
+      goal: goal,
+    });
+  };
 
   return (
     <div className="App">
       <Header />
+      <button className="new-proof-btn" onClick={handleOpenModal}>
+        New Proof
+      </button>
       <Menu logic={LOGIC} proof={proof} setProof={setProof} onColorChange={onColorChange} />
       <Proof proof={proof} coloring={coloringMap} />
+      
+      <NewProofModal
+        isOpen={isModalOpen}
+        onClose={handleCloseModal}
+        onSubmit={handleNewProofSubmit}
+      />
     </div>
   );
 }
