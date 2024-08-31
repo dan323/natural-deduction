@@ -8,8 +8,8 @@ import { StepDto, ProofDto } from './types';
 import { LOGIC } from './constant';
 
 function App() {
-  const [coloringMap, setColor] = useState(new Map<number, string>());
-  const [isModalOpen, setModalOpen] = useState(false);
+  const [colorMapping, setColorMapping] = useState(new Map<number, string>());
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [proof, setProof] = useState<ProofDto>({
     steps: [],
     logic: LOGIC,
@@ -17,20 +17,22 @@ function App() {
   });
 
   const onColorChange = (color: string, line: number) => {
-    const newColoringMap = new Map(coloringMap);
-    newColoringMap.forEach((value, key) => {
-      if (value === color) {
-        newColoringMap.delete(key);
-      }
+    setColorMapping(colorMapping => {
+        const newColoringMap = new Map<number,string>(colorMapping);
+        newColoringMap.forEach((value, key) => {
+          if (value === color) {
+            newColoringMap.delete(key);
+          }
+        });
+        if (line >= 0) {
+          newColoringMap.set(line, color);
+        }
+        return newColoringMap
     });
-    if (line >= 0) {
-      newColoringMap.set(line, color);
-    }
-    setColor(newColoringMap);
   };
 
-  const handleOpenModal = () => setModalOpen(true);
-  const handleCloseModal = () => setModalOpen(false);
+  const handleOpenModal = () => setIsModalOpen(true);
+  const handleCloseModal = () => setIsModalOpen(false);
 
   const handleNewProofSubmit = (premises: string[], goal: string) => {
     const steps: StepDto[] = premises.map((premise) => ({
@@ -45,6 +47,7 @@ function App() {
       logic: LOGIC,
       goal: goal,
     });
+    setColorMapping(new Map<number, string>())
   };
 
   return (
@@ -54,7 +57,7 @@ function App() {
         New Proof
       </button>
       <Menu logic={LOGIC} proof={proof} setProof={setProof} onColorChange={onColorChange} />
-      <Proof proof={proof} coloring={coloringMap} />
+      <Proof proof={proof} coloring={colorMapping} />
       
       <NewProofModal
         isOpen={isModalOpen}
