@@ -9,8 +9,44 @@ on:
     types:
       - closed
 
+env:
+  build-number: ${GITHUB_RUN_NUMBER}
+
 jobs:
-  mvn_flow:
+  create_public:
+    runs-on: ubuntu-latest
+    name: build frontend and publish in backend
+    steps:
+      - uses: actions/checkout@master
+        with:
+          ref: master
+      - name: npm set up
+        uses: actions/setup-node@v4.0.3
+        with:
+          node-version: 20
+      - name: install
+        run: |
+          cd frontend
+          npm install
+      - name: build
+        run: |
+          cd frontend
+          npm run build
+          cp -r ./build/* ../executable/src/main/resources/public/
+      - name: Setup java
+        uses: actions/setup-java@master
+        with:
+          java-version: 21
+          distribution: 'corretto'
+      - name: build
+        run: mvn -B -f pom.xml clean package -Dmaven.test.skip=true
+      - run: mkdir staging && mv executable/target/executable-0.1-SNAPSHOT.jar executable/target/executable-${{ env.build-number }}.jar && cp executable/target/*.jar staging
+      - uses: actions/upload-artifact@v3
+        with:
+          name: Package
+          path: staging
+          retention-days: 1
+  clean_pages:
     runs-on: ubuntu-latest
     name: delete pr info on github page
     steps:

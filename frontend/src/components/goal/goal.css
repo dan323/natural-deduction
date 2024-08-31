@@ -1,12 +1,19 @@
 .goal {
     display: flex;
     align-items: center;
+    justify-content: center;
+    /* Center the content horizontally */
+    text-align: center;
+    /* Center the text within the flex items */
+    font-size: 2.5rem;
+    /* Increase the font size to make the text much bigger */
 }
 
 .goal-label {
     font-weight: bold;
     margin-right: 0.5rem;
 }
+
 
 .goal-success {
     color: green;
@@ -15,3 +22,36 @@
 .goal-failure {
     color: red;
 }
+/* Celebration container styling */
+.celebration {
+    position: fixed;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    overflow: hidden;
+    width: 100vw;
+    height: 100vh; /* Make sure the container covers the whole viewport height */
+    pointer-events: none;
+    z-index: 9999; /* Ensure the container is above other content */
+  }
+  
+  /* Emoji styling */
+  .emoji {
+    position: absolute;
+    font-size: 24px;
+    animation: explode 1s ease-in-out forwards;
+    opacity: 0; /* Start with hidden opacity */
+  }
+  
+  /* Explosion effect */
+  @keyframes explode {
+    0% {
+      transform: scale(1) rotate(0deg);
+      opacity: 1;
+    }
+    100% {
+      transform: scale(2) rotate(360deg);
+      opacity: 0;
+    }
+  }
+  

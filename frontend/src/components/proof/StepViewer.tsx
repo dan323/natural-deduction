@@ -8,8 +8,8 @@ type StepProps = {
   step: StepDto,
   stepIndex: number,
   className?: string,
-  onMouseEnter: React.MouseEventHandler<HTMLTableRowElement>,
-  onMouseLeave: React.MouseEventHandler<HTMLTableRowElement>,
+  onMouseEnter: MouseEventHandler<HTMLTableRowElement>,
+  onMouseLeave: MouseEventHandler<HTMLTableRowElement>,
   color?: string,  // Color prop that will be validated
 }
 
