@@ -36,9 +36,9 @@ jobs:
           distribution: 'corretto'
       - name: build
         run: mvn -B -f pom.xml clean package -Dmaven.test.skip=true
-      - run: mkdir staging && mv executable/target/executable-0.1-SNAPSHOT.jar executable/target/executable-${{ env.build-number }}.jar && cp executable/target/*.jar staging
-      - uses: actions/upload-artifact@v3
+      - run: mv executable/target/executable-0.1-SNAPSHOT.jar executable/target/executable-${{ env.build-number }}.jar
+      - uses: actions/upload-artifact@v4
         with:
-          name: Package
-          path: staging
+          name: fat-jar
+          path: executable/target/executable-${{ env.build-number }}.jar
           retention-days: 1
