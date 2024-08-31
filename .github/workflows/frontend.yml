@@ -28,3 +28,12 @@ jobs:
       run: |
         cd frontend
         npm run test
+    - name: sonar cloud
+      env:
+        SONAR_ORGANIZATION: ${{ secrets.SONAR_ORGANIZATION }}
+        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        cd frontend
+        npm install -g sonarqube-scanner
+        sonarqube-scanner -Dsonar.token=$SONAR_TOKEN -Dsonar.host.url=https://sonarcloud.io/ -Dsonar.organization=$SONAR_ORGANIZATION -Dsonar.projectKey=dan323_natural-deduction-frontend
