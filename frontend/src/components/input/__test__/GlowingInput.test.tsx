@@ -1,6 +1,6 @@
 import React from 'react';
 import { render, fireEvent, act } from '@testing-library/react';
-import GlowingInput from '../components/input/GlowingInput';
+import GlowingInput from '../GlowingInput';
 
 describe('Glowing input', () => {
     test('renders GlowingInput component', () => {

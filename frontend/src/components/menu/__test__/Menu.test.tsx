@@ -1,11 +1,11 @@
 import React from 'react';
 import { render, fireEvent, screen, waitFor, act } from '@testing-library/react';
-import Menu from '../components/menu/Menu';
-import { fetchActions, applyAction } from '../service/actions';
-import { ProofDto, StepDto } from '../types';
+import Menu from '../Menu';
+import { fetchActions, applyAction } from '../../../service/actions';
+import { ProofDto, StepDto } from '../../../types';
 
 // Mock the service functions
-jest.mock('../service/actions', () => ({
+jest.mock('../../../service/actions', () => ({
     fetchActions: jest.fn(),
     applyAction: jest.fn(),
 }));

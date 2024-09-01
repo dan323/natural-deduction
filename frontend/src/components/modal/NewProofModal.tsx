@@ -20,7 +20,7 @@ const NewProofModal: FC<NewProofModalProps> = ({ isOpen, onClose, onSubmit }) =>
   const handleGoalChange = (value: string) => setGoal(value);
 
   const handleSubmit = () => {
-    onSubmit(premises.filter(premise => premise.trim() !== ''), goal.trim());
+    onSubmit(premises.filter((premise: string) => premise.trim() !== ''), goal.trim());
     onClose();
   };
 
