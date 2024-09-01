@@ -6,4 +6,5 @@ const config: Config.InitialOptions = {
   collectCoverage: true,
   collectCoverageFrom: ['**/src/**/*.tsx','!**/src/**/*.test.tsx']
 };
+
 export default config;
