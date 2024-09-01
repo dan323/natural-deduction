@@ -44,5 +44,12 @@
   },
   "devDependencies": {
     "sonarqube-scanner": "^4.2.1"
+  },
+  "jest": {
+    "collectCoverage": true,
+    "collectCoverageFrom": [
+      "src/**/*.tsx",
+      "!src/*/*.test.tsx"
+    ]
   }
 }
