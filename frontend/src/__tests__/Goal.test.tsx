@@ -1,11 +1,10 @@
 import React from 'react';
 import { render } from '@testing-library/react';
-import '@testing-library/jest-dom/extend-expect';
-import Goal from './Goal';
-import { renderLogic } from '../../service/utils';
+import Goal from '../components/goal/Goal';
+import { renderLogic } from '../service/utils';
 
 // Mock the renderLogic function
-jest.mock('../../service/utils', () => ({
+jest.mock('../service/utils', () => ({
   renderLogic: jest.fn(),
 }));
 

@@ -1,8 +1,8 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import ProofViewer from './ProofViewer';  // Adjust the import path as necessary
-import { ProofDto, StepDto } from '../../types';
+import ProofViewer from '../components/proof/ProofViewer';  // Adjust the import path as necessary
+import { ProofDto, StepDto } from '../types';
 
 const mockSteps: StepDto[] = [
   { expression: 'A -> B', rule: '->I [1-2]', assmsLevel: 0, extraParameters: new Map()},
