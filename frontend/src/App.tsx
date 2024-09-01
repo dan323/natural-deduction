@@ -3,7 +3,7 @@ import './App.css';
 import Proof from './components/proof/ProofViewer';
 import Header from './components/Header';
 import Menu from './components/menu/Menu';
-import NewProofModal from './components/NewProofModal';
+import NewProofModal from './components/modal/NewProofModal';
 import { StepDto, ProofDto } from './types';
 import { LOGIC } from './constant';
 
