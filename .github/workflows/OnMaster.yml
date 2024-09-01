@@ -5,6 +5,8 @@ on:
     branches:
       - master
 
+env:
+  build-number: ${{ github.run_number }}
 
 jobs:
   create_public:
@@ -37,8 +39,6 @@ jobs:
         run: mvn -B -f pom.xml clean package -Dmaven.test.skip=true
       - run: mv ./executable/target/executable-0.1-SNAPSHOT.jar ./executable/target/executable-${{ env.build-number }}.jar
       - uses: actions/upload-artifact@v4
-        env:
-          build-number: ${GITHUB_RUN_NUMBER}
         with:
           name: fat-jar
           path: ./executable/target/executable-${{ env.build-number }}.jar
