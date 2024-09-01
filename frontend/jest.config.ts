@@ -4,7 +4,7 @@ import type {Config} from '@jest/types';
 const config: Config.InitialOptions = {
   verbose: true,
   collectCoverage: true,
-  collectCoverageFrom: ['**/src/**/*.tsx','!**/src/**/*.test.tsx']
+  collectCoverageFrom: ['**/*.{ts,tsx}','!**/*.test.tsx']
 };
 
 export default config;
