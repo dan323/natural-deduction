@@ -46,10 +46,11 @@
     "sonarqube-scanner": "^4.2.1"
   },
   "jest": {
-    "collectCoverage": true,
-    "collectCoverageFrom": [
-      "src/**/*.tsx",
-      "!src/*/*.test.tsx"
+    "coveragePathIgnorePatterns": [
+      "**/*.test.ts",
+      "**/*.test.js",
+      "**/*.test.tsx",
+      "**/*.test.jsx"
     ]
   }
 }
