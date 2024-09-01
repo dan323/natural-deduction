@@ -1,8 +1,8 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import StepViewer from './StepViewer';  // Adjust the import path as necessary
-import { StepDto } from '../../types';
+import StepViewer from '../components/proof/StepViewer';  // Adjust the import path as necessary
+import { StepDto } from '../types';
 
 const mockStep: StepDto = {
   expression: 'A → B',
