@@ -4,7 +4,7 @@ import type { Config } from 'jest';
 const config: Config = {
   verbose: true,
   collectCoverage: true,
-  collectCoverageFrom: ['**/*.{ts,tsx}', '!**/*.test.tsx'],
+  collectCoverageFrom: ['**/*.{ts,tsx}', '!**/*.test.tsx', '!**/*.config.{ts,js}', '!**/*.d.ts'],
   transform: {
     '^.+\\.tsx?$': 'ts-jest',
   },
