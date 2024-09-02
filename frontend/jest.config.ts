@@ -2,10 +2,16 @@ import type { Config } from 'jest';
 
 // Sync object
 const config: Config = {
-  verbose: true,
   collectCoverage: true,
-  reporters:["jest-sonar"],
-  collectCoverageFrom: ['**/*.{ts,tsx}', '!**/*.test.tsx', '!**/*.config.{ts,js}', '!**/*.d.ts'],
+  coverageDirectory: "coverage",
+  coverageReporters: ["lcov", "text"],
+  collectCoverageFrom: [
+    "src/**/*.{js,ts,tsx}", // Adjust as necessary
+    "!src/**/*.d.ts",       // Exclude TypeScript declaration files
+    "!src/**/*.test.{js,ts,tsx}", // Exclude test files
+    "!src/**/*.spec.{js,ts,tsx}", // Exclude spec files if used
+  ],
+  verbose: true,
   transform: {
     '^.+\\.tsx?$': 'ts-jest',
   },
