@@ -34,7 +34,7 @@ const NewProofModal: FC<NewProofModalProps> = ({ isOpen, onClose, onSubmit }) =>
           <label>Premises:</label>
           {premises.map((premise, index) => (
             <input
-              key={index}
+              key={premise+index}
               type="text"
               value={premise}
               onChange={(e) => handlePremiseChange(index, e.target.value)}

@@ -32,7 +32,7 @@ const Goal: FC<GoalProps> = ({ expression, success }) => {
             const emoji = emojis[Math.floor(Math.random() * emojis.length)];
             return (
               <span
-                key={index}
+                key={"emoji" + index}
                 className="emoji"
                 style={{
                   left: `${Math.random() * 100}vw`, // Random horizontal position

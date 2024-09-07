@@ -26,7 +26,7 @@ function parseAction(
     onInput: (index: number, input: number | string) => void
 ): ActionParsed {
     const name = action.split('(')[0];
-    const inputString = action.match(/\[\s*(.*?)\s*\]/)?.[1];
+    const inputString = (/\[\s*(.*?)\s*\]/).exec(action)?.[1];
     const inputs = inputString ? inputString.split(',').map(input => input.trim()) : [];
 
     return {
@@ -36,7 +36,7 @@ function parseAction(
             <div className="input-container">
                 {inputs.map((input, index) => (
                     <GlowingInput
-                        key={index}
+                        key={index+input}
                         index={index}
                         label={input === 'int' ? 'Enter line number:' : 'Enter expression:'}
                         glowColor={glowingColors[index]}
@@ -124,7 +124,7 @@ const Menu: FC<MenuProps> = ({ logic, onColorChange, setProof, proof }) => {
             <select id="action-select" className="menu-select" value={selectedAction} onChange={handleActionChange}>
                 <option value="">-- Choose an action --</option>
                 {actions.map((action, index) => (
-                    <option key={index} value={action.name}>
+                    <option key={action.name} value={action.name}>
                         {action.name}
                     </option>
                 ))}

@@ -29,14 +29,14 @@ export const ProofViewer: FC<ProofViewerProps> = ({ proof, coloring }) => {
   // Updated parseRangeFromRule to handle the general case with ranges and individual numbers
   const parseRangeFromRule = (rule: string): RangeDto[] | null => {
     // Match all sequences inside the brackets
-    let match = rule.match(/\[(\d+(-\d+)?(, \d+(-\d+)?)*?)\]/);
+    let match = /\[(\d+(-\d+)?(, \d+(-\d+)?)*?)\]/.exec(rule);
     if (match) {
       const parts = match[1].split(',');
       let ranges: RangeDto[] = [];
 
       parts.forEach(part => {
         // Check if the part is a range (e.g., "1-2")
-        const rangeMatch = part.match(/(\d+)-(\d+)/);
+        const rangeMatch = /(\d+)-(\d+)/.exec(part);
         if (rangeMatch) {
           ranges.push({ start: parseInt(rangeMatch[1]), end: parseInt(rangeMatch[2]) });
         } else {
@@ -81,7 +81,7 @@ export const ProofViewer: FC<ProofViewerProps> = ({ proof, coloring }) => {
             {proof.steps.map((step, index) => {
               return (
                 <StepViewer
-                  key={index}
+                  key={step.expression+index}
                   step={step}
                   stepIndex={index}
                   className={isHighlighted(index) ? 'highlighted' : ''}
