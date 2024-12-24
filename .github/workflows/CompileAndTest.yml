@@ -39,7 +39,7 @@ jobs:
           SONAR_PROJECT: ${{ secrets.SONAR_PROJECT }}
         run: mvn -B -f pom.xml package -Dmaven.test.skip=true org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.java.source=21 -Dsonar.java.target=21 -Dsonar.token=$SONAR_TOKEN -Dsonar.host.url=https://sonarcloud.io/ -Dsonar.organization=$SONAR_ORGANIZATION -Dorganization=$SONAR_ORGANIZATION -Dsonar.projectKey=dan323_natural-deduction
       - name: set PR number
-        if: github.event_name == 'pull_request'
+        if: github.event_name == 'pull_request' && github.actor != 'dependabot[bot]'
         run: |
           mkdir jacoco-natural-deduction/target/tmp
           mv -v jacoco-natural-deduction/target/site/* jacoco-natural-deduction/target/tmp/
@@ -49,7 +49,7 @@ jobs:
           PR: ${{ github.event.pull_request.number }}
       - name: publish jacoco report
         uses: peaceiris/actions-gh-pages@v4.0.0
-        if: github.event_name == 'pull_request'
+        if: github.event_name == 'pull_request' && github.actor != 'dependabot[bot]'
         env:
           PR: ${{ github.event.pull_request.number }}
         with:
@@ -61,7 +61,7 @@ jobs:
           keep_files: true
       - name: publish jacoco report
         uses: peaceiris/actions-gh-pages@v4.0.0
-        if: github.event_name != 'pull_request'
+        if: github.event_name != 'pull_request' && github.actor != 'dependabot[bot]'
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./jacoco-natural-deduction/target/site/
@@ -86,7 +86,7 @@ jobs:
           mkdir -p target/site
           mv target/pit-reports target/site
       - name: set PR number
-        if: github.event_name == 'pull_request'
+        if: github.event_name == 'pull_request' && github.actor != 'dependabot[bot]'
         run: |
           mkdir -p target/tmp
           mv -v target/site/* target/tmp
@@ -96,7 +96,7 @@ jobs:
           PR: ${{ github.event.pull_request.number }}
       - name: publish pitest report
         uses: peaceiris/actions-gh-pages@v4.0.0
-        if: github.event_name == 'pull_request'
+        if: github.event_name == 'pull_request' && github.actor != 'dependabot[bot]'
         env:
           PR: ${{ github.event.pull_request.number }}
         with:
@@ -108,7 +108,7 @@ jobs:
           keep_files: true
       - name: publish pitest report
         uses: peaceiris/actions-gh-pages@v4.0.0
-        if: github.event_name != 'pull_request'
+        if: github.event_name != 'pull_request' && github.actor != 'dependabot[bot]'
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./target/site/
