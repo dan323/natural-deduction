@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     name: test front
     steps:
-    - uses: actions/checkout@master
+    - uses: actions/checkout@v4
       with:
        fetch-depth: 0
     - name: npm set up
