@@ -15,7 +15,7 @@ jobs:
     runs-on: ubuntu-latest
     name: delete pr info on github page
     steps:
-      - uses: actions/checkout@master
+      - uses: actions/checkout@v4
         with:
           ref: 'gh-pages'
       - name: remove data from pull request
