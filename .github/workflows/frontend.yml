@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     name: test front
     steps:
-    - uses: actions/checkout@master
+    - uses: actions/checkout@v4
       with:
        fetch-depth: 0
     - name: npm set up
@@ -36,6 +36,8 @@ jobs:
         SONAR_HOST_URL: https://sonarcloud.io/
       with:
         projectBaseDir: frontend
-        args: > 
+        args: >
+          -Dsonar.projectKey=natural-deduction-frontend
+          -Dsonar.verbose=true
           -Dsonar.organization=${{ env.SONAR_ORGANIZATION }}
           -Dsonar.typescript.tsconfigPaths=.
