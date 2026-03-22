@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>ModalOrE1.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">jacoco-report-aggregate</a> &gt; <a href="../index.html" class="el_bundle">implementation.deduction.modal</a> &gt; <a href="index.source.html" class="el_package">com.dan323.proof.modal.complex</a> &gt; <span class="el_source">ModalOrE1.java</span></div><h1>ModalOrE1.java</h1><pre class="source lang-java linenums">package com.dan323.proof.modal.complex;
+
+import com.dan323.expressions.base.BinaryOperation;
+import com.dan323.expressions.base.Disjunction;
+import com.dan323.expressions.base.Negation;
+import com.dan323.expressions.modal.ModalLogicalOperation;
+import com.dan323.expressions.modal.NegationModal;
+import com.dan323.proof.generic.RuleUtils;
+import com.dan323.proof.modal.*;
+import com.dan323.proof.modal.proof.ModalNaturalDeduction;
+
+public final class ModalOrE1 extends CompositionRule {
+
+    private final int a;
+    private final int b;
+
+<span class="fc" id="L17">    public ModalOrE1(int i, int j) {</span>
+<span class="fc" id="L18">        a = i;</span>
+<span class="fc" id="L19">        b = j;</span>
+<span class="fc" id="L20">    }</span>
+
+    public boolean equals(Object ob) {
+<span class="fc bfc" id="L23" title="All 2 branches covered.">        if (ob instanceof ModalOrE1 ore) {</span>
+<span class="fc bfc" id="L24" title="All 4 branches covered.">            return ore.a == a &amp;&amp; ore.b == b;</span>
+        }
+<span class="fc" id="L26">        return false;</span>
+    }
+
+    @Override
+    public int hashCode() {
+<span class="nc" id="L31">        return super.hashCode() * a + b;</span>
+    }
+
+    @Override
+    public boolean isValid(ModalNaturalDeduction pf) {
+<span class="fc bfc" id="L36" title="All 2 branches covered.">        if (ModalAction.checkEqualState(pf, a, b)) {</span>
+<span class="pc bpc" id="L37" title="2 of 8 branches missed.">            if (RuleUtils.isValidIndexAndProp(pf, a) &amp;&amp; RuleUtils.isValidIndexAndProp(pf, b) &amp;&amp; RuleUtils.isOperation(pf, a, Disjunction.class) &amp;&amp; RuleUtils.isOperation(pf, b, Negation.class)) {</span>
+<span class="fc" id="L38">                return ((BinaryOperation&lt;?&gt;) pf.getSteps().get(a - 1).getStep()).getLeft().equals(((NegationModal) pf.getSteps().get(b - 1).getStep()).getElement());</span>
+            }
+        }
+<span class="fc" id="L41">        return false;</span>
+    }
+
+    @Override
+    public void apply(ModalNaturalDeduction pf) {
+<span class="fc" id="L46">        String state = pf.getSteps().get(a - 1).getState();</span>
+<span class="fc" id="L47">        (new ModalAssume(((BinaryOperation&lt;ModalLogicalOperation&gt;) pf.getSteps().get(a - 1).getStep()).getLeft(), state)).apply(pf);</span>
+<span class="fc" id="L48">        (new ModalFI(pf.getSteps().size(), b)).apply(pf);</span>
+<span class="fc" id="L49">        (new ModalFE(pf.getSteps().size(), ((BinaryOperation&lt;ModalLogicalOperation&gt;) pf.getSteps().get(a - 1).getStep()).getRight(), state)).apply(pf);</span>
+<span class="fc" id="L50">        (new ModalDeductionTheorem()).apply(pf);</span>
+<span class="fc" id="L51">        (new ModalAssume(((BinaryOperation&lt;ModalLogicalOperation&gt;) pf.getSteps().get(a - 1).getStep()).getRight(), state)).apply(pf);</span>
+<span class="fc" id="L52">        (new ModalDeductionTheorem()).apply(pf);</span>
+<span class="fc" id="L53">        (new ModalOrE(a, pf.getSteps().size() - 2, pf.getSteps().size())).apply(pf);</span>
+<span class="fc" id="L54">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>
