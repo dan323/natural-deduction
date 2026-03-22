@@ -191,7 +191,7 @@ The Spring Boot application that ties everything together.
   - Configuration beans
   - Integration with all domain modules
 - **Dependencies**: All domain modules, rest/, Spring Boot
-- **Java Package**: `com.dan323.executable.*`
+- **Java Package**: `com.dan323.main.*`
 - **Endpoints**:
   - `/api/classical/*` - Classical logic endpoints
   - `/api/modal/*` - Modal logic endpoints

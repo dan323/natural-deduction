@@ -376,9 +376,6 @@ Check application status.
   "components": {
     "diskSpace": {
       "status": "UP"
-    },
-    "db": {
-      "status": "UP"
     }
   }
 }

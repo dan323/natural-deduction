@@ -186,10 +186,10 @@ public class IntuitionisticProofUseCase extends BaseProofUseCase {
 
 ### Step 5: Add REST Endpoints
 
-In `executable/src/main/java/com/dan323/executable/controller/`:
+In `executable/src/main/java/com/dan323/main/controller/`:
 
 ```java
-package com.dan323.executable.controller;
+package com.dan323.main.controller;
 
 import org.springframework.web.bind.annotation.*;
 import com.dan323.proof.use_case.intuitionistic.*;
@@ -263,7 +263,7 @@ public class IntuitionisticProofUseCaseTest {
 Update frontend to support new logic system in `frontend/src/constant.ts`:
 
 ```typescript
-export const INTUITIONISTIC_API = `${API_BASE_URL}/api/intuitionistic`;
+export const LOGIC: string = "intuitionistic";
 ```
 
 Add UI component for intuitionistic logic in `frontend/src/components/`.
@@ -318,7 +318,7 @@ Example: Add a new rule to classical logic
 
 ### Extending the REST API
 
-1. **Create a new controller** in `executable/src/main/java/com/dan323/executable/controller/`
+1. **Create a new controller** in `executable/src/main/java/com/dan323/main/controller/`
 2. **Add request/response models** in `rest/model/`
 3. **Implement handler methods** that call use cases
 4. **Add tests** in `executable/src/test/java/`

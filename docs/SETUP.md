@@ -104,7 +104,7 @@ java -jar executable/target/executable-0.1-SNAPSHOT.jar
  =========|_|==============|___/=/_/_/_/
  :: Spring Boot ::        (v3.3.2)
 
-2024-01-15 10:30:15.123  INFO 1234 --- [main] com.dan323.executable.Application
+2024-01-15 10:30:15.123  INFO 1234 --- [main] com.dan323.main.Application
 Application 'executable' is running! Access URLs:
   Local: http://localhost:8080
   Profile: default
@@ -168,9 +168,8 @@ Main configuration files:
 Edit `frontend/src/constant.ts`:
 
 ```typescript
-export const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8080';
-export const CLASSICAL_API = `${API_BASE_URL}/api/classical`;
-export const MODAL_API = `${API_BASE_URL}/api/modal`;
+export const BASE_URL: string = 'http://localhost:8080/';
+export const LOGIC: string = 'classical';
 ```
 
 ## Running Tests
@@ -270,7 +269,7 @@ mvn org.pitest:pitest-maven:mutationCoverage -pl domain/logic-language/framework
 
 **Issue**: Maven dependencies not downloading
 - **Solution**: Check internet connection
-- **Solution**: Clear Maven cache: `mvn clean -DmskipTests install`
+- **Solution**: Clear Maven cache: `mvn clean -DskipTests install`
 
 ### Runtime Issues
 
@@ -356,7 +355,7 @@ Access at: http://localhost:3000 (frontend will proxy API calls to backend)
 3. Run → Edit Configurations
 4. Add configuration:
    - Type: Application
-   - Main class: `com.dan323.executable.Application`
+   - Main class: `com.dan323.main.Application`
    - Working directory: `$PROJECT_DIR$`
 
 ### VS Code

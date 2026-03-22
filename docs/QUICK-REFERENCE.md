@@ -268,7 +268,7 @@ mvn clean install -pl executable
 1. Open project
 2. Maven auto-configures
 3. Run → Edit Configurations → Add Spring Boot Application
-4. Main class: `com.dan323.executable.Application`
+4. Main class: `com.dan323.main.Application`
 
 ### VS Code
 1. Install "Extension Pack for Java"
