@@ -13,7 +13,7 @@ const config: Config = {
   ],
   verbose: true,
   transform: {
-    '^.+\\.tsx?$': 'ts-jest',
+    '^.+\\.tsx?$': ['ts-jest', { tsconfig: 'tsconfig.jest.json' }],
   },
   moduleNameMapper: {
     '\\.(css|less)$': 'identity-obj-proxy',
