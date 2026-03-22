@@ -3,10 +3,11 @@
 A system for [natural deduction](https://en.wikipedia.org/wiki/Natural_deduction) supporting classical and modal propositional logic.
 
 ## Status
+
 [![Main Workflow](https://github.com/dan323/natural-deduction/actions/workflows/CompileAndTest.yml/badge.svg)](https://github.com/dan323/natural-deduction/actions/workflows/CompileAndTest.yml)
-[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=natural-deduction&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=dan323_natural-deduction)
-[![Bugs](https://sonarcloud.io/api/project_badges/measure?project=natural-deduction&metric=bugs)](https://sonarcloud.io/summary/new_code?id=dan323_natural-deduction)
-[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=natural-deduction&metric=coverage)](https://sonarcloud.io/summary/new_code?id=dan323_natural-deduction)
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=natural-deduction&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=natural-deduction)
+[![Bugs](https://sonarcloud.io/api/project_badges/measure?project=natural-deduction&metric=bugs)](https://sonarcloud.io/summary/new_code?id=natural-deduction)
+[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=natural-deduction&metric=coverage)](https://sonarcloud.io/summary/new_code?id=natural-deduction)
 
 ## Quick Start
 
