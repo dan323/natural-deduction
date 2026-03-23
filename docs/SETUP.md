@@ -130,7 +130,7 @@ cd frontend
 npm start
 ```
 
-This starts a development server on http://localhost:3000 with live reloading.
+This starts a development server on http://localhost:5173 with live reloading.
 
 **Note**: The development server needs the backend running separately on port 8080.
 
@@ -165,12 +165,22 @@ Main configuration files:
 
 **API Endpoint Configuration**:
 
-Edit `frontend/src/constant.ts`:
+The frontend uses relative API paths (e.g. `/logic/...`). When served by the Spring Boot JAR both frontend and API share the same origin, so no extra configuration is needed.
+
+During local frontend development (Vite dev server on port 5173), `vite.config.ts` proxies `/logic` requests to the backend on port 8080:
 
 ```typescript
-export const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8080';
-export const CLASSICAL_API = `${API_BASE_URL}/api/classical`;
-export const MODAL_API = `${API_BASE_URL}/api/modal`;
+server: {
+  proxy: {
+    '/logic': 'http://localhost:8080',
+  },
+},
+```
+
+The only frontend constant that controls behaviour is the logic type in `frontend/src/constant.ts`:
+
+```typescript
+export const LOGIC: string = 'classical';
 ```
 
 ## Running Tests
@@ -187,7 +197,7 @@ mvn clean test
 mvn test -pl domain/logic-language/framework
 ```
 
-**Run with coverage**:
+**Run with coverage (coverage is collected by default)**:
 ```powershell
 mvn clean install
 ```
@@ -196,22 +206,17 @@ Coverage reports are generated in: `target/site/jacoco/index.html`
 
 ### Frontend Tests
 
-**Run all tests**:
+**Run all tests** (coverage is collected by default):
 ```powershell
 cd frontend
 npm test
-```
-
-**Run with coverage**:
-```powershell
-npm test -- --coverage
 ```
 
 Coverage report: `frontend/coverage/lcov-report/index.html`
 
 **Run specific test file**:
 ```powershell
-npm test -- Expressions.test.tsx
+npm test -- --testPathPattern=Expressions
 ```
 
 ## Docker Deployment
@@ -345,7 +350,7 @@ cd frontend
 npm start
 ```
 
-Access at: http://localhost:3000 (frontend will proxy API calls to backend)
+Access at: http://localhost:5173 — Vite proxies `/logic` requests to the backend on port 8080 (configured in `frontend/vite.config.ts`).
 
 ## Integration with IDEs
 

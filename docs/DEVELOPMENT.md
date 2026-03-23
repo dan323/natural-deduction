@@ -440,7 +440,7 @@ mvn clean install
 
 # Frontend coverage
 cd frontend
-npm test -- --coverage
+npm test
 # View: coverage/lcov-report/index.html
 ```
 
