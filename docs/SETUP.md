@@ -195,14 +195,9 @@ Coverage reports are generated in: `target/site/jacoco/index.html`
 
 ### Frontend Tests
 
-**Run all tests**:
+**Run all tests** (coverage is collected by default):
 ```powershell
 cd frontend
-npm test
-```
-
-**Run with coverage (coverage is collected by default)**:
-```powershell
 npm test
 ```
 
