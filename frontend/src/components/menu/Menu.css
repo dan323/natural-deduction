@@ -10,6 +10,14 @@
     font-family: Arial, sans-serif;
 }
 
+/* Empty state */
+.empty-state {
+    font-size: 1.1rem;
+    color: #666;
+    margin: 0;
+    padding: 10px 0;
+}
+
 /* Label for Select */
 .menu-label {
     display: block;
@@ -27,6 +35,13 @@
     border-radius: 4px;
     margin-bottom: 20px;
     background-color: #fff;
+    cursor: pointer;
+}
+
+.menu-select:focus {
+    outline: none;
+    border-color: #007bff;
+    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.2);
 }
 
 /* Input Container */
@@ -56,7 +71,13 @@
     border: 1px solid #ccc;
     border-radius: 4px;
     outline: none;
-    transition: box-shadow 0.3s ease;
+    box-sizing: border-box;
+    transition: box-shadow 0.3s ease, border-color 0.2s;
+}
+
+.input-field:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.2);
 }
 
 /* Glowing Input Field */
@@ -67,9 +88,22 @@
 
 /* No Inputs Message */
 .no-inputs {
-    font-size: 1.2rem;
+    font-size: 1.1rem;
     color: #666;
     margin-bottom: 20px;
+    font-style: italic;
+}
+
+/* Inline error message */
+.menu-error {
+    color: #c0392b;
+    background-color: #fdecea;
+    border: 1px solid #f5c6cb;
+    border-radius: 4px;
+    padding: 8px 12px;
+    font-size: 1rem;
+    margin-bottom: 12px;
+    text-align: left;
 }
 
 /* Action Button */
@@ -84,6 +118,17 @@
     transition: background-color 0.3s ease;
 }
 
-.menu-button:hover {
+.menu-button:hover:not(:disabled) {
     background-color: #0056b3;
+}
+
+.menu-button:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.4);
+}
+
+.menu-button:disabled {
+    background-color: #9ec5fe;
+    cursor: not-allowed;
+    opacity: 0.7;
 }

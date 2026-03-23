@@ -38,7 +38,7 @@ function parseAction(
                     <GlowingInput
                         key={index+input}
                         index={index}
-                        label={input === 'int' ? 'Enter line number:' : 'Enter expression:'}
+                        label={input === 'int' ? 'Line number:' : 'Expression:'}
                         glowColor={glowingColors[index]}
                         onColorChange={onColorChange}
                         onInput={onInput}
@@ -46,7 +46,7 @@ function parseAction(
                     />
                 ))}
             </div>
-        ) : <p className="no-inputs">No inputs needed</p>
+        ) : <p className="no-inputs">No additional inputs needed</p>
     };
 }
 
@@ -55,6 +55,8 @@ const Menu: FC<MenuProps> = ({ logic, onColorChange, setProof, proof }) => {
     const [selectedAction, setSelectedAction] = useState<string>('');
     const [sources, setSources] = useState<number[]>([]);
     const [expression, setExpression] = useState<string>("");
+    const [errorMessage, setErrorMessage] = useState<string>('');
+    const [isLoading, setIsLoading] = useState(false);
 
     const selectedInputs = useMemo(() => {
         return actions.find(action => action.name === selectedAction)?.inputs || null;
@@ -63,6 +65,7 @@ const Menu: FC<MenuProps> = ({ logic, onColorChange, setProof, proof }) => {
     const handleActionChange: ChangeEventHandler<HTMLSelectElement> = (event) => {
         const newAction = event.target.value;
         setSelectedAction(newAction);
+        setErrorMessage('');
 
         glowingColors.forEach((color) => onColorChange(color,-1));
 
@@ -73,11 +76,12 @@ const Menu: FC<MenuProps> = ({ logic, onColorChange, setProof, proof }) => {
         } else {
             setSources([]);
         }
-        setExpression('');  // Reset expression
+        setExpression('');
     };
 
     const onInput = useCallback(
         (index: number, input: number | string) => {
+            setErrorMessage('');
             if (typeof input === 'number') {
                 setSources(prevSources => {
                     const newSources = [...prevSources];
@@ -100,6 +104,8 @@ const Menu: FC<MenuProps> = ({ logic, onColorChange, setProof, proof }) => {
 
     const processAction = () => {
         if (selectedAction === '') return;
+        setErrorMessage('');
+        setIsLoading(true);
 
         const actionDto: ActionDto = {
             name: selectedAction,
@@ -108,31 +114,57 @@ const Menu: FC<MenuProps> = ({ logic, onColorChange, setProof, proof }) => {
         };
 
         applyAction(logic, proof, actionDto, (response: ApplyActionResponse) => {
+            setIsLoading(false);
             if (response.success) {
                 setProof(response.proof);
                 glowingColors.forEach((color) => onColorChange(color,-1));
             } else {
-                console.error('Action failed:', response.message);
-                alert(`Action failed: ${response.message}`);
+                setErrorMessage(response.message || 'Action could not be applied.');
             }
         });
     };
 
+    const noProof = proof.steps.length === 0 && !proof.goal;
+
     return (
         <div className="menu">
-            <label htmlFor="action-select" className="menu-label">Select Inference Rule:</label>
-            <select id="action-select" className="menu-select" value={selectedAction} onChange={handleActionChange}>
-                <option value="">-- Choose an action --</option>
-                {actions.map((action, index) => (
-                    <option key={action.name} value={action.name}>
-                        {action.name}
-                    </option>
-                ))}
-            </select>
-            {selectedInputs}
-            <button className="menu-button" onClick={processAction} disabled={selectedAction === ''}>
-                Perform Action
-            </button>
+            {noProof ? (
+                <p className="empty-state">
+                    Click <strong>New Proof</strong> to get started.
+                </p>
+            ) : (
+                <>
+                    <label htmlFor="action-select" className="menu-label">Select Inference Rule:</label>
+                    <select
+                        id="action-select"
+                        className="menu-select"
+                        value={selectedAction}
+                        onChange={handleActionChange}
+                        aria-label="Select inference rule"
+                    >
+                        <option value="">-- Choose a rule --</option>
+                        {actions.map((action) => (
+                            <option key={action.name} value={action.name}>
+                                {action.name}
+                            </option>
+                        ))}
+                    </select>
+                    {selectedInputs}
+                    {errorMessage && (
+                        <p className="menu-error" role="alert" aria-live="assertive">
+                            {errorMessage}
+                        </p>
+                    )}
+                    <button
+                        className="menu-button"
+                        onClick={processAction}
+                        disabled={selectedAction === '' || isLoading}
+                        aria-disabled={selectedAction === '' || isLoading}
+                    >
+                        {isLoading ? 'Applying…' : 'Apply Rule'}
+                    </button>
+                </>
+            )}
         </div>
     );
 };
