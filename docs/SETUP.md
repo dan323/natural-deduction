@@ -130,7 +130,7 @@ cd frontend
 npm start
 ```
 
-This starts a development server on http://localhost:3000 with live reloading.
+This starts a development server on http://localhost:5173 with live reloading.
 
 **Note**: The development server needs the backend running separately on port 8080.
 
@@ -168,9 +168,8 @@ Main configuration files:
 Edit `frontend/src/constant.ts`:
 
 ```typescript
-export const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8080';
-export const CLASSICAL_API = `${API_BASE_URL}/api/classical`;
-export const MODAL_API = `${API_BASE_URL}/api/modal`;
+export const BASE_URL: string = import.meta.env.VITE_API_URL || 'http://localhost:8080/';
+export const LOGIC: string = 'classical';
 ```
 
 ## Running Tests
@@ -187,7 +186,7 @@ mvn clean test
 mvn test -pl domain/logic-language/framework
 ```
 
-**Run with coverage**:
+**Run with coverage (coverage is collected by default)**:
 ```powershell
 mvn clean install
 ```
@@ -202,16 +201,16 @@ cd frontend
 npm test
 ```
 
-**Run with coverage**:
+**Run with coverage (coverage is collected by default)**:
 ```powershell
-npm test -- --coverage
+npm test
 ```
 
 Coverage report: `frontend/coverage/lcov-report/index.html`
 
 **Run specific test file**:
 ```powershell
-npm test -- Expressions.test.tsx
+npm test -- --testPathPattern=Expressions
 ```
 
 ## Docker Deployment
@@ -345,7 +344,7 @@ cd frontend
 npm start
 ```
 
-Access at: http://localhost:3000 (frontend will proxy API calls to backend)
+Access at: http://localhost:5173 (frontend will proxy API calls to backend)
 
 ## Integration with IDEs
 
