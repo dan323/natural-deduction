@@ -50,15 +50,31 @@ function App() {
     setColorMapping(new Map<number, string>())
   };
 
+  const hasProof = proof.goal !== '' || proof.steps.length > 0;
+
   return (
     <div className="App">
       <Header />
-      <button className="new-proof-btn" onClick={handleOpenModal}>
-        New Proof
-      </button>
-      <Menu logic={LOGIC} proof={proof} setProof={setProof} onColorChange={onColorChange} />
-      <Proof proof={proof} coloring={colorMapping} />
-      
+      <div className="app-toolbar">
+        <button
+          className="new-proof-btn"
+          onClick={handleOpenModal}
+          aria-label="Start a new proof"
+        >
+          New Proof
+        </button>
+      </div>
+      <main className="app-main">
+        <Menu logic={LOGIC} proof={proof} setProof={setProof} onColorChange={onColorChange} />
+        {hasProof ? (
+          <Proof proof={proof} coloring={colorMapping} />
+        ) : (
+          <div className="empty-proof-state" role="status">
+            <p>No proof loaded. Click <strong>New Proof</strong> to begin.</p>
+          </div>
+        )}
+      </main>
+
       <NewProofModal
         isOpen={isModalOpen}
         onClose={handleCloseModal}

@@ -11,35 +11,30 @@
     width: 100%;
     border-collapse: collapse;
     margin: 20px auto;
-    /* Top and bottom margin, auto for left and right */
     padding: 0;
-    /* Reset padding to avoid unwanted spacing */
     max-width: 1200px;
-    /* Optional: limit table width */
 }
 
 .proof-viewer th,
 .proof-viewer td {
     border: none;
-    /* No borders */
-    padding: 4px 8px;
-    /* Reduced padding for closer lines */
+    padding: 6px 12px;
     text-align: left;
 }
 
 /* Header Styles */
 .proof-viewer th {
     background-color: #f4f4f4;
-    color: #333;
+    color: #555;
     text-align: center;
-    /* Center align headers */
-    font-size: 3rem;
-    /* Larger header text size to match expressions */
+    font-size: 1rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    border-bottom: 2px solid #ddd;
 }
 
 .proof-viewer td.rule {
     text-align: right;
-    /* Right align for rule column cells */
 }
 
 /* Expression and Rule Styles with Preformatted Text */
@@ -47,31 +42,32 @@
     margin: 0;
     font-family: "Courier New", Courier, monospace;
     white-space: pre;
-    font-size: 3rem;
-    /* Large text for expressions */
-    line-height: 1.2;
-    /* Adjust line height to keep it tight */
+    font-size: 1.4rem;
+    line-height: 1.4;
 }
 
-/* Make Line Numbers and Rules As Big As Expressions */
+/* Line numbers and rule cells */
 .proof-viewer td {
-    font-size: 3rem;
-    /* Large text for both line numbers and rules */
-    line-height: 1.2;
-    /* Keep line height tight for uniformity */
+    font-size: 1.4rem;
+    line-height: 1.4;
+    vertical-align: middle;
 }
 
 /* No Alternate Row Colors */
 .proof-viewer tbody tr {
     background-color: transparent;
-    /* Keep the background consistent */
 }
 
-/* Highlight Rows on Hover */
+/* Subtle hover for rows */
+.proof-viewer tbody tr:hover {
+    background-color: #f5f5f5;
+}
+
+/* Highlight Rows on Hover (rule reference) */
 .proof-viewer tbody tr.highlighted {
-    background-color: #000; /* Black background */
-    color: #ff69b4; /* Pink color for the text */
-    font-weight: bold; /* Make the font thick */
+    background-color: #1a1a2e;
+    color: #ff69b4;
+    font-weight: bold;
 }
 
 /* Heading Styles */
@@ -88,9 +84,20 @@ h3 {
     color: #444;
 }
 
-  .glow {
-    box-shadow: inset 0 0 10px var(--glow-color), 
-                inset 0 0 20px var(--glow-color), 
+.glow {
+    box-shadow: inset 0 0 10px var(--glow-color),
+                inset 0 0 20px var(--glow-color),
                 inset 0 0 30px var(--glow-color);
-  }
-  
+}
+
+/* Proof wrapper and divider */
+.proof-viewer-wrapper {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.proof-divider {
+    border: none;
+    border-top: 2px solid #333;
+    margin: 0;
+}

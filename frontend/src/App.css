@@ -1,21 +1,52 @@
 .App {
   text-align: center;
+  min-height: 100vh;
+  background-color: #fafafa;
+}
+
+/* Toolbar below header */
+.app-toolbar {
+  display: flex;
+  justify-content: flex-end;
+  padding: 12px 24px;
+  background-color: #f0f0f5;
+  border-bottom: 1px solid #ddd;
 }
 
 /* New Proof Button */
 .new-proof-btn {
-  position: absolute;
-  top: 20px;
-  right: 20px;
-  padding: 10px 20px;
+  padding: 9px 20px;
   font-size: 1rem;
   border: none;
   border-radius: 4px;
   background-color: #007bff;
   color: #fff;
   cursor: pointer;
+  transition: background-color 0.2s;
 }
 
 .new-proof-btn:hover {
   background-color: #0056b3;
+}
+
+.new-proof-btn:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.4);
+}
+
+/* Main content area */
+.app-main {
+  padding: 0 16px 40px;
+}
+
+/* Empty proof placeholder */
+.empty-proof-state {
+  margin: 40px auto;
+  max-width: 500px;
+  padding: 32px;
+  background-color: #fff;
+  border: 2px dashed #ccc;
+  border-radius: 8px;
+  color: #888;
+  font-size: 1.1rem;
 }

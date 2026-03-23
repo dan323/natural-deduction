@@ -26,21 +26,17 @@ export const ProofViewer: FC<ProofViewerProps> = ({ proof, coloring }) => {
     setHoveredRange(null);
   };
 
-  // Updated parseRangeFromRule to handle the general case with ranges and individual numbers
   const parseRangeFromRule = (rule: string): RangeDto[] | null => {
-    // Match all sequences inside the brackets
     let match = /\[(\d+(-\d+)?(, \d+(-\d+)?)*?)\]/.exec(rule);
     if (match) {
       const parts = match[1].split(',');
       let ranges: RangeDto[] = [];
 
       parts.forEach(part => {
-        // Check if the part is a range (e.g., "1-2")
         const rangeMatch = /(\d+)-(\d+)/.exec(part);
         if (rangeMatch) {
           ranges.push({ start: parseInt(rangeMatch[1]), end: parseInt(rangeMatch[2]) });
         } else {
-          // If it's not a range, treat it as a single number
           const number = parseInt(part);
           ranges.push({ start: number, end: number });
         }
@@ -59,22 +55,15 @@ export const ProofViewer: FC<ProofViewerProps> = ({ proof, coloring }) => {
   };
 
   return (
-    <div>
-      <hr
-        style={{
-          background: 'black',
-          color: 'black',
-          borderColor: 'black',
-          height: '3px',
-        }}
-      />
+    <div className="proof-viewer-wrapper">
+      <hr className="proof-divider" />
       <div className="proof-viewer">
-        <table>
+        <table aria-label="Proof steps">
           <thead>
             <tr>
-              <th>Line</th>
-              <th>Step</th>
-              <th>Rule</th>
+              <th scope="col">Line</th>
+              <th scope="col">Step</th>
+              <th scope="col">Rule</th>
             </tr>
           </thead>
           <tbody>
@@ -94,14 +83,7 @@ export const ProofViewer: FC<ProofViewerProps> = ({ proof, coloring }) => {
           </tbody>
         </table>
       </div>
-      <hr
-        style={{
-          background: 'black',
-          color: 'black',
-          borderColor: 'black',
-          height: '3px',
-        }}
-      />
+      <hr className="proof-divider" />
       <Goal
         expression={proof.goal}
         success={proof && proof.steps && proof.steps.length > 0 &&

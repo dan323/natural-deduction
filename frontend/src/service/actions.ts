@@ -18,5 +18,8 @@ export async function applyAction(logic: string, proof: ProofDto, action: Action
     })
         .then(response => response.text())
         .then(data => consumer(JSON.parse(data)))
-        .catch(err => console.error("Error applying an action:", err));
+        .catch(err => {
+            console.error("Error applying an action:", err);
+            consumer({ success: false, message: 'Network error. Please try again.' });
+        });
 }
