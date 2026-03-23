@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>ModalDeMorgan.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">jacoco-report-aggregate</a> &gt; <a href="../index.html" class="el_bundle">implementation.deduction.modal</a> &gt; <a href="index.source.html" class="el_package">com.dan323.proof.modal.complex</a> &gt; <span class="el_source">ModalDeMorgan.java</span></div><h1>ModalDeMorgan.java</h1><pre class="source lang-java linenums">package com.dan323.proof.modal.complex;
+
+import com.dan323.expressions.base.BinaryOperation;
+import com.dan323.expressions.base.Negation;
+import com.dan323.expressions.base.UnaryOperation;
+import com.dan323.expressions.modal.DisjunctionModal;
+import com.dan323.expressions.modal.ModalLogicalOperation;
+import com.dan323.proof.generic.RuleUtils;
+import com.dan323.proof.modal.*;
+import com.dan323.proof.modal.proof.ModalNaturalDeduction;
+
+public final class ModalDeMorgan extends CompositionRule {
+
+    private final int i;
+
+<span class="fc" id="L16">    public ModalDeMorgan(int j) {</span>
+<span class="fc" id="L17">        i = j;</span>
+<span class="fc" id="L18">    }</span>
+
+    public boolean equals(Object ob) {
+<span class="pc bpc" id="L21" title="1 of 4 branches missed.">        return (ob instanceof ModalDeMorgan morgan) &amp;&amp; morgan.i == i;</span>
+    }
+
+    public int hashCode() {
+<span class="nc" id="L25">        return i * 23;</span>
+    }
+
+    @Override
+    public boolean isValid(ModalNaturalDeduction pf) {
+<span class="pc bpc" id="L30" title="1 of 2 branches missed.">        return RuleUtils.isValidIndexAndProp(pf, i) &amp;&amp;</span>
+<span class="fc bfc" id="L31" title="All 2 branches covered.">                RuleUtils.isOperation(pf, i, Negation.class) &amp;&amp;</span>
+<span class="fc bfc" id="L32" title="All 2 branches covered.">                (((UnaryOperation&lt;?&gt;) pf.getSteps().get(i - 1).getStep()).getElement() instanceof DisjunctionModal);</span>
+    }
+
+    @Override
+    public void apply(ModalNaturalDeduction pf) {
+<span class="fc" id="L37">        BinaryOperation&lt;ModalLogicalOperation&gt; operation = (BinaryOperation&lt;ModalLogicalOperation&gt;) ((UnaryOperation&lt;?&gt;) pf.getSteps().get(i - 1).getStep()).getElement();</span>
+<span class="fc" id="L38">        ModalLogicalOperation left = operation.getLeft();</span>
+<span class="fc" id="L39">        ModalLogicalOperation right = operation.getRight();</span>
+<span class="fc" id="L40">        String state = pf.getSteps().get(i - 1).getState();</span>
+<span class="fc" id="L41">        (new ModalAssume(left, state)).apply(pf);</span>
+<span class="fc" id="L42">        (new ModalOrI1(pf.getSteps().size(), right)).apply(pf);</span>
+<span class="fc" id="L43">        (new ModalFI(pf.getSteps().size(), i)).apply(pf);</span>
+<span class="fc" id="L44">        (new ModalNotI()).apply(pf);</span>
+<span class="fc" id="L45">        (new ModalAssume(right, state)).apply(pf);</span>
+<span class="fc" id="L46">        (new ModalOrI2(pf.getSteps().size(), left)).apply(pf);</span>
+<span class="fc" id="L47">        (new ModalFI(pf.getSteps().size(), i)).apply(pf);</span>
+<span class="fc" id="L48">        (new ModalNotI()).apply(pf);</span>
+<span class="fc" id="L49">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>
