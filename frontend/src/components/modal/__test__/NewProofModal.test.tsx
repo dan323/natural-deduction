@@ -20,11 +20,11 @@ describe('NewProofModal Component', () => {
     const { getByText, getByPlaceholderText } = setup(true);
 
     expect(getByText('New Proof')).toBeInTheDocument();
-    expect(getByPlaceholderText('Enter a premise')).toBeInTheDocument();
-    expect(getByPlaceholderText('Enter the goal')).toBeInTheDocument();
+    expect(getByPlaceholderText('Premise 1')).toBeInTheDocument();
+    expect(getByPlaceholderText('Enter the goal expression')).toBeInTheDocument();
     expect(getByText('+ Add Premise')).toBeInTheDocument();
-    expect(getByText('Submit')).toBeInTheDocument();
-    expect(getByText('Close')).toBeInTheDocument();
+    expect(getByText('Start Proof')).toBeInTheDocument();
+    expect(getByText('Cancel')).toBeInTheDocument();
   });
 
   test('does not render when not open', () => {
@@ -34,30 +34,32 @@ describe('NewProofModal Component', () => {
   });
 
   test('can add a premise and update goal', () => {
-    const { getByText, getAllByPlaceholderText, getByPlaceholderText } = setup(true);
+    const { getByText, getByPlaceholderText } = setup(true);
 
     // Add a new premise
     fireEvent.click(getByText('+ Add Premise'));
-    const premiseInputs = getAllByPlaceholderText('Enter a premise');
-    expect(premiseInputs).toHaveLength(2);
+    const premise1 = getByPlaceholderText('Premise 1');
+    const premise2 = getByPlaceholderText('Premise 2');
+    expect(premise1).toBeInTheDocument();
+    expect(premise2).toBeInTheDocument();
 
     // Update premises and goal
-    fireEvent.change(premiseInputs[0], { target: { value: 'Premise 1' } });
-    fireEvent.change(premiseInputs[1], { target: { value: 'Premise 2' } });
-    fireEvent.change(getByPlaceholderText('Enter the goal'), { target: { value: 'Goal' } });
+    fireEvent.change(premise1, { target: { value: 'Premise 1 value' } });
+    fireEvent.change(premise2, { target: { value: 'Premise 2 value' } });
+    fireEvent.change(getByPlaceholderText('Enter the goal expression'), { target: { value: 'Goal' } });
 
-    expect((premiseInputs[0] as HTMLInputElement).value).toBe('Premise 1');
-    expect((premiseInputs[1] as HTMLInputElement).value).toBe('Premise 2');
-    expect((getByPlaceholderText('Enter the goal') as HTMLInputElement).value).toBe('Goal');
+    expect((premise1 as HTMLInputElement).value).toBe('Premise 1 value');
+    expect((premise2 as HTMLInputElement).value).toBe('Premise 2 value');
+    expect((getByPlaceholderText('Enter the goal expression') as HTMLInputElement).value).toBe('Goal');
   });
 
   test('submits correct data and closes modal', () => {
     const { getByText, getByPlaceholderText } = setup(true);
 
-    fireEvent.change(getByPlaceholderText('Enter a premise'), { target: { value: 'Premise 1' } });
-    fireEvent.change(getByPlaceholderText('Enter the goal'), { target: { value: 'Goal' } });
+    fireEvent.change(getByPlaceholderText('Premise 1'), { target: { value: 'Premise 1' } });
+    fireEvent.change(getByPlaceholderText('Enter the goal expression'), { target: { value: 'Goal' } });
 
-    fireEvent.click(getByText('Submit'));
+    fireEvent.click(getByText('Start Proof'));
 
     expect(onSubmitMock).toHaveBeenCalledWith(['Premise 1'], 'Goal');
     expect(onCloseMock).toHaveBeenCalled();
@@ -66,7 +68,7 @@ describe('NewProofModal Component', () => {
   test('closes modal without submitting when close button is clicked', () => {
     const { getByText } = setup(true);
 
-    fireEvent.click(getByText('Close'));
+    fireEvent.click(getByText('Cancel'));
 
     expect(onSubmitMock).not.toHaveBeenCalled();
     expect(onCloseMock).toHaveBeenCalled();

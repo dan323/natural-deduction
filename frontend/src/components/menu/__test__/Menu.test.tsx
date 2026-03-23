@@ -50,7 +50,6 @@ describe('Menu Component', () => {
 
     beforeEach(() => {
         jest.clearAllMocks();
-        global.alert = jest.fn();
     });
     
     test('renders Menu component and fetches actions', async () => {
@@ -64,7 +63,7 @@ describe('Menu Component', () => {
 
         await waitFor(() => {
             expect(screen.getByLabelText(/Select Inference Rule:/i)).toBeInTheDocument();
-            expect(screen.getByText('-- Choose an action --')).toBeInTheDocument();
+            expect(screen.getByText('-- Choose a rule --')).toBeInTheDocument();
             expect(screen.getByText('Action1')).toBeInTheDocument();
             expect(screen.getByText('Action2')).toBeInTheDocument();
         });
@@ -82,7 +81,7 @@ describe('Menu Component', () => {
 
         // Wait for the input fields to appear
         await waitFor(() => {
-            const inputFields = screen.getAllByLabelText(/Enter line number:/i);
+            const inputFields = screen.getAllByLabelText(/Line number:/i);
             expect(inputFields.length).toBe(2); // Expecting 2 input fields for Action1
         });
     });
@@ -96,7 +95,7 @@ describe('Menu Component', () => {
 
         fireEvent.change(screen.getByLabelText(/Select Inference Rule:/i), { target: { value: 'Action1' } });
 
-        expect(screen.getByRole('button', { name: /Perform Action/i })).not.toBeDisabled();
+        expect(screen.getByRole('button', { name: /Apply Rule/i })).not.toBeDisabled();
     });
 
     test('calls applyAction with correct parameters and updates proof', async () => {
@@ -118,13 +117,13 @@ describe('Menu Component', () => {
             fireEvent.change(screen.getByLabelText(/Select Inference Rule:/i), { target: { value: 'Action1' } });
             // Wait for the component to process the state update
             await waitFor(() => {
-                const inputFields = screen.getAllByLabelText(/Enter line number:/i);
+                const inputFields = screen.getAllByLabelText(/Line number:/i);
                 expect(inputFields.length).toBe(2);
             })
         });
 
         await act(async () => {
-            const inputs = screen.getAllByLabelText(/Enter line number:/i);
+            const inputs = screen.getAllByLabelText(/Line number:/i);
             fireEvent.change(inputs[0], { target: { value: '1' } });
 
             // Wait for the component to process the state update
@@ -133,7 +132,7 @@ describe('Menu Component', () => {
             })
         });
         await act(async () => {
-            const inputs = screen.getAllByLabelText(/Enter line number:/i);
+            const inputs = screen.getAllByLabelText(/Line number:/i);
             fireEvent.change(inputs[1], { target: { value: '2' } });
 
             // Wait for the component to process the state update
@@ -141,7 +140,7 @@ describe('Menu Component', () => {
                 expect((inputs[1] as HTMLInputElement).value).toBe('2');
             });
         });
-        const performButton = screen.getByRole('button', { name: /Perform Action/i });
+        const performButton = screen.getByRole('button', { name: /Apply Rule/i });
         fireEvent.click(performButton);
 
         await waitFor(() => {
@@ -179,12 +178,12 @@ describe('Menu Component', () => {
         fireEvent.change(screen.getByLabelText(/Select Inference Rule:/i), { target: { value: 'Action1' } });
 
         await waitFor(() => {
-            const inputs = screen.getAllByLabelText(/Enter line number:/i);
+            const inputs = screen.getAllByLabelText(/Line number:/i);
             fireEvent.change(inputs[0], { target: { value: '1' } });
             fireEvent.change(inputs[1], { target: { value: '2' } });
         });
 
-        const performButton = screen.getByRole('button', { name: /Perform Action/i });
+        const performButton = screen.getByRole('button', { name: /Apply Rule/i });
         fireEvent.click(performButton);
 
         await waitFor(() => {
@@ -199,7 +198,7 @@ describe('Menu Component', () => {
                 expect.any(Function)
             );
             expect(defaultProps.setProof).not.toHaveBeenCalled();
-            expect(window.alert).toHaveBeenCalledWith('Action failed: An error occurred');
+            expect(screen.getByRole('alert')).toHaveTextContent('An error occurred');
         });
     });
 });
