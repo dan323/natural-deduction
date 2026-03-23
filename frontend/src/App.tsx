@@ -50,7 +50,7 @@ function App() {
     setColorMapping(new Map<number, string>())
   };
 
-  const hasProof = proof.goal !== '';
+  const hasProof = proof.goal !== '' || proof.steps.length > 0;
 
   return (
     <div className="App">
