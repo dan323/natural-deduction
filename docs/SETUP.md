@@ -165,10 +165,21 @@ Main configuration files:
 
 **API Endpoint Configuration**:
 
-Edit `frontend/src/constant.ts`:
+The frontend uses relative API paths (e.g. `/logic/...`). When served by the Spring Boot JAR both frontend and API share the same origin, so no extra configuration is needed.
+
+During local frontend development (Vite dev server on port 5173), `vite.config.ts` proxies `/logic` requests to the backend on port 8080:
 
 ```typescript
-export const BASE_URL: string = import.meta.env.VITE_API_URL || 'http://localhost:8080/';
+server: {
+  proxy: {
+    '/logic': 'http://localhost:8080',
+  },
+},
+```
+
+The only frontend constant that controls behaviour is the logic type in `frontend/src/constant.ts`:
+
+```typescript
 export const LOGIC: string = 'classical';
 ```
 
@@ -339,7 +350,7 @@ cd frontend
 npm start
 ```
 
-Access at: http://localhost:5173 (frontend will proxy API calls to backend)
+Access at: http://localhost:5173 — Vite proxies `/logic` requests to the backend on port 8080 (configured in `frontend/vite.config.ts`).
 
 ## Integration with IDEs
 
