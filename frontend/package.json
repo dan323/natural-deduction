@@ -30,6 +30,6 @@
     "jsdom": "^25.0.1",
     "sonarqube-scanner": "^4.3.5",
     "ts-jest": "^29.4.6",
-    "vite": "^6.2.3"
+    "vite": "^6.4.2"
   }
 }
