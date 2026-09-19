@@ -1,18 +1,18 @@
 import React from 'react';
 import { render } from '@testing-library/react';
 import Goal from '../Goal';
-import { renderLogic } from '../../../service/utils';
+import { renderExpression } from '../../../service/utils';
 
-// Mock the renderLogic function
+// Mock the renderExpression function
 jest.mock('../../../service/utils', () => ({
-  renderLogic: jest.fn(),
+  renderExpression: jest.fn(),
 }));
 
 describe('Goal Component', () => {
   const expression = 'A → B';
 
   beforeEach(() => {
-    (renderLogic as jest.Mock).mockReturnValue(expression);
+    (renderExpression as jest.Mock).mockReturnValue(expression);
   });
 
   test('renders the goal expression correctly', () => {
@@ -47,10 +47,10 @@ describe('Goal Component', () => {
     expect(getByText('GOAL:')).toBeInTheDocument();
   });
 
-  test('uses the renderLogic function to render the expression', () => {
+  test('uses the renderExpression function to render the expression', () => {
     render(<Goal expression={expression} success={false} />);
     
-    // Check if renderLogic was called wtesth the correct expression
-    expect(renderLogic).toHaveBeenCalledWith(expression);
+    // Check if renderExpression was called wtesth the correct expression
+    expect(renderExpression).toHaveBeenCalledWith(expression);
   });
 });

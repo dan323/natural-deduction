@@ -5,10 +5,10 @@ import ProofViewer from '../ProofViewer';  // Adjust the import path as necessar
 import { ProofDto, StepDto } from '../../../types';
 
 const mockSteps: StepDto[] = [
-  { expression: 'A -> B', rule: '->I [1-2]', assmsLevel: 0, extraParameters: new Map()},
-  { expression: 'A', rule: 'Assumption', assmsLevel: 1, extraParameters: new Map() },
-  { expression: 'B', rule: '->E [2, 3]', assmsLevel: 1, extraParameters: new Map() },
-  { expression: 'A | B', rule: 'Rep [1]', assmsLevel: 0, extraParameters: new Map() },
+  { expression: 'A -> B', rule: '->I [1-2]', assmsLevel: 0, extraParameters: {}},
+  { expression: 'A', rule: 'Assumption', assmsLevel: 1, extraParameters: {} },
+  { expression: 'B', rule: '->E [2, 3]', assmsLevel: 1, extraParameters: {} },
+  { expression: 'A | B', rule: 'Rep [1]', assmsLevel: 0, extraParameters: {} },
 ];
 
 const expressionsShown: string[] = ['A → B','A','B','A ∨ B']

@@ -1,4 +1,4 @@
-import React, { FC, useState, useEffect, ChangeEventHandler, useMemo, useCallback } from 'react';
+import React, { FC, useState, useEffect, ChangeEventHandler, useMemo } from 'react';
 import '../Expressions.css';
 import { fetchActions, applyAction } from '../../service/actions';
 import './Menu.css';
@@ -14,40 +14,18 @@ type MenuProps = {
 
 type ActionParsed = {
     name: string;
-    inputs: JSX.Element | null;
-    intInputs: number;
+    // One entry per input of the action: true for a line number, false for an expression.
+    inputKinds: boolean[];
 };
 
 const glowingColors: string[] = ['#ffcc00', '#00f2ff', '#ff69b4'];
 
-function parseAction(
-    action: string,
-    onColorChange: (color: string, line: number) => void,
-    onInput: (index: number, input: number | string) => void
-): ActionParsed {
+function parseAction(action: string): ActionParsed {
     const name = action.split('(')[0];
     const inputString = (/\[\s*(.*?)\s*\]/).exec(action)?.[1];
     const inputs = inputString ? inputString.split(',').map(input => input.trim()) : [];
 
-    return {
-        name,
-        intInputs: inputs.filter(input => input === 'int').length,
-        inputs: inputs.length > 0 ? (
-            <div className="input-container">
-                {inputs.map((input, index) => (
-                    <GlowingInput
-                        key={index+input}
-                        index={index}
-                        label={input === 'int' ? 'Line number:' : 'Expression:'}
-                        glowColor={glowingColors[index]}
-                        onColorChange={onColorChange}
-                        onInput={onInput}
-                        shouldGlow={input === 'int'}
-                    />
-                ))}
-            </div>
-        ) : <p className="no-inputs">No additional inputs needed</p>
-    };
+    return { name, inputKinds: inputs.map(input => input === 'int') };
 }
 
 const Menu: FC<MenuProps> = ({ logic, onColorChange, setProof, proof }) => {
@@ -58,9 +36,10 @@ const Menu: FC<MenuProps> = ({ logic, onColorChange, setProof, proof }) => {
     const [errorMessage, setErrorMessage] = useState<string>('');
     const [isLoading, setIsLoading] = useState(false);
 
-    const selectedInputs = useMemo(() => {
-        return actions.find(action => action.name === selectedAction)?.inputs || null;
-    }, [selectedAction, actions]);
+    const selectedActionParsed = useMemo(
+        () => actions.find(action => action.name === selectedAction),
+        [selectedAction, actions]
+    );
 
     const handleActionChange: ChangeEventHandler<HTMLSelectElement> = (event) => {
         const newAction = event.target.value;
@@ -71,36 +50,40 @@ const Menu: FC<MenuProps> = ({ logic, onColorChange, setProof, proof }) => {
 
         const selectedActionObj = actions.find(action => action.name === newAction);
         if (selectedActionObj) {
-            const initialSources = Array(selectedActionObj.intInputs).fill(-1);
-            setSources(initialSources);
+            const intInputs = selectedActionObj.inputKinds.filter(Boolean).length;
+            setSources(new Array(intInputs).fill(-1));
         } else {
             setSources([]);
         }
         setExpression('');
     };
 
-    const onInput = useCallback(
-        (index: number, input: number | string) => {
-            setErrorMessage('');
-            if (typeof input === 'number') {
-                setSources(prevSources => {
-                    const newSources = [...prevSources];
-                    newSources[index] = input;
-                    return newSources;
-                });
-            } else {
-                setExpression(input);
-            }
-        }, [setSources]);
+    // `index` is the position among all inputs of the selected action; `sources` only holds the int inputs.
+    const onInput = (index: number, input: number | string) => {
+        setErrorMessage('');
+        if (typeof input === 'number') {
+            const sourceIndex = selectedActionParsed?.inputKinds.slice(0, index).filter(Boolean).length ?? index;
+            setSources(prevSources => {
+                const newSources = [...prevSources];
+                newSources[sourceIndex] = input;
+                return newSources;
+            });
+        } else {
+            setExpression(input);
+        }
+    };
 
+    // Only the logic matters: refetching on every proof or colour change rescans the backend.
     useEffect(() => {
-        fetchActions(logic, fetchedActions => {
-            const parsedActions = fetchedActions.map(action =>
-                parseAction(action, onColorChange, onInput)
-            );
-            setActions(parsedActions);
-        });
-    }, [logic, onColorChange, onInput]);
+        fetchActions(
+            logic,
+            fetchedActions => {
+                setActions(fetchedActions.map(parseAction));
+                setErrorMessage('');
+            },
+            message => setErrorMessage(message)
+        );
+    }, [logic]);
 
     const processAction = () => {
         if (selectedAction === '') return;
@@ -115,7 +98,7 @@ const Menu: FC<MenuProps> = ({ logic, onColorChange, setProof, proof }) => {
 
         applyAction(logic, proof, actionDto, (response: ApplyActionResponse) => {
             setIsLoading(false);
-            if (response.success) {
+            if (response.success && response.proof) {
                 setProof(response.proof);
                 glowingColors.forEach((color) => onColorChange(color,-1));
             } else {
@@ -149,7 +132,23 @@ const Menu: FC<MenuProps> = ({ logic, onColorChange, setProof, proof }) => {
                             </option>
                         ))}
                     </select>
-                    {selectedInputs}
+                    {selectedActionParsed && (
+                        selectedActionParsed.inputKinds.length > 0 ? (
+                            <div className="input-container">
+                                {selectedActionParsed.inputKinds.map((isInt, index) => (
+                                    <GlowingInput
+                                        key={`${selectedAction}-${index}`}
+                                        index={index}
+                                        label={isInt ? 'Line number:' : 'Expression:'}
+                                        glowColor={glowingColors[index]}
+                                        onColorChange={onColorChange}
+                                        onInput={onInput}
+                                        shouldGlow={isInt}
+                                    />
+                                ))}
+                            </div>
+                        ) : <p className="no-inputs">No additional inputs needed</p>
+                    )}
                     {errorMessage && (
                         <p className="menu-error" role="alert" aria-live="assertive">
                             {errorMessage}

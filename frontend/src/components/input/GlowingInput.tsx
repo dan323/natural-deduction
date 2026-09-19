@@ -4,6 +4,7 @@ import './glowing.css'
 type GlowingInputProps = {
     label: string;
     glowColor: string;
+    // True for line-number inputs (they glow the referenced proof line), false for expression inputs.
     shouldGlow: boolean;
     onColorChange: (color: string, line: number) => void;
     onInput: (index: number, input: number | string) => void;
@@ -21,19 +22,17 @@ const GlowingInput: FC<GlowingInputProps> = ({ label, glowColor, shouldGlow, onC
     const handleChange: ChangeEventHandler<HTMLInputElement> = (event) => {
         const inputValue = event.target.value;
         setValue(inputValue);
-        if (isNumeric(inputValue)) {
-            const numInput = parseInt(inputValue);
-            onInput(index, numInput);
-            // Trigger glow color change only for line number inputs
-            if (shouldGlow && inputValue) {
-                onColorChange(glowColor, numInput - 1);
-            } else if (shouldGlow) {
-                onColorChange(glowColor, -1);  // Remove glow when input is empty
-            }
-        } else if (inputValue === '') {
-            onColorChange(glowColor, -1)
-        } else {
+        if (!shouldGlow) {
+            // Expression input: the text is always passed on as a string, even when it looks like a number.
             onInput(index, inputValue);
+        } else if (isNumeric(inputValue)) {
+            const numInput = Number.parseInt(inputValue, 10);
+            onInput(index, numInput);
+            onColorChange(glowColor, numInput - 1);
+        } else {
+            // Empty or invalid line number: forget the previous line and its glow.
+            onInput(index, -1);
+            onColorChange(glowColor, -1);  // Remove the glow of the previous line
         }
     };
 

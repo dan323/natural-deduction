@@ -95,7 +95,7 @@ describe('Glowing input', () => {
         expect(onColorChangeMock).toHaveBeenCalledWith("#ffcc00", 2);
     });
 
-    test('does not apply glow or call onColorChange with non-numeric input', () => {
+    test('does not apply glow and removes the previous glow with non-numeric input', () => {
         const onColorChangeMock = jest.fn();
         const { getByLabelText } = render(
             <GlowingInput
@@ -112,7 +112,8 @@ describe('Glowing input', () => {
         act(() => {
             fireEvent.change(input, { target: { value: 'abc' } });
         });
-        expect(onColorChangeMock).not.toHaveBeenCalled();
+        expect(onColorChangeMock).toHaveBeenCalledTimes(1);
+        expect(onColorChangeMock).toHaveBeenCalledWith("#ffcc00", -1);
         expect(input).not.toHaveStyle(`box-shadow: inset 0 0 10px #ffcc00`);
     });
 

@@ -18,19 +18,19 @@ const steps: Array<StepDto> = [
         expression: "P",
         rule: "Ass",
         assmsLevel: 0,
-        extraParameters: new Map()
+        extraParameters: {}
     },
     {
         expression: "Q",
         rule: "Ass",
         assmsLevel: 1,
-        extraParameters: new Map()
+        extraParameters: {}
     },
     {
         expression: "P",
         rule: "Rep [1]",
         assmsLevel: 1,
-        extraParameters: new Map()
+        extraParameters: {}
     },
 ]
 
@@ -59,7 +59,7 @@ describe('Menu Component', () => {
 
         render(<Menu {...defaultProps} />);
 
-        expect(mockFetchActions).toHaveBeenCalledWith(defaultProps.logic, expect.any(Function));
+        expect(mockFetchActions).toHaveBeenCalledWith(defaultProps.logic, expect.any(Function), expect.any(Function));
 
         await waitFor(() => {
             expect(screen.getByLabelText(/Select Inference Rule:/i)).toBeInTheDocument();

@@ -1,6 +1,6 @@
 import React, { FC, useEffect, useState } from 'react';
 import './goal.css';
-import { renderLogic } from '../../service/utils';
+import { renderExpression } from '../../service/utils';
 
 type GoalProps = {
   expression: string;
@@ -24,7 +24,7 @@ const Goal: FC<GoalProps> = ({ expression, success }) => {
     <div className="goal" aria-live="polite">
       <span className="goal-label">GOAL:</span>
       <span className={success ? 'goal-success' : 'goal-failure'}>
-        {renderLogic(expression)}
+        {renderExpression(expression)}
       </span>
       {showCelebration && (
         <div className="celebration">
