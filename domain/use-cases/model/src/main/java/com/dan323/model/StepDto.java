@@ -12,5 +12,8 @@ public record StepDto(String expression, String rule, int assmsLevel, Map<String
     @Serial
     private static final long serialVersionUID = 114523452L;
 
+    public StepDto {
+        extraParameters = extraParameters == null ? Map.of() : extraParameters;
+    }
 
 }

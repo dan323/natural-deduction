@@ -6,6 +6,7 @@ import com.dan323.expressions.classical.ImplicationClassic;
 import com.dan323.expressions.classical.VariableClassic;
 import com.dan323.proof.generic.proof.ProofReason;
 import com.dan323.proof.generic.proof.ProofStep;
+import com.dan323.uses.InvalidProofException;
 import com.dan323.uses.classical.ParseClassicalProof;
 import org.junit.jupiter.api.Test;
 
@@ -47,7 +48,32 @@ public class ClassicalParserTest {
         NaturalDeduction nd = new NaturalDeduction();
         nd.initializeProof(List.of(P), QimpP);
         nd.getSteps().add(new ProofStep<>(1, Q, new ProofReason("Ass", List.of(), List.of())));
-        var exception = assertThrowsExactly(IllegalArgumentException.class, () -> parser.parseProof(nd.toString()));
+        var exception = assertThrowsExactly(InvalidProofException.class, () -> parser.parseProof(nd.toString()));
         assertTrue(exception.getMessage().contains("invalid"));
+    }
+
+    @Test
+    public void parseEmptyFile() {
+        var parser = new ParseClassicalProof();
+        assertThrows(InvalidProofException.class, () -> parser.parseProof(""));
+    }
+
+    @Test
+    public void parseGarbledFileReportsTheLine() {
+        var parser = new ParseClassicalProof();
+        var goodLine = "P" + " ".repeat(11) + "Ass";
+        var blank = assertThrows(InvalidProofException.class, () -> parser.parseProof(goodLine + "\n\n" + goodLine));
+        assertTrue(blank.getMessage().startsWith("Line 2 "), blank.getMessage());
+        var noSeparator = assertThrows(InvalidProofException.class, () -> parser.parseProof(goodLine + "\nP Ass"));
+        assertTrue(noSeparator.getMessage().startsWith("Line 2 "), noSeparator.getMessage());
+        var badExpressionFile = "P Q" + " ".repeat(11) + "Ass";
+        var badExpression = assertThrows(InvalidProofException.class, () -> parser.parseProof(badExpressionFile));
+        assertTrue(badExpression.getMessage().startsWith("Line 1 "), badExpression.getMessage());
+        var badRuleFile = "P" + " ".repeat(11) + "Nope";
+        var badRule = assertThrows(InvalidProofException.class, () -> parser.parseProof(badRuleFile));
+        var misindentedFile = " " + goodLine;
+        var misindented = assertThrows(InvalidProofException.class, () -> parser.parseProof(misindentedFile));
+        assertTrue(misindented.getMessage().contains("groups of 3 spaces"), misindented.getMessage());
+        assertTrue(badRule.getMessage().startsWith("Line 1 "), badRule.getMessage());
     }
 }

@@ -1,6 +1,7 @@
 module rest.framework {
     requires use.cases;
     requires spring.web;
+    requires spring.webmvc;
     requires deduction.model;
     requires rest.model;
     requires jakarta.inject;

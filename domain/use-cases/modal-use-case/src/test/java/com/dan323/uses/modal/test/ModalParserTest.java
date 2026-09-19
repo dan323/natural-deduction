@@ -12,6 +12,7 @@ import com.dan323.proof.modal.ModalCopy;
 import com.dan323.proof.modal.ModalDeductionTheorem;
 import com.dan323.proof.modal.proof.ModalNaturalDeduction;
 import com.dan323.proof.modal.proof.ProofStepModal;
+import com.dan323.uses.InvalidProofException;
 import com.dan323.uses.modal.ModalProofParser;
 import org.junit.jupiter.api.Test;
 
@@ -69,7 +70,18 @@ public class ModalParserTest {
         var nd = new ModalNaturalDeduction();
         nd.initializeProof(List.of(P), QimpP);
         nd.getSteps().add(new ProofStepModal("s0", 1, Q, new ProofReason("Ass", List.of(), List.of())));
-        var exception = assertThrowsExactly(IllegalArgumentException.class, () -> parser.parseProof(nd.toString()));
+        var exception = assertThrowsExactly(InvalidProofException.class, () -> parser.parseProof(nd.toString()));
         assertTrue(exception.getMessage().contains("invalid"));
+    }
+
+    @Test
+    public void parseGarbledFileReportsTheLine() {
+        var parser = new ModalProofParser();
+        assertThrows(InvalidProofException.class, () -> parser.parseProof(""));
+        var blankLineFile = "s0: P" + " ".repeat(11) + "Ass\n\n";
+        var blank = assertThrows(InvalidProofException.class, () -> parser.parseProof(blankLineFile));
+        assertTrue(blank.getMessage().startsWith("Line 2 "), blank.getMessage());
+        var truncatedState = assertThrows(InvalidProofException.class, () -> parser.parseProof("s0:"));
+        assertTrue(truncatedState.getMessage().startsWith("Line 1 "), truncatedState.getMessage());
     }
 }

@@ -13,5 +13,9 @@ public record ActionDto(String name, List<Integer> sources, Map<String,String> e
     @Serial
     private static final long serialVersionUID = 9213445L;
 
+    public ActionDto {
+        sources = sources == null ? List.of() : sources;
+        extraParameters = extraParameters == null ? Map.of() : extraParameters;
+    }
 
 }

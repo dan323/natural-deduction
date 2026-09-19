@@ -24,10 +24,25 @@ public interface ActionsUseCases {
     }
 
     interface ApplyAction {
-        ProofDto perform(ActionDto action, ProofDto proof);
+        ApplyResult perform(ActionDto action, ProofDto proof);
     }
 
     interface Solve {
         ProofDto perform(ProofDto proof);
+    }
+
+    /**
+     * Outcome of applying an action. When the action was not applicable, {@code proof} is the unchanged proof and
+     * {@code message} says why.
+     */
+    record ApplyResult(ProofDto proof, boolean applied, String message) {
+
+        public static ApplyResult applied(ProofDto proof) {
+            return new ApplyResult(proof, true, "");
+        }
+
+        public static ApplyResult rejected(ProofDto proof, String message) {
+            return new ApplyResult(proof, false, message);
+        }
     }
 }

@@ -10,6 +10,7 @@ import com.dan323.proof.modal.AbstractModalAction;
 import com.dan323.proof.modal.proof.ModalNaturalDeduction;
 import com.dan323.proof.modal.proof.ParseModalAction;
 import com.dan323.proof.modal.proof.ProofStepModal;
+import com.dan323.uses.InvalidProofException;
 import com.dan323.uses.Transformer;
 
 import java.util.ArrayList;
@@ -26,33 +27,57 @@ public class ModalProofTransformer implements Transformer<ModalOperation, ProofS
 
     @Override
     public ModalNaturalDeduction from(ProofDto proof) {
+        try {
+            return replayProof(proof);
+        } catch (InvalidProofException e) {
+            throw e;
+        } catch (RuntimeException e) {
+            throw new InvalidProofException("The proof could not be read, check its expressions and rules", e);
+        }
+    }
+
+    private static ModalNaturalDeduction replayProof(ProofDto proof) {
         ModalNaturalDeduction nd = new ModalNaturalDeduction("s0");
         List<ModalOperation> assmsLst = new ArrayList<>();
         boolean assms = true;
+        int line = 0;
         for (StepDto step : proof.steps()) {
+            line++;
             if (assms && step.assmsLevel() == 0 && step.rule().equals("Ass")) {
-                var operation = ParseModalAction.parseExpression(step.expression());
-                if (operation instanceof ModalLogicalOperation) {
-                    if (step.extraParameters().containsKey("state") && step.extraParameters().get("state").equals(nd.getState0())) {
-                        assmsLst.add(operation);
-                    } else {
-                        throw new IllegalArgumentException("The assumptions are not in a valid state");
-                    }
-                } else {
-                    assmsLst.add(ParseModalAction.parseExpression(step.expression()));
-                }
+                assmsLst.add(initialAssumption(nd, step, line));
             } else {
                 if (assms) {
                     assms = false;
                     nd.initializeProof(assmsLst, ParseModalAction.parseExpression(proof.goal()));
                 }
-                ParseModalAction.parseWithReason(nd, ParseModalAction.parseExpression(step.expression()), ParseModalAction.parseReason(step.rule()), step.extraParameters().get("state")).apply(nd);
+                replay(nd, step, line);
             }
         }
         if (assms) {
             nd.initializeProof(assmsLst, ParseModalAction.parseExpression(proof.goal()));
         }
         return nd;
+    }
+
+    private static ModalOperation initialAssumption(ModalNaturalDeduction nd, StepDto step, int line) {
+        var operation = ParseModalAction.parseExpression(step.expression());
+        if (operation instanceof ModalLogicalOperation && !nd.getState0().equals(step.extraParameters().get("state"))) {
+            throw new InvalidProofException("Line " + line + " is not valid: the assumptions are not in a valid state");
+        }
+        return operation;
+    }
+
+    private static void replay(ModalNaturalDeduction nd, StepDto step, int line) {
+        AbstractModalAction action;
+        try {
+            action = ParseModalAction.parseWithReason(nd, ParseModalAction.parseExpression(step.expression()), ParseModalAction.parseReason(step.rule()), step.extraParameters().get("state"));
+        } catch (RuntimeException e) {
+            throw new InvalidProofException("Line " + line + " is not valid: cannot read '" + step.expression() + "' justified by '" + step.rule() + "'", e);
+        }
+        if (!action.isValid(nd)) {
+            throw new InvalidProofException("Line " + line + " does not follow: '" + step.rule() + "' cannot justify '" + step.expression() + "'");
+        }
+        action.apply(nd);
     }
 
     public AbstractModalAction from(ActionDto action) {
