@@ -1,5 +1,5 @@
 import React, { InputHTMLAttributes } from 'react';
-import { render, fireEvent, screen } from '@testing-library/react';
+import { render, fireEvent, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import NewProofModal from '../NewProofModal';
 
@@ -81,6 +81,8 @@ describe('NewProofModal typing', () => {
     const user = userEvent.setup();
     render(<NewProofModal isOpen={true} onClose={jest.fn()} onSubmit={jest.fn()} />);
 
+    // The modal moves focus to the first premise shortly after opening; let that settle first.
+    await waitFor(() => expect(screen.getByPlaceholderText('Premise 1')).toHaveFocus());
     const premise = screen.getByPlaceholderText('Premise 1');
     await user.click(premise);
     await user.type(premise, 'P -> Q');
@@ -93,6 +95,8 @@ describe('NewProofModal typing', () => {
     const user = userEvent.setup();
     render(<NewProofModal isOpen={true} onClose={jest.fn()} onSubmit={jest.fn()} />);
 
+    // The modal moves focus to the first premise shortly after opening; let that settle first.
+    await waitFor(() => expect(screen.getByPlaceholderText('Premise 1')).toHaveFocus());
     await user.click(screen.getByText('+ Add Premise'));
     const second = screen.getByPlaceholderText('Premise 2');
     await user.click(second);
