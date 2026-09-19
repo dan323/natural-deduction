@@ -77,7 +77,8 @@ public class FatJarActionsIT {
             } catch (IOException notUpYet) {
                 // connection refused while Tomcat starts
             }
-            Thread.sleep(500);
+            // waits between polls; returns early if the jar dies, which the loop head reports
+            process.waitFor(500, TimeUnit.MILLISECONDS);
         }
     }
 
