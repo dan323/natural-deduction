@@ -12,7 +12,14 @@ public record ProofDto(List<StepDto> steps, String logic, String goal) implement
     @Serial
     private static final long serialVersionUID = 1524625345L;
 
+    public ProofDto {
+        steps = steps == null ? List.of() : steps;
+    }
+
     public boolean isDone() {
+        if (steps.isEmpty()) {
+            return false;
+        }
         var lastStep = steps.getLast();
         return lastStep.assmsLevel() == 0 && lastStep.expression().equals(goal);
     }

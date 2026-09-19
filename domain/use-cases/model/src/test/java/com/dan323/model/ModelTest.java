@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class ModelTest {
 
@@ -27,6 +29,21 @@ public class ModelTest {
         assertEquals("Q", p.steps().get(0).expression());
         assertEquals("->E", p.steps().get(1).rule());
         assertEquals(8, p.steps().get(1).assmsLevel());
+    }
+
+    @Test
+    public void omittedFieldsBecomeEmpty() {
+        var action = new ActionDto("Name", null, null);
+        assertEquals(List.of(), action.sources());
+        assertEquals(Map.of(), action.extraParameters());
+        assertEquals(Map.of(), new StepDto("P", "Ass", 0, null).extraParameters());
+        assertEquals(List.of(), new ProofDto(null, "classic", "P").steps());
+    }
+
+    @Test
+    public void isDoneIsSafeOnEmptyProofs() {
+        assertFalse(new ProofDto(List.of(), "classic", "P").isDone());
+        assertTrue(new ProofDto(List.of(new StepDto("P", "Ass", 0, Map.of())), "classic", "P").isDone());
     }
 
 }

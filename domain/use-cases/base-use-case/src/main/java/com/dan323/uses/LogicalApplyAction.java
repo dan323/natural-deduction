@@ -16,12 +16,28 @@ public class LogicalApplyAction<T extends LogicOperation, Q extends ProofStep<T>
     }
 
     @Override
-    public ProofDto perform(ActionDto action, ProofDto proof) {
-        var act = logic.from(action);
+    public ActionsUseCases.ApplyResult perform(ActionDto action, ProofDto proof) {
+        var act = buildAction(action);
         var pr = logic.from(proof);
-        if (act.isValid(pr)) {
-            act.apply(pr);
+        var lines = action.sources();
+        for (int line : lines) {
+            if (line < 1 || line > pr.getSteps().size()) {
+                return ActionsUseCases.ApplyResult.rejected(proof, "Line " + line + " does not exist, the proof has " + pr.getSteps().size() + " lines");
+            }
         }
-        return logic.fromProof(pr);
+        if (!act.isValid(pr)) {
+            var where = lines.isEmpty() ? "" : " to lines " + lines;
+            return ActionsUseCases.ApplyResult.rejected(proof, "Rule " + action.name() + " cannot be applied" + where);
+        }
+        act.apply(pr);
+        return ActionsUseCases.ApplyResult.applied(logic.fromProof(pr));
+    }
+
+    private A buildAction(ActionDto action) {
+        try {
+            return logic.from(action);
+        } catch (RuntimeException e) {
+            throw new InvalidActionException("Cannot build action '" + action.name() + "': " + e.getMessage(), e);
+        }
     }
 }

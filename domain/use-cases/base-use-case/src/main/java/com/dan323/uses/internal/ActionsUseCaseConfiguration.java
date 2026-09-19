@@ -4,53 +4,58 @@ import com.dan323.uses.*;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import java.util.AbstractMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Configuration
 public class ActionsUseCaseConfiguration {
 
     @Bean
+    @SuppressWarnings({"rawtypes", "unchecked"})
     public ActionsUseCases useCases(List<LogicalGetActions> getActions, List<Transformer> transformers, List<ProofParser> parsers) {
 
-        Map<String, ActionsUseCases.GetActions> actionGetters;
-        Map<String, ActionsUseCases.ParseProof> parserMap;
-        Map<String, Transformer> transformerMap;
-
-        transformerMap = transformers.stream().map(transformer -> new AbstractMap.SimpleEntry<>(transformer.logic(), transformer))
-                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-
-        actionGetters = getActions.stream()
-                .map(logicalGetActions -> new AbstractMap.SimpleEntry<>(logicalGetActions.getLogicName(), logicalGetActions))
-                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-        parserMap = parsers.stream()
-                .map(parser -> new AbstractMap.SimpleEntry<>(parser.logic(), (ActionsUseCases.ParseProof) (String proof) -> transformerMap.get(parser.logic()).fromProof(parser.parseProof(proof))))
-                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+        Map<String, Transformer> transformerMap = transformers.stream()
+                .collect(Collectors.toMap(Transformer::logic, Function.identity()));
+        Map<String, ActionsUseCases.GetActions> actionGetters = getActions.stream()
+                .collect(Collectors.toMap(LogicalGetActions::getLogicName, Function.identity()));
+        Map<String, ActionsUseCases.ApplyAction> appliers = transformerMap.entrySet().stream()
+                .collect(Collectors.toMap(Map.Entry::getKey, entry -> new LogicalApplyAction(entry.getValue())));
+        Map<String, ActionsUseCases.Solve> solvers = transformerMap.entrySet().stream()
+                .collect(Collectors.toMap(Map.Entry::getKey, entry -> new LogicalSolver(entry.getValue())));
+        Map<String, ActionsUseCases.ParseProof> parserMap = parsers.stream()
+                .collect(Collectors.toMap(ProofParser::logic, parser -> (ActionsUseCases.ParseProof) proof -> transformerMap.get(parser.logic()).fromProof(parser.parseProof(proof))));
 
         return new ActionsUseCases() {
 
             @Override
             public GetActions getActions(String logicName) {
-                return Optional.ofNullable(actionGetters.get(logicName)).orElseThrow(IllegalArgumentException::new);
+                return lookup(actionGetters, logicName);
             }
 
             @Override
             public ApplyAction applyAction(String logicName) {
-                return new LogicalApplyAction(transformers.stream().filter(transformer -> transformer.logic().equals(logicName)).findFirst().orElseThrow());
+                return lookup(appliers, logicName);
             }
 
             @Override
             public Solve solveProblem(String logicName) {
-                return transformers.stream().filter(transformer -> transformer.logic().equals(logicName)).findFirst().map(LogicalSolver::new).orElseThrow(IllegalArgumentException::new);
+                return lookup(solvers, logicName);
             }
 
             @Override
             public ParseProof parseToProof(String logic) {
-                return parserMap.get(logic);
+                return lookup(parserMap, logic);
             }
         };
+    }
+
+    private static <V> V lookup(Map<String, V> map, String logic) {
+        var value = map.get(logic);
+        if (value == null) {
+            throw new UnknownLogicException(logic);
+        }
+        return value;
     }
 }

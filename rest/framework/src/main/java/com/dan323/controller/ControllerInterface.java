@@ -11,9 +11,9 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
-@CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
 @RequestMapping("/logic")
 public class ControllerInterface {
@@ -36,26 +36,16 @@ public class ControllerInterface {
     }
 
     @PostMapping("{logic}/proof")
-    public ResponseEntity<ProofDto> processProofFile(@RequestParam("file") MultipartFile file, @PathVariable("logic") String logic) {
-        try {
-            String contents = new String(file.getBytes());
-            ProofDto proofDto = useCase.parseToProof(logic).perform(contents);
-            if (proofDto != null) {
-                return ResponseEntity.status(HttpStatus.CREATED).body(proofDto);
-            } else {
-                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-            }
-        } catch (IOException e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
+    public ResponseEntity<ProofDto> processProofFile(@RequestParam("file") MultipartFile file, @PathVariable("logic") String logic) throws IOException {
+        var parser = useCase.parseToProof(logic);
+        String contents = new String(file.getBytes(), StandardCharsets.UTF_8);
+        return ResponseEntity.status(HttpStatus.CREATED).body(parser.perform(contents));
     }
 
     @PostMapping("{logic}/action")
     public ResponseEntity<ProofResponse> doAction(@RequestBody ProofActionRequest proofActionRequest, @PathVariable("logic") String logic) {
-        var action = proofActionRequest.actionDto();
-        var proof = proofActionRequest.proofDto();
-        var afterAction = useCase.applyAction(logic).perform(action, proof);
-        ProofResponse response = new ProofResponse(afterAction, afterAction.steps().size() > proofActionRequest.proofDto().steps().size());
+        var result = useCase.applyAction(logic).perform(proofActionRequest.actionDto(), proofActionRequest.proofDto());
+        ProofResponse response = new ProofResponse(result.proof(), result.applied(), result.message());
         if (response.success()) {
             return ResponseEntity.ok().body(response);
         } else {

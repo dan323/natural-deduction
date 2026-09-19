@@ -1,0 +1,54 @@
+package com.dan323.controller;
+
+import com.dan323.rest.model.ErrorResponse;
+import com.dan323.uses.InvalidActionException;
+import com.dan323.uses.InvalidProofException;
+import com.dan323.uses.UnknownLogicException;
+import org.junit.jupiter.api.Test;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ProblemDetail;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
+public class RestExceptionHandlerTest {
+
+    private final RestExceptionHandler handler = new RestExceptionHandler();
+
+    @Test
+    public void unknownLogicIsNotFound() {
+        var response = handler.handleUnknownLogic(new UnknownLogicException("zzz"));
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+        assertEquals("Unknown logic 'zzz'", response.getBody().message());
+    }
+
+    @Test
+    public void invalidInputIsBadRequest() {
+        var proof = handler.handleInvalidInput(new InvalidProofException("Line 3 is not valid"));
+        assertEquals(HttpStatus.BAD_REQUEST, proof.getStatusCode());
+        assertEquals("Line 3 is not valid", proof.getBody().message());
+        var action = handler.handleInvalidInput(new InvalidActionException("Cannot build action", new RuntimeException()));
+        assertEquals(HttpStatus.BAD_REQUEST, action.getStatusCode());
+        assertEquals("Cannot build action", action.getBody().message());
+    }
+
+    @Test
+    public void unexpectedErrorsDoNotLeakDetails() {
+        var response = handler.handleUnexpected(new IllegalStateException("secret internals"));
+        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
+        assertEquals("Internal server error", response.getBody().message());
+    }
+
+    @Test
+    public void springRequestErrorsKeepTheirStatusWithTheSameBody() {
+        var problem = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, "Failed to read request");
+        var response = handler.handleExceptionInternal(new IllegalStateException(), problem, new HttpHeaders(), HttpStatus.BAD_REQUEST, null);
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        assertEquals("Failed to read request", ((ErrorResponse) response.getBody()).message());
+
+        var withoutDetail = handler.handleExceptionInternal(new IllegalStateException(), null, new HttpHeaders(), HttpStatus.METHOD_NOT_ALLOWED, null);
+        assertEquals(HttpStatus.METHOD_NOT_ALLOWED, withoutDetail.getStatusCode());
+        assertNotNull(((ErrorResponse) withoutDetail.getBody()).message());
+    }
+}

@@ -1,9 +1,15 @@
 package com.dan323.uses.test;
 
+import com.dan323.model.ActionDto;
+import com.dan323.model.ProofDto;
+import com.dan323.proof.generic.Action;
+import com.dan323.proof.generic.proof.Proof;
 import com.dan323.uses.ActionsUseCases;
+import com.dan323.uses.InvalidActionException;
 import com.dan323.uses.LogicalGetActions;
 import com.dan323.uses.ProofParser;
 import com.dan323.uses.Transformer;
+import com.dan323.uses.UnknownLogicException;
 import com.dan323.uses.internal.ActionsUseCaseConfiguration;
 import com.dan323.uses.mock.Parsers;
 import com.dan323.uses.mock.Transformers;
@@ -16,7 +22,9 @@ import static com.dan323.uses.mock.Actions.actionAddOneStep;
 import static com.dan323.uses.mock.Actions.invalid;
 import static com.dan323.uses.mock.Proofs.genericProof;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class ActionsUseCasesTest {
 
@@ -59,10 +67,81 @@ public class ActionsUseCasesTest {
                 .withNoParsers()
                 .withTransformers(Transformers.getTransformers())
                 .withNoActions();
-        var p = cases.applyAction("l1").perform(actionAddOneStep(), genericProof("l1"));
-        assertEquals(genericProof("l1").steps().size() + 1, p.steps().size());
-        p = cases.applyAction("l2").perform(invalid(), genericProof("l2"));
-        assertEquals(genericProof("l2"), p);
+        var result = cases.applyAction("l1").perform(actionAddOneStep(), genericProof("l1"));
+        assertTrue(result.applied());
+        assertEquals("", result.message());
+        assertEquals(genericProof("l1").steps().size() + 1, result.proof().steps().size());
+    }
+
+    @Test
+    public void rejectedActionSaysWhyTest() {
+        var cases = useCases
+                .withNoParsers()
+                .withTransformers(Transformers.getTransformers())
+                .withNoActions();
+        var notApplicable = cases.applyAction("l2").perform(actionAddOneStep(), genericProof("l2"));
+        assertFalse(notApplicable.applied());
+        assertEquals("Rule Action1 cannot be applied", notApplicable.message());
+        assertEquals(genericProof("l2"), notApplicable.proof());
+    }
+
+    @Test
+    public void outOfRangeSourceIsRejectedTest() {
+        var cases = useCases
+                .withNoParsers()
+                .withTransformers(Transformers.getTransformers())
+                .withNoActions();
+        var result = cases.applyAction("l1").perform(invalid(), genericProof("l1"));
+        assertFalse(result.applied());
+        assertEquals("Line 1 does not exist, the proof has 0 lines", result.message());
+        assertEquals(genericProof("l1"), result.proof());
+    }
+
+    @Test
+    public void unbuildableActionTest() {
+        var throwing = new Transformer() {
+            @Override
+            public String logic() {
+                return "l1";
+            }
+
+            @Override
+            public Proof from(ProofDto proofDto) {
+                throw new UnsupportedOperationException();
+            }
+
+            @Override
+            public Action from(ActionDto actionDto) {
+                throw new IllegalArgumentException("No such action");
+            }
+
+            @Override
+            public ProofDto fromProof(Proof proof) {
+                throw new UnsupportedOperationException();
+            }
+        };
+        var cases = useCases
+                .withNoParsers()
+                .withTransformers(List.of(throwing))
+                .withNoActions();
+        var applier = cases.applyAction("l1");
+        var action = actionAddOneStep();
+        var proof = genericProof("l1");
+        var exception = assertThrows(InvalidActionException.class, () -> applier.perform(action, proof));
+        assertEquals("Cannot build action 'Action1': No such action", exception.getMessage());
+    }
+
+    @Test
+    public void unknownLogicIsReportedConsistentlyTest() {
+        var cases = useCases
+                .withParsers(Parsers.parsers())
+                .withTransformers(Transformers.getTransformers())
+                .withActionGetters(actionsList());
+        assertThrows(UnknownLogicException.class, () -> cases.getActions("l3"));
+        assertThrows(UnknownLogicException.class, () -> cases.applyAction("l3"));
+        assertThrows(UnknownLogicException.class, () -> cases.solveProblem("l3"));
+        assertThrows(UnknownLogicException.class, () -> cases.parseToProof("l3"));
+        assertEquals("Unknown logic 'l3'", assertThrows(UnknownLogicException.class, () -> cases.getActions("l3")).getMessage());
     }
 
     @Test

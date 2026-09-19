@@ -5,14 +5,44 @@ import com.dan323.proof.generic.Action;
 import com.dan323.proof.generic.proof.Proof;
 import com.dan323.proof.generic.proof.ProofReason;
 import com.dan323.proof.generic.proof.ProofStep;
+import com.dan323.uses.InvalidProofException;
 import com.dan323.uses.ProofParser;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class ProofParserTest {
+
+    @Test
+    public void emptyProofIsRejectedTest() {
+        var proofParser = new ProofParserStub();
+        assertThrows(InvalidProofException.class, () -> proofParser.parseProof(""));
+    }
+
+    @Test
+    public void badLineIsReportedWithItsNumberTest() {
+        var proofParser = new ProofParserStub();
+        var exception = assertThrows(InvalidProofException.class, () -> proofParser.parseProof("ok\nok\nbad"));
+        assertTrue(exception.getMessage().startsWith("Line 3 is not valid"), exception.getMessage());
+    }
+
+    @Test
+    public void proofLineSplitTest() {
+        var line = ProofParser.ProofLine.split("      P -> Q           ->E [1, 2]");
+        assertEquals(new ProofParser.ProofLine(2, "P -> Q", "->E [1, 2]"), line);
+    }
+
+    @Test
+    public void malformedProofLinesTest() {
+        assertThrows(InvalidProofException.class, () -> ProofParser.ProofLine.split(""));
+        assertThrows(InvalidProofException.class, () -> ProofParser.ProofLine.split("     "));
+        assertThrows(InvalidProofException.class, () -> ProofParser.ProofLine.split("P Ass"));
+        assertThrows(InvalidProofException.class, () -> ProofParser.ProofLine.split("P" + " ".repeat(11)));
+    }
 
     @Test
     public void proofParserTest() {
@@ -57,6 +87,9 @@ public class ProofParserTest {
 
         @Override
         public ProofStep<LogicOperation> parseLine(String line) {
+            if ("bad".equals(line)) {
+                throw new InvalidProofException("nonsense");
+            }
             return new ProofStep<>(0, new LogicOperation() {
                 @Override
                 public String toString() {

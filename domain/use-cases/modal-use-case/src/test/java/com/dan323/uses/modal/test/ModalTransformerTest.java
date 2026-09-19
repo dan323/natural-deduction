@@ -7,6 +7,7 @@ import com.dan323.expressions.modal.VariableModal;
 import com.dan323.expressions.relation.LessEqual;
 import com.dan323.expressions.relation.RelationOperation;
 import com.dan323.model.ActionDto;
+import com.dan323.uses.InvalidProofException;
 import com.dan323.model.ProofDto;
 import com.dan323.model.StepDto;
 import com.dan323.proof.modal.*;
@@ -52,7 +53,7 @@ public class ModalTransformerTest {
         ex = assertThrows(IllegalArgumentException.class, () -> transformer.from(nd2));
         assertTrue(ex.getMessage().contains("not in a valid state"));
         var nd3 = new ProofDto(List.of(new StepDto("P", "Ass", 0, Map.of("state", "s0")), new StepDto("P", "Rep", 0, Map.of())), "modal", "P -> P");
-        assertThrows(StringIndexOutOfBoundsException.class, () -> transformer.from(nd3));
+        assertThrows(InvalidProofException.class, () -> transformer.from(nd3));
     }
 
     @Test
@@ -74,5 +75,22 @@ public class ModalTransformerTest {
         assertInstanceOf(ModalModusPonens.class, action);
         var actionInError = new ActionDto("->E", List.of(), Map.of());
         assertThrows(IndexOutOfBoundsException.class, () -> transformer.from(actionInError));
+    }
+
+    @Test
+    public void omittedExtraParametersAreAccepted() {
+        var relation = new ProofDto(List.of(new StepDto("s0 <= s1", "Ass", 0, null)), "modal", "P");
+        assertEquals(1, transformer.from(relation).getSteps().size());
+        var noState = new ProofDto(List.of(new StepDto("P", "Ass", 0, null)), "modal", "P");
+        var exception = assertThrows(InvalidProofException.class, () -> transformer.from(noState));
+        assertTrue(exception.getMessage().contains("not in a valid state"));
+        assertInstanceOf(ModalCopy.class, transformer.from(new ActionDto("Rep", List.of(1), null)));
+    }
+
+    @Test
+    public void replayRejectsAStepThatDoesNotFollow() {
+        var dto = new ProofDto(List.of(new StepDto("P", "Ass", 0, Map.of("state", "s0")), new StepDto("P", "->E [1, 1]", 0, Map.of("state", "s0"))), "modal", "P");
+        var exception = assertThrows(InvalidProofException.class, () -> transformer.from(dto));
+        assertTrue(exception.getMessage().startsWith("Line 2 "), exception.getMessage());
     }
 }

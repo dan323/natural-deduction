@@ -5,6 +5,7 @@ import com.dan323.classical.proof.NaturalDeduction;
 import com.dan323.classical.proof.ParseClassicalAction;
 import com.dan323.expressions.classical.ClassicalLogicOperation;
 import com.dan323.proof.generic.proof.ProofStep;
+import com.dan323.uses.InvalidProofException;
 import com.dan323.uses.ProofParser;
 
 public class ParseClassicalProof implements ProofParser<NaturalDeduction, ClassicalLogicOperation, ProofStep<ClassicalLogicOperation>, ClassicalAction> {
@@ -19,18 +20,12 @@ public class ParseClassicalProof implements ProofParser<NaturalDeduction, Classi
     }
 
     public ProofStep<ClassicalLogicOperation> parseLine(String line) {
-        var array = line.toCharArray();
-        int i = 0;
-        while (array[i] == ' ') {
-            i++;
+        var parts = ProofLine.split(line);
+        var reason = ParseClassicalAction.parseReason(parts.rule());
+        if (reason == null) {
+            throw new InvalidProofException("unknown rule '" + parts.rule() + "'");
         }
-        int assmsLevel = i / 3;
-        var startExpression = line.substring(i);
-        var firstSpace = startExpression.indexOf(" ".repeat(11));
-        var lastSpace = startExpression.lastIndexOf("  ");
-        var expression = startExpression.substring(0, firstSpace);
-        var rule = startExpression.substring(lastSpace + 2);
-        return new ProofStep<>(assmsLevel, ParseClassicalAction.parseExpression(expression), ParseClassicalAction.parseReason(rule));
+        return new ProofStep<>(parts.assmsLevel(), ParseClassicalAction.parseExpression(parts.expression()), reason);
     }
 
 }
