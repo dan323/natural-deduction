@@ -90,6 +90,9 @@ public interface ProofParser<P extends Proof<T, Q>, T extends LogicOperation, Q 
                 throw new InvalidProofException("the line is blank");
             }
             int indent = line.length() - startExpression.length();
+            if (indent % 3 != 0 || !line.startsWith(" ".repeat(indent))) {
+                throw new InvalidProofException("the indentation must be groups of 3 spaces");
+            }
             var firstGap = startExpression.indexOf(GAP);
             if (firstGap < 1) {
                 throw new InvalidProofException("expected an expression, " + GAP.length() + " spaces and a rule");

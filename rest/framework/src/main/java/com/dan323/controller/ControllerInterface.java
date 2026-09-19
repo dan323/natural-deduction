@@ -9,6 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -44,6 +45,9 @@ public class ControllerInterface {
 
     @PostMapping("{logic}/action")
     public ResponseEntity<ProofResponse> doAction(@RequestBody ProofActionRequest proofActionRequest, @PathVariable("logic") String logic) {
+        if (proofActionRequest.actionDto() == null || proofActionRequest.proofDto() == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Both actionDto and proofDto are required");
+        }
         var result = useCase.applyAction(logic).perform(proofActionRequest.actionDto(), proofActionRequest.proofDto());
         ProofResponse response = new ProofResponse(result.proof(), result.applied(), result.message());
         if (response.success()) {

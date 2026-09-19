@@ -66,9 +66,14 @@ public class ClassicalParserTest {
         assertTrue(blank.getMessage().startsWith("Line 2 "), blank.getMessage());
         var noSeparator = assertThrows(InvalidProofException.class, () -> parser.parseProof(goodLine + "\nP Ass"));
         assertTrue(noSeparator.getMessage().startsWith("Line 2 "), noSeparator.getMessage());
-        var badExpression = assertThrows(InvalidProofException.class, () -> parser.parseProof("P Q" + " ".repeat(11) + "Ass"));
+        var badExpressionFile = "P Q" + " ".repeat(11) + "Ass";
+        var badExpression = assertThrows(InvalidProofException.class, () -> parser.parseProof(badExpressionFile));
         assertTrue(badExpression.getMessage().startsWith("Line 1 "), badExpression.getMessage());
-        var badRule = assertThrows(InvalidProofException.class, () -> parser.parseProof("P" + " ".repeat(11) + "Nope"));
+        var badRuleFile = "P" + " ".repeat(11) + "Nope";
+        var badRule = assertThrows(InvalidProofException.class, () -> parser.parseProof(badRuleFile));
+        var misindentedFile = " " + goodLine;
+        var misindented = assertThrows(InvalidProofException.class, () -> parser.parseProof(misindentedFile));
+        assertTrue(misindented.getMessage().contains("groups of 3 spaces"), misindented.getMessage());
         assertTrue(badRule.getMessage().startsWith("Line 1 "), badRule.getMessage());
     }
 }

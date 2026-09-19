@@ -11,6 +11,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.ErrorResponseException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
@@ -24,7 +25,8 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 @RestControllerAdvice
 public class RestExceptionHandler extends ResponseEntityExceptionHandler {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(RestExceptionHandler.class);
+    private static final String INTERNAL_ERROR = "Internal server error";
+    private static final Logger LOG = LoggerFactory.getLogger(RestExceptionHandler.class);
 
     @ExceptionHandler(UnknownLogicException.class)
     public ResponseEntity<ErrorResponse> handleUnknownLogic(UnknownLogicException e) {
@@ -38,19 +40,28 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleUnexpected(Exception e) {
-        LOGGER.error("Unexpected error while handling a request", e);
-        return error(HttpStatus.INTERNAL_SERVER_ERROR, "Internal server error");
+        LOG.error("Unexpected error while handling a request", e);
+        return error(HttpStatus.INTERNAL_SERVER_ERROR, INTERNAL_ERROR);
     }
 
     @Override
     protected ResponseEntity<Object> handleExceptionInternal(Exception ex, Object body, HttpHeaders headers, HttpStatusCode status, WebRequest request) {
         if (status.is5xxServerError()) {
-            LOGGER.error("Unexpected error while handling a request", ex);
+            LOG.error("Unexpected error while handling a request", ex);
         }
-        var message = body instanceof ProblemDetail problem && problem.getDetail() != null
-                ? problem.getDetail()
-                : HttpStatus.valueOf(status.value()).getReasonPhrase();
-        return ResponseEntity.status(status).headers(headers).body(new ErrorResponse(message));
+        // Spring hands over a null body for ErrorResponseException (e.g. ResponseStatusException): its detail lives in the exception
+        var detail = body == null && ex instanceof ErrorResponseException errorResponse ? errorResponse.getBody() : body;
+        return ResponseEntity.status(status).headers(headers).body(new ErrorResponse(messageFor(status, detail)));
+    }
+
+    private static String messageFor(HttpStatusCode status, Object body) {
+        if (status.is5xxServerError()) {
+            return INTERNAL_ERROR;
+        }
+        if (body instanceof ProblemDetail problem && problem.getDetail() != null) {
+            return problem.getDetail();
+        }
+        return HttpStatus.valueOf(status.value()).getReasonPhrase();
     }
 
     private static ResponseEntity<ErrorResponse> error(HttpStatus status, String message) {

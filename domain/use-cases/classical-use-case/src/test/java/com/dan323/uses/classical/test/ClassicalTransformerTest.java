@@ -23,34 +23,37 @@ public class ClassicalTransformerTest {
     }
 
     @Test
-    public void replayAValidProof() {
+    void replayAValidProof() {
         var dto = proof(new StepDto("P", "Ass", 0, Map.of()), new StepDto("Q", "Ass", 1, Map.of()), new StepDto("P", "Rep [1]", 1, Map.of()));
         assertEquals(3, transformer.from(dto).getSteps().size());
     }
 
     @Test
-    public void replayRejectsAStepThatDoesNotFollow() {
+    void replayRejectsAStepThatDoesNotFollow() {
         var dto = proof(new StepDto("P", "Ass", 0, Map.of()), new StepDto("P", "->E [1, 1]", 0, Map.of()));
         var exception = assertThrows(InvalidProofException.class, () -> transformer.from(dto));
         assertTrue(exception.getMessage().startsWith("Line 2 "), exception.getMessage());
     }
 
     @Test
-    public void replayRejectsALineThatDoesNotExist() {
+    void replayRejectsALineThatDoesNotExist() {
         var dto = proof(new StepDto("P", "Ass", 0, Map.of()), new StepDto("P", "Rep [7]", 0, Map.of()));
         var exception = assertThrows(InvalidProofException.class, () -> transformer.from(dto));
         assertTrue(exception.getMessage().startsWith("Line 2 "), exception.getMessage());
     }
 
     @Test
-    public void replayRejectsGarbage() {
-        assertThrows(InvalidProofException.class, () -> transformer.from(proof(new StepDto("P Q", "Ass", 0, Map.of()))));
-        assertThrows(InvalidProofException.class, () -> transformer.from(proof(new StepDto("P", "Ass", 0, Map.of()), new StepDto("P", "Nope", 0, Map.of()))));
-        assertThrows(InvalidProofException.class, () -> transformer.from(new ProofDto(List.of(), "classical", "P Q")));
+    void replayRejectsGarbage() {
+        var badExpression = proof(new StepDto("P Q", "Ass", 0, Map.of()));
+        var badRule = proof(new StepDto("P", "Ass", 0, Map.of()), new StepDto("P", "Nope", 0, Map.of()));
+        var badGoal = new ProofDto(List.of(), "classical", "P Q");
+        assertThrows(InvalidProofException.class, () -> transformer.from(badExpression));
+        assertThrows(InvalidProofException.class, () -> transformer.from(badRule));
+        assertThrows(InvalidProofException.class, () -> transformer.from(badGoal));
     }
 
     @Test
-    public void omittedParametersAreAccepted() {
+    void omittedParametersAreAccepted() {
         var applier = new LogicalApplyAction<>(transformer);
         var dto = new ProofDto(List.of(new StepDto("P", "Ass", 0, null)), "classical", "P");
         var result = applier.perform(new ActionDto("NOTI", null, null), dto);
@@ -59,7 +62,7 @@ public class ClassicalTransformerTest {
     }
 
     @Test
-    public void rejectedActionsSayWhy() {
+    void rejectedActionsSayWhy() {
         var applier = new LogicalApplyAction<>(transformer);
         var dto = proof(new StepDto("P", "Ass", 0, Map.of()));
         var outOfRange = applier.perform(new ActionDto("COPY", List.of(4), Map.of()), dto);
@@ -72,11 +75,14 @@ public class ClassicalTransformerTest {
     }
 
     @Test
-    public void unbuildableActionsAreInvalid() {
+    void unbuildableActionsAreInvalid() {
         var applier = new LogicalApplyAction<>(transformer);
         var dto = proof(new StepDto("P", "Ass", 0, Map.of()));
-        assertThrows(InvalidActionException.class, () -> applier.perform(new ActionDto("NOPE", List.of(1), Map.of()), dto));
-        assertThrows(InvalidActionException.class, () -> applier.perform(new ActionDto("ANDI", List.of(1), Map.of()), dto));
-        assertThrows(InvalidActionException.class, () -> applier.perform(new ActionDto("ASSUME", List.of(), Map.of("expression", "P Q")), dto));
+        var unknown = new ActionDto("NOPE", List.of(1), Map.of());
+        var missingSource = new ActionDto("ANDI", List.of(1), Map.of());
+        var badExpression = new ActionDto("ASSUME", List.of(), Map.of("expression", "P Q"));
+        assertThrows(InvalidActionException.class, () -> applier.perform(unknown, dto));
+        assertThrows(InvalidActionException.class, () -> applier.perform(missingSource, dto));
+        assertThrows(InvalidActionException.class, () -> applier.perform(badExpression, dto));
     }
 }

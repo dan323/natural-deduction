@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
+import org.springframework.web.server.ResponseStatusException;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -17,14 +18,14 @@ public class RestExceptionHandlerTest {
     private final RestExceptionHandler handler = new RestExceptionHandler();
 
     @Test
-    public void unknownLogicIsNotFound() {
+    void unknownLogicIsNotFound() {
         var response = handler.handleUnknownLogic(new UnknownLogicException("zzz"));
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
         assertEquals("Unknown logic 'zzz'", response.getBody().message());
     }
 
     @Test
-    public void invalidInputIsBadRequest() {
+    void invalidInputIsBadRequest() {
         var proof = handler.handleInvalidInput(new InvalidProofException("Line 3 is not valid"));
         assertEquals(HttpStatus.BAD_REQUEST, proof.getStatusCode());
         assertEquals("Line 3 is not valid", proof.getBody().message());
@@ -34,18 +35,26 @@ public class RestExceptionHandlerTest {
     }
 
     @Test
-    public void unexpectedErrorsDoNotLeakDetails() {
+    void unexpectedErrorsDoNotLeakDetails() {
         var response = handler.handleUnexpected(new IllegalStateException("secret internals"));
         assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
         assertEquals("Internal server error", response.getBody().message());
     }
 
     @Test
-    public void springRequestErrorsKeepTheirStatusWithTheSameBody() {
+    void springRequestErrorsKeepTheirStatusWithTheSameBody() {
         var problem = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, "Failed to read request");
         var response = handler.handleExceptionInternal(new IllegalStateException(), problem, new HttpHeaders(), HttpStatus.BAD_REQUEST, null);
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
         assertEquals("Failed to read request", ((ErrorResponse) response.getBody()).message());
+
+        var fromException = handler.handleExceptionInternal(new ResponseStatusException(HttpStatus.BAD_REQUEST, "Both are required"), null, new HttpHeaders(), HttpStatus.BAD_REQUEST, null);
+        assertEquals("Both are required", ((ErrorResponse) fromException.getBody()).message());
+
+        var serverError = ProblemDetail.forStatusAndDetail(HttpStatus.SERVICE_UNAVAILABLE, "internal detail");
+        var hidden = handler.handleExceptionInternal(new IllegalStateException(), serverError, new HttpHeaders(), HttpStatus.SERVICE_UNAVAILABLE, null);
+        assertEquals(HttpStatus.SERVICE_UNAVAILABLE, hidden.getStatusCode());
+        assertEquals("Internal server error", ((ErrorResponse) hidden.getBody()).message());
 
         var withoutDetail = handler.handleExceptionInternal(new IllegalStateException(), null, new HttpHeaders(), HttpStatus.METHOD_NOT_ALLOWED, null);
         assertEquals(HttpStatus.METHOD_NOT_ALLOWED, withoutDetail.getStatusCode());

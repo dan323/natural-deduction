@@ -78,7 +78,8 @@ public class ModalParserTest {
     public void parseGarbledFileReportsTheLine() {
         var parser = new ModalProofParser();
         assertThrows(InvalidProofException.class, () -> parser.parseProof(""));
-        var blank = assertThrows(InvalidProofException.class, () -> parser.parseProof("s0: P" + " ".repeat(11) + "Ass\n\n"));
+        var blankLineFile = "s0: P" + " ".repeat(11) + "Ass\n\n";
+        var blank = assertThrows(InvalidProofException.class, () -> parser.parseProof(blankLineFile));
         assertTrue(blank.getMessage().startsWith("Line 2 "), blank.getMessage());
         var truncatedState = assertThrows(InvalidProofException.class, () -> parser.parseProof("s0:"));
         assertTrue(truncatedState.getMessage().startsWith("Line 1 "), truncatedState.getMessage());

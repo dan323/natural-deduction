@@ -41,7 +41,12 @@ public class ProofParserTest {
         assertThrows(InvalidProofException.class, () -> ProofParser.ProofLine.split(""));
         assertThrows(InvalidProofException.class, () -> ProofParser.ProofLine.split("     "));
         assertThrows(InvalidProofException.class, () -> ProofParser.ProofLine.split("P Ass"));
-        assertThrows(InvalidProofException.class, () -> ProofParser.ProofLine.split("P" + " ".repeat(11)));
+        var noRule = "P" + " ".repeat(11);
+        assertThrows(InvalidProofException.class, () -> ProofParser.ProofLine.split(noRule));
+        var oneSpace = " P" + " ".repeat(11) + "Ass";
+        var tab = "\tP" + " ".repeat(11) + "Ass";
+        assertThrows(InvalidProofException.class, () -> ProofParser.ProofLine.split(oneSpace));
+        assertThrows(InvalidProofException.class, () -> ProofParser.ProofLine.split(tab));
     }
 
     @Test

@@ -44,16 +44,7 @@ public class ModalProofTransformer implements Transformer<ModalOperation, ProofS
         for (StepDto step : proof.steps()) {
             line++;
             if (assms && step.assmsLevel() == 0 && step.rule().equals("Ass")) {
-                var operation = ParseModalAction.parseExpression(step.expression());
-                if (operation instanceof ModalLogicalOperation) {
-                    if (step.extraParameters().containsKey("state") && step.extraParameters().get("state").equals(nd.getState0())) {
-                        assmsLst.add(operation);
-                    } else {
-                        throw new InvalidProofException("Line " + line + " is not valid: the assumptions are not in a valid state");
-                    }
-                } else {
-                    assmsLst.add(ParseModalAction.parseExpression(step.expression()));
-                }
+                assmsLst.add(initialAssumption(nd, step, line));
             } else {
                 if (assms) {
                     assms = false;
@@ -66,6 +57,14 @@ public class ModalProofTransformer implements Transformer<ModalOperation, ProofS
             nd.initializeProof(assmsLst, ParseModalAction.parseExpression(proof.goal()));
         }
         return nd;
+    }
+
+    private static ModalOperation initialAssumption(ModalNaturalDeduction nd, StepDto step, int line) {
+        var operation = ParseModalAction.parseExpression(step.expression());
+        if (operation instanceof ModalLogicalOperation && !nd.getState0().equals(step.extraParameters().get("state"))) {
+            throw new InvalidProofException("Line " + line + " is not valid: the assumptions are not in a valid state");
+        }
+        return operation;
     }
 
     private static void replay(ModalNaturalDeduction nd, StepDto step, int line) {

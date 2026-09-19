@@ -174,6 +174,20 @@ public class RestServiceIT {
     }
 
     @Test
+    public void missingActionOrProofIsBadRequest() {
+        var noAction = postAction("classical", """
+                {"proofDto": {"logic": "classical", "goal": "P"}}""");
+        assertEquals(HttpStatus.BAD_REQUEST, noAction.getStatusCode());
+        assertTrue(Objects.requireNonNull(noAction.getBody()).contains("actionDto"));
+
+        var noProof = postAction("classical", """
+                {"actionDto": {"name": "COPY", "sources": [1]}}""");
+        assertEquals(HttpStatus.BAD_REQUEST, noProof.getStatusCode());
+
+        assertEquals(HttpStatus.BAD_REQUEST, postAction("classical", "{}").getStatusCode());
+    }
+
+    @Test
     public void malformedBodyIsBadRequest() {
         var response = postAction("classical", "{not json");
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
