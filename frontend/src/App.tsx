@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import './App.css';
 import Proof from './components/proof/ProofViewer';
 import Header from './components/Header';
@@ -16,7 +16,7 @@ function App() {
     goal: '',
   });
 
-  const onColorChange = (color: string, line: number) => {
+  const onColorChange = useCallback((color: string, line: number) => {
     setColorMapping(colorMapping => {
         const newColoringMap = new Map<number,string>(colorMapping);
         newColoringMap.forEach((value, key) => {
@@ -29,7 +29,7 @@ function App() {
         }
         return newColoringMap
     });
-  };
+  }, []);
 
   const handleOpenModal = () => setIsModalOpen(true);
   const handleCloseModal = () => setIsModalOpen(false);
@@ -39,7 +39,7 @@ function App() {
       expression: premise,
       rule: 'Ass',
       assmsLevel: 0,
-      extraParameters: new Map(),
+      extraParameters: {},
     }));
 
     setProof({

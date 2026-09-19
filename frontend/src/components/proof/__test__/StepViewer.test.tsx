@@ -8,7 +8,7 @@ const mockStep: StepDto = {
   expression: 'A → B',
   rule: '->I',
   assmsLevel: 0,
-  extraParameters: new Map()
+  extraParameters: {}
 };
 
 const mockOnMouseEnter = jest.fn();

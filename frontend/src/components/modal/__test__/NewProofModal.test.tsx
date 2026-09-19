@@ -1,5 +1,6 @@
 import React, { InputHTMLAttributes } from 'react';
-import { render, fireEvent } from '@testing-library/react';
+import { render, fireEvent, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import NewProofModal from '../NewProofModal';
 
 describe('NewProofModal Component', () => {
@@ -72,5 +73,32 @@ describe('NewProofModal Component', () => {
 
     expect(onSubmitMock).not.toHaveBeenCalled();
     expect(onCloseMock).toHaveBeenCalled();
+  });
+});
+
+describe('NewProofModal typing', () => {
+  test('keeps focus and the full value while typing a multi-character premise', async () => {
+    const user = userEvent.setup();
+    render(<NewProofModal isOpen={true} onClose={jest.fn()} onSubmit={jest.fn()} />);
+
+    const premise = screen.getByPlaceholderText('Premise 1');
+    await user.click(premise);
+    await user.type(premise, 'P -> Q');
+
+    expect(premise).toHaveValue('P -> Q');
+    expect(premise).toHaveFocus();
+  });
+
+  test('keeps focus while typing in an added premise', async () => {
+    const user = userEvent.setup();
+    render(<NewProofModal isOpen={true} onClose={jest.fn()} onSubmit={jest.fn()} />);
+
+    await user.click(screen.getByText('+ Add Premise'));
+    const second = screen.getByPlaceholderText('Premise 2');
+    await user.click(second);
+    await user.type(second, 'Q & R');
+
+    expect(second).toHaveValue('Q & R');
+    expect(second).toHaveFocus();
   });
 });

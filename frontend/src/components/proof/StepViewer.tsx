@@ -1,7 +1,7 @@
 import React, { FC, MouseEventHandler, useEffect, useState } from 'react';
 import '../Expressions.css';
 import { StepDto } from '../../types';
-import { renderLogic, getIndentation, isValidCSSColor } from '../../service/utils';
+import { renderExpression, renderRule, getIndentation, isValidCSSColor } from '../../service/utils';
 import clsx from 'clsx';
 
 type StepProps = {
@@ -39,9 +39,9 @@ export const StepViewer: FC<StepProps> = ({
     >
       <td>{stepIndex + 1}</td>
       <td>
-        <pre>{getIndentation(step.assmsLevel)}{renderLogic(step.expression)}</pre>
+        <pre>{getIndentation(step.assmsLevel)}{renderExpression(step.expression)}</pre>
       </td>
-      <td className='rule'>{renderLogic(step.rule)}</td>
+      <td className='rule'>{renderRule(step.rule)}</td>
     </tr>
   );
 };

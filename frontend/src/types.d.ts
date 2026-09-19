@@ -8,7 +8,7 @@ export type StepDto = {
     expression: string,
     rule: string,
     assmsLevel: number,
-    extraParameters: Map<string, string>,
+    extraParameters: Record<string, string>,
 }
 
 export type ActionDto = {
@@ -18,7 +18,7 @@ export type ActionDto = {
 }
 
 export type ApplyActionResponse = {
-    proof: ProofDto,
+    proof?: ProofDto,
     success: boolean,
     message: string,
 }
