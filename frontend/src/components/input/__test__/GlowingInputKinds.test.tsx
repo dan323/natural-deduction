@@ -57,16 +57,19 @@ describe('Glowing input kinds', () => {
         expect(onInput).toHaveBeenLastCalledWith(0, -1);
     });
 
-    test('a non numeric line number input reports -1 instead of text', async () => {
+    test('a non numeric line number input reports -1 instead of text and drops the glow', async () => {
         const user = userEvent.setup();
         const onInput = jest.fn();
+        const onColorChange = jest.fn();
         render(
             <GlowingInput label="Line number:" glowColor="#ffcc00" shouldGlow={true}
-                onColorChange={jest.fn()} onInput={onInput} index={0} />
+                onColorChange={onColorChange} onInput={onInput} index={0} />
         );
 
-        await user.type(screen.getByLabelText('Line number:'), 'a');
+        await user.type(screen.getByLabelText('Line number:'), '3a');
 
         expect(onInput).toHaveBeenLastCalledWith(0, -1);
+        expect(onColorChange).toHaveBeenNthCalledWith(1, '#ffcc00', 2);
+        expect(onColorChange).toHaveBeenLastCalledWith('#ffcc00', -1);
     });
 });

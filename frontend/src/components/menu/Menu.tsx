@@ -50,8 +50,8 @@ const Menu: FC<MenuProps> = ({ logic, onColorChange, setProof, proof }) => {
 
         const selectedActionObj = actions.find(action => action.name === newAction);
         if (selectedActionObj) {
-            const intInputs = selectedActionObj.inputKinds.filter(isInt => isInt).length;
-            setSources(Array(intInputs).fill(-1));
+            const intInputs = selectedActionObj.inputKinds.filter(Boolean).length;
+            setSources(new Array(intInputs).fill(-1));
         } else {
             setSources([]);
         }
@@ -62,7 +62,7 @@ const Menu: FC<MenuProps> = ({ logic, onColorChange, setProof, proof }) => {
     const onInput = (index: number, input: number | string) => {
         setErrorMessage('');
         if (typeof input === 'number') {
-            const sourceIndex = selectedActionParsed?.inputKinds.slice(0, index).filter(isInt => isInt).length ?? index;
+            const sourceIndex = selectedActionParsed?.inputKinds.slice(0, index).filter(Boolean).length ?? index;
             setSources(prevSources => {
                 const newSources = [...prevSources];
                 newSources[sourceIndex] = input;

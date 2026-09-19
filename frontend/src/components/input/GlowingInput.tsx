@@ -26,15 +26,13 @@ const GlowingInput: FC<GlowingInputProps> = ({ label, glowColor, shouldGlow, onC
             // Expression input: the text is always passed on as a string, even when it looks like a number.
             onInput(index, inputValue);
         } else if (isNumeric(inputValue)) {
-            const numInput = parseInt(inputValue, 10);
+            const numInput = Number.parseInt(inputValue, 10);
             onInput(index, numInput);
             onColorChange(glowColor, numInput - 1);
         } else {
-            // Empty or invalid line number: forget the previous line.
+            // Empty or invalid line number: forget the previous line and its glow.
             onInput(index, -1);
-            if (inputValue === '') {
-                onColorChange(glowColor, -1);  // Remove glow when input is empty
-            }
+            onColorChange(glowColor, -1);  // Remove the glow of the previous line
         }
     };
 
