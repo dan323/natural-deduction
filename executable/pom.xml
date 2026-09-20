@@ -150,6 +150,9 @@
                             <includes>
                                 <include>**/*IT.java</include>
                             </includes>
+                            <systemPropertyVariables>
+                                <fatJar>${project.build.directory}/${project.build.finalName}.jar</fatJar>
+                            </systemPropertyVariables>
                         </configuration>
                     </execution>
                 </executions>
