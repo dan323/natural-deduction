@@ -89,7 +89,9 @@ This creates the production build in `frontend/build/` (not `dist/`). `npm run t
 publishing the Docker image:
 
 ```powershell
-cp -r frontend/build/* executable/src/main/resources/public/   # create the folder first if it does not exist
+cd ..   # back to the repository root (the build above ran in frontend/)
+New-Item -ItemType Directory -Force executable/src/main/resources/public | Out-Null
+cp -r frontend/build/* executable/src/main/resources/public/
 mvn clean install
 ```
 
@@ -263,6 +265,8 @@ View report: Open `jacoco-natural-deduction/target/site/jacoco/index.html` in br
 ```powershell
 mvn test-compile org.pitest:pitest-maven:mutationCoverage -pl domain/logic-language/framework
 ```
+
+The PIT settings (`threads`, `timeoutConstant`, `timeoutFactor`) are in the root `pom.xml`. Mutants that loop forever (mostly in the automatic solvers) end as `TIMED_OUT`, which counts as detected; the timeout is kept short so they are cut off quickly. Reports are written to `target/pit-reports` of each module.
 
 ## Troubleshooting
 

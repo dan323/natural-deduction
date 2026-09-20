@@ -32,7 +32,7 @@ describe('App', () => {
     await user.type(screen.getByPlaceholderText('Enter the goal expression'), 'P');
     await user.click(screen.getByText('Start Proof'));
 
-    await user.selectOptions(screen.getByLabelText(/Select Inference Rule:/i), 'Rep');
+    await user.selectOptions(await screen.findByLabelText(/Select Inference Rule:/i), 'Rep');
     await user.type(screen.getByLabelText(/Line number:/i), '12');
     await user.click(screen.getByRole('button', { name: /Apply Rule/i }));
     await waitFor(() => expect(fetchMock).toHaveBeenCalledWith('/logic/classical/action', expect.anything()));

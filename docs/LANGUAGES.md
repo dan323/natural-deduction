@@ -184,7 +184,8 @@ Formula ::= Classical | □Formula | ◇Formula | (Formula ∧ Formula) | ...
 ```
 
 **States** (worlds): every step of a modal proof carries a state, e.g. `s0`, sent as `extraParameters.state` in the
-API. Formulas relate states with `<=` and `=` (`LessEqual`, `Equals`); there is also an `Until` operator.
+API. Formulas relate states with `<=` and `=` (`LessEqual`, `Equals`). The model also has an `Until` operator, but
+`ModalLogicParser` does not parse it, so it cannot be sent through the proof and action API.
 
 ### Examples
 
@@ -296,7 +297,7 @@ All classical rules apply in each world. Additionally:
 Formulas are parsed from string input by an expression parser built on javaluator, specific to each logic (`ClassicalParser`, `ModalLogicParser`). Variables are single tokens without spaces.
 
 **Classical Examples**:
-```
+```text
 p
 p & q        (AND)
 p | q        (OR)

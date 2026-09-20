@@ -23,10 +23,12 @@ The project has never been versioned or tagged, since it was not meant for publi
 - `CLAUDE.md` and the prose docs rewritten to match the code (endpoints, modules, setup, languages); the fictional "earlier design" API section is removed
 - Docker image is built from the jar that passed `mvn -B verify` and is only pushed once the smoke test passes; the workflow is renamed "Publish Docker image" (#107)
 - Backend CI workflow collapsed into a single `mvn -B verify`, with concurrency cancellation for superseded PR runs (#107)
+- Mutation testing (PIT) runs 4 threads with units of 25 mutants (so the big solver classes spread over the threads) and times out mutants after 1000 ms + 1.25x the covering tests' time instead of the default 4000 ms + 1.25x: mutants that make the automatic solvers loop forever no longer dominate the job, and results (mutants, killed/survived split, score) are unchanged
 - Frontend CI uses `npm ci`; `typescript`, `ts-node` and `@testing-library/*` moved to `devDependencies`; `@types/node` aligned with Node 20 (#107)
 - springdoc version is now a property in `executable/pom.xml` (#107)
 - Modal dialog accessibility: focus returns to the opener on close and every input has a label (#108)
 - `docs/*.md` and the README corrected against the code (Spring Boot 3.5.3, real `/logic/{logic}/...` endpoints, package names) (#107, #108)
+- Backend and frontend CI checkouts no longer persist the `GITHUB_TOKEN` in the git config (`persist-credentials: false`); the gh-pages publishing steps keep using their explicit `github_token` input
 - Bump sonarqube-scan-action to v8.2.2 (#103)
 - Dependencies updated: Spring Boot 3.5.3 to 3.5.16 (Spring Framework 6.2.19), springdoc 2.8.6 to 2.9.1, JUnit 5.12.2 to 6.1.3, Mockito 5.18.0 to 5.23.0, SLF4J 2.0.17 to 2.0.19, javaluator 3.0.5 to 3.0.6, PIT 1.19.1 to 1.30.0, JaCoCo 0.8.12 to 0.8.15, plus the compiler, surefire and versions Maven plugins; React 19.3, Vite 8, Jest 30, jsdom 29 and the other frontend packages; `actions/checkout` v7, `actions/setup-java` v6, `actions/setup-node` v7 and `peaceiris/actions-gh-pages` v4.1.0. The docs now state Spring Boot 3.5.16, JUnit 6, Maven 3.6.3+ and Node 20.19+.
 
