@@ -1,5 +1,6 @@
 package com.dan323.controller;
 
+import com.dan323.model.ActionDescriptorDto;
 import com.dan323.model.ProofDto;
 import com.dan323.rest.model.ProofActionRequest;
 import com.dan323.rest.model.ProofResponse;
@@ -27,13 +28,18 @@ public class ControllerInterface {
     }
 
     @GetMapping("{logic}/actions")
-    public ResponseEntity<List<String>> getAllPossibleActions(@PathVariable("logic") String logic) {
+    public ResponseEntity<List<ActionDescriptorDto>> getAllPossibleActions(@PathVariable("logic") String logic) {
         var actions = useCase.getActions(logic).perform();
         if (actions.isEmpty()) {
             return ResponseEntity.noContent().build();
         } else {
             return ResponseEntity.ok().body(actions);
         }
+    }
+
+    @PostMapping("{logic}/solve")
+    public ResponseEntity<ProofDto> solve(@RequestBody ProofDto proof, @PathVariable("logic") String logic) {
+        return ResponseEntity.ok().body(useCase.solveProblem(logic).perform(proof));
     }
 
     @PostMapping("{logic}/proof")

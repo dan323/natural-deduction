@@ -1,5 +1,6 @@
 package com.dan323.uses.mock;
 
+import com.dan323.model.ActionDescriptorDto;
 import com.dan323.uses.LogicalGetActions;
 
 import java.util.List;
@@ -19,8 +20,8 @@ public final class ActionGetters {
             }
 
             @Override
-            public List<String> perform() {
-                return Stream.of("A1", "A2", "A3").map(st -> logic + "." + st).toList();
+            public List<ActionDescriptorDto> perform() {
+                return Stream.of("A1", "A2", "A3").map(st -> ActionDescriptorDto.of(logic + "." + st)).toList();
             }
         };
     }

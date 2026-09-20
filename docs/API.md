@@ -2,6 +2,90 @@
 
 This document describes the REST API endpoints for the Natural Deduction system.
 
+## Current endpoints
+
+The server keeps no session. Every logic (`classical`, `modal`) is served under `/logic/{logic}`. The sections after
+this one describe an earlier design that is not implemented; only this section matches the code.
+
+Every non-2xx response has the body `{"message": "..."}`. An unknown logic is a 404, malformed input a 400 and a
+solver that runs out of time a 422.
+
+### List the actions: `GET /logic/{logic}/actions`
+
+Returns one descriptor per action the logic offers. `name` is what to send in `ActionDto.name`; `params` lists, in
+order, the inputs the action needs.
+
+```json
+[
+  {"name": "ANDI", "params": ["INT", "INT"]},
+  {"name": "ASSUME", "params": ["EXPRESSION"]},
+  {"name": "FE", "params": ["INT", "EXPRESSION"]},
+  {"name": "DT", "params": []}
+]
+```
+
+| Param kind | Meaning | Where it goes in `POST /logic/{logic}/action` |
+|------------|---------|-----------------------------------------------|
+| `INT` | a 1-based line number of the proof | the next entry of `actionDto.sources` |
+| `EXPRESSION` | a formula | `actionDto.extraParameters.expression` |
+| `STATE` | a state (world) name, modal logic only | `actionDto.extraParameters.state` |
+
+Classical logic has 14 actions (the `AvailableAction` names). Modal logic has 20; their names are the rule names of
+the modal proof format (`Ass`, `|I1`, `->E`, `[]E`, `Refl`, ...). The list is built once at startup.
+
+> **Breaking change:** this endpoint used to return strings such as `"ANDI([int, int])"`.
+
+### Apply an action: `POST /logic/{logic}/action`
+
+```json
+{
+  "actionDto": {"name": "COPY", "sources": [1], "extraParameters": {"expression": ""}},
+  "proofDto": {
+    "logic": "classical", "goal": "Q -> P",
+    "steps": [{"expression": "P", "rule": "Ass", "assmsLevel": 0, "extraParameters": {}}]
+  }
+}
+```
+
+`200` with `{"proof": {...}, "success": true, "message": ""}` when the action was applied, `202` with
+`"success": false` and the reason in `message` (the proof is returned unchanged) when it was well formed but does
+not apply.
+
+### Solve a proof: `POST /logic/{logic}/solve`
+
+Runs the automatic solver on the proof (a `ProofDto`) and returns the resulting `ProofDto`.
+
+```json
+{"logic": "classical", "goal": "P -> P", "steps": []}
+```
+
+```json
+{
+  "logic": "classical", "goal": "P -> P", "done": true,
+  "steps": [
+    {"expression": "P", "rule": "Ass", "assmsLevel": 1, "extraParameters": {}},
+    {"expression": "P -> P", "rule": "->I [1-1]", "assmsLevel": 0, "extraParameters": {}}
+  ]
+}
+```
+
+- A proof the solver cannot finish (unprovable, or beyond what the solver can do) is still a `200`: the proof comes
+  back as far as it got and `done` is `false`.
+- The solver is limited by time, because a user triggers it. When it does not finish within the limit (10 seconds by
+  default, set with the property `natural-deduction.solve-timeout`, e.g. `natural-deduction.solve-timeout=5s`) the
+  solver thread is interrupted and the response is `422` with
+  `{"message": "The solver did not finish within 10 seconds, try solving part of the proof by hand first"}`.
+- An invalid proof is a `400`, as for `/action`.
+
+### Upload a proof file: `POST /logic/{logic}/proof`
+
+Multipart form with the file in the part `file`, in the layout `ProofStep.toString()` prints (3 spaces of indent per
+assumption level, an 11-space gap, then the rule). Returns `201` with the `ProofDto`.
+
+---
+
+The rest of this file is the earlier design and does not describe the running API.
+
 ## Base URL
 
 ```

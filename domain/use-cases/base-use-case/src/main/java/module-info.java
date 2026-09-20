@@ -1,6 +1,7 @@
 module use.cases {
     requires framework.deduction;
     requires language.base;
+    requires spring.beans;
     requires spring.context;
     requires org.slf4j;
     requires deduction.model;

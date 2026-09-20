@@ -3,12 +3,15 @@ package com.dan323.controller;
 import com.dan323.rest.model.ErrorResponse;
 import com.dan323.uses.InvalidActionException;
 import com.dan323.uses.InvalidProofException;
+import com.dan323.uses.SolveTimeoutException;
 import com.dan323.uses.UnknownLogicException;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.web.server.ResponseStatusException;
+
+import java.time.Duration;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -32,6 +35,13 @@ public class RestExceptionHandlerTest {
         var action = handler.handleInvalidInput(new InvalidActionException("Cannot build action", new RuntimeException()));
         assertEquals(HttpStatus.BAD_REQUEST, action.getStatusCode());
         assertEquals("Cannot build action", action.getBody().message());
+    }
+
+    @Test
+    void solverTimeoutIsUnprocessableWithItsMessage() {
+        var response = handler.handleSolveTimeout(new SolveTimeoutException(Duration.ofSeconds(10)));
+        assertEquals(HttpStatus.UNPROCESSABLE_ENTITY, response.getStatusCode());
+        assertEquals("The solver did not finish within 10 seconds, try solving part of the proof by hand first", response.getBody().message());
     }
 
     @Test

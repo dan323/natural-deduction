@@ -1,5 +1,6 @@
 package com.dan323.uses;
 
+import com.dan323.model.ActionDescriptorDto;
 import com.dan323.model.ActionDto;
 import com.dan323.model.ProofDto;
 
@@ -16,7 +17,7 @@ public interface ActionsUseCases {
     ParseProof parseToProof(String logic);
 
     interface GetActions {
-        List<String> perform();
+        List<ActionDescriptorDto> perform();
     }
 
     interface ParseProof {
@@ -27,6 +28,10 @@ public interface ActionsUseCases {
         ApplyResult perform(ActionDto action, ProofDto proof);
     }
 
+    /**
+     * Runs the automatic solver. Fails with {@link SolveTimeoutException} if it takes too long. A proof the solver
+     * cannot finish is returned as far as it got, see {@link ProofDto#isDone()}.
+     */
     interface Solve {
         ProofDto perform(ProofDto proof);
     }

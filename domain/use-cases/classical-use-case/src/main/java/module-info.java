@@ -1,6 +1,5 @@
 module classic.cases {
     requires use.cases;
-    requires org.reflections;
     requires implementation.deduction.classic;
     requires language.implementation.classical;
     requires framework.deduction;

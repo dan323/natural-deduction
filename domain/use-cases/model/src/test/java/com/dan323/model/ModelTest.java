@@ -2,6 +2,7 @@ package com.dan323.model;
 
 import org.junit.jupiter.api.Test;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -44,6 +45,23 @@ public class ModelTest {
     public void isDoneIsSafeOnEmptyProofs() {
         assertFalse(new ProofDto(List.of(), "classic", "P").isDone());
         assertTrue(new ProofDto(List.of(new StepDto("P", "Ass", 0, Map.of())), "classic", "P").isDone());
+    }
+
+    @Test
+    void actionDescriptorTest() {
+        var descriptor = ActionDescriptorDto.of("ORI1", ParamKind.INT, ParamKind.EXPRESSION);
+        assertEquals("ORI1", descriptor.name());
+        assertEquals(List.of(ParamKind.INT, ParamKind.EXPRESSION), descriptor.params());
+        assertEquals(List.of(), ActionDescriptorDto.of("DT").params());
+        assertEquals(List.of(), new ActionDescriptorDto("DT", null).params());
+    }
+
+    @Test
+    void actionDescriptorCopiesItsParams() {
+        var params = new ArrayList<>(List.of(ParamKind.INT));
+        var descriptor = new ActionDescriptorDto("Rep", params);
+        params.add(ParamKind.STATE);
+        assertEquals(List.of(ParamKind.INT), descriptor.params());
     }
 
 }

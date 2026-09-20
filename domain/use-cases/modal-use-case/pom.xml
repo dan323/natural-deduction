@@ -33,11 +33,6 @@
             <artifactId>implementation.deduction.modal</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <dependency>
-            <groupId>org.reflections</groupId>
-            <artifactId>reflections</artifactId>
-            <version>${reflections.version}</version>
-        </dependency>
     </dependencies>
 
 </project>
