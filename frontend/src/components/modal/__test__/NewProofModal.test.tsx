@@ -156,6 +156,49 @@ describe('NewProofModal accessibility', () => {
   });
 });
 
+describe('NewProofModal focus trap', () => {
+  const setup = async () => {
+    const user = userEvent.setup();
+    render(
+      <>
+        <button>Outside</button>
+        <NewProofModal isOpen={true} onClose={jest.fn()} onSubmit={jest.fn()} />
+      </>
+    );
+    await waitFor(() => expect(screen.getByLabelText('Premise 1')).toHaveFocus());
+    return user;
+  };
+
+  test('Tab from the last control wraps to the first one', async () => {
+    const user = await setup();
+    // Start Proof is disabled without a goal, so Cancel is the last control.
+    screen.getByRole('button', { name: 'Cancel' }).focus();
+
+    await user.tab();
+
+    expect(screen.getByLabelText('Premise 1')).toHaveFocus();
+  });
+
+  test('Shift+Tab from the first control wraps to the last one', async () => {
+    const user = await setup();
+
+    await user.tab({ shift: true });
+
+    expect(screen.getByRole('button', { name: 'Cancel' })).toHaveFocus();
+  });
+
+  test('Tab still moves on inside the dialog, and takes a focus that is outside back in', async () => {
+    const user = await setup();
+
+    await user.tab();
+    expect(screen.getByRole('button', { name: '+ Add Premise' })).toHaveFocus();
+
+    screen.getByRole('button', { name: 'Outside' }).focus();
+    await user.tab();
+    expect(screen.getByLabelText('Premise 1')).toHaveFocus();
+  });
+});
+
 describe('NewProofModal validation', () => {
   const startButton = () => screen.getByRole('button', { name: 'Start Proof' });
 

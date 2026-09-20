@@ -58,26 +58,29 @@ function App() {
 
   return (
     <div className="App">
-      <Header />
-      <div className="app-toolbar">
-        <button
-          className="new-proof-btn"
-          onClick={handleOpenModal}
-          aria-label="Start a new proof"
-        >
-          New Proof
-        </button>
+      {/* While the modal is open the page behind it can neither be tabbed to nor read by assistive technology. */}
+      <div inert={isModalOpen}>
+        <Header />
+        <div className="app-toolbar">
+          <button
+            className="new-proof-btn"
+            onClick={handleOpenModal}
+            aria-label="Start a new proof"
+          >
+            New Proof
+          </button>
+        </div>
+        <main className="app-main">
+          <Menu key={proofId} logic={LOGIC} proof={proof} setProof={setProof} onColorChange={onColorChange} />
+          {hasProof ? (
+            <Proof proof={proof} coloring={colorMapping} />
+          ) : (
+            <div className="empty-proof-state" role="status">
+              <p>No proof loaded. Click <strong>New Proof</strong> to begin.</p>
+            </div>
+          )}
+        </main>
       </div>
-      <main className="app-main">
-        <Menu key={proofId} logic={LOGIC} proof={proof} setProof={setProof} onColorChange={onColorChange} />
-        {hasProof ? (
-          <Proof proof={proof} coloring={colorMapping} />
-        ) : (
-          <div className="empty-proof-state" role="status">
-            <p>No proof loaded. Click <strong>New Proof</strong> to begin.</p>
-          </div>
-        )}
-      </main>
 
       <NewProofModal
         isOpen={isModalOpen}

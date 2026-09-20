@@ -133,6 +133,26 @@ describe('App', () => {
     expect(screen.queryByText('p ->')).not.toBeInTheDocument();
   });
 
+  test('while the New Proof dialog is open the page behind it is inert, and closing it gives the focus back', async () => {
+    const user = userEvent.setup();
+    mockBackend([REP], 200, {});
+    const { container } = render(<App />);
+    const opener = screen.getByRole('button', { name: /Start a new proof/i });
+    const behindTheDialog = () => container.querySelector('.App > div');
+    expect(behindTheDialog()).not.toHaveAttribute('inert');
+
+    await user.click(opener);
+    await waitFor(() => expect(screen.getByPlaceholderText('Premise 1')).toHaveFocus());
+
+    expect(behindTheDialog()).toHaveAttribute('inert');
+
+    await user.keyboard('{Escape}');
+
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    expect(behindTheDialog()).not.toHaveAttribute('inert');
+    expect(opener).toHaveFocus();
+  });
+
   test('the hint to start a proof is shown once', () => {
     mockBackend([], 200, {});
     render(<App />);

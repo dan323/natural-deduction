@@ -1,4 +1,4 @@
-import { FC, Fragment, useState, useEffect, useRef } from 'react';
+import { FC, Fragment, useState, useEffect, useLayoutEffect, useRef } from 'react';
 import { checkFormula } from '../../service/utils';
 import './NewProofModal.css';
 
@@ -13,6 +13,23 @@ type NewProofModalProps = {
 // is edited.
 type Premise = { id: number; text: string; error: string | null };
 
+const FOCUSABLE = 'button, input, select, textarea, a[href], [tabindex]:not([tabindex="-1"])';
+
+// Keeps Tab and Shift+Tab inside the dialog: from the last control Tab goes to the first one, from the first one
+// Shift+Tab goes to the last one, and a focus that somehow is outside the dialog is pulled back in. A native <dialog>
+// would do this by itself, but jsdom has no showModal(), so the trap is done by hand (and the rest of the page is made
+// inert by App).
+function trapTab(event: KeyboardEvent, dialog: HTMLElement) {
+  const focusable = Array.from(dialog.querySelectorAll<HTMLElement>(FOCUSABLE)).filter((element) => !element.hasAttribute('disabled'));
+  if (focusable.length === 0) return;
+  const edge = event.shiftKey ? focusable[0] : focusable[focusable.length - 1];
+  const target = event.shiftKey ? focusable[focusable.length - 1] : focusable[0];
+  if (document.activeElement === edge || !dialog.contains(document.activeElement)) {
+    event.preventDefault();
+    target.focus();
+  }
+}
+
 const NewProofModal: FC<NewProofModalProps> = ({ isOpen, onClose, onSubmit }) => {
   const nextPremiseId = useRef(0);
   const newPremise = (): Premise => ({ id: nextPremiseId.current++, text: '', error: null });
@@ -21,6 +38,8 @@ const NewProofModal: FC<NewProofModalProps> = ({ isOpen, onClose, onSubmit }) =>
   const [goalError, setGoalError] = useState<string | null>(null);
   const premiseRefs = useRef<Array<HTMLInputElement | null>>([]);
   const goalRef = useRef<HTMLInputElement>(null);
+  const dialogRef = useRef<HTMLDivElement>(null);
+  const opener = useRef<HTMLElement | null>(null);
   // The premise that gets the focus after the next render, when a removal takes the focused one away.
   const pendingFocus = useRef<number | null>(null);
 
@@ -38,25 +57,30 @@ const NewProofModal: FC<NewProofModalProps> = ({ isOpen, onClose, onSubmit }) =>
     pendingFocus.current = null;
   }, [premises]);
 
-  // Close on Escape key
+  // Close on Escape key, and keep Tab inside the dialog
   useEffect(() => {
     if (!isOpen) return;
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') onClose();
+      else if (e.key === 'Tab' && dialogRef.current) trapTab(e, dialogRef.current);
     };
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
   }, [isOpen, onClose]);
 
-  // Move focus into the dialog when it opens and hand it back to whatever had it (the button that opened it) when it
-  // closes.
+  // Note who has the focus (the button that opened the dialog) before the rest of the page goes inert, which takes the
+  // focus away from it.
+  useLayoutEffect(() => {
+    if (isOpen) opener.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+  }, [isOpen]);
+
+  // Move focus into the dialog when it opens and hand it back to the opener when it closes.
   useEffect(() => {
     if (!isOpen) return;
-    const previouslyFocused = document.activeElement instanceof HTMLElement ? document.activeElement : null;
     const timer = setTimeout(() => premiseRefs.current[0]?.focus(), 50);
     return () => {
       clearTimeout(timer);
-      previouslyFocused?.focus();
+      opener.current?.focus();
     };
   }, [isOpen]);
 
@@ -96,6 +120,7 @@ const NewProofModal: FC<NewProofModalProps> = ({ isOpen, onClose, onSubmit }) =>
 
   return (
     <div
+      ref={dialogRef}
       className="modal"
       role="dialog"
       aria-modal="true"
