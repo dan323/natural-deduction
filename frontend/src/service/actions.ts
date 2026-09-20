@@ -13,17 +13,46 @@ async function errorMessage(response: Response): Promise<string> {
     return `Request failed with status ${response.status}.`;
 }
 
+// The list of actions of a logic never changes while the server runs, so every consumer shares one request per logic
+// (the Menu is remounted for each new proof, and mounted twice in development). A failed request is dropped, so that
+// the next call tries again.
+const actionsCache = new Map<string, Promise<ActionDescriptor[]>>();
+
+async function requestActions(logic: string): Promise<ActionDescriptor[]> {
+    const response = await fetch(`/logic/${logic}/actions`);
+    if (!response.ok) {
+        throw new Error(await errorMessage(response));
+    }
+    return response.json();
+}
+
+function loadActions(logic: string): Promise<ActionDescriptor[]> {
+    let pending = actionsCache.get(logic);
+    if (pending === undefined) {
+        const request: Promise<ActionDescriptor[]> = requestActions(logic).catch((err) => {
+            if (actionsCache.get(logic) === request) {
+                actionsCache.delete(logic);
+            }
+            throw err;
+        });
+        actionsCache.set(logic, request);
+        pending = request;
+    }
+    return pending;
+}
+
+// Forgets the cached lists of actions. Meant for tests.
+export function clearActionsCache(): void {
+    actionsCache.clear();
+}
+
 export async function fetchActions(
     logic: string,
     consumer: (actions: ActionDescriptor[]) => void,
     onError?: (message: string) => void
 ): Promise<void> {
     try {
-        const response = await fetch(`/logic/${logic}/actions`);
-        if (!response.ok) {
-            throw new Error(await errorMessage(response));
-        }
-        consumer(await response.json());
+        consumer(await loadActions(logic));
     } catch (err) {
         console.error("Error fetching actions:", err);
         onError?.(err instanceof Error ? err.message : 'Could not load the available rules.');
