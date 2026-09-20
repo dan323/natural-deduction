@@ -63,7 +63,7 @@ public interface ProofParser<P extends Proof<T, Q>, T extends LogicOperation, Q 
     }
 
     private static String describe(RuntimeException e) {
-        return e instanceof IllegalArgumentException && e.getMessage() != null ? e.getMessage() : "unrecognized format";
+        return e instanceof IllegalArgumentException && e.getMessage() != null && !e.getMessage().isBlank() ? e.getMessage() : "unrecognized format";
     }
 
     String logic();

@@ -27,6 +27,7 @@ import org.springframework.util.MultiValueMap;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -266,6 +267,58 @@ public class RestServiceIT {
         var response = restTemplate.exchange(createURLWithPort("/logic/classical/action"), HttpMethod.POST,
                 new HttpEntity<>(new ProofActionRequest(new ActionDto("ASSUME", List.of(), Map.of("expression", "P Q")), proof), headers), ErrorResponse.class);
         assertError(HttpStatus.BAD_REQUEST, response);
+    }
+
+    @Test
+    public void blankAssumeExpressionIsBadRequest() {
+        var proof = new ProofDto(List.of(new StepDto("P -> Q", "Ass", 0, Map.of()), new StepDto("P", "Ass", 0, Map.of())), "classical", "Q");
+        for (var extra : List.of(Map.<String, String>of(), Map.of("expression", ""), Map.of("expression", "   "))) {
+            var response = restTemplate.exchange(createURLWithPort("/logic/classical/action"), HttpMethod.POST,
+                    new HttpEntity<>(new ProofActionRequest(new ActionDto("ASSUME", List.of(), extra), proof), headers), ErrorResponse.class);
+            assertError(HttpStatus.BAD_REQUEST, response);
+            assertEquals("ASSUME needs an expression", response.getBody().message());
+        }
+    }
+
+    @Test
+    public void unparsableExpressionMessageDoesNotMentionNull() {
+        var proof = new ProofDto(List.of(new StepDto("P", "Ass", 0, Map.of())), "classical", "P");
+        var response = restTemplate.exchange(createURLWithPort("/logic/classical/action"), HttpMethod.POST,
+                new HttpEntity<>(new ProofActionRequest(new ActionDto("ASSUME", List.of(), Map.of("expression", "P ->")), proof), headers), ErrorResponse.class);
+        assertError(HttpStatus.BAD_REQUEST, response);
+        assertTrue(response.getBody().message().startsWith("Cannot build action 'ASSUME': "));
+        assertFalse(response.getBody().message().contains("null"), response.getBody().message());
+    }
+
+    @Test
+    public void everyClassicalActionWithBlankInputsIsBadRequestOrRejectedButNeverAServerError() {
+        var proof = new ProofDto(List.of(new StepDto("P -> Q", "Ass", 0, Map.of()), new StepDto("P", "Ass", 0, Map.of())), "classical", "Q");
+        var descriptors = restTemplate.getForObject(createURLWithPort("/logic/classical/actions"), ActionDescriptorDto[].class);
+        for (var descriptor : Objects.requireNonNull(descriptors)) {
+            for (var expression : List.of("", "  ", "P ->", "->", "(")) {
+                var lines = Collections.nCopies((int) descriptor.params().stream().filter(ParamKind.INT::equals).count(), 1);
+                var response = restTemplate.exchange(createURLWithPort("/logic/classical/action"), HttpMethod.POST,
+                        new HttpEntity<>(new ProofActionRequest(new ActionDto(descriptor.name(), lines, Map.of("expression", expression)), proof), headers), String.class);
+                var description = descriptor.name() + " '" + expression + "': " + response.getBody();
+                assertTrue(response.getStatusCode().is2xxSuccessful() || response.getStatusCode().is4xxClientError(), description);
+                assertFalse(Objects.requireNonNull(response.getBody()).contains("null"), description);
+            }
+        }
+    }
+
+    @Test
+    public void blankModalExpressionIsBadRequest() {
+        var proof = new ProofDto(List.of(new StepDto("P", "Ass", 0, Map.of("state", "s0"))), "modal", "P");
+        for (var extra : List.of(Map.of("state", "s0"), Map.of("expression", "", "state", "s0"), Map.of("expression", " ", "state", "s0"))) {
+            var response = restTemplate.exchange(createURLWithPort("/logic/modal/action"), HttpMethod.POST,
+                    new HttpEntity<>(new ProofActionRequest(new ActionDto("Ass", List.of(), extra), proof), headers), ErrorResponse.class);
+            assertError(HttpStatus.BAD_REQUEST, response);
+            assertEquals("Ass needs an expression", response.getBody().message());
+        }
+        var unparsable = restTemplate.exchange(createURLWithPort("/logic/modal/action"), HttpMethod.POST,
+                new HttpEntity<>(new ProofActionRequest(new ActionDto("Ass", List.of(), Map.of("expression", "P ->", "state", "s0")), proof), headers), ErrorResponse.class);
+        assertError(HttpStatus.BAD_REQUEST, unparsable);
+        assertFalse(unparsable.getBody().message().contains("null"), unparsable.getBody().message());
     }
 
     @Test

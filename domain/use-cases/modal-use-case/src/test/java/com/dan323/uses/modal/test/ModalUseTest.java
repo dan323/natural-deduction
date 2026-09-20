@@ -3,6 +3,10 @@ package com.dan323.uses.modal.test;
 import com.dan323.model.ActionDescriptorDto;
 import com.dan323.model.ActionDto;
 import com.dan323.model.ParamKind;
+import com.dan323.model.ProofDto;
+import com.dan323.model.StepDto;
+import com.dan323.uses.InvalidActionException;
+import com.dan323.uses.LogicalApplyAction;
 import com.dan323.uses.LogicalGetActions;
 import com.dan323.uses.LogicalSolver;
 import com.dan323.uses.modal.AvailableModalAction;
@@ -19,8 +23,10 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class ModalUseTest {
@@ -77,5 +83,42 @@ public class ModalUseTest {
         var actions = new ModalConfiguration().modalActions();
 
         assertSame(actions.perform(), actions.perform());
+    }
+
+    @Test
+    void anActionThatNeedsAnExpressionRejectsABlankOne() {
+        var transformer = new ModalProofTransformer();
+        for (var name : List.of("Ass", "|I1", "|I2", "FE")) {
+            for (var extra : List.of(Map.of("state", "s0"), Map.of("expression", "", "state", "s0"), Map.of("expression", "  ", "state", "s0"))) {
+                var action = new ActionDto(name, List.of(1), extra);
+
+                var exception = assertThrows(InvalidActionException.class, () -> transformer.from(action));
+                assertEquals(name + " needs an expression", exception.getMessage());
+            }
+        }
+    }
+
+    @Test
+    void applyingAModalAssumeWithoutParametersIsAnInvalidAction() {
+        var apply = new LogicalApplyAction<>(new ModalProofTransformer());
+        var proof = new ProofDto(List.of(new StepDto("P", "Ass", 0, Map.of("state", "s0"))), "modal", "P");
+
+        var noParameters = new ActionDto("Ass", List.of(), null);
+        assertEquals("Ass needs an expression", assertThrows(InvalidActionException.class, () -> apply.perform(noParameters, proof)).getMessage());
+        var blank = new ActionDto("Ass", List.of(), Map.of("expression", "", "state", "s0"));
+        assertEquals("Ass needs an expression", assertThrows(InvalidActionException.class, () -> apply.perform(blank, proof)).getMessage());
+    }
+
+    @Test
+    void anUnparsableModalExpressionNeverLeaksNull() {
+        var apply = new LogicalApplyAction<>(new ModalProofTransformer());
+        var proof = new ProofDto(List.of(new StepDto("P", "Ass", 0, Map.of("state", "s0"))), "modal", "P");
+
+        for (var expression : List.of("P ->", "(P", "->")) {
+            var action = new ActionDto("Ass", List.of(), Map.of("expression", expression, "state", "s0"));
+
+            var exception = assertThrows(InvalidActionException.class, () -> apply.perform(action, proof));
+            assertFalse(exception.getMessage().contains("null"), exception.getMessage());
+        }
     }
 }

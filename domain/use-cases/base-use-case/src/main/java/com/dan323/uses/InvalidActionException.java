@@ -7,6 +7,10 @@ package com.dan323.uses;
  */
 public class InvalidActionException extends IllegalArgumentException {
 
+    public InvalidActionException(String message) {
+        super(message);
+    }
+
     public InvalidActionException(String message, Throwable cause) {
         super(message, cause);
     }

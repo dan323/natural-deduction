@@ -24,6 +24,7 @@ import static com.dan323.uses.mock.Actions.invalid;
 import static com.dan323.uses.mock.Proofs.genericProof;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -130,6 +131,57 @@ public class ActionsUseCasesTest {
         var proof = genericProof("l1");
         var exception = assertThrows(InvalidActionException.class, () -> applier.perform(action, proof));
         assertEquals("Cannot build action 'Action1': No such action", exception.getMessage());
+    }
+
+    @Test
+    public void buildFailureWithoutMessageDoesNotLeakNullTest() {
+        for (var failure : List.of(new IllegalStateException(), new IllegalStateException("  "))) {
+            var applier = applierFailingToBuild(failure);
+            var action = actionAddOneStep();
+            var proof = genericProof("l1");
+            var exception = assertThrows(InvalidActionException.class, () -> applier.perform(action, proof));
+            assertEquals("Cannot build action 'Action1': the expression could not be parsed", exception.getMessage());
+            assertSame(failure, exception.getCause());
+        }
+    }
+
+    @Test
+    public void invalidActionIsNotWrappedAgainTest() {
+        var failure = new InvalidActionException("Action1 needs an expression");
+        var applier = applierFailingToBuild(failure);
+        var action = actionAddOneStep();
+        var proof = genericProof("l1");
+        var exception = assertThrows(InvalidActionException.class, () -> applier.perform(action, proof));
+        assertSame(failure, exception);
+    }
+
+    private ActionsUseCases.ApplyAction applierFailingToBuild(RuntimeException failure) {
+        var throwing = new Transformer() {
+            @Override
+            public String logic() {
+                return "l1";
+            }
+
+            @Override
+            public Proof from(ProofDto proofDto) {
+                throw new UnsupportedOperationException();
+            }
+
+            @Override
+            public Action from(ActionDto actionDto) {
+                throw failure;
+            }
+
+            @Override
+            public ProofDto fromProof(Proof proof) {
+                throw new UnsupportedOperationException();
+            }
+        };
+        return useCases
+                .withNoParsers()
+                .withTransformers(List.of(throwing))
+                .withNoActions()
+                .applyAction("l1");
     }
 
     @Test
