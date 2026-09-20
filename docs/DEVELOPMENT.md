@@ -61,52 +61,16 @@ The project follows these key principles:
 
 To add support for a new logical system (e.g., intuitionistic logic), follow these steps:
 
-### Step 1: Implement Logic Language Framework
+### Step 1: Create the Modules
 
-Create new module: `domain/logic-language/implementation.intuitionistic/`
-
-```powershell
-mkdir domain/logic-language/implementation.intuitionistic/src/main/java/com/dan323/logic/language/implementation/intuitionistic
-mkdir domain/logic-language/implementation.intuitionistic/src/test/java/com/dan323/logic/language/implementation/intuitionistic
-```
-
-Create `pom.xml`:
-
-```xml
-<?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <modelVersion>4.0.0</modelVersion>
-    
-    <parent>
-        <groupId>com.dan323</groupId>
-        <artifactId>logic-language</artifactId>
-        <version>0.1-SNAPSHOT</version>
-    </parent>
-    
-    <artifactId>implementation.intuitionistic</artifactId>
-    <version>0.1-SNAPSHOT</version>
-    
-    <dependencies>
-        <dependency>
-            <groupId>com.dan323</groupId>
-            <artifactId>framework</artifactId>
-            <version>0.1-SNAPSHOT</version>
-        </dependency>
-        <dependency>
-            <groupId>com.dan323</groupId>
-            <artifactId>implementation</artifactId>
-            <version>0.1-SNAPSHOT</version>
-        </dependency>
-        <!-- test dependencies -->
-    </dependencies>
-</project>
-```
+Copy the layout of the existing logics (for modal: `domain/logic-language/implementation.modal`,
+`domain/proof-structures/implementation.deduction.modal`, `domain/use-cases/modal-use-case`) and list the new modules
+in the `<modules>` of their parent pom. A module's parent is its group's pom (`logic-language`, `proof-structures`,
+`use-cases`), it depends on the modules it builds on (e.g. `language-framework`) and it has a `module-info.java`.
 
 ### Steps 2-5: What a Logic Has to Provide
 
-Earlier sketches of these steps did not match the code. The code of `classical` and `modal` is the reference; in short:
+The code of `classical` and `modal` is the reference; in short:
 
 1. **Formulas** (`domain/logic-language/`): subclass the operators of `framework` (`Conjunction`, `Implication`, ...)
    and write a parser (the existing ones are built on javaluator).
@@ -125,52 +89,16 @@ need a `requires`.
 
 ### Step 6: Update Dependencies
 
-Update `domain/use-cases/pom.xml` to include your use case:
-
-```xml
-<module>intuitionistic-use-case</module>
-```
-
-Update `executable/pom.xml`:
-
-```xml
-<dependency>
-    <groupId>com.dan323</groupId>
-    <artifactId>intuitionistic-use-case</artifactId>
-    <version>0.1-SNAPSHOT</version>
-</dependency>
-```
+Add the use-case module to `<modules>` in `domain/use-cases/pom.xml`, and depend on it from `executable/pom.xml`
+(next to `classical-use-case` and `modal-use-case`), so that it is on the jar's classpath.
 
 ### Step 7: Add Tests
 
-Follow TDD practices and create tests before implementation:
-
-```java
-package com.dan323.proof.use_case.intuitionistic;
-
-import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.*;
-
-public class IntuitionisticProofUseCaseTest {
-    
-    private IntuitionisticProofUseCase useCase;
-    
-    @BeforeEach
-    void setUp() {
-        useCase = new IntuitionisticProofUseCase();
-    }
-    
-    @Test
-    void testParseSimpleFormula() {
-        // Test parsing
-    }
-    
-    @Test
-    void testApplyIntroductionRule() {
-        // Test rule application
-    }
-}
-```
+Test each layer as the existing logics do (see `ClassicAndTest` in `implementation.deduction.classic`, the tests of
+`modal-use-case`) and add the new logic to the integration tests in `executable/src/test/java`. `RestServiceIT` checks
+the `/logic/{logic}/actions|action|solve` endpoints of `classical` and `modal`, and `FatJarActionsIT` checks the
+action lists from the packaged jar. If the rule list of the new logic is an enum, add a test that every entry builds
+an action, as `modal-use-case` does for `AvailableModalAction`.
 
 ### Step 8: Frontend Support (if needed)
 
@@ -188,41 +116,24 @@ Update:
 
 ### Adding a New Rule to an Existing Logic
 
-Example: Add a new rule to classical logic
+Example: add a new rule to classical logic
 
-1. **Create the rule class** in appropriate module:
-   ```
-   domain/proof-structures/implementation.deduction.classic/src/main/java/com/dan323/proof/structures/deduction/implementation/[RuleName]Rule.java
-   ```
-
-2. **Implement the DeductionRule interface**:
-   ```java
-   public class CustomRule implements DeductionRule {
-       @Override
-       public boolean canApply(Proof proof, Term... premises) { ... }
-       
-       @Override
-       public Term apply(Proof proof, Term... premises) { ... }
-       
-       @Override
-       public String getName() { ... }
-   }
-   ```
-
-3. **Register the rule** in the rule registry or factory
-
-4. **Add unit tests**:
-   ```
-   domain/proof-structures/implementation.deduction.classic/src/test/java/com/dan323/proof/structures/deduction/implementation/[RuleName]RuleTest.java
-   ```
-
-5. **Update use case** if needed
+1. **Create the rule class** `Classic<Name>` in `domain/proof-structures/implementation.deduction.classic`
+   (package `com.dan323.classical`), extending the generic base of `framework.deduction` if there is one (`AndI`,
+   `ModusPonens`, ...) and implementing `ClassicalAction`. A rule checks itself with `isValid(proof)` and adds its step
+   with `apply(proof)`.
+2. **Add it to `AvailableAction`**, to `ParseClassicalAction` (so that it can be built from its name, and parsed from a
+   proof file) and to the `switch` in `ClassicGetActions` in `classical-use-case`, which lists its inputs (`INT`,
+   `EXPRESSION`). That `switch` has no default branch, so the build fails until it is described. For modal logic add a
+   value to `AvailableModalAction` and to `ParseModalAction`.
+3. **Add unit tests** next to the existing ones in `src/test/java/com/dan323/proof/classic/`
+4. **Update the automatic solver** (`ClassicalAutomate`) if it should use the rule
 
 ### Modifying an Existing Rule
 
 1. Update the rule implementation
 2. Update all tests that use this rule
-3. Run full test suite: `mvn clean test`
+3. Run the full test suite: `mvn clean verify`
 4. Update documentation if rule behavior changes
 
 ### Extending the REST API
@@ -235,108 +146,35 @@ Example: Add a new rule to classical logic
 
 ### Frontend Component Development
 
-1. **Create component** in `frontend/src/components/`
-2. **Add component styles** in `frontend/src/components/[Component].css`
-3. **Write tests** in `frontend/src/components/[Component].test.tsx`
-4. **Export from index** if creating a new feature directory
-5. **Integrate** into main App.tsx or parent component
-
-Example component:
-
-```typescript
-import React from 'react';
-import './ProofVerifier.css';
-
-interface ProofVerifierProps {
-    proof: Proof;
-    onRuleApply: (rule: string) => void;
-}
-
-export const ProofVerifier: React.FC<ProofVerifierProps> = ({ 
-    proof, 
-    onRuleApply 
-}) => {
-    return (
-        <div className="proof-verifier">
-            {/* Component content */}
-        </div>
-    );
-};
-```
+1. **Create the component** in `frontend/src/components/<feature>/`, with its styles next to it
+2. **Write tests** in the `__test__/` folder of that feature (Jest + React Testing Library)
+3. **Integrate** it into `App.tsx` or a parent component
+4. Calls to the backend go through `frontend/src/service/actions.ts`; types shared with the API are in `src/types.d.ts`
+5. Run `npm run typecheck` and `npm test`
 
 ## Testing Best Practices
 
 ### Unit Testing
 
-Use JUnit 5 and Mockito:
-
-```java
-public class ClassicalAndIntroductionRuleTest {
-    
-    private ClassicalAndIntroductionRule rule;
-    private Proof mockProof;
-    
-    @BeforeEach
-    void setUp() {
-        rule = new ClassicalAndIntroductionRule();
-        mockProof = mock(Proof.class);
-    }
-    
-    @Test
-    void canApply_withBothPremises_returnsTrue() {
-        // Arrange
-        Term premise1 = createTerm("p");
-        Term premise2 = createTerm("q");
-        when(mockProof.contains(premise1)).thenReturn(true);
-        when(mockProof.contains(premise2)).thenReturn(true);
-        
-        // Act
-        boolean result = rule.canApply(mockProof, premise1, premise2);
-        
-        // Assert
-        assertTrue(result);
-    }
-}
-```
+Use JUnit 6 and Mockito. Rules are tested against real proofs (see `ClassicAndTest`): build a proof, check
+`isValid(proof)`, `apply(proof)` and assert on the steps.
 
 ### Integration Testing
 
-Test use cases end-to-end:
+`*IT.java` classes in `executable/src/test/java` run in the `verify` phase (a second surefire execution), so plain
+`mvn test` skips them:
 
-```java
-public class ClassicalProofUseCaseIntegrationTest {
-    
-    private ClassicalProofUseCase useCase;
-    
-    @BeforeEach
-    void setUp() {
-        useCase = new ClassicalProofUseCase();
-    }
-    
-    @Test
-    void endToEnd_simpleProof() {
-        // Test complete proof workflow
-    }
-}
-```
+- `RestServiceIT` - the REST API on a random port
+- `RestSolveTimeoutIT` - the 422 answer of a solve that does not finish, with a test-only logic
+- `FatJarActionsIT` - starts the packaged fat jar and checks the action lists and the solver; only works through `mvn verify`
+
+`SpringVersionAlignmentTest` (a unit test) fails when `spring.version` in the root pom no longer matches the Spring
+version managed by the Spring Boot parent of `executable`; bump both together.
 
 ### Frontend Testing
 
-Use Jest and React Testing Library:
-
-```typescript
-import { render, screen } from '@testing-library/react';
-import { ProofVerifier } from './ProofVerifier';
-
-describe('ProofVerifier', () => {
-    it('renders proof correctly', () => {
-        const mockProof = { /* ... */ };
-        render(<ProofVerifier proof={mockProof} onRuleApply={jest.fn()} />);
-        
-        expect(screen.getByText(/proof/i)).toBeInTheDocument();
-    });
-});
-```
+Use Jest and React Testing Library. Tests live in `__test__/` folders next to the code (e.g.
+`frontend/src/components/menu/__test__/`). Run one with `npx jest src/components/menu`.
 
 ## Code Quality
 
@@ -370,35 +208,15 @@ mvn clean install sonar:sonar
 
 ## Commit Guidelines
 
-Follow conventional commits:
-
-```
-feat: add new rule type
-fix: correct proof validation logic
-docs: update architecture documentation
-refactor: simplify term representation
-test: add tests for modal logic
-chore: update dependencies
-```
-
-Example:
-```
-feat(modal-logic): implement box elimination rule
-
-- Add □-Elimination rule for modal logic
-- Update modal use case with new rule
-- Add comprehensive tests
-- Update documentation
-
-Closes #123
-```
+Commit and PR titles are short imperative sentences, with the PR number when merged, as in the git history
+(e.g. "Fix the minor items of the project review (#101)").
 
 ## Pull Request Process
 
 1. Create a feature branch: `git checkout -b feat/your-feature`
 2. Make changes and commit with meaningful messages
-3. Ensure tests pass: `mvn clean test`
-4. Ensure code quality: Check SonarCloud results
+3. Ensure the checks pass locally: `mvn -B verify`, and in `frontend/` `npm run typecheck` and `npm test`
+4. Check the CI results (tests, SonarCloud, mutation testing)
 5. Push to GitHub and create a Pull Request
 6. Address any review comments
 7. Merge after approval

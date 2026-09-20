@@ -31,127 +31,125 @@ natural-deduction (root pom.xml)
 
 ### logic-language/
 
-Defines how logical formulas are represented and manipulated.
+Defines how logical formulas are represented and parsed.
 
 #### framework/
-- **Purpose**: Abstract interfaces and contracts for logical expressions
+- **Purpose**: Generic formula AST shared by all logics
 - **Key Concepts**:
-  - `LogicLanguage` interface - Contract for logical terms
-  - `Term` interface - Represents a logical formula
-  - `TermFactory` - Creates terms from strings
+  - `LogicOperation` - a formula
+  - Generic operators: `Variable`, `Constant`, `Conjunction`, `Disjunction`, `Implication`, `Negation`, built on
+    `UnaryOperation` / `BinaryOperation`
 - **Dependencies**: None
-- **Used By**: All logic language implementations and use cases
-- **Java Package**: `com.dan323.logic.language.*`
+- **Used By**: All logic language implementations and the proof modules
+- **Java Package**: `com.dan323.expressions.base`
 
 #### implementation/
-- **Purpose**: Classical propositional logic implementation
+- **Purpose**: Classical propositional logic
 - **Key Components**:
-  - Classical operators: AND (∧), OR (∨), NOT (¬), IMPLIES (→), BICONDITIONAL (↔)
-  - Propositional variables (A, B, C, etc.)
-  - Formula parsing and construction
-- **Dependencies**: framework/
-- **Used By**: classical-use-case/
-- **Java Package**: `com.dan323.logic.language.implementation.*`
-- **Example Formula**: `(A ∨ B) → (¬C ∧ D)`
+  - `ClassicalLogicOperation` and one subclass per operator: `ConjunctionClassic`, `DisjunctionClassic`,
+    `ImplicationClassic`, `NegationClassic`, `VariableClassic`, `ConstantClassic` (`TRUE`, `FALSE`)
+  - `ClassicalParser`, built on javaluator. Syntax: `&`, `|`, `->`, `-` (negation), variables, `TRUE`/`FALSE`
+- **Dependencies**: framework/, javaluator
+- **Used By**: implementation.deduction.classic/
+- **Java Package**: `com.dan323.expressions.classical`
+- **Example Formula**: `(A | B) -> (-C & D)`
 
 #### implementation.modal/
-- **Purpose**: Modal propositional logic implementation
+- **Purpose**: Modal propositional logic
 - **Key Components**:
-  - Classical operators (from implementation/)
-  - Modal operators: □ (necessity/always), ◇ (possibility/possibly)
-  - Labeled formulas with world states
-  - State relationships
-- **Dependencies**: framework/, implementation/
-- **Used By**: modal-use-case/
-- **Java Package**: `com.dan323.logic.language.implementation.modal.*`
-- **Example Formula**: `□(A → B) ∧ ◇(A ∧ ¬B)`
+  - Modal counterparts of the classical operators (`ConjunctionModal`, ...) plus `Always` (`[]`), `Sometime` (`<>`)
+    and `Until`
+  - Relation formulas between states: `LessEqual` (`<=`) and `Equals` (`=`)
+  - `ModalLogicParser`, built on javaluator
+- **Dependencies**: framework/, javaluator
+- **Used By**: implementation.deduction.modal/
+- **Java Packages**: `com.dan323.expressions` (parser), `com.dan323.expressions.modal`, `com.dan323.expressions.relation`
+- **Example Formula**: `[](A -> B) & <>(A & -B)`
 
 ### proof-structures/
 
 Defines and implements inference rules for natural deduction.
 
 #### framework.deduction/
-- **Purpose**: Abstract interfaces for deduction rules
+- **Purpose**: Generic proofs and rules
 - **Key Concepts**:
-  - `DeductionRule` interface - Contract for inference rules
-  - `Proof` interface - Represents a proof state
-  - `ProofChecker` - Validates proof correctness
-  - Rule types: introduction and elimination rules
+  - `Proof<T,Q>` and `ProofStep` - a proof (goal, assumptions, steps) and its steps; steps are never removed on
+    discharge, only disabled
+  - `ProofReason` - the rule of a step and the lines it uses, printed and parsed as e.g. `->I [1-2]`
+  - `Action` / `AbstractAction` - a rule: `isValid(proof)` checks it, `apply(proof)` adds the step
+  - Generic rule bases: `AndI`, `AndE`, `OrI`, `OrE`, `ModusPonens`, `DeductionTheorem`, `NotI`, `NotE`, `FI`, `FE`,
+    `Copy`, `Assume`
+  - `Proof.automate()` - the automatic solver entry point
 - **Dependencies**: logic-language/framework
 - **Used By**: All deduction implementations and use cases
-- **Java Package**: `com.dan323.proof.structures.deduction.*`
+- **Java Packages**: `com.dan323.proof.generic`, `com.dan323.proof.generic.proof`
 
 #### implementation.deduction.classic/
-- **Purpose**: Classical natural deduction rules
-- **Key Rules**:
-  - **Conjunction**: ∧-intro, ∧-elim
-  - **Disjunction**: ∨-intro, ∨-elim
-  - **Implication**: →-intro, →-elim (modus ponens)
-  - **Negation**: ¬-intro, ¬-elim (contradiction)
-  - **Biconditional**: ↔-intro, ↔-elim
+- **Purpose**: Classical natural deduction
+- **Key Components**:
+  - `NaturalDeduction` - the classical proof
+  - One `Classic*` class per rule (`ClassicAndI`, `ClassicModusPonens`, ...), described by the `AvailableAction` enum
+  - `ParseClassicalAction` - builds a rule from its name, sources and expression
+  - The automatic solver (`ClassicalAutomate`) and a few composite rules (`complex/`, e.g. De Morgan)
 - **Dependencies**: logic-language/implementation, framework.deduction/
 - **Used By**: classical-use-case/
-- **Java Package**: `com.dan323.proof.structures.deduction.implementation.*`
-- **Rule Application**: Pattern matching on formula structure, maintaining proof context
+- **Java Packages**: `com.dan323.classical`, `com.dan323.classical.proof`
 
 #### implementation.deduction.modal/
-- **Purpose**: Modal natural deduction rules
-- **Key Rules**:
-  - All classical rules (inherited)
-  - **Necessity**: □-intro, □-elim
-  - **Possibility**: ◇-intro, ◇-elim
-  - **State handling**: Label propagation and management
-- **Dependencies**: logic-language/implementation.modal, implementation.deduction.classic, framework.deduction/
+- **Purpose**: Modal natural deduction
+- **Key Components**:
+  - `ModalNaturalDeduction` - the modal proof; every step carries a state (world)
+  - One `Modal*` class per rule (`ModalBoxE`, `ModalDiaI`, ...) and the relational rules `Reflexive` (`Refl`) and
+    `Transitive` (`Trans`)
+  - `ParseModalAction` - builds a rule from its name; it is the source of truth for the rule names
+  - The automatic solver (`ModalAutomate`)
+- **Dependencies**: logic-language/implementation.modal, framework.deduction/
 - **Used By**: modal-use-case/
-- **Java Package**: `com.dan323.proof.structures.deduction.implementation.modal.*`
-- **Rule Application**: Includes state label tracking and world relationship validation
+- **Java Packages**: `com.dan323.proof.modal`, `com.dan323.proof.modal.proof`, `com.dan323.proof.modal.relational`
 
 ### use-cases/
 
 Orchestrates the application logic by combining logic languages and proof structures.
 
 #### model/
-- **Purpose**: Domain models and data transfer objects
+- **Purpose**: DTOs exchanged with clients
 - **Key Classes**:
-  - `Proof` - Proof state and history
-  - `ProofStep` - Individual proof step with applied rule
-  - `ProofResult` - Result of proof verification
-  - `FormulaDto` - Transfer object for formulas
+  - `ProofDto` (`steps`, `logic`, `goal`; serialized with a derived `done`), `StepDto`, `ActionDto`
+  - `ActionDescriptorDto` (`name`, `params`) and `ParamKind` (`INT`, `EXPRESSION`, `STATE`): what
+    `GET /logic/{logic}/actions` returns
 - **Dependencies**: None
 - **Used By**: All use cases and REST API
-- **Java Package**: `com.dan323.proof.model.*`
+- **Java Package**: `com.dan323.model`
 
 #### base-use-case/
-- **Purpose**: Common functionality used by both classical and modal use cases
+- **Purpose**: Logic-independent use cases
 - **Key Components**:
-  - Base use case classes
-  - Common validation logic
-  - Proof serialization utilities
-  - Rule discovery and application
-- **Dependencies**: logic-language/framework, proof-structures/framework.deduction, model/
-- **Used By**: classical-use-case/, modal-use-case/
-- **Java Package**: `com.dan323.proof.use_case.base.*`
+  - `ActionsUseCases` - list the actions, apply an action, solve, parse a proof file; `ApplyResult` carries `done`
+  - `Transformer` (DTO <-> domain, by replaying the steps), `ProofParser` (proof file to proof),
+    `LogicalGetActions` - the three pieces each logic provides
+  - `LogicalApplyAction`, and `LogicalSolver` (runs `Proof.automate()` with a timeout and a cap on concurrent solves)
+  - `UnknownLogicException`, `InvalidProofException`, `InvalidActionException`, `SolveTimeoutException`,
+    `SolverBusyException`, which the REST layer maps to statuses
+  - `ActionsUseCaseConfiguration` (Spring) - collects the beans of every logic by logic name
+- **Dependencies**: logic-language/framework, proof-structures/framework.deduction, model/, Spring
+- **Used By**: classical-use-case/, modal-use-case/, rest/framework
+- **Java Packages**: `com.dan323.uses`, `com.dan323.uses.internal`
 
 #### classical-use-case/
-- **Purpose**: Application logic for classical propositional logic
-- **Key Use Cases**:
-  - `VerifyProofUseCase` - Verify a complete proof
-  - `GetNextRulesUseCase` - Get applicable rules for current proof state
-  - `ApplyRuleUseCase` - Apply a rule to advance proof
-  - `ParseFormulaUseCase` - Parse formula strings to objects
+- **Purpose**: Wires classical logic (logic name `classical`)
+- **Key Components**: `ClassicalProofTransformer`, `ParseClassicalProof`, `ClassicGetActions` (one descriptor per
+  `AvailableAction`) and `ClassicalConfiguration`
 - **Dependencies**: logic-language/implementation, proof-structures/implementation.deduction.classic, base-use-case/, model/
-- **Used By**: REST API (executable/)
-- **Java Package**: `com.dan323.proof.use_case.classical.*`
+- **Used By**: executable/
+- **Java Package**: `com.dan323.uses.classical`
 
 #### modal-use-case/
-- **Purpose**: Application logic for modal propositional logic
-- **Key Use Cases**:
-  - Same as classical-use-case/ but with modal logic support
-  - State/world management
-  - Modal operator handling
+- **Purpose**: Wires modal logic (logic name `modal`)
+- **Key Components**: `ModalProofTransformer`, `ModalProofParser`, `ModalGetActions` and `AvailableModalAction` (the
+  20 rule names with their inputs, including states), `ModalConfiguration`
 - **Dependencies**: logic-language/implementation.modal, proof-structures/implementation.deduction.modal, base-use-case/, model/
-- **Used By**: REST API (executable/)
-- **Java Package**: `com.dan323.proof.use_case.modal.*`
+- **Used By**: executable/
+- **Java Package**: `com.dan323.uses.modal`
 
 ## REST and Executable Modules
 
@@ -160,12 +158,12 @@ Orchestrates the application logic by combining logic languages and proof struct
 REST API contracts and models.
 
 #### framework/
-- **Purpose**: Generic REST framework utilities
+- **Purpose**: The REST controller and its error handling
 - **Key Components**:
-  - Base controller classes
-  - Response wrappers
-  - Error handling
-- **Dependencies**: Spring Framework
+  - `ControllerInterface` - the only controller; serves every logic under `/logic/{logic}/actions|action|solve|proof`
+  - `RestExceptionHandler` - turns every failure into an `ErrorResponse` (404 unknown logic, 400 invalid proof or
+    action, 422 solver timeout, 429 solver busy, 500 otherwise)
+- **Dependencies**: Spring Framework, base-use-case/, rest/model/
 - **Used By**: executable/
 - **Java Package**: `com.dan323.controller` (`ControllerInterface`, `RestExceptionHandler`)
 
@@ -185,14 +183,14 @@ The Spring Boot application that ties everything together.
 
 - **Purpose**: Entry point and API server
 - **Key Components**:
-  - Spring Boot application class
-  - REST controllers for classical and modal logic
-  - Configuration beans
-  - Integration with all domain modules
+  - `Application` (Spring Boot entry point), `ApplicationConfiguration` (imports the configuration of every logic and
+    scans the controller), `WebConfig` (serves `classpath:/public/`)
+  - Integration tests (`*IT.java`, run by `mvn verify`), including one that boots the packaged fat jar, and
+    `SpringVersionAlignmentTest`
 - **Dependencies**: All domain modules, rest/, Spring Boot
 - **Java Package**: `com.dan323.main`
 - **Endpoints**: `/logic/{logic}/actions|action|solve|proof` for the logics `classical` and `modal`, see
-  [API.md](./API.md); the Spring Actuator endpoints; the built frontend as static files
+  [API.md](./API.md); `/actuator/health`; the built frontend as static files, if it was embedded (see [SETUP.md](./SETUP.md))
 
 ## Frontend Module
 
@@ -201,15 +199,15 @@ The Spring Boot application that ties everything together.
 React-based user interface.
 
 - **Purpose**: Web UI for interactive proof building
-- **Technology**: React 19, TypeScript, Jest
+- **Technology**: React 19, TypeScript 5, Vite, Jest
 - **Key Components**:
-  - Proof builder interface
-  - Formula input component
-  - Rule selection and application
-  - Proof visualization
-  - Goal/assumptions display
+  - `Menu` - the rule menu, built from the action descriptors, with the Apply Rule and Solve buttons
+  - `ProofViewer` / `StepViewer` - the proof, with hover highlighting of the lines a rule uses
+  - `Goal`, `NewProofModal`, `GlowingInput`, and `service/actions.ts` (the calls to `/logic/{logic}/...`)
+- **Logic**: hardcoded to `classical` (`LOGIC` in `src/constant.ts`); modal is backend only
 - **Location**: `frontend/src/`
 - **Build**: `npm run build`
+- **Type check**: `npm run typecheck`
 - **Test**: `npm test`
 
 ## Build and Test Infrastructure

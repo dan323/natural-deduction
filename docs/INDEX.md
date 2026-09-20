@@ -89,9 +89,9 @@ docs/README.md
       └─→ Testing best practices
   
   └─→ API.md [How to use the REST API]
-      ├─→ Classical endpoints
-      ├─→ Modal endpoints
-      └─→ System endpoints
+      ├─→ actions / action / solve / proof (per logic)
+      ├─→ Error responses
+      └─→ Health check
 ```
 
 ## Core Concepts
@@ -122,13 +122,13 @@ docs/README.md
 
 ## Technical Stack
 
-| Layer    | Technology                 | Documentation                      |
-|----------|----------------------------|------------------------------------|
-| Backend  | Java 21, Spring Boot 3.5.3 | [SETUP.md](./SETUP.md)             |
-| Frontend | React 19, TypeScript       | [SETUP.md](./SETUP.md)             |
-| Build    | Maven                      | [SETUP.md](./SETUP.md)             |
-| Testing  | JUnit 5, Jest, PIT         | [SETUP.md](./SETUP.md)             |
-| Quality  | SonarCloud, JaCoCo         | [DEVELOPMENT.md](./DEVELOPMENT.md) |
+| Layer    | Technology                  | Documentation                      |
+|----------|-----------------------------|------------------------------------|
+| Backend  | Java 21, Spring Boot 3.5.16 | [SETUP.md](./SETUP.md)             |
+| Frontend | React 19, TypeScript        | [SETUP.md](./SETUP.md)             |
+| Build    | Maven                       | [SETUP.md](./SETUP.md)             |
+| Testing  | JUnit 6, Jest, PIT          | [SETUP.md](./SETUP.md)             |
+| Quality  | SonarCloud, JaCoCo          | [DEVELOPMENT.md](./DEVELOPMENT.md) |
 
 ## Frequently Asked Questions
 
@@ -178,5 +178,5 @@ When updating documentation:
 
 ## Last Updated
 
-This documentation was created on 2024-01-15. Refer to git history for version changes.
+Refer to git history for version changes.
 
