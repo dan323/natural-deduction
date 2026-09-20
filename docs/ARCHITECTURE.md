@@ -58,7 +58,8 @@ The Natural Deduction project follows a **plugin-based architecture** with clear
   - `POST action`: apply a rule to a proof
   - `POST solve`: run the automatic solver (with a timeout)
   - `POST proof`: parse an uploaded proof file
-- **Errors**: every failure is an `ErrorResponse` (`{"message": ...}`) with a fitting status, see `RestExceptionHandler`
+- **Errors**: invalid requests and domain failures (unknown logic, malformed proof or action, solver timeout or overload) are thrown and mapped by `RestExceptionHandler` to an `ErrorResponse` (`{"message": ...}`) with a fitting status
+- **Action that does not apply**: a well-formed action that the proof rejects is not an error. `POST action` answers `202` with a `ProofResponse` (`success=false`, the proof unchanged and a `message`), see [API.md](./API.md)
 - **Stateless**: the client sends the whole proof with every request; the server replays its steps to rebuild it
 
 ### 3. Domain Layer
