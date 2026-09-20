@@ -89,9 +89,9 @@ docs/README.md
       └─→ Testing best practices
   
   └─→ API.md [How to use the REST API]
-      ├─→ Classical endpoints
-      ├─→ Modal endpoints
-      └─→ System endpoints
+      ├─→ actions / action / solve / proof (per logic)
+      ├─→ Error responses
+      └─→ Health check
 ```
 
 ## Core Concepts
@@ -178,5 +178,5 @@ When updating documentation:
 
 ## Last Updated
 
-This documentation was created on 2024-01-15. Refer to git history for version changes.
+Refer to git history for version changes.
 

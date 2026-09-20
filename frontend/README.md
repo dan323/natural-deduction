@@ -36,7 +36,7 @@ The rule menu is built from `GET /logic/{logic}/actions`, which lists each actio
 | --- | --- |
 | `npm start` | Vite dev server with the API proxy described above |
 | `npm test` | Jest with coverage |
-| `npx tsc --noEmit` | Type check (`vite build` does not type-check) |
+| `npm run typecheck` | Type check with `tsc --noEmit` (`vite build` does not type-check) |
 | `npm run build` | Production build into `build/` (not `dist/`) |
 
 To embed the UI in the backend jar, copy `build/*` into `executable/src/main/resources/public/` and run `mvn package` from the repository root.

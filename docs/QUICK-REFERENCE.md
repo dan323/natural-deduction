@@ -6,7 +6,7 @@ Common commands and workflows for the Natural Deduction project.
 
 ```
 natural-deduction/
-├── docs/                          # Documentation (THIS IS NEW!)
+├── docs/                          # Documentation
 │   ├── README.md                  # Documentation overview
 │   ├── SETUP.md                   # Installation & running
 │   ├── ARCHITECTURE.md            # System design
@@ -23,14 +23,14 @@ natural-deduction/
 ├── executable/                    # Spring Boot application
 ├── rest/                          # REST API layer
 ├── frontend/                      # React UI
-└── README.md                      # Project overview (updated!)
+└── README.md                      # Project overview
 ```
 
 ## Build Commands
 
 ### Full Build
 ```powershell
-mvn clean install
+mvn clean install     # unit tests + *IT.java integration tests, incl. one that boots the packaged jar
 ```
 
 ### Build Specific Module
@@ -63,7 +63,7 @@ mvn spring-boot:run -pl executable
 ### Start Frontend Development Server
 ```powershell
 cd frontend
-npm start
+npm start             # proxies /logic to the backend on :8080, so start the backend first
 ```
 
 ### Full Development Setup
@@ -83,7 +83,7 @@ npm start
 
 ### Run All Tests
 ```powershell
-mvn clean test
+mvn clean verify      # `test` alone skips the *IT.java integration tests
 ```
 
 ### Run Specific Module Tests
@@ -91,9 +91,10 @@ mvn clean test
 mvn test -pl domain/logic-language/framework
 ```
 
-### Frontend Tests
+### Frontend Type Check and Tests
 ```powershell
 cd frontend
+npm run typecheck
 npm test
 ```
 
@@ -151,22 +152,23 @@ git clone https://github.com/dan323/natural-deduction.git
 cd natural-deduction
 mvn clean install
 cd frontend
-npm install
+npm ci
 ```
 
 ### Make Changes
 1. Edit code in appropriate module
 2. Run tests: `mvn test -pl [module]`
-3. Run full test suite: `mvn clean test`
+3. Run full test suite: `mvn clean verify`
 4. Check code quality
 
 ### Before Committing
 ```powershell
 # Run full build and tests
-mvn clean install
+mvn clean verify
 
-# Run frontend tests
+# Type check and run frontend tests
 cd frontend
+npm run typecheck
 npm test
 
 # Check code coverage
@@ -187,8 +189,8 @@ Get-Process -Id (Get-NetTCPConnection -LocalPort 8080).OwningProcess | Stop-Proc
 ### Clear Node Modules
 ```powershell
 cd frontend
-rm -r node_modules package-lock.json
-npm install
+rm -r node_modules
+npm ci
 ```
 
 ### Clear Maven Cache
@@ -200,7 +202,9 @@ mvn clean -DskipTests install
 ```powershell
 cd frontend
 npm run build
-mvn clean install -pl executable
+cp -r build/* ../executable/src/main/resources/public/
+cd ..
+mvn clean install
 ```
 
 ## Key Directories
@@ -222,7 +226,10 @@ mvn clean install -pl executable
 | `pom.xml` (root) | Maven parent configuration |
 | `executable/pom.xml` | Spring Boot dependencies |
 | `frontend/package.json` | Node.js dependencies |
-| `frontend/src/constant.ts` | API endpoint configuration |
+| `frontend/src/constant.ts` | The logic the UI uses (`LOGIC`) |
+| `frontend/vite.config.ts` | Vite config, incl. the `/logic` dev proxy |
+| `Dockerfile` | Image of the jar (non-root, health check) |
+| `.github/workflows/` | CI: `CompileAndTest.yml`, `frontend.yml`, `OnMaster.yml` (Docker publish), `OnMerge.yml` |
 | `executable/src/main/resources/application.properties` | Spring Boot config |
 
 ## Useful Links
@@ -235,7 +242,7 @@ mvn clean install -pl executable
 | http://localhost:8080/logic/classical/actions | Classical logic actions |
 | http://localhost:8080/logic/modal/actions | Modal logic actions |
 | [GitHub](https://github.com/dan323/natural-deduction) | Repository |
-| [SonarCloud](https://sonarcloud.io/project/overview?id=dan323_natural-deduction) | Code quality |
+| [SonarCloud](https://sonarcloud.io/project/overview?id=natural-deduction) | Code quality |
 
 ## Documentation Files
 
@@ -286,8 +293,9 @@ $env:NODE_HOME = "C:\nodejs"
 |-------|----------|
 | Tests fail after pulling | `mvn clean install` |
 | Port 8080 in use | Kill process or change port |
-| Frontend can't connect | Ensure backend running on 8080 |
-| npm install errors | Delete node_modules and package-lock.json |
+| Frontend can't connect | Ensure backend running on 8080 (the dev server proxies `/logic` there) |
+| Jar serves no UI | Copy `frontend/build/*` into `executable/src/main/resources/public/` and rebuild |
+| npm install errors | Delete node_modules and run `npm ci` |
 | Maven build fails | Check Java version is 21+ |
 
 ## Performance Tips
@@ -295,7 +303,7 @@ $env:NODE_HOME = "C:\nodejs"
 1. Use `-DskipTests` during development if tests are slow
 2. Use IDE debugger for profiling
 3. Monitor memory with `jcmd`
-4. Use `mvn verify` for integration tests only
+4. Run a single module with `mvn test -pl <module>`
 5. Cache Maven dependencies locally
 
 ## Getting Help
@@ -315,8 +323,3 @@ See full documentation in [docs/](../docs/) folder.
 - [Logical Languages](./LANGUAGES.md)
 - [Development Guide](./DEVELOPMENT.md)
 - [API Reference](./API.md)
-
----
-
-**Last Updated**: 2024-01-15
-

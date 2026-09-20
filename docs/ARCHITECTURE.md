@@ -44,18 +44,22 @@ The Natural Deduction project follows a **plugin-based architecture** with clear
 - **Location**: `frontend/`
 - **Features**:
   - Goal/formula input
-  - Proof tree visualization
-  - Rule selection and application
-  - Real-time validation
+  - Proof visualization
+  - Rule selection (built from the action descriptors of the backend) and application
+  - A Solve button that asks the backend's automatic solver to finish the proof
+  - Hardcoded to the classical logic
 
 ### 2. REST API Layer
 - **Technology**: Spring Boot 3.5.3
 - **Responsibility**: HTTP interface to business logic
 - **Location**: `executable/`, `rest/`
-- **Endpoints**:
-  - Proof verification
-  - Rule suggestions
-  - Proof serialization/deserialization
+- **Endpoints** (all under `/logic/{logic}`, see [API.md](./API.md)):
+  - `GET actions`: the rules the logic offers, as typed descriptors
+  - `POST action`: apply a rule to a proof
+  - `POST solve`: run the automatic solver (with a timeout)
+  - `POST proof`: parse an uploaded proof file
+- **Errors**: every failure is an `ErrorResponse` (`{"message": ...}`) with a fitting status, see `RestExceptionHandler`
+- **Stateless**: the client sends the whole proof with every request; the server replays its steps to rebuild it
 
 ### 3. Domain Layer
 - **Responsibility**: Core business logic and use cases
@@ -157,8 +161,9 @@ Input: Formula String
 ### 1. Strategy Pattern
 Different logic implementations (classical vs modal) are interchangeable strategies.
 
-### 2. Factory Pattern
-Logic language and proof structure implementations are created via factories, allowing runtime selection.
+### 2. Registry by Dependency Injection
+Each logic exposes a `Transformer`, a `ProofParser` and a `LogicalGetActions` bean; `ActionsUseCaseConfiguration`
+collects them into maps keyed by logic name, and the `{logic}` path segment selects the entry.
 
 ### 3. Template Method Pattern
 Framework classes define the structure of algorithms, implementations fill in specific steps.
@@ -170,17 +175,19 @@ Use cases adapt between the REST API and domain logic.
 
 To add a new logical system:
 
-1. Implement the **LogicLanguage** framework interface
-2. Implement the **DeductionRule** framework interface
-3. Create a use case that orchestrates both
-4. Add REST controller endpoint
-5. Extend frontend to support new operators (if needed)
+1. Add a language module (subclass the operators of `logic-language/framework`, write a parser)
+2. Add a proof module (bind `proof-structures/framework.deduction` to the language: a proof class, one class per
+   rule, a parser of rule names, an automatic solver)
+3. Add a use-case module exposing the `Transformer`, `ProofParser` and `LogicalGetActions` beans and a `*Configuration`
+4. Import that configuration in `executable/.../ApplicationConfiguration` (no new controller is needed)
+5. Extend the frontend if it should use the new logic (`LOGIC` in `constant.ts`)
 
 See [Development Guide](./DEVELOPMENT.md) for detailed instructions.
 
 ## Deployment Architecture
 
-The application is containerized using Docker:
+The application is containerized using Docker (the image only contains the jar, so the frontend must be embedded in it
+before packaging; the image runs as a non-root user and has a health check on `/actuator/health`):
 
 ```
 ┌─────────────┐
@@ -200,7 +207,8 @@ The application is containerized using Docker:
 └─────────────┘
 ```
 
-The executable Spring Boot application serves both the REST API and static frontend files.
+The executable Spring Boot application serves both the REST API and static frontend files. On every push to `master`,
+CI tests the code, builds the image from the tested jar, smoke-tests it and then publishes it to Docker Hub.
 
 ## References
 

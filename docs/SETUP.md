@@ -46,7 +46,8 @@ This will:
 - Download all dependencies
 - Compile all modules
 - Run unit tests
-- Generate JAR files
+- Package the jars, including the Spring Boot fat jar
+- Run the integration tests (`*IT.java`), one of which boots the fat jar on a free port
 - Create code coverage reports
 
 **Build Time**: Typically 2-5 minutes depending on your internet connection
@@ -61,7 +62,7 @@ After successful build, you should see:
 
 Generated artifacts will be in:
 - `executable/target/executable-0.1-SNAPSHOT.jar` - Main application
-- Coverage reports in `jacoco-natural-deduction/target/`
+- Coverage reports in `jacoco-natural-deduction/target/site/`
 
 ## Frontend Setup
 
@@ -69,10 +70,10 @@ Generated artifacts will be in:
 
 ```powershell
 cd frontend
-npm install
+npm ci
 ```
 
-This installs all npm dependencies specified in `package.json`.
+This installs the dependencies pinned in `package-lock.json` (use `npm ci`, not `npm install`).
 
 ### 2. Build Frontend
 
@@ -80,38 +81,34 @@ This installs all npm dependencies specified in `package.json`.
 npm run build
 ```
 
-This creates optimized production build in `frontend/build/`.
+This creates the production build in `frontend/build/` (not `dist/`). `npm run typecheck` type-checks the code, which
+`vite build` does not.
 
-**Note**: The executable JAR includes the frontend build, so this step is only needed if developing the frontend separately.
+**Embedding it in the jar**: the jar serves the UI only if the build is copied into
+`executable/src/main/resources/public/` (gitignored) before the backend is packaged. This is what CI does before
+publishing the Docker image:
+
+```powershell
+cp -r frontend/build/* executable/src/main/resources/public/   # create the folder first if it does not exist
+mvn clean install
+```
+
+Without this, the jar serves only the REST API.
 
 ## Running the Application
 
 ### Option 1: Run the Executable JAR (Recommended)
 
-The JAR file includes both the REST API and the frontend:
+The JAR file serves the REST API and, if the frontend was embedded before packaging (see above), the UI:
 
 ```powershell
 java -jar executable/target/executable-0.1-SNAPSHOT.jar
 ```
 
-**Output**:
-```
-  .   ____          _            __ _ _
- /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
-( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
- \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
-  '  |____| .__|_| |_|_| |_|\__, | / / / /
- =========|_|==============|___/=/_/_/_/
- :: Spring Boot ::        (v3.5.3)
-
-2024-01-15 10:30:15.123  INFO 1234 --- [main] com.dan323.main.Application
-Application 'executable' is running! Access URLs:
-  Local: http://localhost:8080
-  Profile: default
-```
+The application listens on port 8080 (`--server.port=9090` changes it).
 
 **Access the application**:
-- Frontend: http://localhost:8080
+- Frontend: http://localhost:8080 (when embedded in the jar)
 - REST API: http://localhost:8080/logic/{logic}/... (see [API.md](./API.md))
 - Health check: http://localhost:8080/actuator/health
 
@@ -132,36 +129,27 @@ npm start
 
 This starts a development server on http://localhost:5173 with live reloading.
 
-**Note**: The development server has no proxy to the backend and the UI calls relative URLs (`/logic/...`), so it
-cannot reach the API on its own. To use the whole application, build the frontend into the jar (see above) and open
-http://localhost:8080.
+**Note**: The UI calls relative URLs (`/logic/...`) and `vite.config.ts` proxies `/logic` to `http://localhost:8080`,
+so start the backend jar first (or `mvn spring-boot:run -pl executable`) and use the dev server for the UI.
 
 ## Configuration
 
 ### Backend Configuration
 
-Main configuration file: `executable/src/main/resources/application.properties`
+Main configuration file: `executable/src/main/resources/application.properties`. It only enables the actuator
+`beans` and `info` endpoints (only `health` is exposed over HTTP by default), so everything else uses Spring Boot's
+defaults. Any property can be overridden on the command line, e.g. `--server.port=9090`.
 
-```properties
-# Server Configuration
-server.port=8080
-server.servlet.context-path=/
+The one application-specific property:
 
-# Application Name
-spring.application.name=executable
-
-# Logging Level
-logging.level.root=INFO
-logging.level.com.dan323=DEBUG
-
-# Actuator
-management.endpoints.web.exposure.include=health,info,metrics
-```
+| Property | Default | Meaning |
+|----------|---------|---------|
+| `natural-deduction.solve-timeout` | `10s` | How long `POST /logic/{logic}/solve` may run before it is answered with a 422 (`5s`, `PT5S`, ...) |
 
 ### Frontend Configuration
 
 Main configuration files:
-- `frontend/src/constant.ts` - API endpoints and constants
+- `frontend/src/constant.ts` - the logic the UI uses (`LOGIC`)
 - `frontend/tsconfig.json` - TypeScript configuration
 - `frontend/jest.config.ts` - Jest testing configuration
 
@@ -182,16 +170,16 @@ server: {
 The only frontend constant that controls behaviour is the logic type in `frontend/src/constant.ts`:
 
 ```typescript
-export const LOGIC: string = 'classical';
+export const LOGIC: string = "classical"
 ```
 
 ## Running Tests
 
 ### Backend Tests
 
-**Run all tests**:
+**Run all tests** (`test` skips the `*IT.java` integration tests, `verify` runs them too, as CI does):
 ```powershell
-mvn clean test
+mvn clean verify
 ```
 
 **Run specific module tests**:
@@ -204,13 +192,18 @@ mvn test -pl domain/logic-language/framework
 mvn clean install
 ```
 
-Coverage reports are generated in: `target/site/jacoco/index.html`
+Coverage reports are generated in: `jacoco-natural-deduction/target/site/jacoco/index.html`
 
 ### Frontend Tests
 
-**Run all tests** (coverage is collected by default):
+**Type check** (CI runs it before the tests):
 ```powershell
 cd frontend
+npm run typecheck
+```
+
+**Run all tests** (coverage is collected by default):
+```powershell
 npm test
 ```
 
@@ -222,6 +215,8 @@ npm test -- --testPathPattern=Expressions
 ```
 
 ## Docker Deployment
+
+The `Dockerfile` only copies `executable/target/*.jar`, so build the jar first (with the frontend embedded, see above).
 
 ### Build Docker Image
 
@@ -237,11 +232,13 @@ docker run -p 8080:8080 natural-deduction:latest
 
 Access the application at: http://localhost:8080
 
-### Docker Compose (if available)
+The image runs as an unprivileged user and has a `HEALTHCHECK` on `/actuator/health`.
 
-```powershell
-docker-compose up
-```
+### Published image
+
+On every push to `master`, the "Publish Docker image" workflow (`OnMaster.yml`) type-checks and tests the frontend,
+embeds it, runs `mvn verify`, builds the image from that jar, smoke-tests it (actions endpoints, UI, non-root user)
+and only then pushes it to Docker Hub as `dan323/natural-deduction`.
 
 ## Code Quality Analysis
 
@@ -249,7 +246,7 @@ docker-compose up
 
 The project uses SonarCloud for continuous code quality monitoring.
 
-**View reports**: https://sonarcloud.io/project/overview?id=dan323_natural-deduction
+**View reports**: https://sonarcloud.io/project/overview?id=natural-deduction
 
 ### Local JaCoCo Coverage
 
@@ -264,7 +261,7 @@ View report: Open `jacoco-natural-deduction/target/site/jacoco/index.html` in br
 ### Running PIT Mutation Tests
 
 ```powershell
-mvn org.pitest:pitest-maven:mutationCoverage -pl domain/logic-language/framework
+mvn test-compile org.pitest:pitest-maven:mutationCoverage -pl domain/logic-language/framework
 ```
 
 ## Troubleshooting
@@ -277,7 +274,7 @@ mvn org.pitest:pitest-maven:mutationCoverage -pl domain/logic-language/framework
 
 **Issue**: Maven dependencies not downloading
 - **Solution**: Check internet connection
-- **Solution**: Clear Maven cache: `mvn clean -DmskipTests install`
+- **Solution**: Retry with `mvn clean install -U` to force a re-download of failed artifacts
 
 ### Runtime Issues
 
@@ -286,21 +283,20 @@ mvn org.pitest:pitest-maven:mutationCoverage -pl domain/logic-language/framework
 - **PowerShell**: `Get-Process -Id (Get-NetTCPConnection -LocalPort 8080).OwningProcess | Stop-Process`
 
 **Issue**: "Frontend not found" when accessing http://localhost:8080
-- **Solution**: Ensure frontend is built: `cd frontend && npm run build`
-- **Solution**: Rebuild executable: `mvn clean install -pl executable`
+- **Solution**: The jar only serves the UI if the frontend build was copied into `executable/src/main/resources/public/` before packaging (see Frontend Setup), then rebuild: `mvn clean install`
 
 **Issue**: Frontend cannot connect to API
 - **Solution**: Check backend is running on port 8080
-- **Solution**: Use the packaged jar; the UI calls relative URLs (`/logic/...`) and the Vite dev server has no proxy
+- **Solution**: With the Vite dev server, the proxy in `frontend/vite.config.ts` forwards `/logic` to port 8080, so the backend must be running there
 
 ### Frontend Issues
 
 **Issue**: Node modules issues
-- **Solution**: Clear and reinstall: `rm -r node_modules package-lock.json && npm install`
+- **Solution**: Clear and reinstall: `rm -r node_modules && npm ci`
 
 **Issue**: TypeScript compilation errors
 - **Solution**: Check TypeScript version: `npm list typescript`
-- **Solution**: Update TypeScript: `npm install --save typescript@latest`
+- **Solution**: Run `npm run typecheck` to see the errors
 
 ## Development Workflow
 
@@ -316,7 +312,7 @@ mvn clean install
 
 # Install frontend dependencies
 cd frontend
-npm install
+npm ci
 ```
 
 ### 2. Backend Development
@@ -325,8 +321,8 @@ npm install
 # Start Spring Boot application
 mvn spring-boot:run -pl executable
 
-# In another terminal, run tests in watch mode
-mvn test -pl domain/logic-language/framework -Dtest=YourTestClass -Dtest.watch
+# In another terminal, run the tests of one module
+mvn test -pl domain/logic-language/framework
 ```
 
 ### 3. Frontend Development
@@ -351,7 +347,7 @@ cd frontend
 npm start
 ```
 
-Access at: http://localhost:5173 — Vite proxies `/logic` requests to the backend on port 8080 (configured in `frontend/vite.config.ts`).
+Access at: http://localhost:5173 (Vite proxies `/logic` requests to the backend on port 8080 (configured in `frontend/vite.config.ts`)).
 
 ## Integration with IDEs
 
@@ -362,7 +358,7 @@ Access at: http://localhost:5173 — Vite proxies `/logic` requests to the backend
 3. Run â†’ Edit Configurations
 4. Add configuration:
    - Type: Application
-   - Main class: `com.dan323.executable.Application`
+   - Main class: `com.dan323.main.Application`
    - Working directory: `$PROJECT_DIR$`
 
 ### VS Code

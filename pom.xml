@@ -8,6 +8,15 @@
     <artifactId>natural-deduction</artifactId>
     <packaging>pom</packaging>
     <version>0.1-SNAPSHOT</version>
+    <inceptionYear>2019</inceptionYear>
+
+    <licenses>
+        <license>
+            <name>GNU General Public License v3.0 only</name>
+            <url>https://www.gnu.org/licenses/gpl-3.0.txt</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
 
     <modules>
         <module>rest</module>

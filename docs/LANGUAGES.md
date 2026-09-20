@@ -10,13 +10,15 @@ Classical propositional logic is the standard logic system dealing with proposit
 
 ### Logical Operators
 
-| Operator | Symbol | Name | Meaning |
-|----------|--------|------|---------|
-| AND | ∧ | Conjunction | Both propositions are true |
-| OR | ∨ | Disjunction | At least one proposition is true |
-| NOT | ¬ | Negation | The proposition is false |
-| IMPLIES | → | Implication | If first is true, then second is true |
-| BICONDITIONAL | ↔ | Biconditional | Both propositions have the same truth value |
+| Operator      | Symbol | Name          | Meaning                                     |
+|---------------|--------|---------------|---------------------------------------------|
+| AND           | ∧      | Conjunction   | Both propositions are true                  |
+| OR            | ∨      | Disjunction   | At least one proposition is true            |
+| NOT           | ¬      | Negation      | The proposition is false                    |
+| IMPLIES       | →      | Implication   | If first is true, then second is true       |
+
+There is no biconditional operator; the constants `TRUE` and `FALSE` exist. In the parsers the operators are
+written `&`, `|`, `->` and `-` (negation), see [Parsing](#parsing).
 
 ### Syntax
 
@@ -29,7 +31,7 @@ p, q, r, A, B, C, ...
 ```
 Grammar:
   Formula ::= Atom | (Formula ∧ Formula) | (Formula ∨ Formula) 
-            | (Formula → Formula) | (Formula ↔ Formula) | ¬Formula
+            | (Formula → Formula) | ¬Formula
   Atom ::= p | q | r | A | B | C | ... (any letter or identifier)
 ```
 
@@ -135,29 +137,6 @@ The Natural Deduction system includes the following rules for classical logic:
   A
 ```
 
-#### Biconditional (↔)
-
-**↔-Introduction**: To prove A ↔ B, prove both A → B and B → A
-```
-  A → B    B → A
-  ---------------
-  A ↔ B
-```
-
-**↔-Elimination Left**: From A ↔ B and A, we can conclude B
-```
-  A ↔ B    A
-  ----------
-  B
-```
-
-**↔-Elimination Right**: From A ↔ B and B, we can conclude A
-```
-  A ↔ B    B
-  ----------
-  A
-```
-
 ### Example Proof
 
 **Goal**: Prove p ∨ q from p
@@ -184,7 +163,7 @@ Modal propositional logic extends classical logic with **modal operators** that 
 
 ### Extended Operators
 
-In addition to classical operators, modal logic includes:
+In addition to classical operators, modal logic includes (written `[]` and `<>` in the parser):
 
 | Operator | Symbol | Name | Meaning |
 |----------|--------|------|---------|
@@ -204,11 +183,8 @@ Classical ::= Atom | (Classical ∧ Classical) | ... (as in classical logic)
 Formula ::= Classical | □Formula | ◇Formula | (Formula ∧ Formula) | ...
 ```
 
-**Labeled Formulas** (for world-specific propositions)
-```
-LabeledFormula ::= w:Formula
-where w is a world label (s0, s1, w1, etc.)
-```
+**States** (worlds): every step of a modal proof carries a state, e.g. `s0`, sent as `extraParameters.state` in the
+API. Formulas relate states with `<=` and `=` (`LessEqual`, `Equals`); there is also an `Until` operator.
 
 ### Examples
 
@@ -218,8 +194,6 @@ where w is a world label (s0, s1, w1, etc.)
 □(p → q)        (if p, then q, necessarily)
 p ∧ ◇q          (p and possibly q)
 □p → ◇q         (if necessarily p, then possibly q)
-s0:p            (p is true in world s0)
-s0:□p           (p is necessarily true, from world s0)
 ```
 
 ### World Semantics
@@ -230,14 +204,8 @@ Modal logic uses **possible world semantics** where:
 - Accessibility relations define which worlds can be reached from others
 - Modal operators quantify over accessible worlds
 
-**Accessibility Relations**:
-- K (Knowledge): Reflexive and transitive
-- S4: Reflexive and transitive
-- S5: Equivalence relation (reflexive, symmetric, transitive)
-- T: Reflexive only
-- B: Reflexive and symmetric
-
-This implementation typically uses S5 semantics (complete information).
+**Accessibility**: the rules `Refl` (reflexivity, `s <= s`) and `Trans` (transitivity) derive relation formulas between
+states.
 
 ### Natural Deduction Rules for Modal Logic
 
@@ -305,7 +273,7 @@ All classical rules apply in each world. Additionally:
 
 | Aspect | Classical | Modal |
 |--------|-----------|-------|
-| **Operators** | ∧, ∨, ¬, →, ↔ | Classical + □, ◇ |
+| **Operators** | ∧, ∨, ¬, → | Classical + □, ◇ |
 | **Worlds** | Single world assumed | Multiple possible worlds |
 | **Semantics** | Truth values | Truth in specific worlds |
 | **Accessibility** | N/A | Relations between worlds |
@@ -325,23 +293,22 @@ All classical rules apply in each world. Additionally:
 
 ### Parsing
 
-Formulas are parsed from string input using recursive descent parsers specific to each logic.
+Formulas are parsed from string input by an expression parser built on javaluator, specific to each logic (`ClassicalParser`, `ModalLogicParser`). Variables are single tokens without spaces.
 
 **Classical Examples**:
 ```
 p
 p & q        (AND)
 p | q        (OR)
-~p           (NOT)
+-p           (NOT)
 p -> q       (IMPLIES)
-p <-> q      (BICONDITIONAL)
+TRUE, FALSE  (constants)
 ```
 
 **Modal Examples**:
 ```
 []p          (Box: necessity)
 <>p          (Diamond: possibility)
-s0:p         (Label: p in world s0)
 [](p -> q)   (Box: necessity of implication)
 ```
 

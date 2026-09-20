@@ -14,8 +14,8 @@ Welcome to the Natural Deduction project documentation. This project implements 
 ## Project Status
 
 [![Main Workflow](https://github.com/dan323/natural-deduction/actions/workflows/CompileAndTest.yml/badge.svg)](https://github.com/dan323/natural-deduction/actions/workflows/CompileAndTest.yml)
-[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=dan323_natural-deduction&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=dan323_natural-deduction)
-[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=dan323_natural-deduction&metric=coverage)](https://sonarcloud.io/summary/new_code?id=dan323_natural-deduction)
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=natural-deduction&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=natural-deduction)
+[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=natural-deduction&metric=coverage)](https://sonarcloud.io/summary/new_code?id=natural-deduction)
 
 ## What is Natural Deduction?
 
@@ -41,9 +41,9 @@ mvn clean install
 # Run the executable
 java -jar executable/target/executable-0.1-SNAPSHOT.jar
 
-# Start the frontend
+# Start the frontend dev server (proxies /logic to the backend on :8080)
 cd frontend
-npm install
+npm ci
 npm start
 ```
 
@@ -66,7 +66,7 @@ See [Project Modules](./MODULES.md) for more details.
 - 🧠 **Pluggable Logic Systems** - Easily add support for new logical systems
 - 🏗️ **Framework-based Architecture** - Separation between framework and implementations
 - 📊 **Natural Deduction Rules** - Comprehensive rule implementations for both logics
-- 🌐 **REST API** - Full HTTP API for proof verification
+- 🌐 **REST API** - HTTP API to list the rules, apply a rule, upload a proof and run the automatic solver
 - 💻 **Web UI** - Interactive interface for building and verifying proofs
 - ✅ **Comprehensive Tests** - High code coverage with unit and integration tests
 
@@ -76,7 +76,7 @@ See [Project Modules](./MODULES.md) for more details.
 - **Frontend**: React 19, TypeScript, Jest
 - **Testing**: JUnit 5, Mockito, PIT mutation testing
 - **Quality**: SonarCloud, JaCoCo coverage
-- **Deployment**: Docker
+- **Deployment**: Docker (non-root image with a health check, published to Docker Hub by CI after the tests and a smoke test pass)
 
 ## Contributing
 

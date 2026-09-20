@@ -21,6 +21,14 @@ java -jar executable/target/executable-0.1-SNAPSHOT.jar
 # Access at http://localhost:8080
 ```
 
+The jar serves the REST API (`/logic/{logic}/...`, see [docs/API.md](./docs/API.md)). It only serves the web UI if the
+frontend was built into it first (see [Setup & Installation](./docs/SETUP.md)); the published Docker image
+(`dan323/natural-deduction`) always includes it:
+
+```bash
+docker run -p 8080:8080 dan323/natural-deduction
+```
+
 ## Supported Logics
 
 - **Classical Propositional Logic** - Standard propositional calculus with natural deduction rules
@@ -42,10 +50,12 @@ Complete documentation is available in the [docs/](./docs/) folder:
 
 - **Backend**: Java 21, Spring Boot 3.5.3
 - **Frontend**: React 19, TypeScript, Vite
-- **Build**: Maven
+- **Build**: Maven, Docker
 - **Testing**: JUnit 5, Jest, PIT mutation testing
 - **Quality**: SonarCloud, JaCoCo
 
 ## License
 
-See [LICENSE](./LICENSE) for details.
+Copyright (C) 2019-2026 dan323
+
+Licensed under the GNU General Public License, version 3 only (`GPL-3.0-only`). See [LICENSE](./LICENSE) for details.
