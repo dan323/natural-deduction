@@ -10,14 +10,6 @@
     font-family: Arial, sans-serif;
 }
 
-/* Empty state */
-.empty-state {
-    font-size: 1.1rem;
-    color: #666;
-    margin: 0;
-    padding: 10px 0;
-}
-
 /* Label for Select */
 .menu-label {
     display: block;
@@ -144,6 +136,13 @@
     font-size: 1rem;
     margin-bottom: 12px;
     text-align: left;
+}
+
+/* Why Apply Rule is disabled */
+.menu-hint {
+    color: #666;
+    font-size: 0.95rem;
+    margin: 12px 0 0;
 }
 
 /* Apply Rule and Solve, side by side */

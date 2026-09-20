@@ -129,6 +129,7 @@ describe('Menu solve button', () => {
         await clickSolve(user);
         expect(screen.getByRole('status')).toBeInTheDocument();
         await user.selectOptions(screen.getByLabelText(/Select Inference Rule:/i), 'Rep');
+        await user.type(screen.getByLabelText(/Line number:/i), '1');
         await user.click(screen.getByRole('button', { name: /Apply Rule/i }));
 
         expect(screen.queryByRole('status')).not.toBeInTheDocument();

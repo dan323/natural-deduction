@@ -10,6 +10,9 @@ import { LOGIC } from './constant';
 function App() {
   const [colorMapping, setColorMapping] = useState(new Map<number, string>());
   const [isModalOpen, setIsModalOpen] = useState(false);
+  // Bumped for every new proof; it is the key of the Menu, so that the selected rule, the typed inputs and the last
+  // error of the previous proof do not carry over.
+  const [proofId, setProofId] = useState(0);
   const [proof, setProof] = useState<ProofDto>({
     steps: [],
     logic: LOGIC,
@@ -48,6 +51,7 @@ function App() {
       goal: goal,
     });
     setColorMapping(new Map<number, string>())
+    setProofId(id => id + 1);
   };
 
   const hasProof = proof.goal !== '' || proof.steps.length > 0;
@@ -65,7 +69,7 @@ function App() {
         </button>
       </div>
       <main className="app-main">
-        <Menu logic={LOGIC} proof={proof} setProof={setProof} onColorChange={onColorChange} />
+        <Menu key={proofId} logic={LOGIC} proof={proof} setProof={setProof} onColorChange={onColorChange} />
         {hasProof ? (
           <Proof proof={proof} coloring={colorMapping} />
         ) : (
