@@ -19,13 +19,13 @@
     font-size: 1.1rem;
     border: 1px solid #ccc;
     border-radius: 4px;
-    outline: none;
     transition: box-shadow 0.3s ease;
 }
 
-/* Glowing Input Field */
-.glowing-input {
-    border-color: transparent;
+/* Glowing Input Field: the colour comes from the --glow-color custom property that GlowingInput sets on the input. */
+.input-field.glowing-input {
+    box-shadow: 0 0 10px var(--glow-color), 0 0 40px var(--glow-color), 0 0 80px var(--glow-color);
+    border-color: var(--glow-color);
 }
 
 /* An input whose value is not accepted, and the reason why */

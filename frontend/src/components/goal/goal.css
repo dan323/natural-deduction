@@ -39,8 +39,14 @@
   .emoji {
     position: absolute;
     font-size: 24px;
-    animation: explode 1s ease-in-out forwards;
     opacity: 0; /* Start with hidden opacity */
+  }
+
+  /* The animation is what makes them visible at all, so people who ask for reduced motion do not see the confetti. */
+  @media (prefers-reduced-motion: no-preference) {
+    .emoji {
+      animation: explode 1s ease-in-out forwards;
+    }
   }
   
   /* Explosion effect */

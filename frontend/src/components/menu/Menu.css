@@ -30,12 +30,6 @@
     cursor: pointer;
 }
 
-.menu-select:focus {
-    outline: none;
-    border-color: #007bff;
-    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.2);
-}
-
 /* Input Container */
 .input-container {
     margin-bottom: 20px;
@@ -62,20 +56,8 @@
     font-size: 1.1rem;
     border: 1px solid #ccc;
     border-radius: 4px;
-    outline: none;
     box-sizing: border-box;
     transition: box-shadow 0.3s ease, border-color 0.2s;
-}
-
-.input-field:focus {
-    border-color: #007bff;
-    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.2);
-}
-
-/* Glowing Input Field */
-.glowing-input {
-    box-shadow: 0 0 10px var(--glow-color), 0 0 40px var(--glow-color), 0 0 80px var(--glow-color);
-    border-color: var(--glow-color);
 }
 
 /* No Inputs Message */
@@ -100,7 +82,7 @@
 
 /* Action Button */
 .menu-button {
-    background-color: #007bff;
+    background-color: #0b5ed7;
     color: #fff;
     border: none;
     padding: 12px 24px;
@@ -112,11 +94,6 @@
 
 .menu-button:hover:not(:disabled) {
     background-color: #0056b3;
-}
-
-.menu-button:focus {
-    outline: none;
-    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.4);
 }
 
 .menu-button:disabled {

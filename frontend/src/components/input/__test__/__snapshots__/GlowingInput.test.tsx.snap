@@ -14,7 +14,6 @@ exports[`Glowing input matches snapshot when shouldGlow is false 1`] = `
     <input
       class="input-field "
       id="glowing-input-0"
-      style="box-shadow: none;"
       type="text"
       value=""
     />
@@ -36,7 +35,6 @@ exports[`Glowing input matches snapshot when shouldGlow is true 1`] = `
     <input
       class="input-field "
       id="glowing-input-0"
-      style="box-shadow: none;"
       type="text"
       value=""
     />
