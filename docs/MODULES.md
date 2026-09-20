@@ -58,7 +58,7 @@ Defines how logical formulas are represented and parsed.
 - **Purpose**: Modal propositional logic
 - **Key Components**:
   - Modal counterparts of the classical operators (`ConjunctionModal`, ...) plus `Always` (`[]`), `Sometime` (`<>`)
-    and `Until`
+    and `Until` (model only: the parser does not accept it)
   - Relation formulas between states: `LessEqual` (`<=`) and `Equals` (`=`)
   - `ModalLogicParser`, built on javaluator
 - **Dependencies**: framework/, javaluator

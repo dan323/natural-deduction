@@ -89,7 +89,9 @@ This creates the production build in `frontend/build/` (not `dist/`). `npm run t
 publishing the Docker image:
 
 ```powershell
-cp -r frontend/build/* executable/src/main/resources/public/   # create the folder first if it does not exist
+cd ..   # back to the repository root (the build above ran in frontend/)
+New-Item -ItemType Directory -Force executable/src/main/resources/public | Out-Null
+cp -r frontend/build/* executable/src/main/resources/public/
 mvn clean install
 ```
 

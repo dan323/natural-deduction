@@ -202,6 +202,7 @@ mvn clean -DskipTests install
 ```powershell
 cd frontend
 npm run build
+New-Item -ItemType Directory -Force ../executable/src/main/resources/public | Out-Null
 cp -r build/* ../executable/src/main/resources/public/
 cd ..
 mvn clean install
