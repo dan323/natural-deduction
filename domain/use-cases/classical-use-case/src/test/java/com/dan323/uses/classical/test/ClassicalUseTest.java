@@ -4,6 +4,10 @@ import com.dan323.classical.proof.AvailableAction;
 import com.dan323.model.ActionDescriptorDto;
 import com.dan323.model.ActionDto;
 import com.dan323.model.ParamKind;
+import com.dan323.model.ProofDto;
+import com.dan323.model.StepDto;
+import com.dan323.uses.InvalidActionException;
+import com.dan323.uses.LogicalApplyAction;
 import com.dan323.uses.LogicalGetActions;
 import com.dan323.uses.LogicalSolver;
 import com.dan323.uses.classical.ClassicalConfiguration;
@@ -84,5 +88,50 @@ public class ClassicalUseTest {
         var actions = new ClassicalConfiguration().classicalActions();
 
         assertSame(actions.perform(), actions.perform());
+    }
+
+    @Test
+    void anActionThatNeedsAnExpressionRejectsABlankOne() {
+        var transformer = new ClassicalProofTransformer();
+        for (var name : List.of("ASSUME", "ORI1", "ORI2", "FE")) {
+            for (var extra : List.of(Map.<String, String>of(), Map.of("expression", ""), Map.of("expression", "   "))) {
+                var action = new ActionDto(name, List.of(1), extra);
+
+                var exception = assertThrows(InvalidActionException.class, () -> transformer.from(action));
+                assertEquals(name + " needs an expression", exception.getMessage());
+            }
+        }
+    }
+
+    @Test
+    void anActionWithoutExpressionParameterIgnoresABlankOne() {
+        assertNotNull(new ClassicalProofTransformer().from(new ActionDto("COPY", List.of(1), Map.of("expression", ""))));
+    }
+
+    @Test
+    void applyingAnAssumeWithABlankExpressionIsAnInvalidAction() {
+        var apply = new LogicalApplyAction<>(new ClassicalProofTransformer());
+        var proof = new ProofDto(List.of(new StepDto("P", "Ass", 0, Map.of())), "classical", "P");
+
+        for (var expression : List.of("", " \t ")) {
+            var action = new ActionDto("ASSUME", List.of(), Map.of("expression", expression));
+
+            var exception = assertThrows(InvalidActionException.class, () -> apply.perform(action, proof));
+            assertEquals("ASSUME needs an expression", exception.getMessage());
+        }
+    }
+
+    @Test
+    void anUnparsableExpressionNeverLeaksNull() {
+        var apply = new LogicalApplyAction<>(new ClassicalProofTransformer());
+        var proof = new ProofDto(List.of(new StepDto("P", "Ass", 0, Map.of())), "classical", "P");
+
+        for (var expression : List.of("P ->", "P Q", "(P", "->")) {
+            var action = new ActionDto("ASSUME", List.of(), Map.of("expression", expression));
+
+            var exception = assertThrows(InvalidActionException.class, () -> apply.perform(action, proof));
+            assertTrue(exception.getMessage().startsWith("Cannot build action 'ASSUME': "), exception.getMessage());
+            assertFalse(exception.getMessage().contains("null"), exception.getMessage());
+        }
     }
 }

@@ -36,8 +36,14 @@ public class LogicalApplyAction<T extends LogicOperation, Q extends ProofStep<T>
     private A buildAction(ActionDto action) {
         try {
             return logic.from(action);
+        } catch (InvalidActionException e) {
+            throw e;
         } catch (RuntimeException e) {
-            throw new InvalidActionException("Cannot build action '" + action.name() + "': " + e.getMessage(), e);
+            throw new InvalidActionException("Cannot build action '" + action.name() + "': " + reasonOf(e), e);
         }
+    }
+
+    private static String reasonOf(RuntimeException e) {
+        return e.getMessage() == null || e.getMessage().isBlank() ? "the expression could not be parsed" : e.getMessage();
     }
 }

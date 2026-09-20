@@ -31,6 +31,22 @@ public class ProofParserTest {
     }
 
     @Test
+    public void lineFailureWithAMessageIsReportedTest() {
+        var proofParser = new ProofParserStub();
+        var exception = assertThrows(InvalidProofException.class, () -> proofParser.parseProof(String.join(System.lineSeparator(), "ok", "illegal")));
+        assertEquals("Line 2 is not valid: nonsense in the line", exception.getMessage());
+    }
+
+    @Test
+    public void lineFailureWithoutAUsableMessageIsUnrecognizedFormatTest() {
+        var proofParser = new ProofParserStub();
+        for (var line : List.of("blank", "noMessage", "notIllegalArgument")) {
+            var exception = assertThrows(InvalidProofException.class, () -> proofParser.parseProof(line));
+            assertEquals("Line 1 is not valid: unrecognized format", exception.getMessage(), line);
+        }
+    }
+
+    @Test
     public void proofLineSplitTest() {
         var line = ProofParser.ProofLine.split("      P -> Q           ->E [1, 2]");
         assertEquals(new ProofParser.ProofLine(2, "P -> Q", "->E [1, 2]"), line);
@@ -92,8 +108,15 @@ public class ProofParserTest {
 
         @Override
         public ProofStep<LogicOperation> parseLine(String line) {
-            if ("bad".equals(line)) {
-                throw new InvalidProofException("nonsense");
+            switch (line) {
+                case "bad" -> throw new InvalidProofException("nonsense");
+                case "illegal" -> throw new IllegalArgumentException("nonsense in the line");
+                case "blank" -> throw new IllegalArgumentException("  ");
+                case "noMessage" -> throw new IllegalArgumentException();
+                case "notIllegalArgument" -> throw new IllegalStateException("not shown");
+                default -> {
+                    // A good line
+                }
             }
             return new ProofStep<>(0, new LogicOperation() {
                 @Override

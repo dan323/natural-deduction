@@ -3,6 +3,7 @@ package com.dan323.uses.modal;
 import com.dan323.expressions.ModalLogicParser;
 import com.dan323.expressions.modal.ModalLogicalOperation;
 import com.dan323.expressions.modal.ModalOperation;
+import com.dan323.model.ActionDescriptorDto;
 import com.dan323.model.ActionDto;
 import com.dan323.model.ProofDto;
 import com.dan323.model.StepDto;
@@ -10,6 +11,7 @@ import com.dan323.proof.modal.AbstractModalAction;
 import com.dan323.proof.modal.proof.ModalNaturalDeduction;
 import com.dan323.proof.modal.proof.ParseModalAction;
 import com.dan323.proof.modal.proof.ProofStepModal;
+import com.dan323.uses.ActionExpression;
 import com.dan323.uses.InvalidProofException;
 import com.dan323.uses.Transformer;
 
@@ -19,6 +21,7 @@ import java.util.Map;
 
 public class ModalProofTransformer implements Transformer<ModalOperation, ProofStepModal, ModalNaturalDeduction, AbstractModalAction> {
 
+    private static final List<ActionDescriptorDto> ACTIONS = new ModalGetActions().perform();
 
     @Override
     public String logic() {
@@ -82,8 +85,8 @@ public class ModalProofTransformer implements Transformer<ModalOperation, ProofS
 
     public AbstractModalAction from(ActionDto action) {
         var parser = new ModalLogicParser();
-        var expression = action.extraParameters().get("expression");
-        return ParseModalAction.parseAction(action.name(), action.sources(), expression == null ? null : parser.evaluate(expression), action.extraParameters().get("state"));
+        var expression = ActionExpression.of(action, ACTIONS);
+        return ParseModalAction.parseAction(action.name(), action.sources(), expression.map(parser::evaluate).orElse(null), action.extraParameters().get("state"));
     }
 
     @Override
