@@ -156,7 +156,7 @@ Example: add a new rule to classical logic
 
 ### Unit Testing
 
-Use JUnit 5 and Mockito. Rules are tested against real proofs (see `ClassicAndTest`): build a proof, check
+Use JUnit 6 and Mockito. Rules are tested against real proofs (see `ClassicAndTest`): build a proof, check
 `isValid(proof)`, `apply(proof)` and assert on the steps.
 
 ### Integration Testing

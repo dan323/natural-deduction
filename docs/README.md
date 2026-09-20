@@ -72,9 +72,9 @@ See [Project Modules](./MODULES.md) for more details.
 
 ## Technology Stack
 
-- **Backend**: Java 21, Spring Boot 3.5.3, Maven
+- **Backend**: Java 21, Spring Boot 3.5.16, Maven
 - **Frontend**: React 19, TypeScript, Jest
-- **Testing**: JUnit 5, Mockito, PIT mutation testing
+- **Testing**: JUnit 6, Mockito, PIT mutation testing
 - **Quality**: SonarCloud, JaCoCo coverage
 - **Deployment**: Docker (non-root image with a health check, published to Docker Hub by CI after the tests and a smoke test pass)
 

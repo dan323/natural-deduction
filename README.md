@@ -48,10 +48,10 @@ Complete documentation is available in the [docs/](./docs/) folder:
 
 ## Technology Stack
 
-- **Backend**: Java 21, Spring Boot 3.5.3
+- **Backend**: Java 21, Spring Boot 3.5.16
 - **Frontend**: React 19, TypeScript, Vite
 - **Build**: Maven, Docker
-- **Testing**: JUnit 5, Jest, PIT mutation testing
+- **Testing**: JUnit 6, Jest, PIT mutation testing
 - **Quality**: SonarCloud, JaCoCo
 
 ## License
