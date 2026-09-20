@@ -90,7 +90,7 @@ jobs:
           docker run -d --name nd-smoke -p 8080:8080 natural-deduction:smoke
           ok=false
           for i in $(seq 1 45); do
-            code=$(curl -s -o /dev/null -w '%{http_code}' http://localhost:8080/logic/classical/actions || true)
+            code=$(curl --connect-timeout 2 --max-time 5 -s -o /dev/null -w '%{http_code}' http://localhost:8080/logic/classical/actions || true)
             if [ "$code" = "200" ]; then
               ok=true
               break
@@ -102,8 +102,8 @@ jobs:
             docker logs nd-smoke
             exit 1
           fi
-          curl -fsS http://localhost:8080/logic/modal/actions > /dev/null
-          curl -fsS http://localhost:8080/ | grep -q 'id="root"'
+          curl --connect-timeout 2 --max-time 5 -fsS http://localhost:8080/logic/modal/actions > /dev/null
+          curl --connect-timeout 2 --max-time 5 -fsS http://localhost:8080/ | grep -q 'id="root"'
           docker exec nd-smoke id -u | grep -qv '^0$'
           docker rm -f nd-smoke
 
