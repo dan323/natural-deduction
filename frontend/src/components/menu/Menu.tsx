@@ -1,9 +1,9 @@
 import React, { FC, useState, useEffect, ChangeEventHandler, useMemo } from 'react';
 import '../Expressions.css';
-import { fetchActions, applyAction } from '../../service/actions';
+import { fetchActions, applyAction, solveProof } from '../../service/actions';
 import './Menu.css';
 import GlowingInput from '../input/GlowingInput';
-import { ProofDto, ActionDto, ApplyActionResponse } from '../../types';
+import { ProofDto, ActionDto, ActionDescriptor, ApplyActionResponse, ParamKind } from '../../types';
 
 type MenuProps = {
     logic: string;
@@ -12,31 +12,32 @@ type MenuProps = {
     proof: ProofDto;
 };
 
-type ActionParsed = {
-    name: string;
-    // One entry per input of the action: true for a line number, false for an expression.
-    inputKinds: boolean[];
-};
-
 const glowingColors: string[] = ['#ffcc00', '#00f2ff', '#ff69b4'];
 
-function parseAction(action: string): ActionParsed {
-    const name = action.split('(')[0];
-    const inputString = (/\[\s*(.*?)\s*\]/).exec(action)?.[1];
-    const inputs = inputString ? inputString.split(',').map(input => input.trim()) : [];
+const inputLabels: Record<ParamKind, string> = {
+    INT: 'Line number:',
+    EXPRESSION: 'Expression:',
+    STATE: 'State:',
+};
 
-    return { name, inputKinds: inputs.map(input => input === 'int') };
+// The proof is finished when its last step, at the top level, is the goal.
+function isDone(proof: ProofDto): boolean {
+    const last = proof.steps[proof.steps.length - 1];
+    return last !== undefined && last.assmsLevel === 0 && last.expression === proof.goal;
 }
 
 const Menu: FC<MenuProps> = ({ logic, onColorChange, setProof, proof }) => {
-    const [actions, setActions] = useState<ActionParsed[]>([]);
+    const [actions, setActions] = useState<ActionDescriptor[]>([]);
     const [selectedAction, setSelectedAction] = useState<string>('');
     const [sources, setSources] = useState<number[]>([]);
     const [expression, setExpression] = useState<string>("");
+    const [state, setState] = useState<string>("");
     const [errorMessage, setErrorMessage] = useState<string>('');
+    const [notice, setNotice] = useState<string>('');
     const [isLoading, setIsLoading] = useState(false);
+    const [isSolving, setIsSolving] = useState(false);
 
-    const selectedActionParsed = useMemo(
+    const selectedDescriptor = useMemo(
         () => actions.find(action => action.name === selectedAction),
         [selectedAction, actions]
     );
@@ -45,29 +46,30 @@ const Menu: FC<MenuProps> = ({ logic, onColorChange, setProof, proof }) => {
         const newAction = event.target.value;
         setSelectedAction(newAction);
         setErrorMessage('');
+        setNotice('');
 
         glowingColors.forEach((color) => onColorChange(color,-1));
 
-        const selectedActionObj = actions.find(action => action.name === newAction);
-        if (selectedActionObj) {
-            const intInputs = selectedActionObj.inputKinds.filter(Boolean).length;
-            setSources(new Array(intInputs).fill(-1));
-        } else {
-            setSources([]);
-        }
+        const descriptor = actions.find(action => action.name === newAction);
+        setSources(new Array(descriptor?.params.filter(kind => kind === 'INT').length ?? 0).fill(-1));
         setExpression('');
+        setState('');
     };
 
-    // `index` is the position among all inputs of the selected action; `sources` only holds the int inputs.
+    // `index` is the position among all inputs of the selected action; `sources` only holds the INT inputs.
     const onInput = (index: number, input: number | string) => {
         setErrorMessage('');
+        setNotice('');
+        const params = selectedDescriptor?.params ?? [];
         if (typeof input === 'number') {
-            const sourceIndex = selectedActionParsed?.inputKinds.slice(0, index).filter(Boolean).length ?? index;
+            const sourceIndex = params.slice(0, index).filter(kind => kind === 'INT').length;
             setSources(prevSources => {
                 const newSources = [...prevSources];
                 newSources[sourceIndex] = input;
                 return newSources;
             });
+        } else if (params[index] === 'STATE') {
+            setState(input);
         } else {
             setExpression(input);
         }
@@ -78,7 +80,7 @@ const Menu: FC<MenuProps> = ({ logic, onColorChange, setProof, proof }) => {
         fetchActions(
             logic,
             fetchedActions => {
-                setActions(fetchedActions.map(parseAction));
+                setActions(fetchedActions);
                 setErrorMessage('');
             },
             message => setErrorMessage(message)
@@ -88,12 +90,13 @@ const Menu: FC<MenuProps> = ({ logic, onColorChange, setProof, proof }) => {
     const processAction = () => {
         if (selectedAction === '') return;
         setErrorMessage('');
+        setNotice('');
         setIsLoading(true);
 
         const actionDto: ActionDto = {
             name: selectedAction,
             sources: sources,
-            extraParameters: { expression }
+            extraParameters: selectedDescriptor?.params.includes('STATE') ? { expression, state } : { expression }
         };
 
         applyAction(logic, proof, actionDto, (response: ApplyActionResponse) => {
@@ -107,6 +110,26 @@ const Menu: FC<MenuProps> = ({ logic, onColorChange, setProof, proof }) => {
         });
     };
 
+    const solve = () => {
+        setErrorMessage('');
+        setNotice('');
+        setIsSolving(true);
+
+        solveProof(logic, proof, (response: ApplyActionResponse) => {
+            setIsSolving(false);
+            if (response.success && response.proof) {
+                setProof(response.proof);
+                glowingColors.forEach((color) => onColorChange(color, -1));
+                setNotice(isDone(response.proof)
+                    ? 'The proof is complete.'
+                    : 'The solver could not finish the proof. Continue from where it stopped.');
+            } else {
+                setErrorMessage(response.message || 'The proof could not be solved.');
+            }
+        });
+    };
+
+    const busy = isLoading || isSolving;
     const noProof = proof.steps.length === 0 && !proof.goal;
 
     return (
@@ -132,18 +155,18 @@ const Menu: FC<MenuProps> = ({ logic, onColorChange, setProof, proof }) => {
                             </option>
                         ))}
                     </select>
-                    {selectedActionParsed && (
-                        selectedActionParsed.inputKinds.length > 0 ? (
+                    {selectedDescriptor && (
+                        selectedDescriptor.params.length > 0 ? (
                             <div className="input-container">
-                                {selectedActionParsed.inputKinds.map((isInt, index) => (
+                                {selectedDescriptor.params.map((kind, index) => (
                                     <GlowingInput
                                         key={`${selectedAction}-${index}`}
                                         index={index}
-                                        label={isInt ? 'Line number:' : 'Expression:'}
+                                        label={inputLabels[kind]}
                                         glowColor={glowingColors[index]}
                                         onColorChange={onColorChange}
                                         onInput={onInput}
-                                        shouldGlow={isInt}
+                                        shouldGlow={kind === 'INT'}
                                     />
                                 ))}
                             </div>
@@ -154,14 +177,30 @@ const Menu: FC<MenuProps> = ({ logic, onColorChange, setProof, proof }) => {
                             {errorMessage}
                         </p>
                     )}
-                    <button
-                        className="menu-button"
-                        onClick={processAction}
-                        disabled={selectedAction === '' || isLoading}
-                        aria-disabled={selectedAction === '' || isLoading}
-                    >
-                        {isLoading ? 'Applying…' : 'Apply Rule'}
-                    </button>
+                    {notice && (
+                        <p className="menu-notice" role="status">
+                            {notice}
+                        </p>
+                    )}
+                    <div className="menu-buttons">
+                        <button
+                            className="menu-button"
+                            onClick={processAction}
+                            disabled={selectedAction === '' || busy}
+                            aria-disabled={selectedAction === '' || busy}
+                        >
+                            {isLoading ? 'Applying…' : 'Apply Rule'}
+                        </button>
+                        <button
+                            className="menu-button menu-button-secondary"
+                            onClick={solve}
+                            disabled={busy}
+                            aria-disabled={busy}
+                            title="Let the solver try to finish the whole proof"
+                        >
+                            {isSolving ? 'Solving…' : 'Solve'}
+                        </button>
+                    </div>
                 </>
             )}
         </div>

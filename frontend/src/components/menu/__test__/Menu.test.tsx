@@ -54,7 +54,7 @@ describe('Menu Component', () => {
     
     test('renders Menu component and fetches actions', async () => {
         mockFetchActions.mockImplementation((logic, callback) => {
-            callback(['Action1([int, int])', 'Action2([expression])']);
+            callback([{ name: 'Action1', params: ['INT', 'INT'] }, { name: 'Action2', params: ['EXPRESSION'] }]);
         });
 
         render(<Menu {...defaultProps} />);
@@ -71,7 +71,7 @@ describe('Menu Component', () => {
 
     test('renders inputs when an action is selected', async () => {
         mockFetchActions.mockImplementation((logic, callback) => {
-            callback(['Action1([int, int])', 'Action2([expression])']);
+            callback([{ name: 'Action1', params: ['INT', 'INT'] }, { name: 'Action2', params: ['EXPRESSION'] }]);
         });
 
         render(<Menu {...defaultProps} />);
@@ -88,7 +88,7 @@ describe('Menu Component', () => {
 
     test('button is enabled when inputs are valid', async () => {
         mockFetchActions.mockImplementation((logic, callback) => {
-            callback(['Action1([int, int])', 'Action2([expression])']);
+            callback([{ name: 'Action1', params: ['INT', 'INT'] }, { name: 'Action2', params: ['EXPRESSION'] }]);
         });
 
         render(<Menu {...defaultProps} />);
@@ -100,7 +100,7 @@ describe('Menu Component', () => {
 
     test('calls applyAction with correct parameters and updates proof', async () => {
         mockFetchActions.mockImplementation((logic, callback) => {
-            callback(['Action1([int, int])', 'Action2([expression])']);
+            callback([{ name: 'Action1', params: ['INT', 'INT'] }, { name: 'Action2', params: ['EXPRESSION'] }]);
         });
 
         const mockResponse = {
@@ -161,7 +161,7 @@ describe('Menu Component', () => {
 
     test('displays error message when action fails', async () => {
         mockFetchActions.mockImplementation((logic, callback) => {
-            callback(['Action1([int, int])', 'Action2([expression])']);
+            callback([{ name: 'Action1', params: ['INT', 'INT'] }, { name: 'Action2', params: ['EXPRESSION'] }]);
         });
 
         const mockResponse = {

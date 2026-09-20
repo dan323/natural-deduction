@@ -23,7 +23,7 @@ describe('App', () => {
       goal: 'P',
     };
     fetchMock.mockImplementation(async (url: string) => {
-      if (url.endsWith('/actions')) return jsonResponse(200, ['Rep([int])']);
+      if (url.endsWith('/actions')) return jsonResponse(200, [{ name: 'Rep', params: ['INT'] }]);
       return jsonResponse(200, { proof, success: true, message: '' });
     });
     render(<App />);
@@ -41,5 +41,32 @@ describe('App', () => {
 
     const actionListCalls = fetchMock.mock.calls.filter(([url]) => String(url).endsWith('/actions'));
     expect(actionListCalls).toHaveLength(1);
+  });
+
+  test('the Solve button sends the proof to the solver and shows the solved proof', async () => {
+    const user = userEvent.setup();
+    const solved = {
+      steps: [
+        { expression: 'P', rule: 'Ass', assmsLevel: 1, extraParameters: {} },
+        { expression: 'P -> P', rule: '->I [1-1]', assmsLevel: 0, extraParameters: {} },
+      ],
+      logic: 'classical',
+      goal: 'P -> P',
+    };
+    fetchMock.mockImplementation(async (url: string) => {
+      if (url.endsWith('/actions')) return jsonResponse(200, []);
+      return jsonResponse(200, solved);
+    });
+    render(<App />);
+
+    await user.click(screen.getByRole('button', { name: /Start a new proof/i }));
+    await user.type(screen.getByPlaceholderText('Premise 1'), 'P');
+    await user.type(screen.getByPlaceholderText('Enter the goal expression'), 'P -> P');
+    await user.click(screen.getByText('Start Proof'));
+    await user.click(screen.getByRole('button', { name: 'Solve' }));
+
+    expect(await screen.findByRole('status')).toHaveTextContent('The proof is complete.');
+    expect(fetchMock).toHaveBeenCalledWith('/logic/classical/solve', expect.objectContaining({ method: 'POST' }));
+    expect(screen.getAllByText(/→/).length).toBeGreaterThan(0);
   });
 });

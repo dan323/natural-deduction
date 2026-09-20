@@ -132,3 +132,39 @@
     cursor: not-allowed;
     opacity: 0.7;
 }
+
+/* Non-error message, e.g. the outcome of the solver */
+.menu-notice {
+    color: #084298;
+    background-color: #e7f1ff;
+    border: 1px solid #b6d4fe;
+    border-radius: 4px;
+    padding: 8px 12px;
+    font-size: 1rem;
+    margin-bottom: 12px;
+    text-align: left;
+}
+
+/* Apply Rule and Solve, side by side */
+.menu-buttons {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.menu-button-secondary {
+    background-color: #fff;
+    color: #007bff;
+    border: 2px solid #007bff;
+}
+
+.menu-button-secondary:hover:not(:disabled) {
+    background-color: #e7f1ff;
+}
+
+.menu-button-secondary:disabled {
+    background-color: #fff;
+    color: #6ea8fe;
+    border-color: #9ec5fe;
+}

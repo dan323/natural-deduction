@@ -1,4 +1,4 @@
-import { ProofDto, ActionDto, ApplyActionResponse } from "../types";
+import { ProofDto, ActionDto, ActionDescriptor, ApplyActionResponse } from "../types";
 
 // Extracts the `message` of an error body ({ "message": "..." }), falling back to the HTTP status.
 async function errorMessage(response: Response): Promise<string> {
@@ -15,7 +15,7 @@ async function errorMessage(response: Response): Promise<string> {
 
 export async function fetchActions(
     logic: string,
-    consumer: (actions: string[]) => void,
+    consumer: (actions: ActionDescriptor[]) => void,
     onError?: (message: string) => void
 ): Promise<void> {
     try {
@@ -46,6 +46,28 @@ export async function applyAction(logic: string, proof: ProofDto, action: Action
             : { success: false, message: await errorMessage(response) };
     } catch (err) {
         console.error("Error applying an action:", err);
+        result = { success: false, message: 'Network error. Please try again.' };
+    }
+    consumer(result);
+}
+
+// Asks the backend's automatic solver to finish the proof. It answers with the proof as far as it got, which may
+// still be incomplete; an error body (for example when the solver runs out of time) becomes success=false.
+export async function solveProof(logic: string, proof: ProofDto, consumer: (response: ApplyActionResponse) => void): Promise<void> {
+    let result: ApplyActionResponse;
+    try {
+        const response = await fetch(`/logic/${logic}/solve`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(proof),
+        });
+        result = response.ok
+            ? { success: true, proof: await response.json(), message: '' }
+            : { success: false, message: await errorMessage(response) };
+    } catch (err) {
+        console.error("Error solving the proof:", err);
         result = { success: false, message: 'Network error. Please try again.' };
     }
     consumer(result);
