@@ -8,6 +8,7 @@ import com.dan323.proof.generic.proof.Proof;
 import com.dan323.proof.generic.proof.ProofStep;
 import com.dan323.uses.LogicalSolver;
 import com.dan323.uses.SolveTimeoutException;
+import com.dan323.uses.SolverBusyException;
 import com.dan323.uses.Transformer;
 import org.junit.jupiter.api.Test;
 
@@ -15,9 +16,12 @@ import java.time.Duration;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static com.dan323.uses.mock.Proofs.genericProof;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -84,9 +88,10 @@ class LogicalSolverTest {
         };
     }
 
-    /** Spins until interrupted, then tells the test it was stopped. */
-    private static Runnable spinUntilInterrupted(CountDownLatch stopped) {
+    /** Tells the test it started, spins until interrupted, then tells the test it was stopped. */
+    private static Runnable spinUntilInterrupted(CountDownLatch started, CountDownLatch stopped) {
         return () -> {
+            started.countDown();
             while (!Thread.currentThread().isInterrupted()) {
                 Thread.onSpinWait();
             }
@@ -105,13 +110,15 @@ class LogicalSolverTest {
 
     @Test
     void stopsTheSolverAndReportsATimeout() throws InterruptedException {
+        var started = new CountDownLatch(1);
         var stopped = new CountDownLatch(1);
-        var solver = new LogicalSolver<>(transformer(spinUntilInterrupted(stopped)), Duration.ofMillis(100));
+        var solver = new LogicalSolver<>(transformer(spinUntilInterrupted(started, stopped)), Duration.ofMillis(500));
         var proof = genericProof("l");
 
         var timeout = assertThrows(SolveTimeoutException.class, () -> solver.perform(proof));
 
-        assertEquals("The solver did not finish within 100 ms, try solving part of the proof by hand first", timeout.getMessage());
+        assertEquals("The solver did not finish within 500 ms, try solving part of the proof by hand first", timeout.getMessage());
+        assertTrue(started.await(10, TimeUnit.SECONDS), "the solver never started");
         assertTrue(stopped.await(10, TimeUnit.SECONDS), "the solver thread was not interrupted");
     }
 
@@ -146,17 +153,51 @@ class LogicalSolverTest {
 
     @Test
     void aCallerInterruptedWhileWaitingStopsTheSolver() throws InterruptedException {
+        var started = new CountDownLatch(1);
         var stopped = new CountDownLatch(1);
-        var solver = new LogicalSolver<>(transformer(spinUntilInterrupted(stopped)), LONG);
+        var solver = new LogicalSolver<>(transformer(spinUntilInterrupted(started, stopped)), LONG);
         var proof = genericProof("l");
+        var failure = new AtomicReference<Throwable>();
+        var caller = new Thread(() -> {
+            try {
+                solver.perform(proof);
+            } catch (RuntimeException e) {
+                failure.set(e);
+            }
+        });
 
-        Thread.currentThread().interrupt();
-        try {
-            assertThrows(IllegalStateException.class, () -> solver.perform(proof));
-            assertTrue(Thread.currentThread().isInterrupted(), "the interrupt flag must be kept");
-        } finally {
-            Thread.interrupted();
-        }
+        caller.start();
+        assertTrue(started.await(10, TimeUnit.SECONDS), "the solver never started");
+        caller.interrupt();
+        caller.join(10_000);
+
+        assertFalse(caller.isAlive());
+        assertInstanceOf(IllegalStateException.class, failure.get());
         assertTrue(stopped.await(10, TimeUnit.SECONDS), "the solver thread was not interrupted");
+    }
+
+    @Test
+    void aSolveBeyondTheConcurrencyLimitIsTurnedAway() throws InterruptedException {
+        var started = new CountDownLatch(1);
+        var stopped = new CountDownLatch(1);
+        var solver = new LogicalSolver<>(transformer(spinUntilInterrupted(started, stopped)), LONG, 1);
+        var proof = genericProof("l");
+        var first = new Thread(() -> {
+            try {
+                solver.perform(proof);
+            } catch (IllegalStateException interrupted) {
+                // the test interrupts the first solve at the end
+            }
+        });
+
+        first.start();
+        assertTrue(started.await(10, TimeUnit.SECONDS), "the first solve never started");
+        try {
+            assertThrows(SolverBusyException.class, () -> solver.perform(proof));
+        } finally {
+            first.interrupt();
+            first.join(10_000);
+        }
+        assertTrue(stopped.await(10, TimeUnit.SECONDS), "the first solve was not stopped");
     }
 }

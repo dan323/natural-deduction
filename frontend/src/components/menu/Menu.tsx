@@ -22,8 +22,8 @@ const inputLabels: Record<ParamKind, string> = {
 
 // The proof is finished when its last step, at the top level, is the goal.
 function isDone(proof: ProofDto): boolean {
-    const last = proof.steps[proof.steps.length - 1];
-    return last !== undefined && last.assmsLevel === 0 && last.expression === proof.goal;
+    const last = proof.steps.at(-1);
+    return last?.assmsLevel === 0 && last.expression === proof.goal;
 }
 
 const Menu: FC<MenuProps> = ({ logic, onColorChange, setProof, proof }) => {
@@ -178,9 +178,9 @@ const Menu: FC<MenuProps> = ({ logic, onColorChange, setProof, proof }) => {
                         </p>
                     )}
                     {notice && (
-                        <p className="menu-notice" role="status">
+                        <output className="menu-notice">
                             {notice}
-                        </p>
+                        </output>
                     )}
                     <div className="menu-buttons">
                         <button

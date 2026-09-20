@@ -113,6 +113,25 @@ describe('service/actions', () => {
       expect(consumer).toHaveBeenCalledWith({ success: false, message: 'Request failed with status 502.' });
     });
 
+    test('gives up on a request that never answers', async () => {
+      jest.useFakeTimers();
+      try {
+        fetchMock.mockImplementation((url: string, init: RequestInit) => new Promise((resolve, reject) => {
+          init.signal?.addEventListener('abort', () => reject(new DOMException('Aborted', 'AbortError')));
+        }));
+        const consumer = jest.fn();
+
+        const solving = solveProof('classical', proof, consumer);
+        expect(consumer).not.toHaveBeenCalled();
+        jest.advanceTimersByTime(60_000);
+        await solving;
+
+        expect(consumer).toHaveBeenCalledWith({ success: false, message: 'The solver took too long to answer. Please try again.' });
+      } finally {
+        jest.useRealTimers();
+      }
+    });
+
     test('a network failure reports a network error', async () => {
       fetchMock.mockRejectedValue(new TypeError('Failed to fetch'));
       const consumer = jest.fn();

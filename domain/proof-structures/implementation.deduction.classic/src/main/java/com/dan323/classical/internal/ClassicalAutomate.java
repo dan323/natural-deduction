@@ -26,22 +26,23 @@ public final class ClassicalAutomate {
     private List<ClassicalAction> actionsDone;
     private Map<Integer, Integer> usedForGoal;
 
-    private ClassicalAutomate() {
+    /**
+     * A solver keeps its working state in fields: use one instance per proof to solve.
+     */
+    public ClassicalAutomate() {
     }
-
-    public static final ClassicalAutomate AUTOMATIC_SOLVER = new ClassicalAutomate();
 
     /**
      * Finish the proof if it can be done.
      * It will stop without solving it if it cannot be solved
      *
-     * <p>The solver keeps its working state in fields, so calls are serialized. It checks the interrupt flag of the
-     * calling thread between its steps: interrupting the thread stops it with a {@link CancellationException}.
+     * <p>It checks the interrupt flag of the calling thread between its steps: interrupting the thread stops it
+     * with a {@link CancellationException}.
      *
      * @param naturalDeduction the proof to solve
      * @throws CancellationException if the calling thread is interrupted
      */
-    public synchronized void automate(NaturalDeduction naturalDeduction) {
+    public void automate(NaturalDeduction naturalDeduction) {
         // Init state
         proof = naturalDeduction;
         proof.reset();

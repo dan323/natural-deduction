@@ -7,8 +7,8 @@ This document describes the REST API endpoints for the Natural Deduction system.
 The server keeps no session. Every logic (`classical`, `modal`) is served under `/logic/{logic}`. The sections after
 this one describe an earlier design that is not implemented; only this section matches the code.
 
-Every non-2xx response has the body `{"message": "..."}`. An unknown logic is a 404, malformed input a 400 and a
-solver that runs out of time a 422.
+Every non-2xx response has the body `{"message": "..."}`. An unknown logic is a 404, malformed input a 400, a
+solver that runs out of time a 422 and a solver that is already busy a 429.
 
 ### List the actions: `GET /logic/{logic}/actions`
 
@@ -75,6 +75,8 @@ Runs the automatic solver on the proof (a `ProofDto`) and returns the resulting 
   default, set with the property `natural-deduction.solve-timeout`, e.g. `natural-deduction.solve-timeout=5s`) the
   solver thread is interrupted and the response is `422` with
   `{"message": "The solver did not finish within 10 seconds, try solving part of the proof by hand first"}`.
+- At most as many solves as there are processors (at least 2) run at once, per logic. Another one is answered at once
+  with `429` and `{"message": "The solver is busy with other proofs, try again in a moment"}`.
 - An invalid proof is a `400`, as for `/action`.
 
 ### Upload a proof file: `POST /logic/{logic}/proof`

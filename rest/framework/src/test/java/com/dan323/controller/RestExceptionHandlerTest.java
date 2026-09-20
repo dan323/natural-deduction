@@ -4,6 +4,7 @@ import com.dan323.rest.model.ErrorResponse;
 import com.dan323.uses.InvalidActionException;
 import com.dan323.uses.InvalidProofException;
 import com.dan323.uses.SolveTimeoutException;
+import com.dan323.uses.SolverBusyException;
 import com.dan323.uses.UnknownLogicException;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpHeaders;
@@ -42,6 +43,13 @@ public class RestExceptionHandlerTest {
         var response = handler.handleSolveTimeout(new SolveTimeoutException(Duration.ofSeconds(10)));
         assertEquals(HttpStatus.UNPROCESSABLE_ENTITY, response.getStatusCode());
         assertEquals("The solver did not finish within 10 seconds, try solving part of the proof by hand first", response.getBody().message());
+    }
+
+    @Test
+    void aBusySolverIsTooManyRequests() {
+        var response = handler.handleSolverBusy(new SolverBusyException());
+        assertEquals(HttpStatus.TOO_MANY_REQUESTS, response.getStatusCode());
+        assertEquals("The solver is busy with other proofs, try again in a moment", response.getBody().message());
     }
 
     @Test

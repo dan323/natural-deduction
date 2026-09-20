@@ -27,22 +27,23 @@ public final class ModalAutomate {
 
     private Map<String, Integer> reflUsed;
 
-    private ModalAutomate() {
+    /**
+     * A solver keeps its working state in fields: use one instance per proof to solve.
+     */
+    public ModalAutomate() {
     }
-
-    public static final ModalAutomate AUTOMATIC_SOLVER = new ModalAutomate();
 
     /**
      * Finish the proof if it can be done.
      * It will stop without solving it if it cannot be solved
      *
-     * <p>The solver keeps its working state in fields, so calls are serialized. It checks the interrupt flag of the
-     * calling thread between its steps: interrupting the thread stops it with a {@link CancellationException}.
+     * <p>It checks the interrupt flag of the calling thread between its steps: interrupting the thread stops it
+     * with a {@link CancellationException}.
      *
      * @param naturalDeduction the proof to solve
      * @throws CancellationException if the calling thread is interrupted
      */
-    public synchronized void automate(ModalNaturalDeduction naturalDeduction) {
+    public void automate(ModalNaturalDeduction naturalDeduction) {
         // Init state
         proof = naturalDeduction;
         proof.reset();

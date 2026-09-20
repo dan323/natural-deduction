@@ -30,7 +30,7 @@ public final class NaturalDeduction extends Proof<ClassicalLogicOperation, Proof
     }
 
     public void automate() {
-        ClassicalAutomate.AUTOMATIC_SOLVER.automate(this);
+        new ClassicalAutomate().automate(this);
     }
 
 }
