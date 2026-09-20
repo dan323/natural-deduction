@@ -47,8 +47,8 @@ jacoco-report-aggregate/implementation.deduction.modal,com.dan323.proof.modal,Mo
 jacoco-report-aggregate/implementation.deduction.modal,com.dan323.proof.modal,ModalAndE1,0,33,0,0,0,5,0,4,0,4
 jacoco-report-aggregate/implementation.deduction.modal,com.dan323.proof.modal,ModalModusPonens,0,47,0,4,0,7,0,6,0,4
 jacoco-report-aggregate/implementation.deduction.modal,com.dan323.proof.modal,ModalCopy,18,46,2,2,2,7,3,5,1,5
-jacoco-report-aggregate/implementation.deduction.modal,com.dan323.proof.modal.internal,ModalAutomate,175,1894,46,210,14,274,36,139,0,44
-jacoco-report-aggregate/implementation.deduction.modal,com.dan323.proof.modal.proof,ModalNaturalDeduction,28,138,11,11,3,37,7,14,0,10
+jacoco-report-aggregate/implementation.deduction.modal,com.dan323.proof.modal.internal,ModalAutomate,175,1903,46,212,14,280,36,141,0,45
+jacoco-report-aggregate/implementation.deduction.modal,com.dan323.proof.modal.proof,ModalNaturalDeduction,28,140,11,11,3,37,7,14,0,10
 jacoco-report-aggregate/implementation.deduction.modal,com.dan323.proof.modal.proof,ProofStepModal,3,31,1,1,1,9,1,4,0,4
 jacoco-report-aggregate/implementation.deduction.modal,com.dan323.proof.modal.proof,ParseModalAction,263,530,18,34,24,89,24,55,6,29
 jacoco-report-aggregate/implementation.deduction.modal,com.dan323.proof.modal.complex,CompositionRule,5,3,0,0,1,1,1,1,1,1
@@ -96,10 +96,10 @@ jacoco-report-aggregate/implementation.deduction.classic,com.dan323.classical,Cl
 jacoco-report-aggregate/implementation.deduction.classic,com.dan323.classical,ClassicOrI2,2,12,0,0,1,2,1,2,1,2
 jacoco-report-aggregate/implementation.deduction.classic,com.dan323.classical.proof,ParseClassicalAction,23,425,3,30,4,65,4,43,1,18
 jacoco-report-aggregate/implementation.deduction.classic,com.dan323.classical.proof,AvailableAction,3,110,0,0,1,9,1,2,1,2
-jacoco-report-aggregate/implementation.deduction.classic,com.dan323.classical.proof,NaturalDeduction,0,32,0,0,0,9,0,5,0,5
+jacoco-report-aggregate/implementation.deduction.classic,com.dan323.classical.proof,NaturalDeduction,0,34,0,0,0,9,0,5,0,5
 jacoco-report-aggregate/implementation.deduction.classic,com.dan323.classical.complex,DeMorgan,5,140,1,9,1,18,2,8,1,4
 jacoco-report-aggregate/implementation.deduction.classic,com.dan323.classical.complex,OrE1,9,169,2,12,1,18,3,9,1,4
 jacoco-report-aggregate/implementation.deduction.classic,com.dan323.classical.complex,OrE2,9,169,2,12,1,18,3,9,1,4
 jacoco-report-aggregate/implementation.deduction.classic,com.dan323.classical.complex,CompositionRule,10,3,0,0,2,1,2,1,2,1
 jacoco-report-aggregate/implementation.deduction.classic,com.dan323.classical.complex,Sequence,8,73,1,7,1,20,1,7,0,4
-jacoco-report-aggregate/implementation.deduction.classic,com.dan323.classical.internal,ClassicalAutomate,76,1164,21,149,8,205,17,92,0,24
+jacoco-report-aggregate/implementation.deduction.classic,com.dan323.classical.internal,ClassicalAutomate,76,1173,21,151,8,211,17,94,0,25
