@@ -29,9 +29,35 @@ export function isValidCSSColor(color: string): boolean {
 }
 
 // Symbols of the formula language: `&`, `|`, `->`, `-` (negation) and, for the modal logic, `[]`, `<>`, `<=`, `=`.
-const FORMULA_TOKEN = /^(?:->|<>|<=|\[\]|[&|=\-()]|[A-Za-z0-9_]+)/;
+const FORMULA_TOKEN = /^(?:->|<>|<=|\[\]|[&|=\-()]|\w+)/;
 const BINARY_OPERATORS = new Set(['&', '|', '->', '<=', '=']);
 const UNARY_OPERATORS = new Set(['-', '[]', '<>']);
+
+type FormulaState = {
+  depth: number;
+  // true at the start and after an operator or "(", false after an operand or ")"
+  expectOperand: boolean;
+};
+
+// Updates the state with one token of a formula and returns the problem it causes, if any.
+function checkToken(token: string, state: FormulaState): string | null {
+  if (token === ')') {
+    if (state.depth === 0) return 'Unbalanced parentheses: ")" has no matching "(".';
+    if (state.expectOperand) return 'A parenthesis is closed right after an operator or "(".';
+    state.depth--;
+    return null;
+  }
+  if (BINARY_OPERATORS.has(token)) {
+    if (state.expectOperand) return `The operator "${token}" is missing its left operand.`;
+    state.expectOperand = true;
+    return null;
+  }
+  // "(", a negation-like operator or an operand: all of them need an operator (or nothing) before them.
+  if (!state.expectOperand) return `Missing operator before "${token}".`;
+  if (token === '(') state.depth++;
+  else if (!UNARY_OPERATORS.has(token)) state.expectOperand = false;
+  return null;
+}
 
 // A light syntax check of a formula typed by the user, so that obvious mistakes are reported before they become a
 // proof line. Returns a message describing the first problem, or null when nothing is wrong. It is deliberately
@@ -40,36 +66,17 @@ export function checkFormula(formula: string): string | null {
   const text = formula.trim();
   if (text === '') return 'This field must not be blank.';
 
-  let depth = 0;
-  let expectOperand = true; // true at the start and after an operator or "(", false after an operand or ")"
+  const state: FormulaState = { depth: 0, expectOperand: true };
   let rest = text;
   while (rest !== '') {
-    const match = FORMULA_TOKEN.exec(rest);
-    if (match === null) {
-      return `Unexpected symbol "${rest[0]}".`;
-    }
-    const token = match[0];
+    const token = FORMULA_TOKEN.exec(rest)?.[0];
+    if (token === undefined) return `Unexpected symbol "${rest[0]}".`;
     rest = rest.slice(token.length).trimStart();
-
-    if (token === '(') {
-      if (!expectOperand) return 'Missing operator before "(".';
-      depth++;
-    } else if (token === ')') {
-      if (depth === 0) return 'Unbalanced parentheses: ")" has no matching "(".';
-      if (expectOperand) return 'A parenthesis is closed right after an operator or "(".';
-      depth--;
-    } else if (BINARY_OPERATORS.has(token)) {
-      if (expectOperand) return `The operator "${token}" is missing its left operand.`;
-      expectOperand = true;
-    } else if (UNARY_OPERATORS.has(token)) {
-      if (!expectOperand) return `Missing operator before "${token}".`;
-    } else {
-      if (!expectOperand) return `Missing operator before "${token}".`;
-      expectOperand = false;
-    }
+    const problem = checkToken(token, state);
+    if (problem !== null) return problem;
   }
 
-  if (expectOperand) return 'The formula ends with an operator that has nothing after it.';
-  if (depth > 0) return 'Unbalanced parentheses: "(" is never closed.';
+  if (state.expectOperand) return 'The formula ends with an operator that has nothing after it.';
+  if (state.depth > 0) return 'Unbalanced parentheses: "(" is never closed.';
   return null;
 }

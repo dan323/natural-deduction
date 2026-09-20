@@ -8,12 +8,16 @@ type NewProofModalProps = {
   onSubmit: (premises: string[], goal: string) => void;
 };
 
+// A premise row. The id is what identifies the row for React, so that its error follows it when another row is removed.
+// `error` is what checkFormula found wrong; it is only set when Start Proof is pressed, and cleared as soon as the text
+// is edited.
+type Premise = { id: number; text: string; error: string | null };
+
 const NewProofModal: FC<NewProofModalProps> = ({ isOpen, onClose, onSubmit }) => {
-  const [premises, setPremises] = useState<string[]>(['']);
+  const nextPremiseId = useRef(0);
+  const newPremise = (): Premise => ({ id: nextPremiseId.current++, text: '', error: null });
+  const [premises, setPremises] = useState<Premise[]>(() => [newPremise()]);
   const [goal, setGoal] = useState('');
-  // What checkFormula found wrong, per premise and for the goal. Only set when Start Proof is pressed, and cleared per
-  // field as soon as that field is edited.
-  const [premiseErrors, setPremiseErrors] = useState<Array<string | null>>([null]);
   const [goalError, setGoalError] = useState<string | null>(null);
   const premiseRefs = useRef<Array<HTMLInputElement | null>>([]);
   const goalRef = useRef<HTMLInputElement>(null);
@@ -23,9 +27,8 @@ const NewProofModal: FC<NewProofModalProps> = ({ isOpen, onClose, onSubmit }) =>
   // A dialog that was closed opens empty the next time.
   useEffect(() => {
     if (isOpen) return;
-    setPremises(['']);
+    setPremises([newPremise()]);
     setGoal('');
-    setPremiseErrors([null]);
     setGoalError(null);
   }, [isOpen]);
 
@@ -57,22 +60,15 @@ const NewProofModal: FC<NewProofModalProps> = ({ isOpen, onClose, onSubmit }) =>
     };
   }, [isOpen]);
 
-  const handleAddPremise = () => {
-    setPremises([...premises, '']);
-    setPremiseErrors([...premiseErrors, null]);
-  };
+  const handleAddPremise = () => setPremises([...premises, newPremise()]);
   const handleRemovePremise = (index: number) => {
     if (premises.length === 1) return;
     setPremises(premises.filter((_, i) => i !== index));
-    setPremiseErrors(premiseErrors.filter((_, i) => i !== index));
     // The premise that slides into this position, or the one before it when the last one was removed.
     pendingFocus.current = Math.min(index, premises.length - 2);
   };
-  const handlePremiseChange = (index: number, value: string) => {
-    const newPremises = [...premises];
-    newPremises[index] = value;
-    setPremises(newPremises);
-    setPremiseErrors(premiseErrors.map((error, i) => (i === index ? null : error)));
+  const handlePremiseChange = (index: number, text: string) => {
+    setPremises(premises.map((premise, i) => (i === index ? { ...premise, text, error: null } : premise)));
   };
   const handleGoalChange = (value: string) => {
     setGoal(value);
@@ -81,16 +77,18 @@ const NewProofModal: FC<NewProofModalProps> = ({ isOpen, onClose, onSubmit }) =>
 
   const handleSubmit = () => {
     // A blank premise is just an unused row and is left out; everything else has to look like a formula.
-    const newPremiseErrors = premises.map((premise) => (premise.trim() === '' ? null : checkFormula(premise)));
+    const checked = premises.map((premise) => (
+      { ...premise, error: premise.text.trim() === '' ? null : checkFormula(premise.text) }
+    ));
     const newGoalError = checkFormula(goal);
-    if (newGoalError !== null || newPremiseErrors.some((error) => error !== null)) {
-      setPremiseErrors(newPremiseErrors);
+    if (newGoalError !== null || checked.some((premise) => premise.error !== null)) {
+      setPremises(checked);
       setGoalError(newGoalError);
-      const firstInvalid = newPremiseErrors.findIndex((error) => error !== null);
+      const firstInvalid = checked.findIndex((premise) => premise.error !== null);
       (firstInvalid >= 0 ? premiseRefs.current[firstInvalid] : goalRef.current)?.focus();
       return;
     }
-    onSubmit(premises.filter((premise: string) => premise.trim() !== ''), goal.trim());
+    onSubmit(premises.map((premise) => premise.text).filter((text) => text.trim() !== ''), goal.trim());
     onClose();
   };
 
@@ -110,18 +108,18 @@ const NewProofModal: FC<NewProofModalProps> = ({ isOpen, onClose, onSubmit }) =>
           <div role="group" aria-labelledby="new-proof-premises-label">
             <span id="new-proof-premises-label" className="modal-section-label">Premises:</span>
             {premises.map((premise, index) => (
-              <Fragment key={index}>
+              <Fragment key={premise.id}>
                 <div className="premise-row">
                   <label htmlFor={`premise-${index}`} className="visually-hidden">{`Premise ${index + 1}`}</label>
                   <input
                     ref={(element) => { premiseRefs.current[index] = element; }}
                     id={`premise-${index}`}
                     type="text"
-                    value={premise}
+                    value={premise.text}
                     onChange={(e) => handlePremiseChange(index, e.target.value)}
                     placeholder={`Premise ${index + 1}`}
-                    aria-invalid={premiseErrors[index] ? true : undefined}
-                    aria-describedby={premiseErrors[index] ? `premise-${index}-error` : undefined}
+                    aria-invalid={premise.error ? true : undefined}
+                    aria-describedby={premise.error ? `premise-${index}-error` : undefined}
                   />
                   {premises.length > 1 && (
                     <button
@@ -134,8 +132,8 @@ const NewProofModal: FC<NewProofModalProps> = ({ isOpen, onClose, onSubmit }) =>
                     </button>
                   )}
                 </div>
-                {premiseErrors[index] && (
-                  <p id={`premise-${index}-error`} className="modal-error" role="alert">{premiseErrors[index]}</p>
+                {premise.error && (
+                  <p id={`premise-${index}-error`} className="modal-error" role="alert">{premise.error}</p>
                 )}
               </Fragment>
             ))}
