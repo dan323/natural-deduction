@@ -57,12 +57,12 @@ describe('NewProofModal Component', () => {
   test('submits correct data and closes modal', () => {
     const { getByText, getByPlaceholderText } = setup(true);
 
-    fireEvent.change(getByPlaceholderText('Premise 1'), { target: { value: 'Premise 1' } });
-    fireEvent.change(getByPlaceholderText('Enter the goal expression'), { target: { value: 'Goal' } });
+    fireEvent.change(getByPlaceholderText('Premise 1'), { target: { value: 'P -> Q' } });
+    fireEvent.change(getByPlaceholderText('Enter the goal expression'), { target: { value: 'Q' } });
 
     fireEvent.click(getByText('Start Proof'));
 
-    expect(onSubmitMock).toHaveBeenCalledWith(['Premise 1'], 'Goal');
+    expect(onSubmitMock).toHaveBeenCalledWith(['P -> Q'], 'Q');
     expect(onCloseMock).toHaveBeenCalled();
   });
 
@@ -153,5 +153,213 @@ describe('NewProofModal accessibility', () => {
 
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Open' })).toHaveFocus();
+  });
+});
+
+describe('NewProofModal validation', () => {
+  const startButton = () => screen.getByRole('button', { name: 'Start Proof' });
+
+  const setup = async () => {
+    const onClose = jest.fn();
+    const onSubmit = jest.fn();
+    const user = userEvent.setup();
+    render(<NewProofModal isOpen={true} onClose={onClose} onSubmit={onSubmit} />);
+    // The modal moves focus to the first premise shortly after opening; let that settle before typing elsewhere.
+    await waitFor(() => expect(screen.getByLabelText('Premise 1')).toHaveFocus());
+    return { onClose, onSubmit, user };
+  };
+
+  test('marks the goal as required and explains why Start Proof is disabled', async () => {
+    const { user } = await setup();
+
+    expect(screen.getByLabelText('Goal:')).toBeRequired();
+    expect(startButton()).toBeDisabled();
+    expect(startButton()).toHaveAccessibleDescription('Enter the goal to start the proof.');
+
+    await user.type(screen.getByLabelText('Goal:'), 'P');
+
+    expect(startButton()).toBeEnabled();
+    expect(screen.queryByText('Enter the goal to start the proof.')).not.toBeInTheDocument();
+  });
+
+  test.each(['p ->', 'q &&', '(p', 'p q', 'p $ q'])('keeps the modal open and flags the goal %j', async (goal) => {
+    const { onClose, onSubmit, user } = await setup();
+
+    await user.type(screen.getByLabelText('Premise 1'), 'P');
+    await user.type(screen.getByLabelText('Goal:'), goal);
+    await user.click(startButton());
+
+    const goalInput = screen.getByLabelText('Goal:');
+    expect(screen.getByRole('alert')).toBeInTheDocument();
+    expect(goalInput).toHaveAttribute('aria-invalid', 'true');
+    expect(goalInput).toHaveAccessibleDescription(screen.getByRole('alert').textContent as string);
+    expect(goalInput).toHaveFocus();
+    expect(onSubmit).not.toHaveBeenCalled();
+    expect(onClose).not.toHaveBeenCalled();
+  });
+
+  test.each(['p ->', 'q &&'])('keeps the modal open and flags the premise %j', async (premise) => {
+    const { onClose, onSubmit, user } = await setup();
+
+    await user.type(screen.getByLabelText('Premise 1'), premise);
+    await user.type(screen.getByLabelText('Goal:'), 'Q');
+    await user.click(startButton());
+
+    const premiseInput = screen.getByLabelText('Premise 1');
+    expect(screen.getByRole('alert')).toBeInTheDocument();
+    expect(premiseInput).toHaveAttribute('aria-invalid', 'true');
+    expect(premiseInput).toHaveAccessibleDescription(screen.getByRole('alert').textContent as string);
+    expect(premiseInput).toHaveFocus();
+    expect(onSubmit).not.toHaveBeenCalled();
+    expect(onClose).not.toHaveBeenCalled();
+  });
+
+  test('reports each faulty field on its own, and clears a message once its field is edited', async () => {
+    const { user } = await setup();
+    await user.click(screen.getByText('+ Add Premise'));
+    await user.type(screen.getByLabelText('Premise 1'), 'P');
+    await user.type(screen.getByLabelText('Premise 2'), 'Q &');
+    await user.type(screen.getByLabelText('Goal:'), '(R');
+
+    await user.click(startButton());
+
+    expect(screen.getAllByRole('alert')).toHaveLength(2);
+    expect(screen.getByLabelText('Premise 1')).not.toHaveAttribute('aria-invalid');
+    expect(screen.getByLabelText('Premise 2')).toHaveAttribute('aria-invalid', 'true');
+    expect(screen.getByLabelText('Goal:')).toHaveAttribute('aria-invalid', 'true');
+    expect(screen.getByLabelText('Premise 2')).toHaveFocus();
+
+    await user.type(screen.getByLabelText('Premise 2'), ' R');
+
+    expect(screen.getAllByRole('alert')).toHaveLength(1);
+    expect(screen.getByLabelText('Premise 2')).not.toHaveAttribute('aria-invalid');
+    expect(screen.getByLabelText('Goal:')).toHaveAttribute('aria-invalid', 'true');
+  });
+
+  test('a blank premise is ignored, the others are submitted', async () => {
+    const { onClose, onSubmit, user } = await setup();
+    await user.click(screen.getByText('+ Add Premise'));
+    await user.type(screen.getByLabelText('Premise 2'), 'P & Q');
+    await user.type(screen.getByLabelText('Goal:'), 'Q');
+
+    await user.click(startButton());
+
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+    expect(onSubmit).toHaveBeenCalledWith(['P & Q'], 'Q');
+    expect(onClose).toHaveBeenCalled();
+  });
+
+  test('a goal of only spaces is not accepted', async () => {
+    const { onSubmit, user } = await setup();
+
+    await user.type(screen.getByLabelText('Goal:'), '   ');
+
+    expect(startButton()).toBeDisabled();
+    await user.click(startButton());
+    expect(onSubmit).not.toHaveBeenCalled();
+  });
+
+  test('a fixed formula can be submitted after an error', async () => {
+    const { onSubmit, user } = await setup();
+    await user.type(screen.getByLabelText('Goal:'), 'p ->');
+    await user.click(startButton());
+    expect(onSubmit).not.toHaveBeenCalled();
+
+    await user.clear(screen.getByLabelText('Goal:'));
+    await user.type(screen.getByLabelText('Goal:'), 'p -> q');
+    await user.click(startButton());
+
+    expect(onSubmit).toHaveBeenCalledWith([], 'p -> q');
+  });
+});
+
+describe('NewProofModal reopening', () => {
+  const Harness = () => {
+    const [open, setOpen] = useState(false);
+    return (
+      <>
+        <button onClick={() => setOpen(true)}>Open</button>
+        <NewProofModal isOpen={open} onClose={() => setOpen(false)} onSubmit={jest.fn()} />
+      </>
+    );
+  };
+
+  test('opens with empty fields and no errors, whatever was typed before', async () => {
+    const user = userEvent.setup();
+    render(<Harness />);
+    await user.click(screen.getByRole('button', { name: 'Open' }));
+    await waitFor(() => expect(screen.getByLabelText('Premise 1')).toHaveFocus());
+    await user.click(screen.getByText('+ Add Premise'));
+    await user.type(screen.getByLabelText('Premise 1'), 'P ->');
+    await user.type(screen.getByLabelText('Premise 2'), 'Q');
+    await user.type(screen.getByLabelText('Goal:'), 'R &');
+    await user.click(screen.getByRole('button', { name: 'Start Proof' }));
+    expect(screen.getAllByRole('alert').length).toBeGreaterThan(0);
+
+    await user.click(screen.getByRole('button', { name: 'Cancel' }));
+    await user.click(screen.getByRole('button', { name: 'Open' }));
+
+    expect(screen.getByLabelText('Premise 1')).toHaveValue('');
+    expect(screen.queryByLabelText('Premise 2')).not.toBeInTheDocument();
+    expect(screen.getByLabelText('Goal:')).toHaveValue('');
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Start Proof' })).toBeDisabled();
+  });
+});
+
+describe('NewProofModal removing a premise', () => {
+  const setup = async (count: number) => {
+    const user = userEvent.setup();
+    render(<NewProofModal isOpen={true} onClose={jest.fn()} onSubmit={jest.fn()} />);
+    await waitFor(() => expect(screen.getByLabelText('Premise 1')).toHaveFocus());
+    for (let i = 1; i < count; i++) {
+      await user.click(screen.getByText('+ Add Premise'));
+    }
+    return user;
+  };
+
+  test('moves the focus to the premise that takes its place', async () => {
+    const user = await setup(3);
+    await user.type(screen.getByLabelText('Premise 1'), 'A');
+    await user.type(screen.getByLabelText('Premise 2'), 'B');
+    await user.type(screen.getByLabelText('Premise 3'), 'C');
+
+    await user.click(screen.getByRole('button', { name: 'Remove premise 2' }));
+
+    expect(screen.getByLabelText('Premise 2')).toHaveValue('C');
+    expect(screen.getByLabelText('Premise 2')).toHaveFocus();
+  });
+
+  test('moves the focus to the previous premise when the last one is removed', async () => {
+    const user = await setup(3);
+
+    await user.click(screen.getByRole('button', { name: 'Remove premise 3' }));
+
+    expect(screen.queryByLabelText('Premise 3')).not.toBeInTheDocument();
+    expect(screen.getByLabelText('Premise 2')).toHaveFocus();
+  });
+
+  test('moves the focus to the first premise when the first one is removed', async () => {
+    const user = await setup(2);
+    await user.type(screen.getByLabelText('Premise 2'), 'B');
+
+    await user.click(screen.getByRole('button', { name: 'Remove premise 1' }));
+
+    expect(screen.getByLabelText('Premise 1')).toHaveValue('B');
+    expect(screen.getByLabelText('Premise 1')).toHaveFocus();
+  });
+
+  test('the error of a premise goes away with it and does not move to its neighbour', async () => {
+    const user = await setup(2);
+    await user.type(screen.getByLabelText('Premise 1'), 'P ->');
+    await user.type(screen.getByLabelText('Premise 2'), 'Q');
+    await user.type(screen.getByLabelText('Goal:'), 'Q');
+    await user.click(screen.getByRole('button', { name: 'Start Proof' }));
+    expect(screen.getAllByRole('alert')).toHaveLength(1);
+
+    await user.click(screen.getByRole('button', { name: 'Remove premise 1' }));
+
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+    expect(screen.getByLabelText('Premise 1')).not.toHaveAttribute('aria-invalid');
   });
 });

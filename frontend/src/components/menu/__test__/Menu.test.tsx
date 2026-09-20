@@ -93,6 +93,11 @@ describe('Menu Component', () => {
         render(<Menu {...defaultProps} />);
 
         fireEvent.change(screen.getByLabelText(/Select Inference Rule:/i), { target: { value: 'Action1' } });
+        expect(screen.getByRole('button', { name: /Apply Rule/i })).toBeDisabled();
+
+        const inputs = screen.getAllByLabelText(/Line number:/i);
+        fireEvent.change(inputs[0], { target: { value: '1' } });
+        fireEvent.change(inputs[1], { target: { value: '2' } });
 
         expect(screen.getByRole('button', { name: /Apply Rule/i })).not.toBeDisabled();
     });
@@ -198,6 +203,82 @@ describe('Menu Component', () => {
             );
             expect(defaultProps.setProof).not.toHaveBeenCalled();
             expect(screen.getByRole('alert')).toHaveTextContent('An error occurred');
+        });
+    });
+
+    describe('after applying', () => {
+        const setup = (response: { success: boolean, proof?: ProofDto, message?: string }) => {
+            mockFetchActions.mockImplementation((logic, callback) => {
+                callback([{ name: 'ORI1', params: ['INT', 'EXPRESSION'] }, { name: 'Ass', params: ['EXPRESSION', 'STATE'] }]);
+            });
+            mockApplyAction.mockImplementation((logic, proof, actionDto, callback) => callback(response));
+            render(<Menu {...defaultProps} />);
+        };
+
+        const applyButton = () => screen.getByRole('button', { name: /Apply Rule/i });
+
+        const fillOri1 = () => {
+            fireEvent.change(screen.getByLabelText(/Select Inference Rule:/i), { target: { value: 'ORI1' } });
+            fireEvent.change(screen.getByLabelText(/Line number:/i), { target: { value: '2' } });
+            fireEvent.change(screen.getByLabelText(/Expression:/i), { target: { value: 'Q' } });
+        };
+
+        test('a successful action empties the inputs and keeps the selected rule', () => {
+            setup({ success: true, proof: mockProof });
+            fillOri1();
+
+            fireEvent.click(applyButton());
+
+            expect(defaultProps.setProof).toHaveBeenCalledWith(mockProof);
+            expect(screen.getByLabelText(/Select Inference Rule:/i)).toHaveValue('ORI1');
+            expect(screen.getByLabelText(/Line number:/i)).toHaveValue('');
+            expect(screen.getByLabelText(/Expression:/i)).toHaveValue('');
+            expect(applyButton()).toBeDisabled();
+        });
+
+        test('the next application starts from empty inputs, so nothing is sent twice', () => {
+            setup({ success: true, proof: mockProof });
+            fillOri1();
+            fireEvent.click(applyButton());
+            mockApplyAction.mockClear();
+
+            fireEvent.click(applyButton());
+            expect(mockApplyAction).not.toHaveBeenCalled();
+
+            fireEvent.change(screen.getByLabelText(/Line number:/i), { target: { value: '1' } });
+            fireEvent.change(screen.getByLabelText(/Expression:/i), { target: { value: 'R' } });
+            fireEvent.click(applyButton());
+            expect(mockApplyAction).toHaveBeenCalledWith(
+                defaultProps.logic, defaultProps.proof,
+                { name: 'ORI1', sources: [1], extraParameters: { expression: 'R' } },
+                expect.any(Function)
+            );
+        });
+
+        test('a successful action also empties the state input', () => {
+            setup({ success: true, proof: mockProof });
+            fireEvent.change(screen.getByLabelText(/Select Inference Rule:/i), { target: { value: 'Ass' } });
+            fireEvent.change(screen.getByLabelText(/Expression:/i), { target: { value: 'P' } });
+            fireEvent.change(screen.getByLabelText(/State:/i), { target: { value: 's0' } });
+
+            fireEvent.click(applyButton());
+
+            expect(screen.getByLabelText(/Expression:/i)).toHaveValue('');
+            expect(screen.getByLabelText(/State:/i)).toHaveValue('');
+            expect(applyButton()).toBeDisabled();
+        });
+
+        test('a failed action keeps the rule and everything typed', () => {
+            setup({ success: false, message: 'An error occurred' });
+            fillOri1();
+
+            fireEvent.click(applyButton());
+
+            expect(screen.getByRole('alert')).toHaveTextContent('An error occurred');
+            expect(screen.getByLabelText(/Select Inference Rule:/i)).toHaveValue('ORI1');
+            expect(screen.getByLabelText(/Line number:/i)).toHaveValue('2');
+            expect(screen.getByLabelText(/Expression:/i)).toHaveValue('Q');
+            expect(applyButton()).toBeEnabled();
         });
     });
 });

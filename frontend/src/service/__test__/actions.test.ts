@@ -1,4 +1,4 @@
-import { fetchActions, applyAction, solveProof } from '../actions';
+import { fetchActions, applyAction, solveProof, clearActionsCache } from '../actions';
 import { ProofDto, ActionDto } from '../../types';
 
 const proof: ProofDto = { steps: [], logic: 'classical', goal: 'P' };
@@ -22,6 +22,7 @@ describe('service/actions', () => {
 
   beforeEach(() => {
     fetchMock.mockReset();
+    clearActionsCache();
     (global as any).fetch = fetchMock;
     consoleError = jest.spyOn(console, 'error').mockImplementation(() => undefined);
   });
@@ -182,6 +183,58 @@ describe('service/actions', () => {
       await fetchActions('classical', jest.fn(), onError);
 
       expect(onError).toHaveBeenCalledWith('Failed to fetch');
+    });
+
+    test('shares one request between concurrent and later calls for the same logic', async () => {
+      fetchMock.mockResolvedValue(jsonResponse(200, [{ name: 'Rep', params: ['INT'] }]));
+      const first = jest.fn();
+      const second = jest.fn();
+      const third = jest.fn();
+
+      await Promise.all([fetchActions('classical', first), fetchActions('classical', second)]);
+      await fetchActions('classical', third);
+
+      expect(fetchMock).toHaveBeenCalledTimes(1);
+      for (const consumer of [first, second, third]) {
+        expect(consumer).toHaveBeenCalledWith([{ name: 'Rep', params: ['INT'] }]);
+      }
+    });
+
+    test('requests each logic separately', async () => {
+      fetchMock.mockResolvedValue(jsonResponse(200, []));
+
+      await fetchActions('classical', jest.fn());
+      await fetchActions('modal', jest.fn());
+
+      expect(fetchMock).toHaveBeenCalledTimes(2);
+      expect(fetchMock).toHaveBeenCalledWith('/logic/modal/actions');
+    });
+
+    test('a failed request is not cached', async () => {
+      fetchMock.mockRejectedValueOnce(new TypeError('Failed to fetch'));
+      fetchMock.mockResolvedValueOnce(jsonResponse(200, [{ name: 'Rep', params: ['INT'] }]));
+      const onError = jest.fn();
+      const consumer = jest.fn();
+
+      await fetchActions('classical', jest.fn(), onError);
+      await fetchActions('classical', consumer, onError);
+
+      expect(onError).toHaveBeenCalledTimes(1);
+      expect(fetchMock).toHaveBeenCalledTimes(2);
+      expect(consumer).toHaveBeenCalledWith([{ name: 'Rep', params: ['INT'] }]);
+    });
+
+    test('an error response is not cached either', async () => {
+      fetchMock.mockResolvedValueOnce(jsonResponse(500, { message: 'Boom' }));
+      fetchMock.mockResolvedValueOnce(jsonResponse(200, []));
+      const onError = jest.fn();
+      const consumer = jest.fn();
+
+      await fetchActions('classical', jest.fn(), onError);
+      await fetchActions('classical', consumer, onError);
+
+      expect(onError).toHaveBeenCalledWith('Boom');
+      expect(consumer).toHaveBeenCalledWith([]);
     });
   });
 });

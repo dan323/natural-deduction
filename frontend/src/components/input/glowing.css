@@ -27,3 +27,14 @@
 .glowing-input {
     border-color: transparent;
 }
+
+/* An input whose value is not accepted, and the reason why */
+.input-field[aria-invalid="true"] {
+    border-color: #c0392b;
+}
+
+.input-error {
+    color: #c0392b;
+    font-size: 0.95rem;
+    margin: 4px 0 0;
+}

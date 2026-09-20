@@ -108,6 +108,24 @@
   color: #fff;
 }
 
+/* Why a field is not accepted, and why Start Proof is disabled */
+.modal-error {
+  margin: -4px 0 8px;
+  color: #c0392b;
+  font-size: 0.9rem;
+}
+
+.modal-body input[aria-invalid="true"] {
+  border-color: #c0392b;
+}
+
+.modal-hint {
+  margin: 0 0 12px;
+  color: #666;
+  font-size: 0.9rem;
+  text-align: right;
+}
+
 .modal-footer {
   display: flex;
   justify-content: flex-end;
