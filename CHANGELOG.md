@@ -23,6 +23,7 @@ The project has never been versioned or tagged, since it was not meant for publi
 - `CLAUDE.md` and the prose docs rewritten to match the code (endpoints, modules, setup, languages); the fictional "earlier design" API section is removed
 - Docker image is built from the jar that passed `mvn -B verify` and is only pushed once the smoke test passes; the workflow is renamed "Publish Docker image" (#107)
 - Backend CI workflow collapsed into a single `mvn -B verify`, with concurrency cancellation for superseded PR runs (#107)
+- Mutation testing (PIT) runs 4 threads and times out mutants after 1000 ms + 1.25x the covering tests' time instead of the default 4000 ms + 1.25x: mutants that make the automatic solvers loop forever no longer dominate the job, and results (mutants, killed/survived split, score) are unchanged
 - Frontend CI uses `npm ci`; `typescript`, `ts-node` and `@testing-library/*` moved to `devDependencies`; `@types/node` aligned with Node 20 (#107)
 - springdoc version is now a property in `executable/pom.xml` (#107)
 - Modal dialog accessibility: focus returns to the opener on close and every input has a label (#108)

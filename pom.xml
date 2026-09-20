@@ -153,6 +153,17 @@
                             <excludedMethod>hashCode</excludedMethod>
                         </excludedMethods>
                         <timestampedReports>false</timestampedReports>
+                        <!-- Mutants that loop forever (in the automatic solvers) are the slow part of the run: each one
+                             costs a full timeout, and the defaults (4000 ms + 1.25x) made ~70 of them take minutes.
+                             The slowest healthy test takes ~0.5 s under PIT (~1 s in a cold JVM), so a timeout of
+                             1000 ms + 1.25x the covering tests' time leaves a wide margin. Runs with 300 ms + 1.0x
+                             gave identical results, so the margin over that is what absorbs slow CI runners.
+                             A too-short timeout would show up as survivors turning into TIMED_OUT. -->
+                        <timeoutConstant>1000</timeoutConstant>
+                        <timeoutFactor>1.25</timeoutFactor>
+                        <!-- PIT ran a single minion at a time; the timed out mutants then queue up one after another.
+                             ubuntu-latest has 4 vCPUs. -->
+                        <threads>4</threads>
                     </configuration>
                     <dependencies>
                         <dependency>
