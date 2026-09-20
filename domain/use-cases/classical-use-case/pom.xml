@@ -24,11 +24,6 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.reflections</groupId>
-            <artifactId>reflections</artifactId>
-            <version>${reflections.version}</version>
-        </dependency>
-        <dependency>
             <groupId>com.dan323</groupId>
             <artifactId>implementation.deduction.classic</artifactId>
             <version>${project.version}</version>

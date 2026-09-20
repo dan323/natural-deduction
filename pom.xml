@@ -31,7 +31,6 @@
         <maven.jacoco.version>0.8.12</maven.jacoco.version>
         <maven.versions.version>2.18.0</maven.versions.version>
 
-        <reflections.version>0.10.2</reflections.version>
         <slf4j.version>2.0.17</slf4j.version>
 
         <junit5.version>5.12.2</junit5.version>

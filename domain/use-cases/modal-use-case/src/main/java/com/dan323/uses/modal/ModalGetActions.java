@@ -1,22 +1,23 @@
 package com.dan323.uses.modal;
 
-import com.dan323.proof.modal.AbstractModalAction;
+import com.dan323.model.ActionDescriptorDto;
 import com.dan323.uses.LogicalGetActions;
-import org.reflections.Reflections;
 
+import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
+/**
+ * The actions of modal logic: one per {@link AvailableModalAction}, built once.
+ */
 public class ModalGetActions implements LogicalGetActions {
 
+    private final List<ActionDescriptorDto> actions = Arrays.stream(AvailableModalAction.values())
+            .map(AvailableModalAction::descriptor)
+            .toList();
+
     @Override
-    public List<String> perform() {
-        var reflections = new Reflections("com.dan323.proof.modal");
-        return reflections.getSubTypesOf(AbstractModalAction.class).stream()
-                .filter(clazz -> !clazz.getName().contains("complex"))
-                .map(Class::getSimpleName)
-                .filter(st -> !st.contains("Action"))
-                .collect(Collectors.toList());
+    public List<ActionDescriptorDto> perform() {
+        return actions;
     }
 
     @Override

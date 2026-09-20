@@ -53,7 +53,7 @@ public final class ModalNaturalDeduction extends Proof<ModalOperation, ProofStep
 
     @Override
     public void automate() {
-        ModalAutomate.AUTOMATIC_SOLVER.automate(this);
+        new ModalAutomate().automate(this);
     }
 
     /**

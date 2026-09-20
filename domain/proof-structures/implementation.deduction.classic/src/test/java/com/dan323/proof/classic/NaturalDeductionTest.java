@@ -5,8 +5,11 @@ import com.dan323.classical.proof.NaturalDeduction;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
+import java.util.concurrent.CancellationException;
+import java.util.stream.IntStream;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class NaturalDeductionTest {
@@ -95,5 +98,33 @@ public class NaturalDeductionTest {
         naturalDeduction.initializeProof(List.of(p), new ConjunctionClassic(p, q));
         naturalDeduction.automate();
         assertFalse(naturalDeduction.isDone());
+    }
+
+    @Test
+    void automateCanRunOnSeveralProofsAtOnce() {
+        var p = new VariableClassic("P");
+        var proofs = IntStream.range(0, 16).mapToObj(i -> {
+            var naturalDeduction = new NaturalDeduction();
+            naturalDeduction.initializeProof(List.of(), new ImplicationClassic(p, p));
+            return naturalDeduction;
+        }).toList();
+
+        proofs.parallelStream().forEach(NaturalDeduction::automate);
+
+        assertTrue(proofs.stream().allMatch(NaturalDeduction::isDone));
+    }
+
+    @Test
+    void automateStopsWhenTheThreadIsInterrupted() {
+        var p = new VariableClassic("P");
+        var naturalDeduction = new NaturalDeduction();
+        naturalDeduction.initializeProof(List.of(), new ImplicationClassic(p, p));
+        Thread.currentThread().interrupt();
+        try {
+            assertThrows(CancellationException.class, naturalDeduction::automate);
+        } finally {
+            // clear the flag so it does not leak into other tests
+            assertTrue(Thread.interrupted());
+        }
     }
 }

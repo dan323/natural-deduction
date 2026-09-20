@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CancellationException;
 
 /**
  * Class to execute a Natural deduction in classic logic
@@ -25,16 +26,22 @@ public final class ClassicalAutomate {
     private List<ClassicalAction> actionsDone;
     private Map<Integer, Integer> usedForGoal;
 
-    private ClassicalAutomate() {
+    /**
+     * A solver keeps its working state in fields: use one instance per proof to solve.
+     */
+    public ClassicalAutomate() {
+        // Nothing to set up: automate initializes the state
     }
-
-    public static final ClassicalAutomate AUTOMATIC_SOLVER = new ClassicalAutomate();
 
     /**
      * Finish the proof if it can be done.
      * It will stop without solving it if it cannot be solved
      *
+     * <p>It checks the interrupt flag of the calling thread between its steps: interrupting the thread stops it
+     * with a {@link CancellationException}.
+     *
      * @param naturalDeduction the proof to solve
+     * @throws CancellationException if the calling thread is interrupted
      */
     public void automate(NaturalDeduction naturalDeduction) {
         // Init state
@@ -47,6 +54,7 @@ public final class ClassicalAutomate {
 
         boolean c = true;
         while (c) {
+            checkNotInterrupted();
             int goalSize = goals.size();
             int stepsSize = proof.getSteps().size();
             c = applyIntroAndElimRules();
@@ -55,6 +63,12 @@ public final class ClassicalAutomate {
                 // If the state of the proof has not changed, stop. It has failed
                 c = isStateChanged(goalSize, stepsSize);
             }
+        }
+    }
+
+    private static void checkNotInterrupted() {
+        if (Thread.currentThread().isInterrupted()) {
+            throw new CancellationException("The automatic solver was interrupted");
         }
     }
 
@@ -78,6 +92,7 @@ public final class ClassicalAutomate {
         boolean b = true;
         boolean c = true;
         while (b) {
+            checkNotInterrupted();
             ClassicalAction intro = introRuleForGoal();
             if (intro != null || isGoalReached()) {
                 updateGoals(intro);

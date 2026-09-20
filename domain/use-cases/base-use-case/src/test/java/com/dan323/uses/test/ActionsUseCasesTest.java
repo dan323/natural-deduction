@@ -1,5 +1,6 @@
 package com.dan323.uses.test;
 
+import com.dan323.model.ActionDescriptorDto;
 import com.dan323.model.ActionDto;
 import com.dan323.model.ProofDto;
 import com.dan323.proof.generic.Action;
@@ -56,8 +57,8 @@ public class ActionsUseCasesTest {
                 .withActionGetters(actionsList());
         var p1 = cases.getActions("l1");
         var p2 = cases.getActions("l2");
-        assertEquals(List.of("l1.A1", "l1.A2", "l1.A3"), p1.perform());
-        assertEquals(List.of("l2.A1", "l2.A2", "l2.A3"), p2.perform());
+        assertEquals(List.of("l1.A1", "l1.A2", "l1.A3"), p1.perform().stream().map(ActionDescriptorDto::name).toList());
+        assertEquals(List.of("l2.A1", "l2.A2", "l2.A3"), p2.perform().stream().map(ActionDescriptorDto::name).toList());
         assertThrows(IllegalArgumentException.class, () -> cases.getActions("l3"));
     }
 

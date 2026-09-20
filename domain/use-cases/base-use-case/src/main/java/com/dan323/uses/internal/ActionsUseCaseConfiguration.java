@@ -1,9 +1,11 @@
 package com.dan323.uses.internal;
 
 import com.dan323.uses.*;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import java.time.Duration;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -12,6 +14,15 @@ import java.util.stream.Collectors;
 @Configuration
 public class ActionsUseCaseConfiguration {
 
+    /**
+     * How long a solve may take before it is abandoned, see {@link LogicalSolver}. Set with
+     * {@code natural-deduction.solve-timeout}, e.g. {@code 5s} or {@code PT5S}.
+     */
+    @Value("${natural-deduction.solve-timeout:10s}")
+    private Duration solveTimeout = Duration.ofSeconds(10);
+
+    // Every logic brings its own Transformer/ProofParser type arguments, so the beans are collected raw and matched
+    // per logic name; each logic module's own tests check that its pieces fit together.
     @Bean
     @SuppressWarnings({"rawtypes", "unchecked"})
     public ActionsUseCases useCases(List<LogicalGetActions> getActions, List<Transformer> transformers, List<ProofParser> parsers) {
@@ -23,7 +34,7 @@ public class ActionsUseCaseConfiguration {
         Map<String, ActionsUseCases.ApplyAction> appliers = transformerMap.entrySet().stream()
                 .collect(Collectors.toMap(Map.Entry::getKey, entry -> new LogicalApplyAction(entry.getValue())));
         Map<String, ActionsUseCases.Solve> solvers = transformerMap.entrySet().stream()
-                .collect(Collectors.toMap(Map.Entry::getKey, entry -> new LogicalSolver(entry.getValue())));
+                .collect(Collectors.toMap(Map.Entry::getKey, entry -> new LogicalSolver(entry.getValue(), solveTimeout)));
         Map<String, ActionsUseCases.ParseProof> parserMap = parsers.stream()
                 .collect(Collectors.toMap(ProofParser::logic, parser -> (ActionsUseCases.ParseProof) proof -> transformerMap.get(parser.logic()).fromProof(parser.parseProof(proof))));
 

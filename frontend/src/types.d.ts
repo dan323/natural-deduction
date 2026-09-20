@@ -22,3 +22,12 @@ export type ApplyActionResponse = {
     success: boolean,
     message: string,
 }
+
+// The kind of input an action needs; the names are those of the backend's ParamKind.
+export type ParamKind = 'INT' | 'EXPRESSION' | 'STATE';
+
+// One action of `GET /logic/{logic}/actions`: `name` goes in ActionDto.name, `params` lists the inputs in order.
+export type ActionDescriptor = {
+    name: string,
+    params: Array<ParamKind>,
+}

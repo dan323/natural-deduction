@@ -3,7 +3,7 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import Menu from '../Menu';
 import { fetchActions, applyAction } from '../../../service/actions';
-import { ProofDto } from '../../../types';
+import { ActionDescriptor, ProofDto } from '../../../types';
 
 jest.mock('../../../service/actions', () => ({
     fetchActions: jest.fn(),
@@ -12,6 +12,9 @@ jest.mock('../../../service/actions', () => ({
 
 const mockFetchActions = fetchActions as jest.Mock;
 const mockApplyAction = applyAction as jest.Mock;
+
+const REP: ActionDescriptor = { name: 'Rep', params: ['INT'] };
+const ORI1: ActionDescriptor = { name: 'ORI1', params: ['INT', 'EXPRESSION'] };
 
 const mockProof: ProofDto = {
     steps: [{ expression: 'P', rule: 'Ass', assmsLevel: 0, extraParameters: {} }],
@@ -34,7 +37,7 @@ describe('Menu inputs', () => {
         });
     });
 
-    const setupActions = (actions: string[]) => {
+    const setupActions = (actions: ActionDescriptor[]) => {
         mockFetchActions.mockImplementation((logic, callback) => callback(actions));
         render(<Menu {...props} />);
     };
@@ -47,7 +50,7 @@ describe('Menu inputs', () => {
 
     test('switching actions clears the typed inputs', async () => {
         const user = userEvent.setup();
-        setupActions(['ANDI([int, int])', 'MP([int, int])']);
+        setupActions([{ name: 'ANDI', params: ['INT', 'INT'] }, { name: 'MP', params: ['INT', 'INT'] }]);
 
         await select(user, 'ANDI');
         const [first, second] = screen.getAllByLabelText(/Line number:/i);
@@ -70,7 +73,7 @@ describe('Menu inputs', () => {
 
     test('a numeric expression is sent as the expression, not as a source', async () => {
         const user = userEvent.setup();
-        setupActions(['ORI1([int, expression])']);
+        setupActions([ORI1]);
 
         await select(user, 'ORI1');
         await user.type(screen.getByLabelText(/Line number:/i), '1');
@@ -86,7 +89,7 @@ describe('Menu inputs', () => {
 
     test('line numbers are indexed by position among the int inputs', async () => {
         const user = userEvent.setup();
-        setupActions(['MIXED([expression, int])']);
+        setupActions([{ name: 'MIXED', params: ['EXPRESSION', 'INT'] }]);
 
         await select(user, 'MIXED');
         await user.type(screen.getByLabelText(/Line number:/i), '4');
@@ -101,7 +104,7 @@ describe('Menu inputs', () => {
 
     test('clearing a line number sends -1', async () => {
         const user = userEvent.setup();
-        setupActions(['Rep([int])']);
+        setupActions([REP]);
 
         await select(user, 'Rep');
         const input = screen.getByLabelText(/Line number:/i);
@@ -118,7 +121,7 @@ describe('Menu inputs', () => {
 
     test('clearing an expression sends an empty expression', async () => {
         const user = userEvent.setup();
-        setupActions(['ORI1([int, expression])']);
+        setupActions([ORI1]);
 
         await select(user, 'ORI1');
         const input = screen.getByLabelText(/Expression:/i);
@@ -133,8 +136,75 @@ describe('Menu inputs', () => {
         );
     });
 
+    test('each param becomes one input, in order, labelled by its kind', async () => {
+        const user = userEvent.setup();
+        setupActions([{ name: 'ALL', params: ['EXPRESSION', 'INT', 'STATE', 'INT'] }]);
+
+        await select(user, 'ALL');
+
+        const labels = Array.from(document.querySelectorAll('.input-label')).map(label => label.textContent);
+        expect(labels).toEqual(['Expression:', 'Line number:', 'State:', 'Line number:']);
+    });
+
+    test('an action without params shows no inputs', async () => {
+        const user = userEvent.setup();
+        setupActions([{ name: 'DT', params: [] }]);
+
+        await select(user, 'DT');
+        await apply(user);
+
+        expect(screen.getByText(/No additional inputs needed/i)).toBeInTheDocument();
+        expect(screen.queryByRole('textbox')).not.toBeInTheDocument();
+        expect(mockApplyAction).toHaveBeenCalledWith(
+            props.logic, props.proof,
+            { name: 'DT', sources: [], extraParameters: { expression: '' } },
+            expect.any(Function)
+        );
+    });
+
+    test('a state input is sent as the state, and only for actions that take one', async () => {
+        const user = userEvent.setup();
+        setupActions([{ name: 'Ass', params: ['EXPRESSION', 'STATE'] }, REP]);
+
+        await select(user, 'Ass');
+        await user.type(screen.getByLabelText(/Expression:/i), 'P');
+        await user.type(screen.getByLabelText(/State:/i), 's0');
+        await apply(user);
+        expect(mockApplyAction).toHaveBeenLastCalledWith(
+            props.logic, props.proof,
+            { name: 'Ass', sources: [], extraParameters: { expression: 'P', state: 's0' } },
+            expect.any(Function)
+        );
+
+        await select(user, 'Rep');
+        await apply(user);
+        expect(mockApplyAction).toHaveBeenLastCalledWith(
+            props.logic, props.proof,
+            { name: 'Rep', sources: [-1], extraParameters: { expression: '' } },
+            expect.any(Function)
+        );
+    });
+
+    test('line numbers skip over the other kinds of input', async () => {
+        const user = userEvent.setup();
+        setupActions([{ name: 'MIX', params: ['INT', 'EXPRESSION', 'INT'] }]);
+
+        await select(user, 'MIX');
+        const [first, second] = screen.getAllByLabelText(/Line number:/i);
+        await user.type(second, '7');
+        await user.type(first, '3');
+        await user.type(screen.getByLabelText(/Expression:/i), 'Q');
+        await apply(user);
+
+        expect(mockApplyAction).toHaveBeenCalledWith(
+            props.logic, props.proof,
+            { name: 'MIX', sources: [3, 7], extraParameters: { expression: 'Q' } },
+            expect.any(Function)
+        );
+    });
+
     test('does not refetch the actions when the props change', () => {
-        mockFetchActions.mockImplementation((logic, callback) => callback(['Rep([int])']));
+        mockFetchActions.mockImplementation((logic, callback) => callback([REP]));
         const { rerender } = render(<Menu {...props} />);
 
         rerender(<Menu {...props} onColorChange={jest.fn()} proof={{ ...mockProof, goal: 'Q' }} />);
@@ -155,7 +225,7 @@ describe('Menu inputs', () => {
         mockApplyAction.mockImplementation((logic, proof, actionDto, callback) => {
             callback({ proof: mockProof, success: false, message: 'Line 3 does not exist' });
         });
-        setupActions(['Rep([int])']);
+        setupActions([REP]);
 
         await select(user, 'Rep');
         await apply(user);

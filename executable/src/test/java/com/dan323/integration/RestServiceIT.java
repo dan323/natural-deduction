@@ -6,7 +6,9 @@ import com.dan323.expressions.classical.ImplicationClassic;
 import com.dan323.expressions.classical.VariableClassic;
 import com.dan323.main.Application;
 import com.dan323.main.ApplicationConfiguration;
+import com.dan323.model.ActionDescriptorDto;
 import com.dan323.model.ActionDto;
+import com.dan323.model.ParamKind;
 import com.dan323.model.ProofDto;
 import com.dan323.model.StepDto;
 import com.dan323.rest.model.ErrorResponse;
@@ -45,14 +47,96 @@ public class RestServiceIT {
 
     @Test
     public void getActions() {
-        var actionArray = Arrays.stream(AvailableAction.values()).map(AvailableAction::name).collect(Collectors.toSet());
+        var expectedNames = Arrays.stream(AvailableAction.values()).map(AvailableAction::name).collect(Collectors.toSet());
         var response = restTemplate
                 .exchange(createURLWithPort("/logic/classical/actions"),
                         HttpMethod.GET,
                         new HttpEntity<>(null, headers),
-                        String[].class);
+                        ActionDescriptorDto[].class);
         assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals(actionArray, Arrays.stream(response.getBody()).map(act -> act.split("\\(")[0]).collect(Collectors.toSet()));
+        var actions = Objects.requireNonNull(response.getBody());
+        assertEquals(expectedNames.size(), actions.length);
+        assertEquals(expectedNames, Arrays.stream(actions).map(ActionDescriptorDto::name).collect(Collectors.toSet()));
+        var byName = Arrays.stream(actions).collect(Collectors.toMap(ActionDescriptorDto::name, ActionDescriptorDto::params));
+        assertEquals(List.of(ParamKind.INT, ParamKind.INT), byName.get("ANDI"));
+        assertEquals(List.of(ParamKind.EXPRESSION), byName.get("ASSUME"));
+        assertEquals(List.of(ParamKind.INT, ParamKind.EXPRESSION), byName.get("FE"));
+        assertEquals(List.of(), byName.get("DT"));
+    }
+
+    @Test
+    public void getActionsIsJsonWithParamKindNames() {
+        var response = restTemplate.getForEntity(createURLWithPort("/logic/classical/actions"), String.class);
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertTrue(Objects.requireNonNull(response.getBody()).contains("{\"name\":\"ORI1\",\"params\":[\"INT\",\"EXPRESSION\"]}"));
+    }
+
+    @Test
+    public void getModalActions() {
+        var response = restTemplate.getForEntity(createURLWithPort("/logic/modal/actions"), ActionDescriptorDto[].class);
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        var byName = Arrays.stream(Objects.requireNonNull(response.getBody()))
+                .collect(Collectors.toMap(ActionDescriptorDto::name, ActionDescriptorDto::params));
+        assertEquals(20, byName.size());
+        assertEquals(List.of(ParamKind.EXPRESSION, ParamKind.STATE), byName.get("Ass"));
+        assertEquals(List.of(ParamKind.INT, ParamKind.INT), byName.get("[]E"));
+    }
+
+    @Test
+    public void modalActionNamesCanBeApplied() {
+        var proof = new ProofDto(List.of(new StepDto("P", "Ass", 0, Map.of("state", "s0"))), "modal", "P");
+        var response = restTemplate.exchange(createURLWithPort("/logic/modal/action"), HttpMethod.POST,
+                new HttpEntity<>(new ProofActionRequest(new ActionDto("Rep", List.of(1), Map.of()), proof), headers), ProofResponse.class);
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals(2, Objects.requireNonNull(response.getBody()).proof().steps().size());
+    }
+
+    private ResponseEntity<ProofDto> solve(String logic, ProofDto proof) {
+        return restTemplate.exchange(createURLWithPort("/logic/" + logic + "/solve"), HttpMethod.POST,
+                new HttpEntity<>(proof, headers), ProofDto.class);
+    }
+
+    @Test
+    public void solveClassicalProof() {
+        var response = solve("classical", new ProofDto(List.of(), "classical", "P -> P"));
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        var solved = Objects.requireNonNull(response.getBody());
+        assertTrue(solved.isDone());
+        assertEquals("P -> P", solved.goal());
+        assertFalse(solved.steps().isEmpty());
+    }
+
+    @Test
+    public void solveModalProof() {
+        var response = solve("modal", new ProofDto(List.of(new StepDto("[]P", "Ass", 0, Map.of("state", "s0"))), "modal", "<>P"));
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertTrue(Objects.requireNonNull(response.getBody()).isDone());
+    }
+
+    @Test
+    public void solveKeepsTheAssumptionsOfAnUnprovableProof() {
+        var proof = new ProofDto(List.of(new StepDto("P", "Ass", 0, Map.of())), "classical", "Q");
+        var response = solve("classical", proof);
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertFalse(Objects.requireNonNull(response.getBody()).isDone());
+        assertEquals("P", response.getBody().steps().get(0).expression());
+    }
+
+    @Test
+    public void solveErrorsUseTheErrorBody() {
+        var unknown = restTemplate.exchange(createURLWithPort("/logic/nope/solve"), HttpMethod.POST,
+                new HttpEntity<>(new ProofDto(List.of(), "nope", "P"), headers), ErrorResponse.class);
+        assertError(HttpStatus.NOT_FOUND, unknown);
+
+        var tampered = new ProofDto(List.of(new StepDto("P", "Ass", 0, Map.of()), new StepDto("P", "->E [1, 1]", 0, Map.of())), "classical", "P");
+        var bad = restTemplate.exchange(createURLWithPort("/logic/classical/solve"), HttpMethod.POST,
+                new HttpEntity<>(tampered, headers), ErrorResponse.class);
+        assertError(HttpStatus.BAD_REQUEST, bad);
+        assertTrue(bad.getBody().message().startsWith("Line 2 "));
+
+        var noBody = restTemplate.exchange(createURLWithPort("/logic/classical/solve"), HttpMethod.POST,
+                new HttpEntity<>(null, headers), ErrorResponse.class);
+        assertError(HttpStatus.BAD_REQUEST, noBody);
     }
 
     private String createURLWithPort(String uri) {

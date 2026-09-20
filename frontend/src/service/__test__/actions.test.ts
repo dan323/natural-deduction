@@ -1,4 +1,4 @@
-import { fetchActions, applyAction } from '../actions';
+import { fetchActions, applyAction, solveProof } from '../actions';
 import { ProofDto, ActionDto } from '../../types';
 
 const proof: ProofDto = { steps: [], logic: 'classical', goal: 'P' };
@@ -79,16 +79,79 @@ describe('service/actions', () => {
     });
   });
 
+  describe('solveProof', () => {
+    test('posts the proof and passes the solved proof on', async () => {
+      const solved = { ...proof, steps: [{ expression: 'P', rule: 'Ass', assmsLevel: 0, extraParameters: {} }] };
+      fetchMock.mockResolvedValue(jsonResponse(200, { ...solved, done: true }));
+      const consumer = jest.fn();
+
+      await solveProof('classical', proof, consumer);
+
+      expect(fetchMock).toHaveBeenCalledWith('/logic/classical/solve', expect.objectContaining({
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(proof),
+      }));
+      expect(consumer).toHaveBeenCalledWith({ success: true, proof: { ...solved, done: true }, message: '' });
+    });
+
+    test('a 422 surfaces the message of the error body', async () => {
+      fetchMock.mockResolvedValue(jsonResponse(422, { message: 'The solver did not finish within 10 seconds' }));
+      const consumer = jest.fn();
+
+      await solveProof('classical', proof, consumer);
+
+      expect(consumer).toHaveBeenCalledWith({ success: false, message: 'The solver did not finish within 10 seconds' });
+    });
+
+    test('an error without a JSON body falls back to the status', async () => {
+      fetchMock.mockResolvedValue(textResponse(502));
+      const consumer = jest.fn();
+
+      await solveProof('classical', proof, consumer);
+
+      expect(consumer).toHaveBeenCalledWith({ success: false, message: 'Request failed with status 502.' });
+    });
+
+    test('gives up on a request that never answers', async () => {
+      jest.useFakeTimers();
+      try {
+        fetchMock.mockImplementation((url: string, init: RequestInit) => new Promise((resolve, reject) => {
+          init.signal?.addEventListener('abort', () => reject(new DOMException('Aborted', 'AbortError')));
+        }));
+        const consumer = jest.fn();
+
+        const solving = solveProof('classical', proof, consumer);
+        expect(consumer).not.toHaveBeenCalled();
+        jest.advanceTimersByTime(60_000);
+        await solving;
+
+        expect(consumer).toHaveBeenCalledWith({ success: false, message: 'The solver took too long to answer. Please try again.' });
+      } finally {
+        jest.useRealTimers();
+      }
+    });
+
+    test('a network failure reports a network error', async () => {
+      fetchMock.mockRejectedValue(new TypeError('Failed to fetch'));
+      const consumer = jest.fn();
+
+      await solveProof('classical', proof, consumer);
+
+      expect(consumer).toHaveBeenCalledWith({ success: false, message: 'Network error. Please try again.' });
+    });
+  });
+
   describe('fetchActions', () => {
     test('passes the actions to the consumer', async () => {
-      fetchMock.mockResolvedValue(jsonResponse(200, ['Rep([int])']));
+      fetchMock.mockResolvedValue(jsonResponse(200, [{ name: 'Rep', params: ['INT'] }]));
       const consumer = jest.fn();
       const onError = jest.fn();
 
       await fetchActions('classical', consumer, onError);
 
       expect(fetchMock).toHaveBeenCalledWith('/logic/classical/actions');
-      expect(consumer).toHaveBeenCalledWith(['Rep([int])']);
+      expect(consumer).toHaveBeenCalledWith([{ name: 'Rep', params: ['INT'] }]);
       expect(onError).not.toHaveBeenCalled();
     });
 
