@@ -28,7 +28,7 @@
     "jest": "^30.5.2",
     "jest-environment-jsdom": "^30.5.2",
     "jsdom": "^29.1.1",
-    "sonarqube-scanner": "^4.4.0",
+    "sonarqube-scanner": "^5.0.0",
     "ts-jest": "^29.4.12",
     "ts-node": "^10.9.2",
     "typescript": "^5.9.3",
