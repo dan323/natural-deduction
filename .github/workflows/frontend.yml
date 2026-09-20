@@ -48,3 +48,4 @@ jobs:
           -Dsonar.verbose=true
           -Dsonar.organization=${{ env.SONAR_ORGANIZATION }}
           -Dsonar.typescript.tsconfigPaths=.
+          -Dsonar.javascript.lcov.reportPaths=coverage/lcov.info
