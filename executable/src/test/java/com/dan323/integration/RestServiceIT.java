@@ -69,7 +69,24 @@ public class RestServiceIT {
     public void getActionsIsJsonWithParamKindNames() {
         var response = restTemplate.getForEntity(createURLWithPort("/logic/classical/actions"), String.class);
         assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertTrue(Objects.requireNonNull(response.getBody()).contains("{\"name\":\"ORI1\",\"params\":[\"INT\",\"EXPRESSION\"]}"));
+        assertTrue(Objects.requireNonNull(response.getBody()).contains("{\"name\":\"ORI1\",\"params\":[\"INT\",\"EXPRESSION\"],"));
+    }
+
+    @Test
+    public void classicalActionsCarryTheirPresentationFields() {
+        var response = restTemplate.getForEntity(createURLWithPort("/logic/classical/actions"), String.class);
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertTrue(Objects.requireNonNull(response.getBody()).contains("{\"name\":\"MP\",\"params\":[\"INT\",\"INT\"],\"label\":\"Modus ponens\","
+                + "\"symbol\":\"→E\",\"category\":\"ELIMINATION\",\"description\":\"From A → B and A, derive B\","
+                + "\"paramLabels\":[\"Implication (A → B)\",\"Antecedent (A)\"]}"), response.getBody());
+
+        var actions = Objects.requireNonNull(restTemplate.getForObject(createURLWithPort("/logic/classical/actions"), ActionDescriptorDto[].class));
+        for (var action : actions) {
+            assertFalse(action.label().isBlank(), action.name());
+            assertFalse(action.description().isBlank(), action.name());
+            assertNotNull(action.category(), action.name());
+            assertEquals(action.params().size(), action.paramLabels().size(), action.name());
+        }
     }
 
     @Test
@@ -81,6 +98,11 @@ public class RestServiceIT {
         assertEquals(20, byName.size());
         assertEquals(List.of(ParamKind.EXPRESSION, ParamKind.STATE), byName.get("Ass"));
         assertEquals(List.of(ParamKind.INT, ParamKind.INT), byName.get("[]E"));
+        for (var action : response.getBody()) {
+            assertNull(action.label(), action.name());
+            assertNull(action.category(), action.name());
+            assertEquals(List.of(), action.paramLabels(), action.name());
+        }
     }
 
     @Test
