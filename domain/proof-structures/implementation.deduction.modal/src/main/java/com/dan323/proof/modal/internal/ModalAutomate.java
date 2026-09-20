@@ -31,6 +31,7 @@ public final class ModalAutomate {
      * A solver keeps its working state in fields: use one instance per proof to solve.
      */
     public ModalAutomate() {
+        // Nothing to set up: automate initializes the state
     }
 
     /**

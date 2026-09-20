@@ -3,8 +3,6 @@ package com.dan323.uses.modal;
 import com.dan323.model.ActionDescriptorDto;
 import com.dan323.model.ParamKind;
 
-import java.util.List;
-
 import static com.dan323.model.ParamKind.EXPRESSION;
 import static com.dan323.model.ParamKind.INT;
 import static com.dan323.model.ParamKind.STATE;

@@ -30,6 +30,7 @@ public final class ClassicalAutomate {
      * A solver keeps its working state in fields: use one instance per proof to solve.
      */
     public ClassicalAutomate() {
+        // Nothing to set up: automate initializes the state
     }
 
     /**

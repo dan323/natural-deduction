@@ -11,7 +11,6 @@ import com.dan323.proof.generic.proof.ProofStep;
 import com.dan323.rest.model.ErrorResponse;
 import com.dan323.uses.Transformer;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.test.web.client.TestRestTemplate;
@@ -21,7 +20,6 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.List;
 import java.util.Objects;
@@ -33,7 +31,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  * {@code slow} whose solver never finishes by itself, and sets the limit through
  * {@code natural-deduction.solve-timeout}, which also checks that the property is picked up.
  */
-@ExtendWith(SpringExtension.class)
 @SpringBootTest(classes = {Application.class, ApplicationConfiguration.class, RestSolveTimeoutIT.SlowLogic.class},
         webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
         properties = "natural-deduction.solve-timeout=300ms")
