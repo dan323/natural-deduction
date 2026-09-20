@@ -3,12 +3,14 @@ package com.dan323.rest.model;
 import com.dan323.model.ProofDto;
 
 /**
+ * Answer to applying an action.
+ *
+ * @param proof   the proof after the action, or unchanged when the action did not apply
+ * @param success whether the action was applied
+ * @param done    whether the goal of {@code proof} is proved, as decided by the domain's {@code Proof.isDone()}
+ * @param message why the action did not apply, empty when it did
  * @author danco
  */
-public record ProofResponse(ProofDto proof, boolean success, String message) {
-
-    public ProofResponse(ProofDto proof, boolean success) {
-        this(proof, success, "");
-    }
+public record ProofResponse(ProofDto proof, boolean success, boolean done, String message) {
 
 }

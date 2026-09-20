@@ -1,4 +1,3 @@
-import React from 'react';
 import { render, fireEvent, screen, waitFor, act } from '@testing-library/react';
 import Menu from '../Menu';
 import { fetchActions, applyAction } from '../../../service/actions';

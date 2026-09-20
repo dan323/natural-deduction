@@ -1,4 +1,4 @@
-import React from 'react';
+import { act } from 'react';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import Menu from '../Menu';
@@ -23,6 +23,7 @@ const proof: ProofDto = {
 
 const solved: ProofDto = {
     ...proof,
+    done: true,
     steps: [
         { expression: 'P', rule: 'Ass', assmsLevel: 1, extraParameters: {} },
         { expression: 'P -> P', rule: '->I [1-1]', assmsLevel: 0, extraParameters: {} },
@@ -108,7 +109,7 @@ describe('Menu solve button', () => {
         expect(screen.getByRole('button', { name: /Solving/i })).toBeDisabled();
         expect(screen.getByRole('button', { name: /Apply Rule/i })).toBeDisabled();
 
-        await React.act(async () => finish({ success: true, proof: solved, message: '' }));
+        await act(async () => finish({ success: true, proof: solved, message: '' }));
 
         expect(screen.getByRole('button', { name: 'Solve' })).toBeEnabled();
     });

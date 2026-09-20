@@ -104,110 +104,24 @@ Create `pom.xml`:
 </project>
 ```
 
-### Step 2: Implement Logic Language Classes
+### Steps 2-5: What a Logic Has to Provide
 
-Create intuitionistic-specific term classes:
+Earlier sketches of these steps did not match the code. The code of `classical` and `modal` is the reference; in short:
 
-```java
-package com.dan323.logic.language.implementation.intuitionistic;
+1. **Formulas** (`domain/logic-language/`): subclass the operators of `framework` (`Conjunction`, `Implication`, ...)
+   and write a parser (the existing ones are built on javaluator).
+2. **Proofs** (`domain/proof-structures/`): bind `framework.deduction` (`Proof<T,Q>`, `ProofStep`, `Action`, the generic
+   rule bases) to the language: a proof class (`NaturalDeduction`, `ModalNaturalDeduction`), one class per rule,
+   a `Parse*Action` to build rules from their names and reasons, and the automatic solver (`automate()`).
+3. **Use case** (`domain/use-cases/<logic>-use-case`): expose three Spring beans, keyed by the logic name (`"classical"`,
+   `"modal"`): a `Transformer` (DTO to domain proof and back, by replaying every step), a `ProofParser` (text file to
+   proof) and a `LogicalGetActions` (the descriptors of the actions, see `ActionDescriptorDto`). Add a `*Configuration`
+   that declares them.
+4. **Wire it** in `executable/.../ApplicationConfiguration` by importing that configuration. No new controller is
+   needed: `ControllerInterface` serves every logic under `/logic/{logic}/...`.
 
-import com.dan323.logic.language.Term;
-
-public class IntuitionisticTerm implements Term {
-    // Implement required methods from Term interface
-    // Intuitionistic logic extends classical operators
-    // but excludes law of excluded middle: p ∨ ¬p
-    
-    @Override
-    public String toString() {
-        // Implementation
-    }
-}
-
-public class IntuitionisticTermFactory {
-    // Create terms from strings
-    // Similar to classical implementation but with intuitionistic restrictions
-}
-```
-
-### Step 3: Implement Proof Structures Framework
-
-Create new module: `domain/proof-structures/implementation.deduction.intuitionistic/`
-
-Implement deduction rules following the classical rules pattern:
-
-```java
-package com.dan323.proof.structures.deduction.implementation.intuitionistic;
-
-import com.dan323.proof.structures.deduction.DeductionRule;
-import com.dan323.logic.language.Term;
-
-public class IntuitionisticAndIntroductionRule implements DeductionRule {
-    @Override
-    public boolean canApply(Proof proof, Term premise1, Term premise2) {
-        // Check if both premises are proven
-    }
-    
-    @Override
-    public Term apply(Proof proof, Term premise1, Term premise2) {
-        // Apply the rule
-        return new IntuitionisticConjunction(premise1, premise2);
-    }
-    
-    @Override
-    public String getName() {
-        return "∧-Introduction";
-    }
-}
-```
-
-### Step 4: Create Use Case
-
-Create new module: `domain/use-cases/intuitionistic-use-case/`
-
-```java
-package com.dan323.proof.use_case.intuitionistic;
-
-import com.dan323.proof.use_case.base.BaseProofUseCase;
-import com.dan323.logic.language.implementation.intuitionistic.*;
-import com.dan323.proof.structures.deduction.implementation.intuitionistic.*;
-
-public class IntuitionisticProofUseCase extends BaseProofUseCase {
-    // Extend base use case with intuitionistic implementations
-    
-    public IntuitionisticProofUseCase() {
-        super(
-            new IntuitionisticTermFactory(),
-            new IntuitionisticRuleRegistry()
-        );
-    }
-}
-```
-
-### Step 5: Add REST Endpoints
-
-In `executable/src/main/java/com/dan323/executable/controller/`:
-
-```java
-package com.dan323.executable.controller;
-
-import org.springframework.web.bind.annotation.*;
-import com.dan323.proof.use_case.intuitionistic.*;
-
-@RestController
-@RequestMapping("/api/intuitionistic")
-public class IntuitionisticController {
-    
-    private final IntuitionisticProofUseCase proofUseCase;
-    
-    @PostMapping("/verify")
-    public ResponseEntity<ProofResponse> verifyProof(@RequestBody ProofRequest request) {
-        // Implementation
-    }
-    
-    // Additional endpoints...
-}
-```
+Every module has a `module-info.java`: packages that another module needs must be `exports`ed and new dependencies
+need a `requires`.
 
 ### Step 6: Update Dependencies
 
@@ -260,13 +174,8 @@ public class IntuitionisticProofUseCaseTest {
 
 ### Step 8: Frontend Support (if needed)
 
-Update frontend to support new logic system in `frontend/src/constant.ts`:
-
-```typescript
-export const INTUITIONISTIC_API = `${API_BASE_URL}/api/intuitionistic`;
-```
-
-Add UI component for intuitionistic logic in `frontend/src/components/`.
+The UI calls relative URLs and is hardcoded to one logic: `LOGIC` in `frontend/src/constant.ts` (`"classical"`; modal
+is backend only). Make it selectable there if the new logic should be usable from the UI.
 
 ### Step 9: Update Documentation
 
@@ -318,10 +227,10 @@ Example: Add a new rule to classical logic
 
 ### Extending the REST API
 
-1. **Create a new controller** in `executable/src/main/java/com/dan323/executable/controller/`
+1. **Add the handler** to `ControllerInterface` in `rest/framework/` (it serves every logic under `/logic/{logic}`)
 2. **Add request/response models** in `rest/model/`
-3. **Implement handler methods** that call use cases
-4. **Add tests** in `executable/src/test/java/`
+3. **Call the use cases** of `ActionsUseCases`; map failures to a status in `RestExceptionHandler`
+4. **Add tests** in `executable/src/test/java/` (`RestServiceIT`, run by `mvn verify`)
 5. **Document endpoints** in [API.md](./API.md)
 
 ### Frontend Component Development

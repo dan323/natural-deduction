@@ -1,4 +1,4 @@
-import React, { InputHTMLAttributes } from 'react';
+import { InputHTMLAttributes, useState } from 'react';
 import { render, fireEvent, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import NewProofModal from '../NewProofModal';
@@ -104,5 +104,54 @@ describe('NewProofModal typing', () => {
 
     expect(second).toHaveValue('Q & R');
     expect(second).toHaveFocus();
+  });
+});
+
+describe('NewProofModal accessibility', () => {
+  test('is a labelled modal dialog', () => {
+    render(<NewProofModal isOpen={true} onClose={jest.fn()} onSubmit={jest.fn()} />);
+
+    const dialog = screen.getByRole('dialog', { name: 'New Proof' });
+    expect(dialog).toHaveAttribute('aria-modal', 'true');
+  });
+
+  test('every input has a label tied to it', () => {
+    render(<NewProofModal isOpen={true} onClose={jest.fn()} onSubmit={jest.fn()} />);
+
+    expect(screen.getByLabelText('Premise 1')).toBe(screen.getByPlaceholderText('Premise 1'));
+    expect(screen.getByLabelText('Goal:')).toBe(screen.getByPlaceholderText('Enter the goal expression'));
+    expect(screen.getByRole('group', { name: 'Premises:' })).toContainElement(screen.getByLabelText('Premise 1'));
+  });
+
+  test('closes on Escape', async () => {
+    const onClose = jest.fn();
+    const user = userEvent.setup();
+    render(<NewProofModal isOpen={true} onClose={onClose} onSubmit={jest.fn()} />);
+
+    await user.keyboard('{Escape}');
+
+    expect(onClose).toHaveBeenCalledTimes(1);
+  });
+
+  test('focuses the first premise on open and gives the focus back on close', async () => {
+    const Harness = () => {
+      const [open, setOpen] = useState(false);
+      return (
+        <>
+          <button onClick={() => setOpen(true)}>Open</button>
+          <NewProofModal isOpen={open} onClose={() => setOpen(false)} onSubmit={jest.fn()} />
+        </>
+      );
+    };
+    const user = userEvent.setup();
+    render(<Harness />);
+
+    await user.click(screen.getByRole('button', { name: 'Open' }));
+    await waitFor(() => expect(screen.getByLabelText('Premise 1')).toHaveFocus());
+
+    await user.click(screen.getByRole('button', { name: 'Cancel' }));
+
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Open' })).toHaveFocus();
   });
 });

@@ -55,7 +55,7 @@ public class ControllerInterface {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Both actionDto and proofDto are required");
         }
         var result = useCase.applyAction(logic).perform(proofActionRequest.actionDto(), proofActionRequest.proofDto());
-        ProofResponse response = new ProofResponse(result.proof(), result.applied(), result.message());
+        ProofResponse response = new ProofResponse(result.proof(), result.applied(), result.done(), result.message());
         if (response.success()) {
             return ResponseEntity.ok().body(response);
         } else {

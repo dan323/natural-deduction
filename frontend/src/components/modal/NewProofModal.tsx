@@ -1,4 +1,4 @@
-import React, { FC, useState, useEffect, useRef } from 'react';
+import { FC, useState, useEffect, useRef } from 'react';
 import './NewProofModal.css';
 
 type NewProofModalProps = {
@@ -22,11 +22,16 @@ const NewProofModal: FC<NewProofModalProps> = ({ isOpen, onClose, onSubmit }) =>
     return () => document.removeEventListener('keydown', handleKeyDown);
   }, [isOpen, onClose]);
 
-  // Focus first input when modal opens
+  // Move focus into the dialog when it opens and hand it back to whatever had it (the button that opened it) when it
+  // closes.
   useEffect(() => {
-    if (isOpen) {
-      setTimeout(() => firstInputRef.current?.focus(), 50);
-    }
+    if (!isOpen) return;
+    const previouslyFocused = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    const timer = setTimeout(() => firstInputRef.current?.focus(), 50);
+    return () => {
+      clearTimeout(timer);
+      previouslyFocused?.focus();
+    };
   }, [isOpen]);
 
   const handleAddPremise = () => setPremises([...premises, '']);
@@ -59,33 +64,35 @@ const NewProofModal: FC<NewProofModalProps> = ({ isOpen, onClose, onSubmit }) =>
       <div className="modal-content">
         <h2 id="new-proof-modal-title">New Proof</h2>
         <div className="modal-body">
-          <label className="modal-section-label">Premises:</label>
-          {premises.map((premise, index) => (
-            <div key={index} className="premise-row">
-              <input
-                ref={index === 0 ? firstInputRef : undefined}
-                id={`premise-${index}`}
-                type="text"
-                value={premise}
-                onChange={(e) => handlePremiseChange(index, e.target.value)}
-                placeholder={`Premise ${index + 1}`}
-                aria-label={`Premise ${index + 1}`}
-              />
-              {premises.length > 1 && (
-                <button
-                  className="remove-premise-btn"
-                  onClick={() => handleRemovePremise(index)}
-                  aria-label={`Remove premise ${index + 1}`}
-                  title="Remove"
-                >
-                  ×
-                </button>
-              )}
-            </div>
-          ))}
-          <button className="add-premise-btn" onClick={handleAddPremise}>
-            + Add Premise
-          </button>
+          <div role="group" aria-labelledby="new-proof-premises-label">
+            <span id="new-proof-premises-label" className="modal-section-label">Premises:</span>
+            {premises.map((premise, index) => (
+              <div key={index} className="premise-row">
+                <label htmlFor={`premise-${index}`} className="visually-hidden">{`Premise ${index + 1}`}</label>
+                <input
+                  ref={index === 0 ? firstInputRef : undefined}
+                  id={`premise-${index}`}
+                  type="text"
+                  value={premise}
+                  onChange={(e) => handlePremiseChange(index, e.target.value)}
+                  placeholder={`Premise ${index + 1}`}
+                />
+                {premises.length > 1 && (
+                  <button
+                    className="remove-premise-btn"
+                    onClick={() => handleRemovePremise(index)}
+                    aria-label={`Remove premise ${index + 1}`}
+                    title="Remove"
+                  >
+                    ×
+                  </button>
+                )}
+              </div>
+            ))}
+            <button className="add-premise-btn" onClick={handleAddPremise}>
+              + Add Premise
+            </button>
+          </div>
 
           <label htmlFor="modal-goal" className="modal-section-label">Goal:</label>
           <input

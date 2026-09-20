@@ -75,6 +75,19 @@ public class ClassicalTransformerTest {
     }
 
     @Test
+    void resultsCarryTheDomainsDoneVerdict() {
+        var applier = new LogicalApplyAction<>(transformer);
+        // The goal P is a top level step that is not the last one: the domain's Proof.isDone() is true.
+        var goalNotLast = new ProofDto(List.of(new StepDto("P", "Ass", 0, Map.of()), new StepDto("Q", "Ass", 0, Map.of())), "classical", "P");
+        var applied = applier.perform(new ActionDto("COPY", List.of(2), Map.of()), goalNotLast);
+        assertTrue(applied.applied());
+        assertTrue(applied.done());
+        assertTrue(applier.perform(new ActionDto("COPY", List.of(9), Map.of()), goalNotLast).done());
+        var notYet = new ProofDto(List.of(new StepDto("Q", "Ass", 0, Map.of())), "classical", "P");
+        assertFalse(applier.perform(new ActionDto("COPY", List.of(1), Map.of()), notYet).done());
+    }
+
+    @Test
     void unbuildableActionsAreInvalid() {
         var applier = new LogicalApplyAction<>(transformer);
         var dto = proof(new StepDto("P", "Ass", 0, Map.of()));

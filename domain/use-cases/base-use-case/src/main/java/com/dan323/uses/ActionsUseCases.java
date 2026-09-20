@@ -38,16 +38,16 @@ public interface ActionsUseCases {
 
     /**
      * Outcome of applying an action. When the action was not applicable, {@code proof} is the unchanged proof and
-     * {@code message} says why.
+     * {@code message} says why. {@code done} is the domain's verdict on {@code proof}, whether its goal is proved.
      */
-    record ApplyResult(ProofDto proof, boolean applied, String message) {
+    record ApplyResult(ProofDto proof, boolean applied, boolean done, String message) {
 
-        public static ApplyResult applied(ProofDto proof) {
-            return new ApplyResult(proof, true, "");
+        public static ApplyResult applied(ProofDto proof, boolean done) {
+            return new ApplyResult(proof, true, done, "");
         }
 
-        public static ApplyResult rejected(ProofDto proof, String message) {
-            return new ApplyResult(proof, false, message);
+        public static ApplyResult rejected(ProofDto proof, boolean done, String message) {
+            return new ApplyResult(proof, false, done, message);
         }
     }
 }

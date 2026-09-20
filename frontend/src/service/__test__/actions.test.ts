@@ -41,6 +41,15 @@ describe('service/actions', () => {
       expect(consumer).toHaveBeenCalledWith(body);
     });
 
+    test('carries the done verdict of the response on the returned proof', async () => {
+      fetchMock.mockResolvedValue(jsonResponse(200, { proof, success: true, done: true, message: '' }));
+      const consumer = jest.fn();
+
+      await applyAction('classical', proof, action, consumer);
+
+      expect(consumer).toHaveBeenCalledWith({ proof: { ...proof, done: true }, success: true, done: true, message: '' });
+    });
+
     test('a 202 keeps the reason the action was not applied', async () => {
       const body = { proof, success: false, message: 'Line 1 does not exist' };
       fetchMock.mockResolvedValue(jsonResponse(202, body));

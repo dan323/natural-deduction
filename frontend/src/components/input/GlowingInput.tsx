@@ -1,4 +1,4 @@
-import React, { FC, useState, ChangeEventHandler } from 'react';
+import { FC, useState, ChangeEventHandler } from 'react';
 import './glowing.css'
 
 type GlowingInputProps = {
