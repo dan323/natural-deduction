@@ -50,7 +50,7 @@ The Natural Deduction project follows a **plugin-based architecture** with clear
   - Hardcoded to the classical logic
 
 ### 2. REST API Layer
-- **Technology**: Spring Boot 3.5.3
+- **Technology**: Spring Boot 3.5.16
 - **Responsibility**: HTTP interface to business logic
 - **Location**: `executable/`, `rest/`
 - **Endpoints** (all under `/logic/{logic}`, see [API.md](./API.md)):

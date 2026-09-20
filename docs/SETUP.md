@@ -7,8 +7,8 @@ This guide covers building, configuring, and running the Natural Deduction proje
 ### System Requirements
 
 - **Java**: JDK 21 or higher
-- **Maven**: 3.6.0 or higher
-- **Node.js**: 20.x or higher (for frontend)
+- **Maven**: 3.6.3 or higher
+- **Node.js**: 20.19 or higher (for frontend)
 - **npm**: 7.x or higher (for frontend)
 - **Git**: For cloning the repository
 

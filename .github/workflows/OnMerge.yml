@@ -15,7 +15,7 @@ jobs:
     runs-on: ubuntu-latest
     name: delete pr info on github page
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           ref: 'gh-pages'
       # Reports only exist for non-dependabot PRs, so there is often nothing to remove.

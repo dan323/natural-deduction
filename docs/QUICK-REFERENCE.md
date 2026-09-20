@@ -281,9 +281,9 @@ $env:NODE_HOME = "C:\nodejs"
 ## Version Info
 
 - **Java**: 21
-- **Spring Boot**: 3.5.3
-- **Maven**: 3.6.0+
-- **Node.js**: 20.x+
+- **Spring Boot**: 3.5.16
+- **Maven**: 3.6.3+
+- **Node.js**: 20.19+
 - **React**: 19
 - **TypeScript**: 5.9
 

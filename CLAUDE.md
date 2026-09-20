@@ -64,6 +64,7 @@ CI (`.github/workflows/`) has no lint step. Run the full Maven `verify` and `npm
 - To embed the UI in the jar (what `OnMaster.yml` does): `npm run build`, copy `frontend/build/*` into `executable/src/main/resources/public/` (gitignored), then `mvn package`. A stale `public/` from an earlier build gets packaged as is.
 - Backend `executable` runs `*IT.java` via a second surefire execution bound to `verify`, so plain `mvn test` skips them. `FatJarActionsIT` starts the packaged jar, so it only works through `verify`.
 - The root pom's `spring.version` must match the Spring version that the Spring Boot parent of `executable/pom.xml` manages; `SpringVersionAlignmentTest` fails otherwise (e.g. after a dependabot Boot bump).
+- `executable` does not inherit the root pom, so JUnit there comes from the Boot parent. Its `junit-jupiter.version` property overrides Boot's JUnit 5 to match the root `junit5.version` (JUnit 6). Bump both together.
 
 ## CI / Docker
 
