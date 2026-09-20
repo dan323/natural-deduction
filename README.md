@@ -40,7 +40,7 @@ Complete documentation is available in the [docs/](./docs/) folder:
 
 ## Technology Stack
 
-- **Backend**: Java 21, Spring Boot 3.3.2
+- **Backend**: Java 21, Spring Boot 3.5.3
 - **Frontend**: React 19, TypeScript, Vite
 - **Build**: Maven
 - **Testing**: JUnit 5, Jest, PIT mutation testing
