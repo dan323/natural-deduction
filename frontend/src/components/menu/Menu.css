@@ -145,6 +145,14 @@
     margin: 12px 0 0;
 }
 
+/* What the selected rule does */
+.menu-description {
+    color: #555;
+    font-size: 1.05rem;
+    margin: -10px 0 20px;
+    text-align: left;
+}
+
 /* Apply Rule and Solve, side by side */
 .menu-buttons {
     display: flex;

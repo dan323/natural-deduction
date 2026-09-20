@@ -3,7 +3,7 @@ import '../Expressions.css';
 import { fetchActions, applyAction, solveProof } from '../../service/actions';
 import './Menu.css';
 import GlowingInput from '../input/GlowingInput';
-import { ProofDto, ActionDto, ActionDescriptor, ApplyActionResponse, ParamKind } from '../../types';
+import { ProofDto, ActionDto, ActionDescriptor, ActionCategory, ApplyActionResponse, ParamKind } from '../../types';
 
 type MenuProps = {
     logic: string;
@@ -19,6 +19,36 @@ const inputLabels: Record<ParamKind, string> = {
     EXPRESSION: 'Expression:',
     STATE: 'State:',
 };
+
+// The order of the groups of the list of rules.
+const categoryTitles: Record<ActionCategory, string> = {
+    INTRODUCTION: 'Introduction rules',
+    ELIMINATION: 'Elimination rules',
+    OTHER: 'Other rules',
+};
+const categories = Object.keys(categoryTitles) as ActionCategory[];
+
+// "Modus ponens (→E)"; falls back to the name of the action when the backend sends no label.
+const optionText = (action: ActionDescriptor) => {
+    if (!action.label) return action.name;
+    return action.symbol ? `${action.label} (${action.symbol})` : action.label;
+};
+
+// The text of an input: the label of the backend, or the generic one of its kind.
+const inputLabelOf = (descriptor: ActionDescriptor, index: number) =>
+    descriptor.paramLabels?.[index] || inputLabels[descriptor.params[index]];
+
+// The reason of a rejected action, followed by what the rule does. Only an action that was well formed comes back
+// with its proof (a 202); the other failures are not about the rule.
+const rejectionMessage = (response: ApplyActionResponse, descriptor?: ActionDescriptor) => {
+    const reason = response.message || 'Action could not be applied.';
+    if (!response.proof || !descriptor?.description) return reason;
+    return `${reason.replace(/\.$/, '')}. ${descriptor.description}.`;
+};
+
+const renderOption = (action: ActionDescriptor) => (
+    <option key={action.name} value={action.name}>{optionText(action)}</option>
+);
 
 // `index` is the position among all inputs of an action; `sources` only holds the INT inputs.
 const sourceIndexOf = (params: ParamKind[], index: number) => params.slice(0, index).filter(kind => kind === 'INT').length;
@@ -40,6 +70,18 @@ const Menu: FC<MenuProps> = ({ logic, onColorChange, setProof, proof }) => {
     const selectedDescriptor = useMemo(
         () => actions.find(action => action.name === selectedAction),
         [selectedAction, actions]
+    );
+
+    // Rules of a known category go in one group each; the rest (e.g. a logic without categories) stay ungrouped.
+    const groupedActions = useMemo(
+        () => categories
+            .map(category => ({ category, actions: actions.filter(action => action.category === category) }))
+            .filter(group => group.actions.length > 0),
+        [actions]
+    );
+    const ungroupedActions = useMemo(
+        () => actions.filter(action => !action.category || !categories.includes(action.category)),
+        [actions]
     );
 
     const handleActionChange: ChangeEventHandler<HTMLSelectElement> = (event) => {
@@ -129,7 +171,7 @@ const Menu: FC<MenuProps> = ({ logic, onColorChange, setProof, proof }) => {
                 setState('');
                 setInputsKey(key => key + 1);
             } else {
-                setErrorMessage(response.message || 'Action could not be applied.');
+                setErrorMessage(rejectionMessage(response, selectedDescriptor));
             }
         });
     };
@@ -172,14 +214,19 @@ const Menu: FC<MenuProps> = ({ logic, onColorChange, setProof, proof }) => {
                 value={selectedAction}
                 onChange={handleActionChange}
                 aria-label="Select inference rule"
+                aria-describedby={selectedDescriptor?.description ? 'action-description' : undefined}
             >
                 <option value="">-- Choose a rule --</option>
-                {actions.map((action) => (
-                    <option key={action.name} value={action.name}>
-                        {action.name}
-                    </option>
+                {ungroupedActions.map(renderOption)}
+                {groupedActions.map(group => (
+                    <optgroup key={group.category} label={categoryTitles[group.category]}>
+                        {group.actions.map(renderOption)}
+                    </optgroup>
                 ))}
             </select>
+            {selectedDescriptor?.description && (
+                <p id="action-description" className="menu-description">{selectedDescriptor.description}</p>
+            )}
             {selectedDescriptor && (
                 params.length > 0 ? (
                     <div className="input-container">
@@ -187,7 +234,7 @@ const Menu: FC<MenuProps> = ({ logic, onColorChange, setProof, proof }) => {
                             <GlowingInput
                                 key={`${selectedAction}-${index}-${inputsKey}`}
                                 index={index}
-                                label={inputLabels[kind]}
+                                label={inputLabelOf(selectedDescriptor, index)}
                                 glowColor={glowingColors[index]}
                                 onColorChange={onColorChange}
                                 onInput={onInput}

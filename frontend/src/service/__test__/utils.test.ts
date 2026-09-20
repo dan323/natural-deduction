@@ -14,14 +14,32 @@ describe('renderExpression', () => {
 });
 
 describe('renderRule', () => {
-  test('renders introduction and elimination rules', () => {
-    expect(renderRule('->I')).toBe('→Intro');
-    expect(renderRule('&E1')).toBe('∧Elim1');
-    expect(renderRule('->I [1-2]')).toBe('→Intro [1-2]');
+  test('renders the symbols of a rule and keeps its lines', () => {
+    expect(renderRule('->I')).toBe('→I');
+    expect(renderRule('&E1')).toBe('∧E1');
+    expect(renderRule('->I [1-2]')).toBe('→I [1-2]');
+    expect(renderRule('->E [1, 2]')).toBe('→E [1, 2]');
   });
 
-  test('keeps FALSE elimination rules distinguishable', () => {
+  test('renders falsum introduction and elimination with ⊥', () => {
+    expect(renderRule('FE [3]')).toBe('⊥E [3]');
+    expect(renderRule('FI [1, 2]')).toBe('⊥I [1, 2]');
+  });
+
+  test('leaves other names alone', () => {
     expect(renderRule('FALSE')).toBe('FALSE');
+    expect(renderRule('Rep [1]')).toBe('Rep [1]');
+    expect(renderRule('Ass')).toBe('Ass');
+  });
+
+  // The backend writes these rule texts in StepDto.rule; the `symbol` of the classical action descriptors is the
+  // rendered one (ClassicalUseTest holds the same table), so the list of rules and the Rule column name a rule alike.
+  test.each([
+    ['Ass', 'Ass'], ['|I', '∨I'], ['|E', '∨E'], ['&I', '∧I'], ['&E', '∧E'], ['Rep', 'Rep'], ['-E', '¬E'],
+    ['-I', '¬I'], ['->I', '→I'], ['->E', '→E'], ['FE', '⊥E'], ['FI', '⊥I'],
+  ])('renders the rule text %s as the symbol %s', (ruleText, symbol) => {
+    expect(renderRule(ruleText)).toBe(symbol);
+    expect(renderRule(`${ruleText} [1, 2]`)).toBe(`${symbol} [1, 2]`);
   });
 });
 

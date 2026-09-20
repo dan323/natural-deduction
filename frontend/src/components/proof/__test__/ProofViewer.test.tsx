@@ -11,7 +11,7 @@ const mockSteps: StepDto[] = [
 ];
 
 const expressionsShown: string[] = ['A → B','A','B','A ∨ B']
-const rulesShown: string[] = ['→Intro [1-2]','Assumption','→Elim [2, 3]', 'Rep [1]'];
+const rulesShown: string[] = ['→I [1-2]','Assumption','→E [2, 3]', 'Rep [1]'];
 
 const mockProof: ProofDto = {
   steps: mockSteps,
