@@ -78,6 +78,24 @@ public class ModalTransformerTest {
     }
 
     @Test
+    public void actionsWithAnExpressionKeepTheParsedExpression() {
+        var nd = new ModalNaturalDeduction();
+        nd.initializeProof(List.of(), P);
+        var assume = transformer.from(new ActionDto("Ass", List.of(), Map.of("expression", " P -> Q ", "state", "s0")));
+        assertNotNull(assume);
+        assume.apply(nd);
+        assertEquals(new ImplicationModal(P, Q), nd.getSteps().getLast().getStep());
+
+        var relation = transformer.from(new ActionDto("Ass", List.of(), Map.of("expression", "s0 <= s1")));
+        assertNotNull(relation);
+        relation.apply(nd);
+        assertEquals(s0LessThans1, nd.getSteps().getLast().getStep());
+
+        var orI = transformer.from(new ActionDto("|I1", List.of(1), Map.of("expression", "Q", "state", "s0")));
+        assertInstanceOf(ModalOrI1.class, orI);
+    }
+
+    @Test
     public void omittedExtraParametersAreAccepted() {
         var relation = new ProofDto(List.of(new StepDto("s0 <= s1", "Ass", 0, null)), "modal", "P");
         assertEquals(1, transformer.from(relation).getSteps().size());
