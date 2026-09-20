@@ -39,7 +39,7 @@ The Natural Deduction project follows a **plugin-based architecture** with clear
 ## Layered Architecture
 
 ### 1. Frontend Layer
-- **Technology**: React 18, TypeScript
+- **Technology**: React 19, TypeScript
 - **Responsibility**: User interface for proof construction and verification
 - **Location**: `frontend/`
 - **Features**:
@@ -49,7 +49,7 @@ The Natural Deduction project follows a **plugin-based architecture** with clear
   - Real-time validation
 
 ### 2. REST API Layer
-- **Technology**: Spring Boot 3.3.2
+- **Technology**: Spring Boot 3.5.3
 - **Responsibility**: HTTP interface to business logic
 - **Location**: `executable/`, `rest/`
 - **Endpoints**:

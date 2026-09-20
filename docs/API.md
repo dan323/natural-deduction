@@ -47,9 +47,12 @@ the modal proof format (`Ass`, `|I1`, `->E`, `[]E`, `Refl`, ...). The list is bu
 }
 ```
 
-`200` with `{"proof": {...}, "success": true, "message": ""}` when the action was applied, `202` with
+`200` with `{"proof": {...}, "success": true, "done": false, "message": ""}` when the action was applied, `202` with
 `"success": false` and the reason in `message` (the proof is returned unchanged) when it was well formed but does
 not apply.
+
+`done` says whether the goal of the returned proof is proved: the domain's `Proof.isDone()`, that is, some step at
+assumption level 0 is the goal (not necessarily the last one). The UI shows it as the goal's success state.
 
 ### Solve a proof: `POST /logic/{logic}/solve`
 
@@ -69,6 +72,7 @@ Runs the automatic solver on the proof (a `ProofDto`) and returns the resulting 
 }
 ```
 
+- `done` is the same verdict as in the response of `/action`, derived from the steps by the same rule.
 - A proof the solver cannot finish (unprovable, or beyond what the solver can do) is still a `200`: the proof comes
   back as far as it got and `done` is `false`.
 - The solver is limited by time, because a user triggers it. When it does not finish within the limit (10 seconds by

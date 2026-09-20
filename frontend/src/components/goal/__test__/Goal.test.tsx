@@ -1,5 +1,4 @@
-import React from 'react';
-import { render } from '@testing-library/react';
+import { act, render } from '@testing-library/react';
 import Goal from '../Goal';
 import { renderExpression } from '../../../service/utils';
 
@@ -52,5 +51,41 @@ describe('Goal Component', () => {
     
     // Check if renderExpression was called wtesth the correct expression
     expect(renderExpression).toHaveBeenCalledWith(expression);
+  });
+});
+
+describe('Goal celebration', () => {
+  beforeEach(() => {
+    (renderExpression as jest.Mock).mockReturnValue('A → B');
+    jest.useFakeTimers();
+  });
+
+  afterEach(() => {
+    jest.useRealTimers();
+    jest.restoreAllMocks();
+  });
+
+  test('rolls the confetti once, not on every render', () => {
+    const random = jest.spyOn(Math, 'random');
+    const { container, rerender } = render(<Goal expression="A → B" success={false} />);
+    expect(container.querySelector('.celebration')).toBeNull();
+
+    rerender(<Goal expression="A → B" success={true} />);
+    expect(container.querySelectorAll('.emoji')).toHaveLength(30);
+    const rolled = random.mock.calls.length;
+    const before = Array.from(container.querySelectorAll('.emoji')).map(e => e.outerHTML);
+
+    rerender(<Goal expression="A → B" success={true} />);
+    expect(random.mock.calls.length).toBe(rolled);
+    expect(Array.from(container.querySelectorAll('.emoji')).map(e => e.outerHTML)).toEqual(before);
+  });
+
+  test('hides the confetti after two seconds', () => {
+    const { container } = render(<Goal expression="A → B" success={true} />);
+    expect(container.querySelector('.celebration')).not.toBeNull();
+
+    act(() => { jest.advanceTimersByTime(2000); });
+
+    expect(container.querySelector('.celebration')).toBeNull();
   });
 });

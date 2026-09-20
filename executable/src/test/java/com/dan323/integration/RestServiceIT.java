@@ -155,6 +155,26 @@ public class RestServiceIT {
     }
 
     @Test
+    public void doActionReportsWhetherTheProofIsDone() {
+        // The goal P is a top level step, though not the last one: the domain considers this proof done.
+        var goalNotLast = new ProofDto(List.of(new StepDto("P", "Ass", 0, Map.of()), new StepDto("Q", "Ass", 0, Map.of())), "classical", "P");
+        var done = restTemplate.exchange(createURLWithPort("/logic/classical/action"), HttpMethod.POST,
+                new HttpEntity<>(new ProofActionRequest(new ActionDto("COPY", List.of(2), Map.of()), goalNotLast), headers), ProofResponse.class);
+        assertEquals(HttpStatus.OK, done.getStatusCode());
+        assertTrue(Objects.requireNonNull(done.getBody()).done());
+
+        var open = new ProofDto(List.of(new StepDto("Q", "Ass", 0, Map.of())), "classical", "P");
+        var notDone = restTemplate.exchange(createURLWithPort("/logic/classical/action"), HttpMethod.POST,
+                new HttpEntity<>(new ProofActionRequest(new ActionDto("COPY", List.of(1), Map.of()), open), headers), ProofResponse.class);
+        assertEquals(HttpStatus.OK, notDone.getStatusCode());
+        assertFalse(Objects.requireNonNull(notDone.getBody()).done());
+
+        var json = restTemplate.exchange(createURLWithPort("/logic/classical/action"), HttpMethod.POST,
+                new HttpEntity<>(new ProofActionRequest(new ActionDto("COPY", List.of(1), Map.of()), open), headers), String.class);
+        assertTrue(Objects.requireNonNull(json.getBody()).contains("\"done\":false"), json.getBody());
+    }
+
+    @Test
     public void postProof() {
         headers.setContentType(MediaType.MULTIPART_FORM_DATA);
 

@@ -123,34 +123,20 @@ docker run -p 8080:8080 natural-deduction:latest
 
 ## API Examples
 
-### Parse Classical Formula
+### Get the Available Actions
 ```powershell
-$body = @{ formula = "p & q" } | ConvertTo-Json
-curl -X POST `
-  -H "Content-Type: application/json" `
-  -d $body `
-  http://localhost:8080/api/classical/parse
+curl http://localhost:8080/logic/classical/actions
+curl http://localhost:8080/logic/modal/actions
 ```
 
-### Parse Modal Formula
+### Solve a Proof Automatically
 ```powershell
-$body = @{ formula = "[]p -> <>q" } | ConvertTo-Json
-curl -X POST `
-  -H "Content-Type: application/json" `
-  -d $body `
-  http://localhost:8080/api/modal/parse
+curl -X POST -H "Content-Type: application/json" `
+  -d '{\"logic\":\"classical\",\"goal\":\"P -> P\",\"steps\":[]}' `
+  http://localhost:8080/logic/classical/solve
 ```
 
-### Get Available Rules
-```powershell
-$body = @{ 
-    currentGoal = "p | q"
-} | ConvertTo-Json
-curl -X POST `
-  -H "Content-Type: application/json" `
-  -d $body `
-  http://localhost:8080/api/classical/rules
-```
+See [API.md](./API.md) for `POST /logic/{logic}/action` and `POST /logic/{logic}/proof`.
 
 ### Health Check
 ```powershell
@@ -244,10 +230,10 @@ mvn clean install -pl executable
 | Link | Purpose |
 |------|---------|
 | http://localhost:8080 | Application (when running) |
-| http://localhost:3000 | Frontend dev server (when running) |
+| http://localhost:5173 | Frontend dev server (when running; it cannot reach the API by itself) |
 | http://localhost:8080/actuator/health | Health check |
-| http://localhost:8080/api/classical | Classical logic API |
-| http://localhost:8080/api/modal | Modal logic API |
+| http://localhost:8080/logic/classical/actions | Classical logic actions |
+| http://localhost:8080/logic/modal/actions | Modal logic actions |
 | [GitHub](https://github.com/dan323/natural-deduction) | Repository |
 | [SonarCloud](https://sonarcloud.io/project/overview?id=dan323_natural-deduction) | Code quality |
 
@@ -268,7 +254,7 @@ mvn clean install -pl executable
 1. Open project
 2. Maven auto-configures
 3. Run → Edit Configurations → Add Spring Boot Application
-4. Main class: `com.dan323.executable.Application`
+4. Main class: `com.dan323.main.Application`
 
 ### VS Code
 1. Install "Extension Pack for Java"
@@ -288,11 +274,11 @@ $env:NODE_HOME = "C:\nodejs"
 ## Version Info
 
 - **Java**: 21
-- **Spring Boot**: 3.3.2
+- **Spring Boot**: 3.5.3
 - **Maven**: 3.6.0+
-- **Node.js**: 16.x+
-- **React**: 18.3.1
-- **TypeScript**: 4.9.5
+- **Node.js**: 20.x+
+- **React**: 19
+- **TypeScript**: 5.9
 
 ## Common Issues & Solutions
 

@@ -1,4 +1,4 @@
-import React, { FC, MouseEventHandler, useEffect, useState } from 'react';
+import { CSSProperties, FC, MouseEventHandler, useEffect, useState } from 'react';
 import '../Expressions.css';
 import { StepDto } from '../../types';
 import { renderExpression, renderRule, getIndentation, isValidCSSColor } from '../../service/utils';
@@ -28,7 +28,7 @@ export const StepViewer: FC<StepProps> = ({
 
   // Cast to CSSProperties to ensure custom properties are accepted
   const glowStyle = validColor
-    ? { '--glow-color': validColor } as React.CSSProperties
+    ? { '--glow-color': validColor } as CSSProperties
     : {};
 
   return (

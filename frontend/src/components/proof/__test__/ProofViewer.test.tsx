@@ -1,4 +1,3 @@
-import React from 'react';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import ProofViewer from '../ProofViewer';  // Adjust the import path as necessary
@@ -17,7 +16,8 @@ const rulesShown: string[] = ['→Intro [1-2]','Assumption','→Elim [2, 3]', 'R
 const mockProof: ProofDto = {
   steps: mockSteps,
   goal: 'A | B',
-  logic: 'classic'
+  logic: 'classic',
+  done: true,
 };
 
 const goalExpression: string = 'A ∨ B';
@@ -80,11 +80,30 @@ describe('ProofViewer Component', () => {
     expect(rows[3]).not.toHaveClass('highlighted');
   });
 
-  test('goal success is correctly determined', () => {
+  test('goal success is what the backend reports in done', () => {
     render(<ProofViewer proof={mockProof} coloring={mockColoring} />);
 
-    // Check if the goal is marked as achieved (based on success prop)
     const goalElement = screen.getByText(goalExpression, {selector: 'span'});
     expect(goalElement).toHaveClass('goal-success');
+  });
+
+  test('the goal is not marked as achieved unless done, even when the last step is the goal', () => {
+    render(<ProofViewer proof={{ ...mockProof, done: false }} coloring={mockColoring} />);
+
+    expect(screen.getByText(goalExpression, {selector: 'span'})).toHaveClass('goal-failure');
+  });
+
+  test('the goal is achieved when done, even when the last step is not the goal', () => {
+    const goalInTheMiddle = { ...mockProof, steps: [mockSteps[3], mockSteps[0]], done: true };
+    render(<ProofViewer proof={goalInTheMiddle} coloring={mockColoring} />);
+
+    expect(screen.getByText(goalExpression, {selector: 'span'})).toHaveClass('goal-success');
+  });
+
+  test('a proof that was not returned by the backend is not done', () => {
+    const { done, ...local } = mockProof;
+    render(<ProofViewer proof={local} coloring={mockColoring} />);
+
+    expect(screen.getByText(goalExpression, {selector: 'span'})).toHaveClass('goal-failure');
   });
 });

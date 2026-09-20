@@ -8,7 +8,7 @@ This guide covers building, configuring, and running the Natural Deduction proje
 
 - **Java**: JDK 21 or higher
 - **Maven**: 3.6.0 or higher
-- **Node.js**: 16.x or higher (for frontend)
+- **Node.js**: 20.x or higher (for frontend)
 - **npm**: 7.x or higher (for frontend)
 - **Git**: For cloning the repository
 
@@ -102,9 +102,9 @@ java -jar executable/target/executable-0.1-SNAPSHOT.jar
  \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
   '  |____| .__|_| |_|_| |_|\__, | / / / /
  =========|_|==============|___/=/_/_/_/
- :: Spring Boot ::        (v3.3.2)
+ :: Spring Boot ::        (v3.5.3)
 
-2024-01-15 10:30:15.123  INFO 1234 --- [main] com.dan323.executable.Application
+2024-01-15 10:30:15.123  INFO 1234 --- [main] com.dan323.main.Application
 Application 'executable' is running! Access URLs:
   Local: http://localhost:8080
   Profile: default
@@ -112,7 +112,7 @@ Application 'executable' is running! Access URLs:
 
 **Access the application**:
 - Frontend: http://localhost:8080
-- REST API: http://localhost:8080/api/
+- REST API: http://localhost:8080/logic/{logic}/... (see [API.md](./API.md))
 - Health check: http://localhost:8080/actuator/health
 
 ### Option 2: Run with Maven
@@ -132,7 +132,9 @@ npm start
 
 This starts a development server on http://localhost:5173 with live reloading.
 
-**Note**: The development server needs the backend running separately on port 8080.
+**Note**: The development server has no proxy to the backend and the UI calls relative URLs (`/logic/...`), so it
+cannot reach the API on its own. To use the whole application, build the frontend into the jar (see above) and open
+http://localhost:8080.
 
 ## Configuration
 
@@ -289,8 +291,7 @@ mvn org.pitest:pitest-maven:mutationCoverage -pl domain/logic-language/framework
 
 **Issue**: Frontend cannot connect to API
 - **Solution**: Check backend is running on port 8080
-- **Solution**: Check CORS configuration in Spring Boot
-- **Solution**: Verify API endpoints in `frontend/src/constant.ts`
+- **Solution**: Use the packaged jar; the UI calls relative URLs (`/logic/...`) and the Vite dev server has no proxy
 
 ### Frontend Issues
 

@@ -124,8 +124,8 @@ docs/README.md
 
 | Layer    | Technology                 | Documentation                      |
 |----------|----------------------------|------------------------------------|
-| Backend  | Java 21, Spring Boot 3.3.2 | [SETUP.md](./SETUP.md)             |
-| Frontend | React 18, TypeScript       | [SETUP.md](./SETUP.md)             |
+| Backend  | Java 21, Spring Boot 3.5.3 | [SETUP.md](./SETUP.md)             |
+| Frontend | React 19, TypeScript       | [SETUP.md](./SETUP.md)             |
 | Build    | Maven                      | [SETUP.md](./SETUP.md)             |
 | Testing  | JUnit 5, Jest, PIT         | [SETUP.md](./SETUP.md)             |
 | Quality  | SonarCloud, JaCoCo         | [DEVELOPMENT.md](./DEVELOPMENT.md) |

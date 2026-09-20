@@ -1,4 +1,4 @@
-import React, { FC, useState, useEffect, ChangeEventHandler, useMemo } from 'react';
+import { FC, useState, useEffect, ChangeEventHandler, useMemo } from 'react';
 import '../Expressions.css';
 import { fetchActions, applyAction, solveProof } from '../../service/actions';
 import './Menu.css';
@@ -19,12 +19,6 @@ const inputLabels: Record<ParamKind, string> = {
     EXPRESSION: 'Expression:',
     STATE: 'State:',
 };
-
-// The proof is finished when its last step, at the top level, is the goal.
-function isDone(proof: ProofDto): boolean {
-    const last = proof.steps.at(-1);
-    return last?.assmsLevel === 0 && last.expression === proof.goal;
-}
 
 const Menu: FC<MenuProps> = ({ logic, onColorChange, setProof, proof }) => {
     const [actions, setActions] = useState<ActionDescriptor[]>([]);
@@ -120,7 +114,7 @@ const Menu: FC<MenuProps> = ({ logic, onColorChange, setProof, proof }) => {
             if (response.success && response.proof) {
                 setProof(response.proof);
                 glowingColors.forEach((color) => onColorChange(color, -1));
-                setNotice(isDone(response.proof)
+                setNotice(response.proof.done
                     ? 'The proof is complete.'
                     : 'The solver could not finish the proof. Continue from where it stopped.');
             } else {

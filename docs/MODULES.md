@@ -167,15 +167,14 @@ REST API contracts and models.
   - Error handling
 - **Dependencies**: Spring Framework
 - **Used By**: executable/
-- **Java Package**: `com.dan323.rest.framework.*`
+- **Java Package**: `com.dan323.controller` (`ControllerInterface`, `RestExceptionHandler`)
 
 #### model/
 - **Purpose**: REST API models
 - **Key Classes**:
-  - `ProofRequest` - Input for proof operations
-  - `ProofResponse` - Output from proof operations
-  - `RuleInfo` - Information about available rules
-  - `ErrorResponse` - Standardized error responses
+  - `ProofActionRequest` - Input of `POST /logic/{logic}/action`: an `ActionDto` and the whole `ProofDto`
+  - `ProofResponse` - Output of that endpoint: the proof, whether the action was applied (`success`), whether the goal is proved (`done`, decided by the domain's `Proof.isDone()`) and a `message` saying why it was not applied
+  - `ErrorResponse` - Body `{"message": "..."}` of every non-2xx response
 - **Dependencies**: domain/use-cases/model/
 - **Used By**: executable/
 - **Java Package**: `com.dan323.rest.model.*`
@@ -191,11 +190,9 @@ The Spring Boot application that ties everything together.
   - Configuration beans
   - Integration with all domain modules
 - **Dependencies**: All domain modules, rest/, Spring Boot
-- **Java Package**: `com.dan323.executable.*`
-- **Endpoints**:
-  - `/api/classical/*` - Classical logic endpoints
-  - `/api/modal/*` - Modal logic endpoints
-  - `/health` - Health check
+- **Java Package**: `com.dan323.main`
+- **Endpoints**: `/logic/{logic}/actions|action|solve|proof` for the logics `classical` and `modal`, see
+  [API.md](./API.md); the Spring Actuator endpoints; the built frontend as static files
 
 ## Frontend Module
 
@@ -204,7 +201,7 @@ The Spring Boot application that ties everything together.
 React-based user interface.
 
 - **Purpose**: Web UI for interactive proof building
-- **Technology**: React 18, TypeScript, Jest
+- **Technology**: React 19, TypeScript, Jest
 - **Key Components**:
   - Proof builder interface
   - Formula input component

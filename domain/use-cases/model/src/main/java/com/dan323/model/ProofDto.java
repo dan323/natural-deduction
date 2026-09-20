@@ -16,11 +16,12 @@ public record ProofDto(List<StepDto> steps, String logic, String goal) implement
         steps = steps == null ? List.of() : steps;
     }
 
+    /**
+     * Whether the goal is proved: some step at the top level (no open assumption) is the goal. This is the rule of
+     * {@code Proof.isDone()} of the domain, the steps of a {@code ProofDto} being the valid ones that the domain
+     * proof produced. Serialized as {@code done}.
+     */
     public boolean isDone() {
-        if (steps.isEmpty()) {
-            return false;
-        }
-        var lastStep = steps.getLast();
-        return lastStep.assmsLevel() == 0 && lastStep.expression().equals(goal);
+        return steps.stream().anyMatch(step -> step.assmsLevel() == 0 && step.expression().equals(goal));
     }
 }

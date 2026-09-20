@@ -1,4 +1,4 @@
-import React, { FC, useState } from 'react';
+import { FC, useState } from 'react';
 import '../Expressions.css';
 import { ProofDto } from '../../types';
 import Goal from '../goal/Goal';
@@ -70,7 +70,7 @@ export const ProofViewer: FC<ProofViewerProps> = ({ proof, coloring }) => {
             {proof.steps.map((step, index) => {
               return (
                 <StepViewer
-                  key={step.expression+index}
+                  key={index}
                   step={step}
                   stepIndex={index}
                   className={isHighlighted(index) ? 'highlighted' : ''}
@@ -84,13 +84,7 @@ export const ProofViewer: FC<ProofViewerProps> = ({ proof, coloring }) => {
         </table>
       </div>
       <hr className="proof-divider" />
-      <Goal
-        expression={proof.goal}
-        success={proof && proof.steps && proof.steps.length > 0 &&
-          proof.steps[proof.steps.length - 1].assmsLevel === 0 &&
-          proof.steps[proof.steps.length - 1].expression === proof.goal
-        }
-      />
+      <Goal expression={proof.goal} success={proof.done === true} />
     </div>
   );
 };

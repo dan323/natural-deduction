@@ -1,4 +1,3 @@
-import React from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import App from '../App';
@@ -52,6 +51,7 @@ describe('App', () => {
       ],
       logic: 'classical',
       goal: 'P -> P',
+      done: true,
     };
     fetchMock.mockImplementation(async (url: string) => {
       if (url.endsWith('/actions')) return jsonResponse(200, []);

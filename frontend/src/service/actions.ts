@@ -30,6 +30,14 @@ export async function fetchActions(
     }
 }
 
+// `ProofResponse.done` is the backend's verdict on the returned proof; carry it on the proof, so that the UI only has
+// to look at the proof.
+function withDone(body: ApplyActionResponse): ApplyActionResponse {
+    return body.proof && typeof body.done === 'boolean'
+        ? { ...body, proof: { ...body.proof, done: body.done } }
+        : body;
+}
+
 export async function applyAction(logic: string, proof: ProofDto, action: ActionDto, consumer: (actions: ApplyActionResponse) => void): Promise<void> {
     let result: ApplyActionResponse;
     try {
@@ -42,7 +50,7 @@ export async function applyAction(logic: string, proof: ProofDto, action: Action
         });
         // A 202 is a valid request whose action does not apply; its body is a ProofResponse with success=false.
         result = response.ok
-            ? await response.json()
+            ? withDone(await response.json())
             : { success: false, message: await errorMessage(response) };
     } catch (err) {
         console.error("Error applying an action:", err);

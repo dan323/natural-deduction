@@ -48,6 +48,14 @@ public class ModelTest {
     }
 
     @Test
+    public void isDoneFollowsTheDomainRule() {
+        var goalThenMore = new ProofDto(List.of(new StepDto("P", "Ass", 0, Map.of()), new StepDto("Q", "Ass", 0, Map.of())), "classic", "P");
+        assertTrue(goalThenMore.isDone(), "the goal need not be the last step");
+        var goalInsideAnAssumption = new ProofDto(List.of(new StepDto("Q", "Ass", 0, Map.of()), new StepDto("P", "Ass", 1, Map.of())), "classic", "P");
+        assertFalse(goalInsideAnAssumption.isDone(), "the goal must be at the top level");
+    }
+
+    @Test
     void actionDescriptorTest() {
         var descriptor = ActionDescriptorDto.of("ORI1", ParamKind.INT, ParamKind.EXPRESSION);
         assertEquals("ORI1", descriptor.name());
