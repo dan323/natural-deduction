@@ -12,6 +12,11 @@ on:
     branches:
       - master
 
+# A new push to a PR supersedes the run in progress; runs on master are never cancelled.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 jobs:
   mvn_flow:
     runs-on: ubuntu-latest
@@ -25,19 +30,18 @@ jobs:
         with:
           java-version: 21
           distribution: 'corretto'
-      - name: compile
-        run: mvn -B -f pom.xml clean compile
-      - name: run test suits
+      # verify compiles, runs the unit tests, packages, runs the *IT tests and writes the jacoco reports
+      # (jacoco-natural-deduction/target/site and each module's target/site/jacoco/jacoco.xml).
+      - name: build and run test suits
         run: mvn -B -f pom.xml verify
-      - name: jacoco report
-        run: mvn -B -f pom.xml -Dmaven.test.skip=true package
+      # Runs against the classes, test reports and jacoco XML that verify just produced.
       - name: sonar cloud
         env:
           SONAR_ORGANIZATION: ${{ secrets.SONAR_ORGANIZATION }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_PROJECT: ${{ secrets.SONAR_PROJECT }}
-        run: mvn -B -f pom.xml package -Dmaven.test.skip=true org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.java.source=21 -Dsonar.java.target=21 -Dsonar.token=$SONAR_TOKEN -Dsonar.host.url=https://sonarcloud.io/ -Dsonar.organization=$SONAR_ORGANIZATION -Dorganization=$SONAR_ORGANIZATION -Dsonar.projectKey=natural-deduction
+        run: mvn -B -f pom.xml org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.java.source=21 -Dsonar.java.target=21 -Dsonar.token=$SONAR_TOKEN -Dsonar.host.url=https://sonarcloud.io/ -Dsonar.organization=$SONAR_ORGANIZATION -Dorganization=$SONAR_ORGANIZATION -Dsonar.projectKey=natural-deduction
       - name: set PR number
         if: github.event_name == 'pull_request' && github.actor != 'dependabot[bot]'
         run: |
@@ -70,6 +74,8 @@ jobs:
           commit_message: 'jacoco-report'
           keep_files: true
 
+  # Deliberately left on every PR and every master push (same cadence as before): the PR report on gh-pages is the
+  # only place mutation results are seen. If it becomes too slow, restrict it to master or a nightly schedule.
   mutation_testing:
     runs-on: ubuntu-latest
     name: Mutation Testing
