@@ -164,6 +164,9 @@
                         <!-- PIT ran a single minion at a time; the timed out mutants then queue up one after another.
                              ubuntu-latest has 4 vCPUs. -->
                         <threads>4</threads>
+                        <!-- By default all mutants of a class are one unit for one minion, so ModalAutomate (about a third of
+                             the module's mutants and most of its timeouts) could not be spread over the threads. -->
+                        <mutationUnitSize>25</mutationUnitSize>
                     </configuration>
                     <dependencies>
                         <dependency>
