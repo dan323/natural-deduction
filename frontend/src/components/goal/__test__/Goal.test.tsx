@@ -106,6 +106,15 @@ describe('Goal celebration', () => {
     expect(container.querySelector('.celebration')).toHaveAttribute('aria-hidden', 'true');
   });
 
+  test('drops the confetti at once when the goal is no longer proved', () => {
+    const { container, rerender } = render(<Goal expression="A → B" success={true} />);
+    expect(container.querySelector('.celebration')).not.toBeNull();
+
+    rerender(<Goal expression="A → B" success={false} />);
+
+    expect(container.querySelector('.celebration')).toBeNull();
+  });
+
   test('hides the confetti after two seconds', () => {
     const { container } = render(<Goal expression="A → B" success={true} />);
     expect(container.querySelector('.celebration')).not.toBeNull();

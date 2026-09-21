@@ -33,6 +33,8 @@ const Goal: FC<GoalProps> = ({ expression, success }) => {
       const timer = setTimeout(() => setConfetti(null), 2000); // Hide celebration after 2 seconds
       return () => clearTimeout(timer);
     }
+    // The goal is not proved (any more), e.g. a new proof was started within the two seconds.
+    setConfetti(null);
   }, [success]);
 
   return (
