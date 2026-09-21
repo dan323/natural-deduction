@@ -22,6 +22,20 @@
 .goal-failure {
     color: red;
 }
+
+.goal-marker {
+    margin-left: 1rem;
+    font-size: 1.1rem;
+    font-weight: bold;
+}
+
+.goal-marker-success {
+    color: #0a6b0a;
+}
+
+.goal-marker-failure {
+    color: #595959;
+}
 /* Celebration container styling */
 .celebration {
     position: fixed;

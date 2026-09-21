@@ -33,13 +33,19 @@ const Goal: FC<GoalProps> = ({ expression, success }) => {
       const timer = setTimeout(() => setConfetti(null), 2000); // Hide celebration after 2 seconds
       return () => clearTimeout(timer);
     }
+    // The goal is not proved (any more), e.g. a new proof was started within the two seconds.
+    setConfetti(null);
   }, [success]);
 
   return (
-    <div className="goal" aria-live="polite">
+    <div className="goal">
       <span className="goal-label">GOAL:</span>
       <span className={success ? 'goal-success' : 'goal-failure'}>
         {renderExpression(expression)}
+      </span>
+      {/* Text and a symbol as well as the colour, which alone does not say whether the goal was reached. */}
+      <span className={success ? 'goal-marker goal-marker-success' : 'goal-marker goal-marker-failure'}>
+        {success ? '✓ Proved' : 'Not proved yet'}
       </span>
       {confetti && (
         <div className="celebration" aria-hidden="true">

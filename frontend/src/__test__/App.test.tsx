@@ -209,7 +209,7 @@ describe('App', () => {
     await startProof(user, 'P', 'P -> P');
     await user.click(await screen.findByRole('button', { name: 'Solve' }));
 
-    expect(await screen.findByRole('status')).toHaveTextContent('The proof is complete.');
+    expect(await screen.findByRole('status')).toHaveTextContent('Proof complete.');
     expect(fetchMock).toHaveBeenCalledWith('/logic/classical/solve', expect.objectContaining({ method: 'POST' }));
     expect(screen.getAllByText(/→/).length).toBeGreaterThan(0);
   });
@@ -301,6 +301,53 @@ describe('App', () => {
 
       expect(screen.queryByLabelText(/Line number:/i)).not.toBeInTheDocument();
       expect(stepRow(1)).not.toHaveClass('glow');
+    });
+  });
+
+  describe('when a rule completes the proof', () => {
+    const doneRep = { ...repProof, done: true };
+
+    const completeWithRep = async () => {
+      mockBackend([REP], 200, { proof: doneRep, success: true, message: '' });
+      const user = await startWithRep();
+      await user.type(screen.getByLabelText(/Line number:/i), '1');
+      await user.click(applyButton());
+      await screen.findByText('Proof complete.');
+      return user;
+    };
+
+    test('announces it, marks the goal in text and takes no more rules', async () => {
+      await completeWithRep();
+
+      expect(screen.getByRole('status')).toHaveTextContent('Proof complete.');
+      expect(screen.getByText('✓ Proved')).toBeInTheDocument();
+      expect(screen.getByLabelText(/Select Inference Rule:/i)).toBeDisabled();
+      expect(applyButton()).toBeDisabled();
+      expect(screen.getByRole('button', { name: 'Solve' })).toBeDisabled();
+    });
+
+    test('offers a new proof, which starts with the rule controls enabled again', async () => {
+      const user = await completeWithRep();
+
+      await user.click(screen.getByRole('button', { name: 'New Proof' }));
+      await waitFor(() => expect(screen.getByPlaceholderText('Premise 1')).toHaveFocus());
+      await user.type(screen.getByPlaceholderText('Premise 1'), 'Q');
+      await user.type(screen.getByPlaceholderText('Enter the goal expression'), 'Q');
+      await user.click(screen.getByText('Start Proof'));
+
+      expect(await screen.findByLabelText(/Select Inference Rule:/i)).toBeEnabled();
+      expect(screen.queryByText('Proof complete.')).not.toBeInTheDocument();
+      expect(screen.getByText('Not proved yet')).toBeInTheDocument();
+    });
+
+    test('closing the dialog hands the focus back to the New Proof button of the toolbar', async () => {
+      const user = await completeWithRep();
+
+      await user.click(screen.getByRole('button', { name: 'New Proof' }));
+      await waitFor(() => expect(screen.getByPlaceholderText('Premise 1')).toHaveFocus());
+      await user.keyboard('{Escape}');
+
+      await waitFor(() => expect(screen.getByRole('button', { name: /Start a new proof/i })).toHaveFocus());
     });
   });
 });

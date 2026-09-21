@@ -49,13 +49,14 @@ describe('Menu solve button', () => {
     test('sends the proof to the solver and shows the returned proof', async () => {
         const user = userEvent.setup();
         mockSolveProof.mockImplementation((logic, sent, callback) => callback({ success: true, proof: solved, message: '' }));
-        render(<Menu {...props} />);
+        const { rerender } = render(<Menu {...props} />);
 
         await clickSolve(user);
+        rerender(<Menu {...props} proof={solved} />);
 
         expect(mockSolveProof).toHaveBeenCalledWith('mock-logic', proof, expect.any(Function));
         expect(props.setProof).toHaveBeenCalledWith(solved);
-        expect(screen.getByRole('status')).toHaveTextContent('The proof is complete.');
+        expect(screen.getByRole('status')).toHaveTextContent('Proof complete.');
         expect(screen.queryByRole('alert')).not.toBeInTheDocument();
         // the highlighted lines belong to the old proof
         expect(props.onColorChange).toHaveBeenCalledWith(expect.any(String), -1);
@@ -122,7 +123,8 @@ describe('Menu solve button', () => {
 
     test('a new message replaces the solver notice', async () => {
         const user = userEvent.setup();
-        mockSolveProof.mockImplementation((logic, sent, callback) => callback({ success: true, proof: solved, message: '' }));
+        const partial: ProofDto = { ...proof, goal: 'Q' };
+        mockSolveProof.mockImplementation((logic, sent, callback) => callback({ success: true, proof: partial, message: '' }));
         mockApplyAction.mockImplementation((logic, sent, action, callback) => callback({ success: false, message: 'Line 9 does not exist' }));
         render(<Menu {...props} />);
 

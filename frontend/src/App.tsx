@@ -17,6 +17,7 @@ function App() {
   // error of the previous proof do not carry over.
   const [proofId, setProofId] = useState(0);
   const menuRef = useRef<MenuHandle>(null);
+  const newProofButtonRef = useRef<HTMLButtonElement>(null);
   const [proof, setProof] = useState<ProofDto>({
     steps: [],
     logic: LOGIC,
@@ -43,6 +44,11 @@ function App() {
 
   const handleOpenModal = () => {
     setModalOpener(document.activeElement instanceof HTMLElement ? document.activeElement : null);
+    setIsModalOpen(true);
+  };
+  // The button of a finished proof goes away with the proof, so the toolbar button is the one that gets the focus back.
+  const handleOpenModalFromMenu = () => {
+    setModalOpener(newProofButtonRef.current);
     setIsModalOpen(true);
   };
   const handleCloseModal = () => setIsModalOpen(false);
@@ -73,6 +79,7 @@ function App() {
         <Header />
         <div className="app-toolbar">
           <button
+            ref={newProofButtonRef}
             className="new-proof-btn"
             onClick={handleOpenModal}
             aria-label="Start a new proof"
@@ -81,7 +88,7 @@ function App() {
           </button>
         </div>
         <main className="app-main">
-          <Menu key={proofId} ref={menuRef} logic={LOGIC} proof={proof} setProof={setProof} onColorChange={onColorChange} />
+          <Menu key={proofId} ref={menuRef} logic={LOGIC} proof={proof} setProof={setProof} onColorChange={onColorChange} onNewProof={handleOpenModalFromMenu} />
           {hasProof ? (
             <Proof proof={proof} coloring={colorMapping} onSelectLine={handleSelectLine} />
           ) : (

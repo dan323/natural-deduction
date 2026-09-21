@@ -54,6 +54,26 @@ describe('Goal Component', () => {
   });
 });
 
+describe('Goal marker', () => {
+  beforeEach(() => {
+    (renderExpression as jest.Mock).mockReturnValue('A → B');
+  });
+
+  test('says in text that the goal is proved, not only in colour', () => {
+    const { getByText, queryByText } = render(<Goal expression="A → B" success={true} />);
+
+    expect(getByText('✓ Proved')).toBeInTheDocument();
+    expect(queryByText('Not proved yet')).toBeNull();
+  });
+
+  test('says in text that the goal is not proved yet', () => {
+    const { getByText, queryByText } = render(<Goal expression="A → B" success={false} />);
+
+    expect(getByText('Not proved yet')).toBeInTheDocument();
+    expect(queryByText('✓ Proved')).toBeNull();
+  });
+});
+
 describe('Goal celebration', () => {
   beforeEach(() => {
     (renderExpression as jest.Mock).mockReturnValue('A → B');
@@ -84,6 +104,15 @@ describe('Goal celebration', () => {
     const { container } = render(<Goal expression="A → B" success={true} />);
 
     expect(container.querySelector('.celebration')).toHaveAttribute('aria-hidden', 'true');
+  });
+
+  test('drops the confetti at once when the goal is no longer proved', () => {
+    const { container, rerender } = render(<Goal expression="A → B" success={true} />);
+    expect(container.querySelector('.celebration')).not.toBeNull();
+
+    rerender(<Goal expression="A → B" success={false} />);
+
+    expect(container.querySelector('.celebration')).toBeNull();
   });
 
   test('hides the confetti after two seconds', () => {

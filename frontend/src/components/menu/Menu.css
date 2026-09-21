@@ -115,6 +115,11 @@
     text-align: left;
 }
 
+/* Offered once the proof is complete */
+.menu-new-proof {
+    margin-bottom: 12px;
+}
+
 /* Why Apply Rule is disabled */
 .menu-hint {
     color: #666;
