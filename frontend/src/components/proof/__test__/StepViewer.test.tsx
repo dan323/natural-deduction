@@ -30,7 +30,7 @@ describe('StepViewer Component', () => {
     expect(row).toHaveStyle('--glow-color: blue');
     expect(screen.getByText('1')).toBeInTheDocument();
     expect(screen.getByText('A → B')).toBeInTheDocument();
-    expect(screen.getByText('→Intro')).toBeInTheDocument();
+    expect(screen.getByText('→I')).toBeInTheDocument();
   });
 
   test('does not apply glow when color is invalid', () => {

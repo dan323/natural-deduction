@@ -8,6 +8,8 @@ import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class ModelTest {
@@ -70,6 +72,43 @@ public class ModelTest {
         var descriptor = new ActionDescriptorDto("Rep", params);
         params.add(ParamKind.STATE);
         assertEquals(List.of(ParamKind.INT), descriptor.params());
+    }
+
+    @Test
+    void actionDescriptorPresentationFieldsAreOptional() {
+        var plain = ActionDescriptorDto.of("MP", ParamKind.INT, ParamKind.INT);
+        assertNull(plain.label());
+        assertNull(plain.symbol());
+        assertNull(plain.category());
+        assertNull(plain.description());
+        assertEquals(List.of(), plain.paramLabels());
+        assertEquals(plain, new ActionDescriptorDto("MP", List.of(ParamKind.INT, ParamKind.INT), null, null, null, null, null));
+    }
+
+    @Test
+    void actionDescriptorCarriesItsPresentationFields() {
+        var labels = new ArrayList<>(List.of("Implication (A → B)", "Antecedent (A)"));
+        var descriptor = new ActionDescriptorDto("MP", List.of(ParamKind.INT, ParamKind.INT), "Modus ponens", "→E",
+                ActionCategory.ELIMINATION, "From A → B and A, derive B", labels);
+        labels.add("changed afterwards");
+
+        assertEquals("Modus ponens", descriptor.label());
+        assertEquals("→E", descriptor.symbol());
+        assertEquals(ActionCategory.ELIMINATION, descriptor.category());
+        assertEquals("From A → B and A, derive B", descriptor.description());
+        assertEquals(List.of("Implication (A → B)", "Antecedent (A)"), descriptor.paramLabels());
+    }
+
+    @Test
+    void actionDescriptorRejectsParamLabelsOfTheWrongSize() {
+        var params = List.of(ParamKind.INT, ParamKind.INT);
+        var labels = List.of("Only one");
+
+        var exception = assertThrows(IllegalArgumentException.class,
+                () -> new ActionDescriptorDto("MP", params, null, null, null, null, labels));
+        assertEquals("Action MP has 2 params but 1 param labels", exception.getMessage());
+        assertThrows(IllegalArgumentException.class,
+                () -> new ActionDescriptorDto("DT", null, null, null, null, null, labels));
     }
 
 }

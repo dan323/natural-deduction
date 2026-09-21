@@ -9,11 +9,11 @@ export function renderExpression(expression: string): string {
     .replace(/<>/g, "◇");         // Modal possibly
 }
 
-// Renders the name of an inference rule, e.g. "->I [1-2]" becomes "→Intro [1-2]".
+// Renders the name of an inference rule, e.g. "->I [1-2]" becomes "→I [1-2]" and "FE [3]" becomes "⊥E [3]". The
+// `symbol` of an action descriptor is written the same way, so a rule has one name in the list of rules and in a proof.
 export function renderRule(rule: string): string {
   return renderExpression(rule)
-    .replace(/I/g, "Intro")       // Introduction
-    .replace(/(?<!FALS)E/g, "Elim"); // Elimination, unless preceded by 'FALS'
+    .replace(/^F(?=[EI])/, "⊥");  // Falsum introduction and elimination
 }
 
 // Helper function to generate indentation

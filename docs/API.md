@@ -17,10 +17,11 @@ order, the inputs the action needs.
 
 ```json
 [
-  {"name": "ANDI", "params": ["INT", "INT"]},
-  {"name": "ASSUME", "params": ["EXPRESSION"]},
-  {"name": "FE", "params": ["INT", "EXPRESSION"]},
-  {"name": "DT", "params": []}
+  {"name": "ANDI", "params": ["INT", "INT"], "label": "And introduction", "symbol": "∧I", "category": "INTRODUCTION",
+   "description": "From A and B, derive A ∧ B", "paramLabels": ["Line with A", "Line with B"]},
+  {"name": "MP", "params": ["INT", "INT"], "label": "Modus ponens", "symbol": "→E", "category": "ELIMINATION",
+   "description": "From A → B and A, derive B", "paramLabels": ["Implication (A → B)", "Antecedent (A)"]},
+  {"name": "Rep", "params": ["INT"], "label": null, "symbol": null, "category": null, "description": null, "paramLabels": []}
 ]
 ```
 
@@ -29,6 +30,19 @@ order, the inputs the action needs.
 | `INT`        | a 1-based line number of the proof     | the next entry of `actionDto.sources`         |
 | `EXPRESSION` | a formula                              | `actionDto.extraParameters.expression`        |
 | `STATE`      | a state (world) name, modal logic only | `actionDto.extraParameters.state`             |
+
+The other fields only help a client to present the action. They are optional: a logic that does not provide them
+sends `null` (`[]` for `paramLabels`), and a client falls back to `name` and to a generic label per param kind.
+
+| Field         | Meaning                                                                                                          |
+|---------------|------------------------------------------------------------------------------------------------------------------|
+| `label`       | human name of the rule, e.g. `Modus ponens`                                                                      |
+| `symbol`      | how the rule is written in a proof, e.g. `→E`. It is the rule text of a step (`->E [1, 2]`) as the frontend renders it |
+| `category`    | `INTRODUCTION`, `ELIMINATION` or `OTHER`, for grouping                                                           |
+| `description` | one sentence saying what the rule does, without a final full stop                                                |
+| `paramLabels` | one label per entry of `params`, in the same order (for `INT` params, the order of `actionDto.sources`), or empty |
+
+The order of the `INT` params matters: `MP` needs the implication first and the antecedent second.
 
 Classical logic has 14 actions (the `AvailableAction` names). Modal logic has 20; their names are the rule names of
 the modal proof format (`Ass`, `|I1`, `->E`, `[]E`, `Refl`, ...). The list is built once at startup.
@@ -49,7 +63,7 @@ the modal proof format (`Ass`, `|I1`, `->E`, `[]E`, `Refl`, ...). The list is bu
 
 `200` with `{"proof": {...}, "success": true, "done": false, "message": ""}` when the action was applied, `202` with
 `"success": false` and the reason in `message` (the proof is returned unchanged) when it was well formed but does
-not apply. A request without `actionDto` or `proofDto`, an unknown action name, a malformed expression or a proof
+not apply. The UI appends the `description` of the rule to that message. A request without `actionDto` or `proofDto`, an unknown action name, a malformed expression or a proof
 that is not valid is a `400`.
 
 `done` says whether the goal of the returned proof is proved: the domain's `Proof.isDone()`, that is, some step at
