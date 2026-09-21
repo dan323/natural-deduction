@@ -4,6 +4,9 @@ import './NewProofModal.css';
 
 type NewProofModalProps = {
   isOpen: boolean;
+  // Who gets the focus back when the dialog closes. Whoever opens the dialog should read it before the page behind goes
+  // inert; when it is left out the element that has the focus as the dialog opens is used.
+  opener?: HTMLElement | null;
   onClose: () => void;
   onSubmit: (premises: string[], goal: string) => void;
 };
@@ -30,7 +33,7 @@ function trapTab(event: KeyboardEvent, dialog: HTMLElement) {
   }
 }
 
-const NewProofModal: FC<NewProofModalProps> = ({ isOpen, onClose, onSubmit }) => {
+const NewProofModal: FC<NewProofModalProps> = ({ isOpen, opener: openerProp, onClose, onSubmit }) => {
   const nextPremiseId = useRef(0);
   const newPremise = (): Premise => ({ id: nextPremiseId.current++, text: '', error: null });
   const [premises, setPremises] = useState<Premise[]>(() => [newPremise()]);
@@ -68,11 +71,11 @@ const NewProofModal: FC<NewProofModalProps> = ({ isOpen, onClose, onSubmit }) =>
     return () => document.removeEventListener('keydown', handleKeyDown);
   }, [isOpen, onClose]);
 
-  // Note who has the focus (the button that opened the dialog) before the rest of the page goes inert, which takes the
-  // focus away from it.
+  // Note who gets the focus back on close. The rest of the page goes inert when the dialog opens, which in a browser
+  // takes the focus away from the opener, so the opener passed by the caller is preferred to reading it here.
   useLayoutEffect(() => {
-    if (isOpen) opener.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
-  }, [isOpen]);
+    if (isOpen) opener.current = openerProp ?? (document.activeElement instanceof HTMLElement ? document.activeElement : null);
+  }, [isOpen, openerProp]);
 
   // Move focus into the dialog when it opens and hand it back to the opener when it closes.
   useEffect(() => {

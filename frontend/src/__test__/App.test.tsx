@@ -153,6 +153,37 @@ describe('App', () => {
     expect(opener).toHaveFocus();
   });
 
+  test('closing the dialog gives the focus back to the opener even when the browser drops it as the page goes inert', async () => {
+    const user = userEvent.setup();
+    mockBackend([REP], 200, {});
+    render(<App />);
+    const opener = screen.getByRole('button', { name: /Start a new proof/i });
+    // jsdom has no inert focus fixup. A browser blurs the focused element as soon as an ancestor of it becomes inert, and
+    // an element inside something inert cannot be focused (React's own attempt to restore the focus after a commit
+    // included).
+    const setAttribute = Element.prototype.setAttribute;
+    const focus = HTMLElement.prototype.focus;
+    const spies = [
+      jest.spyOn(Element.prototype, 'setAttribute').mockImplementation(function (this: Element, name: string, value: string) {
+        setAttribute.call(this, name, value);
+        if (name === 'inert' && this.contains(document.activeElement)) (document.activeElement as HTMLElement).blur();
+      }),
+      jest.spyOn(HTMLElement.prototype, 'focus').mockImplementation(function (this: HTMLElement, options?: FocusOptions) {
+        if (!this.closest('[inert]')) focus.call(this, options);
+      }),
+    ];
+    try {
+      await user.click(opener);
+      await waitFor(() => expect(screen.getByPlaceholderText('Premise 1')).toHaveFocus());
+      await user.keyboard('{Escape}');
+    } finally {
+      spies.forEach((spy) => spy.mockRestore());
+    }
+
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    expect(opener).toHaveFocus();
+  });
+
   test('the hint to start a proof is shown once', () => {
     mockBackend([], 200, {});
     render(<App />);
