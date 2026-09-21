@@ -150,4 +150,57 @@ describe('ProofViewer Component', () => {
     await userEvent.keyboard('a');
     expect(onSelectLine).toHaveBeenCalledTimes(3);
   });
+
+  describe('subproof structure', () => {
+    // 1 P (0) | 2 A (1) | 3 B (2) | 4 C (2) | 5 B->C (1) | 6 A->(B->C) (0) | 7 D (1)
+    const step = (assmsLevel: number, expression: string): StepDto =>
+      ({ expression, rule: 'Rep', assmsLevel, extraParameters: {} });
+    const nested: ProofDto = {
+      ...mockProof,
+      steps: [step(0, 'P'), step(1, 'A'), step(2, 'B'), step(2, 'C'), step(1, 'B -> C'), step(0, 'A -> B -> C'), step(1, 'D')],
+    };
+
+    test('every line number is a row header that says its assumption level', () => {
+      render(<ProofViewer proof={nested} coloring={mockColoring} />);
+
+      const headers = screen.getAllByRole('rowheader').map(header => header.textContent);
+      expect(headers).toEqual([
+        '1, assumption level 0',
+        '2, assumption level 1, discharged',
+        '3, assumption level 2, discharged',
+        '4, assumption level 2, discharged',
+        '5, assumption level 1, discharged',
+        '6, assumption level 0',
+        '7, assumption level 1',
+      ]);
+    });
+
+    test('a level is closed by a later step at a lower level, and only that level', () => {
+      render(<ProofViewer proof={nested} coloring={mockColoring} />);
+      const rows = screen.getAllByRole('row').slice(1);
+      const closedRules = (row: HTMLElement) =>
+        Array.from(row.querySelectorAll('.subproof-rule')).map(rule => rule.classList.contains('closed'));
+
+      expect(closedRules(rows[0])).toEqual([]);
+      expect(closedRules(rows[1])).toEqual([true]);
+      expect(closedRules(rows[2])).toEqual([true, true]);
+      expect(closedRules(rows[4])).toEqual([true]);
+      expect(closedRules(rows[6])).toEqual([false]);
+    });
+
+    test('an inner subproof that was discharged leaves the outer one open', () => {
+      const inner: ProofDto = { ...mockProof, steps: [step(1, 'A'), step(2, 'B'), step(2, 'C'), step(1, 'B -> C')] };
+      render(<ProofViewer proof={inner} coloring={mockColoring} />);
+      const rows = screen.getAllByRole('row').slice(1);
+      const closedRules = (row: HTMLElement) =>
+        Array.from(row.querySelectorAll('.subproof-rule')).map(rule => rule.classList.contains('closed'));
+
+      expect(closedRules(rows[0])).toEqual([false]);
+      expect(closedRules(rows[1])).toEqual([false, true]);
+      expect(closedRules(rows[3])).toEqual([false]);
+      expect(rows[0]).not.toHaveClass('discharged');
+      expect(rows[1]).toHaveClass('discharged');
+      expect(rows[3]).not.toHaveClass('discharged');
+    });
+  });
 });

@@ -56,6 +56,12 @@ export const ProofViewer: FC<ProofViewerProps> = ({ proof, coloring, onSelectLin
     );
   };
 
+  // The lowest assumption level among the steps after each one: a step's subproof is closed below that level.
+  const lowestLevelAfter = proof.steps.map(() => Infinity);
+  for (let index = proof.steps.length - 2; index >= 0; index--) {
+    lowestLevelAfter[index] = Math.min(lowestLevelAfter[index + 1], proof.steps[index + 1].assmsLevel);
+  }
+
   return (
     <div className="proof-viewer-wrapper">
       <hr className="proof-divider" />
@@ -77,6 +83,7 @@ export const ProofViewer: FC<ProofViewerProps> = ({ proof, coloring, onSelectLin
                   stepIndex={index}
                   className={isHighlighted(index) ? 'highlighted' : ''}
                   color={coloring.get(index)}
+                  openLevels={lowestLevelAfter[index]}
                   onMouseEnter={() => handleMouseEnter(step.rule)}
                   onMouseLeave={handleMouseLeave}
                   onFocus={() => handleMouseEnter(step.rule)}

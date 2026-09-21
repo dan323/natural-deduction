@@ -16,11 +16,6 @@ export function renderRule(rule: string): string {
     .replace(/^F(?=[EI])/, "⊥");  // Falsum introduction and elimination
 }
 
-// Helper function to generate indentation
-export function getIndentation(assmsLevel: number): string {
-  return Array(assmsLevel).fill('\t').join('');
-}
-
 // Function to check if a color string is a valid CSS color
 export function isValidCSSColor(color: string): boolean {
   const option = new Option();
