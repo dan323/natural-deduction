@@ -288,7 +288,7 @@ describe('App', () => {
       expect(lineInputs()[1]).toHaveValue('2');
 
       // Both are filled now: another click changes nothing.
-      await user.click(stepRow(3));
+      await user.click(stepRow(2));
       expect(lineInputs()[0]).toHaveValue('1');
       expect(lineInputs()[1]).toHaveValue('2');
     });
