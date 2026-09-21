@@ -54,6 +54,26 @@ describe('Goal Component', () => {
   });
 });
 
+describe('Goal marker', () => {
+  beforeEach(() => {
+    (renderExpression as jest.Mock).mockReturnValue('A → B');
+  });
+
+  test('says in text that the goal is proved, not only in colour', () => {
+    const { getByText, queryByText } = render(<Goal expression="A → B" success={true} />);
+
+    expect(getByText('✓ Proved')).toBeInTheDocument();
+    expect(queryByText('Not proved yet')).toBeNull();
+  });
+
+  test('says in text that the goal is not proved yet', () => {
+    const { getByText, queryByText } = render(<Goal expression="A → B" success={false} />);
+
+    expect(getByText('Not proved yet')).toBeInTheDocument();
+    expect(queryByText('✓ Proved')).toBeNull();
+  });
+});
+
 describe('Goal celebration', () => {
   beforeEach(() => {
     (renderExpression as jest.Mock).mockReturnValue('A → B');

@@ -15,6 +15,7 @@ type GlowingInputProps = {
     error?: string;
     // The text the input starts with, e.g. a line that was picked by clicking a row of the proof. Only read on mount.
     initialValue?: string;
+    disabled?: boolean;
 };
 
 const NOT_A_LINE_NUMBER = 'Enter a whole number, like 3.';
@@ -23,7 +24,7 @@ function isNumeric(value: string) {
     return /^\d+$/.test(value);
 }
 
-const GlowingInput: FC<GlowingInputProps> = ({ label, glowColor, shouldGlow, onColorChange, onInput, index, error, initialValue }) => {
+const GlowingInput: FC<GlowingInputProps> = ({ label, glowColor, shouldGlow, onColorChange, onInput, index, error, initialValue, disabled }) => {
     const [value, setValue] = useState<string>(initialValue ?? '');
 
     const inputId = `glowing-input-${index}`;
@@ -59,6 +60,7 @@ const GlowingInput: FC<GlowingInputProps> = ({ label, glowColor, shouldGlow, onC
                 style={glowing ? { '--glow-color': glowColor } as CSSProperties : undefined}
                 onChange={handleChange}
                 value={value}
+                disabled={disabled}
                 aria-invalid={message ? true : undefined}
                 aria-describedby={message ? errorId : undefined}
             />

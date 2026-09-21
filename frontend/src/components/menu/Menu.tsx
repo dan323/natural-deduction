@@ -12,12 +12,16 @@ type MenuProps = {
     proof: ProofDto;
     // Gives the parent a way to pick a line of the proof for the rule, as if its number was typed in the next empty input.
     ref?: Ref<MenuHandle>;
+    // Offered next to the "Proof complete" message, once there is nothing left to do in this proof.
+    onNewProof?: () => void;
 };
 
 export type MenuHandle = {
     // `line` is 1-based. Fills the first empty line input of the selected rule; does nothing when there is none.
     selectLine: (line: number) => void;
 };
+
+const COMPLETE_MESSAGE = 'Proof complete.';
 
 const glowingColors: string[] = ['#ffcc00', '#00f2ff', '#ff69b4'];
 
@@ -60,7 +64,7 @@ const renderOption = (action: ActionDescriptor) => (
 // `index` is the position among all inputs of an action; `sources` only holds the INT inputs.
 const sourceIndexOf = (params: ParamKind[], index: number) => params.slice(0, index).filter(kind => kind === 'INT').length;
 
-const Menu: FC<MenuProps> = ({ logic, onColorChange, setProof, proof, ref }) => {
+const Menu: FC<MenuProps> = ({ logic, onColorChange, setProof, proof, ref, onNewProof }) => {
     const [actions, setActions] = useState<ActionDescriptor[]>([]);
     const [selectedAction, setSelectedAction] = useState<string>('');
     // One entry per INT input: the line typed in it, or null while it is empty or not a whole number.
@@ -139,6 +143,9 @@ const Menu: FC<MenuProps> = ({ logic, onColorChange, setProof, proof, ref }) => 
         );
     }, [logic]);
 
+    // A finished proof takes no more rules; the message is derived from the proof, so it also covers a proof that a
+    // rule completed, not only one that the solver did.
+    const done = proof.done === true;
     const lineCount = proof.steps.length;
     const params = selectedDescriptor?.params ?? [];
 
@@ -157,12 +164,12 @@ const Menu: FC<MenuProps> = ({ logic, onColorChange, setProof, proof, ref }) => 
         }
         return (kind === 'STATE' ? state : expression).trim() !== '';
     });
-    const canApply = selectedDescriptor !== undefined && inputsComplete;
+    const canApply = !done && selectedDescriptor !== undefined && inputsComplete;
 
     useImperativeHandle(ref, () => ({
         selectLine: (line: number) => {
             const sourceIndex = sources.findIndex(source => source === null);
-            if (sourceIndex < 0) return;
+            if (done || sourceIndex < 0) return;
             const index = params.findIndex((kind, i) => kind === 'INT' && sourceIndexOf(params, i) === sourceIndex);
             setErrorMessage('');
             setNotice('');
@@ -174,7 +181,7 @@ const Menu: FC<MenuProps> = ({ logic, onColorChange, setProof, proof, ref }) => 
             });
             onColorChange(glowingColors[index], line - 1);
         },
-    }), [sources, params, onColorChange]);
+    }), [sources, params, onColorChange, done]);
 
     const processAction = () => {
         if (!canApply) return;
@@ -216,7 +223,7 @@ const Menu: FC<MenuProps> = ({ logic, onColorChange, setProof, proof, ref }) => 
                 setProof(response.proof);
                 glowingColors.forEach((color) => onColorChange(color, -1));
                 setNotice(response.proof.done
-                    ? 'The proof is complete.'
+                    ? ''
                     : 'The solver could not finish the proof. Continue from where it stopped.');
             } else {
                 setErrorMessage(response.message || 'The proof could not be solved.');
@@ -230,6 +237,7 @@ const Menu: FC<MenuProps> = ({ logic, onColorChange, setProof, proof, ref }) => 
     // Without a proof there is nothing to apply a rule to; App shows the hint to start one.
     if (noProof) return null;
 
+    const message = done ? COMPLETE_MESSAGE : notice;
     const applyHint = selectedAction === ''
         ? 'Choose a rule to apply.'
         : 'Fill in every input with a valid value to apply the rule.';
@@ -243,6 +251,7 @@ const Menu: FC<MenuProps> = ({ logic, onColorChange, setProof, proof, ref }) => 
                 value={selectedAction}
                 onChange={handleActionChange}
                 aria-label="Select inference rule"
+                disabled={done}
                 aria-describedby={selectedDescriptor?.description ? 'action-description' : undefined}
             >
                 <option value="">-- Choose a rule --</option>
@@ -269,6 +278,7 @@ const Menu: FC<MenuProps> = ({ logic, onColorChange, setProof, proof, ref }) => 
                                 onInput={onInput}
                                 initialValue={kind === 'INT' ? (sources[sourceIndexOf(params, index)]?.toString() ?? '') : undefined}
                                 shouldGlow={kind === 'INT'}
+                                disabled={done}
                                 error={kind === 'INT' ? lineError(sourceIndexOf(params, index)) : undefined}
                             />
                         ))}
@@ -280,10 +290,12 @@ const Menu: FC<MenuProps> = ({ logic, onColorChange, setProof, proof, ref }) => 
                     {errorMessage}
                 </p>
             )}
-            {notice && (
-                <output className="menu-notice">
-                    {notice}
-                </output>
+            {message && (
+                <output className="menu-notice">{message}</output>
+            )}
+            {/* Outside of the status, so that only the message is announced. */}
+            {done && onNewProof && (
+                <button className="menu-button menu-new-proof" onClick={onNewProof}>New Proof</button>
             )}
             <div className="menu-buttons">
                 <button
@@ -291,21 +303,21 @@ const Menu: FC<MenuProps> = ({ logic, onColorChange, setProof, proof, ref }) => 
                     onClick={processAction}
                     disabled={!canApply || busy}
                     aria-disabled={!canApply || busy}
-                    aria-describedby={canApply ? undefined : 'apply-hint'}
+                    aria-describedby={canApply || done ? undefined : 'apply-hint'}
                 >
                     {isLoading ? 'Applying…' : 'Apply Rule'}
                 </button>
                 <button
                     className="menu-button menu-button-secondary"
                     onClick={solve}
-                    disabled={busy}
-                    aria-disabled={busy}
+                    disabled={busy || done}
+                    aria-disabled={busy || done}
                     title="Let the solver try to finish the whole proof"
                 >
                     {isSolving ? 'Solving…' : 'Solve'}
                 </button>
             </div>
-            {!canApply && <p id="apply-hint" className="menu-hint">{applyHint}</p>}
+            {!canApply && !done && <p id="apply-hint" className="menu-hint">{applyHint}</p>}
         </div>
     );
 };

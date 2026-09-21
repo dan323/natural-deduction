@@ -1,5 +1,6 @@
+import { createRef } from 'react';
 import { render, fireEvent, screen, waitFor, act } from '@testing-library/react';
-import Menu from '../Menu';
+import Menu, { MenuHandle } from '../Menu';
 import { fetchActions, applyAction } from '../../../service/actions';
 import { ProofDto, StepDto } from '../../../types';
 
@@ -279,6 +280,86 @@ describe('Menu Component', () => {
             expect(screen.getByLabelText(/Line number:/i)).toHaveValue('2');
             expect(screen.getByLabelText(/Expression:/i)).toHaveValue('Q');
             expect(applyButton()).toBeEnabled();
+        });
+    });
+
+    describe('when the proof is complete', () => {
+        const doneProof: ProofDto = { ...mockProof, done: true };
+
+        beforeEach(() => {
+            mockFetchActions.mockImplementation((logic, callback) => {
+                callback([{ name: 'Rep', params: ['INT'] }]);
+            });
+        });
+
+        test('announces it in a status, whichever way the proof was completed', () => {
+            render(<Menu {...defaultProps} proof={doneProof} />);
+
+            expect(screen.getByRole('status')).toHaveTextContent('Proof complete.');
+        });
+
+        test('says nothing while the proof is not complete', () => {
+            render(<Menu {...defaultProps} />);
+
+            expect(screen.queryByRole('status')).not.toBeInTheDocument();
+        });
+
+        test('announces the proof that a rule has just completed', () => {
+            mockApplyAction.mockImplementation((logic, proof, actionDto, callback) =>
+                callback({ success: true, proof: doneProof, message: '' }));
+            const { rerender } = render(<Menu {...defaultProps} />);
+            fireEvent.change(screen.getByLabelText(/Select Inference Rule:/i), { target: { value: 'Rep' } });
+            fireEvent.change(screen.getByLabelText(/Line number:/i), { target: { value: '1' } });
+
+            fireEvent.click(screen.getByRole('button', { name: /Apply Rule/i }));
+            rerender(<Menu {...defaultProps} proof={doneProof} />);
+
+            expect(screen.getByRole('status')).toHaveTextContent('Proof complete.');
+        });
+
+        test('disables every rule control, without asking for more input', () => {
+            const { rerender } = render(<Menu {...defaultProps} />);
+            fireEvent.change(screen.getByLabelText(/Select Inference Rule:/i), { target: { value: 'Rep' } });
+            fireEvent.change(screen.getByLabelText(/Line number:/i), { target: { value: '1' } });
+            expect(screen.getByRole('button', { name: /Apply Rule/i })).toBeEnabled();
+
+            rerender(<Menu {...defaultProps} proof={doneProof} />);
+
+            expect(screen.getByLabelText(/Select Inference Rule:/i)).toBeDisabled();
+            expect(screen.getByLabelText(/Line number:/i)).toBeDisabled();
+            expect(screen.getByRole('button', { name: /Apply Rule/i })).toBeDisabled();
+            expect(screen.getByRole('button', { name: 'Solve' })).toBeDisabled();
+            expect(screen.queryByText(/Fill in every input/)).not.toBeInTheDocument();
+            expect(screen.getByRole('button', { name: /Apply Rule/i })).not.toHaveAttribute('aria-describedby');
+        });
+
+        test('does not pick a line for the rule any more', () => {
+            const ref = createRef<MenuHandle>();
+            const { rerender } = render(<Menu {...defaultProps} ref={ref} />);
+            fireEvent.change(screen.getByLabelText(/Select Inference Rule:/i), { target: { value: 'Rep' } });
+            rerender(<Menu {...defaultProps} ref={ref} proof={doneProof} />);
+
+            act(() => ref.current?.selectLine(2));
+
+            expect(screen.getByLabelText(/Line number:/i)).toHaveValue('');
+            expect(defaultProps.onColorChange).not.toHaveBeenCalledWith(expect.any(String), 1);
+        });
+
+        test('offers a new proof', () => {
+            const onNewProof = jest.fn();
+            render(<Menu {...defaultProps} proof={doneProof} onNewProof={onNewProof} />);
+
+            fireEvent.click(screen.getByRole('button', { name: 'New Proof' }));
+
+            expect(onNewProof).toHaveBeenCalledTimes(1);
+            // outside of the status, so that a screen reader reads out the message alone
+            expect(screen.getByRole('status')).not.toContainElement(screen.getByRole('button', { name: 'New Proof' }));
+        });
+
+        test('does not offer a new proof while the proof is open', () => {
+            render(<Menu {...defaultProps} onNewProof={jest.fn()} />);
+
+            expect(screen.queryByRole('button', { name: 'New Proof' })).not.toBeInTheDocument();
         });
     });
 });
