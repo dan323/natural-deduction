@@ -22,6 +22,52 @@
     text-align: left;
 }
 
+/* The line number is the header of its row: it reads like a cell, not like a column heading. */
+.proof-viewer th[scope="row"] {
+    background-color: transparent;
+    border-bottom: none;
+    color: inherit;
+    font-size: 1.4rem;
+    line-height: 1.4;
+    letter-spacing: normal;
+    text-transform: none;
+    font-weight: normal;
+    text-align: left;
+    vertical-align: middle;
+}
+
+/* Subproofs: the expression is indented by one rule per open assumption level, and the rules of consecutive steps meet
+   into one vertical line. The cell has no vertical padding so that they do. */
+.proof-viewer td.step-cell {
+    padding-top: 0;
+    padding-bottom: 0;
+}
+
+.step-body {
+    display: flex;
+    align-items: stretch;
+}
+
+.step-body pre {
+    padding: 6px 0;
+}
+
+.subproof-rule {
+    flex: none;
+    width: 1.5rem;
+    border-left: 2px solid #333;
+}
+
+/* The subproof was closed by a later step: its rule is dashed and the step is muted (#595959 is 7:1 on white). */
+.subproof-rule.closed {
+    border-left-style: dashed;
+    border-left-color: #595959;
+}
+
+.proof-viewer tbody tr.discharged {
+    color: #595959;
+}
+
 /* Header Styles */
 .proof-viewer th {
     background-color: #f4f4f4;
@@ -73,6 +119,11 @@
     background-color: #1a1a2e;
     color: #ff69b4;
     font-weight: bold;
+}
+
+/* On the dark highlight the rules take the text color, which is the one that contrasts with it */
+.proof-viewer tbody tr.highlighted .subproof-rule {
+    border-left-color: currentColor;
 }
 
 /* Heading Styles */
