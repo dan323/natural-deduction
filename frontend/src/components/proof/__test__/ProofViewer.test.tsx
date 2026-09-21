@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { act, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import ProofViewer from '../ProofViewer';  // Adjust the import path as necessary
 import { ProofDto, StepDto } from '../../../types';
@@ -105,5 +105,49 @@ describe('ProofViewer Component', () => {
     render(<ProofViewer proof={local} coloring={mockColoring} />);
 
     expect(screen.getByText(goalExpression, {selector: 'span'})).toHaveClass('goal-failure');
+  });
+
+  test('highlights the cited steps when a row gets the focus, and stops when it loses it', () => {
+    render(<ProofViewer proof={mockProof} coloring={mockColoring} />);
+    const rows = screen.getAllByRole('row');
+
+    act(() => rows[1].focus());
+    expect(rows[1]).toHaveClass('highlighted');
+    expect(rows[2]).toHaveClass('highlighted');
+    expect(rows[3]).not.toHaveClass('highlighted');
+
+    act(() => rows[1].blur());
+    expect(rows[1]).not.toHaveClass('highlighted');
+    expect(rows[2]).not.toHaveClass('highlighted');
+  });
+
+  test('every step can be reached with the Tab key', async () => {
+    render(<ProofViewer proof={mockProof} coloring={mockColoring} />);
+    const rows = screen.getAllByRole('row').slice(1);
+
+    for (const row of rows) {
+      await userEvent.tab();
+      expect(row).toHaveFocus();
+    }
+  });
+
+  test('reports the 1-based line of the row that is clicked, or activated with Enter or Space', async () => {
+    const onSelectLine = jest.fn();
+    render(<ProofViewer proof={mockProof} coloring={mockColoring} onSelectLine={onSelectLine} />);
+    const rows = screen.getAllByRole('row');
+
+    await userEvent.click(rows[3]);
+    expect(onSelectLine).toHaveBeenLastCalledWith(3);
+
+    act(() => rows[2].focus());
+    await userEvent.keyboard('{Enter}');
+    expect(onSelectLine).toHaveBeenLastCalledWith(2);
+
+    await userEvent.keyboard(' ');
+    expect(onSelectLine).toHaveBeenCalledTimes(3);
+    expect(onSelectLine).toHaveBeenLastCalledWith(2);
+
+    await userEvent.keyboard('a');
+    expect(onSelectLine).toHaveBeenCalledTimes(3);
   });
 });

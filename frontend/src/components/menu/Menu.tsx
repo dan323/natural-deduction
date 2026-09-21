@@ -1,4 +1,4 @@
-import { FC, useState, useEffect, ChangeEventHandler, useMemo } from 'react';
+import { FC, Ref, useState, useEffect, useImperativeHandle, ChangeEventHandler, useMemo } from 'react';
 import '../Expressions.css';
 import { fetchActions, applyAction, solveProof } from '../../service/actions';
 import './Menu.css';
@@ -10,6 +10,13 @@ type MenuProps = {
     onColorChange: (color: string, line: number) => void;
     setProof: (proof: ProofDto) => void;
     proof: ProofDto;
+    // Gives the parent a way to pick a line of the proof for the rule, as if its number was typed in the next empty input.
+    ref?: Ref<MenuHandle>;
+};
+
+export type MenuHandle = {
+    // `line` is 1-based. Fills the first empty line input of the selected rule; does nothing when there is none.
+    selectLine: (line: number) => void;
 };
 
 const glowingColors: string[] = ['#ffcc00', '#00f2ff', '#ff69b4'];
@@ -53,13 +60,16 @@ const renderOption = (action: ActionDescriptor) => (
 // `index` is the position among all inputs of an action; `sources` only holds the INT inputs.
 const sourceIndexOf = (params: ParamKind[], index: number) => params.slice(0, index).filter(kind => kind === 'INT').length;
 
-const Menu: FC<MenuProps> = ({ logic, onColorChange, setProof, proof }) => {
+const Menu: FC<MenuProps> = ({ logic, onColorChange, setProof, proof, ref }) => {
     const [actions, setActions] = useState<ActionDescriptor[]>([]);
     const [selectedAction, setSelectedAction] = useState<string>('');
     // One entry per INT input: the line typed in it, or null while it is empty or not a whole number.
     const [sources, setSources] = useState<Array<number | null>>([]);
     // Bumped to empty the inputs while keeping the selected rule.
     const [inputsKey, setInputsKey] = useState(0);
+    // Per INT input, how many times a line was picked for it from the proof. A picked line remounts the input (it
+    // owns the text it shows), and this is what tells the new mount apart from the old one.
+    const [picks, setPicks] = useState<number[]>([]);
     const [expression, setExpression] = useState<string>("");
     const [state, setState] = useState<string>("");
     const [errorMessage, setErrorMessage] = useState<string>('');
@@ -94,6 +104,7 @@ const Menu: FC<MenuProps> = ({ logic, onColorChange, setProof, proof }) => {
 
         const descriptor = actions.find(action => action.name === newAction);
         setSources(new Array(descriptor?.params.filter(kind => kind === 'INT').length ?? 0).fill(null));
+        setPicks([]);
         setExpression('');
         setState('');
     };
@@ -148,6 +159,23 @@ const Menu: FC<MenuProps> = ({ logic, onColorChange, setProof, proof }) => {
     });
     const canApply = selectedDescriptor !== undefined && inputsComplete;
 
+    useImperativeHandle(ref, () => ({
+        selectLine: (line: number) => {
+            const sourceIndex = sources.findIndex(source => source === null);
+            if (sourceIndex < 0) return;
+            const index = params.findIndex((kind, i) => kind === 'INT' && sourceIndexOf(params, i) === sourceIndex);
+            setErrorMessage('');
+            setNotice('');
+            setSources(prevSources => prevSources.map((source, i) => (i === sourceIndex ? line : source)));
+            setPicks(prevPicks => {
+                const newPicks = [...prevPicks];
+                newPicks[sourceIndex] = (newPicks[sourceIndex] ?? 0) + 1;
+                return newPicks;
+            });
+            onColorChange(glowingColors[index], line - 1);
+        },
+    }), [sources, params, onColorChange]);
+
     const processAction = () => {
         if (!canApply) return;
         setErrorMessage('');
@@ -167,6 +195,7 @@ const Menu: FC<MenuProps> = ({ logic, onColorChange, setProof, proof }) => {
                 glowingColors.forEach((color) => onColorChange(color,-1));
                 // Pressing Apply again would add the same step twice, so the inputs start over; the rule stays.
                 setSources(new Array(sources.length).fill(null));
+                setPicks([]);
                 setExpression('');
                 setState('');
                 setInputsKey(key => key + 1);
@@ -232,12 +261,13 @@ const Menu: FC<MenuProps> = ({ logic, onColorChange, setProof, proof }) => {
                     <div className="input-container">
                         {params.map((kind, index) => (
                             <GlowingInput
-                                key={`${selectedAction}-${index}-${inputsKey}`}
+                                key={`${selectedAction}-${index}-${inputsKey}-${picks[sourceIndexOf(params, index)] ?? 0}`}
                                 index={index}
                                 label={inputLabelOf(selectedDescriptor, index)}
                                 glowColor={glowingColors[index]}
                                 onColorChange={onColorChange}
                                 onInput={onInput}
+                                initialValue={kind === 'INT' ? (sources[sourceIndexOf(params, index)]?.toString() ?? '') : undefined}
                                 shouldGlow={kind === 'INT'}
                                 error={kind === 'INT' ? lineError(sourceIndexOf(params, index)) : undefined}
                             />

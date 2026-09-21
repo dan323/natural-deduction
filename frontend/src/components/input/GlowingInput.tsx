@@ -13,6 +13,8 @@ type GlowingInputProps = {
     index: number;
     // A problem with the value that only the parent can see, e.g. a line that is not in the proof.
     error?: string;
+    // The text the input starts with, e.g. a line that was picked by clicking a row of the proof. Only read on mount.
+    initialValue?: string;
 };
 
 const NOT_A_LINE_NUMBER = 'Enter a whole number, like 3.';
@@ -21,8 +23,8 @@ function isNumeric(value: string) {
     return /^\d+$/.test(value);
 }
 
-const GlowingInput: FC<GlowingInputProps> = ({ label, glowColor, shouldGlow, onColorChange, onInput, index, error }) => {
-    const [value, setValue] = useState<string>('');
+const GlowingInput: FC<GlowingInputProps> = ({ label, glowColor, shouldGlow, onColorChange, onInput, index, error, initialValue }) => {
+    const [value, setValue] = useState<string>(initialValue ?? '');
 
     const inputId = `glowing-input-${index}`;
     const errorId = `${inputId}-error`;
