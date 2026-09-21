@@ -213,4 +213,94 @@ describe('App', () => {
     expect(fetchMock).toHaveBeenCalledWith('/logic/classical/solve', expect.objectContaining({ method: 'POST' }));
     expect(screen.getAllByText(/→/).length).toBeGreaterThan(0);
   });
+  describe('picking the lines of a rule from the proof', () => {
+    const MP: ActionDescriptor = { name: 'MP', params: ['INT', 'INT'] };
+    const mpProof = {
+      steps: [
+        { expression: 'P', rule: 'Ass', assmsLevel: 0, extraParameters: {} },
+        { expression: 'P -> Q', rule: 'Ass', assmsLevel: 0, extraParameters: {} },
+        { expression: 'Q', rule: '->E [1, 2]', assmsLevel: 0, extraParameters: {} },
+      ],
+      logic: 'classical',
+      goal: 'Q',
+      done: true,
+    };
+
+    // Starts the proof P, P -> Q |- Q and selects the MP rule.
+    const startWithMp = async () => {
+      mockBackend([MP], 200, { proof: mpProof, success: true, message: '' });
+      const user = userEvent.setup();
+      render(<App />);
+      await user.click(screen.getByRole('button', { name: /Start a new proof/i }));
+      await waitFor(() => expect(screen.getByPlaceholderText('Premise 1')).toHaveFocus());
+      await user.type(screen.getByPlaceholderText('Premise 1'), 'P');
+      await user.click(screen.getByText('+ Add Premise'));
+      await user.type(screen.getByPlaceholderText('Premise 2'), 'P -> Q');
+      await user.type(screen.getByPlaceholderText('Enter the goal expression'), 'Q');
+      await user.click(screen.getByText('Start Proof'));
+      await user.selectOptions(await screen.findByLabelText(/Select Inference Rule:/i), 'MP');
+      return user;
+    };
+
+    const stepRow = (line: number) => screen.getAllByRole('row')[line];
+
+    test('clicking two rows fills the two inputs, glows them and lets the rule be applied', async () => {
+      const user = await startWithMp();
+      const lineInputs = () => screen.getAllByLabelText(/Line number:/i);
+
+      await user.click(stepRow(1));
+      expect(lineInputs()[0]).toHaveValue('1');
+      expect(lineInputs()[1]).toHaveValue('');
+      expect(stepRow(1)).toHaveClass('glow');
+      expect(applyButton()).toBeDisabled();
+
+      await user.click(stepRow(2));
+      expect(lineInputs()[1]).toHaveValue('2');
+      expect(stepRow(2)).toHaveClass('glow');
+      expect(stepRow(1)).toHaveClass('glow');
+
+      await user.click(applyButton());
+      await waitFor(() => expect(applyRequests()).toHaveLength(1));
+      expect(JSON.parse(applyRequests()[0][1].body).actionDto.sources).toEqual([1, 2]);
+    });
+
+    test('Enter and Space on a focused row fill the inputs too', async () => {
+      const user = await startWithMp();
+
+      stepRow(2).focus();
+      await user.keyboard('{Enter}');
+      stepRow(1).focus();
+      await user.keyboard(' ');
+
+      const [first, second] = screen.getAllByLabelText(/Line number:/i);
+      expect(first).toHaveValue('2');
+      expect(second).toHaveValue('1');
+      expect(applyButton()).toBeEnabled();
+    });
+
+    test('a line that was typed is kept, and the next pick goes to the next empty input', async () => {
+      const user = await startWithMp();
+      const lineInputs = () => screen.getAllByLabelText(/Line number:/i);
+      await user.type(lineInputs()[1], '2');
+
+      await user.click(stepRow(1));
+      expect(lineInputs()[0]).toHaveValue('1');
+      expect(lineInputs()[1]).toHaveValue('2');
+
+      // Both are filled now: another click changes nothing.
+      await user.click(stepRow(3));
+      expect(lineInputs()[0]).toHaveValue('1');
+      expect(lineInputs()[1]).toHaveValue('2');
+    });
+
+    test('without a rule selected a click on a row changes nothing', async () => {
+      const user = await startWithMp();
+      await user.selectOptions(screen.getByLabelText(/Select Inference Rule:/i), '');
+
+      await user.click(stepRow(1));
+
+      expect(screen.queryByLabelText(/Line number:/i)).not.toBeInTheDocument();
+      expect(stepRow(1)).not.toHaveClass('glow');
+    });
+  });
 });

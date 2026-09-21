@@ -1,8 +1,8 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import './App.css';
 import Proof from './components/proof/ProofViewer';
 import Header from './components/Header';
-import Menu from './components/menu/Menu';
+import Menu, { MenuHandle } from './components/menu/Menu';
 import NewProofModal from './components/modal/NewProofModal';
 import { StepDto, ProofDto } from './types';
 import { LOGIC } from './constant';
@@ -16,6 +16,7 @@ function App() {
   // Bumped for every new proof; it is the key of the Menu, so that the selected rule, the typed inputs and the last
   // error of the previous proof do not carry over.
   const [proofId, setProofId] = useState(0);
+  const menuRef = useRef<MenuHandle>(null);
   const [proof, setProof] = useState<ProofDto>({
     steps: [],
     logic: LOGIC,
@@ -36,6 +37,9 @@ function App() {
         return newColoringMap
     });
   }, []);
+
+  // A click (or Enter, or Space) on a row of the proof picks that line for the rule being filled in the menu.
+  const handleSelectLine = useCallback((line: number) => menuRef.current?.selectLine(line), []);
 
   const handleOpenModal = () => {
     setModalOpener(document.activeElement instanceof HTMLElement ? document.activeElement : null);
@@ -77,9 +81,9 @@ function App() {
           </button>
         </div>
         <main className="app-main">
-          <Menu key={proofId} logic={LOGIC} proof={proof} setProof={setProof} onColorChange={onColorChange} />
+          <Menu key={proofId} ref={menuRef} logic={LOGIC} proof={proof} setProof={setProof} onColorChange={onColorChange} />
           {hasProof ? (
-            <Proof proof={proof} coloring={colorMapping} />
+            <Proof proof={proof} coloring={colorMapping} onSelectLine={handleSelectLine} />
           ) : (
             <div className="empty-proof-state" role="status">
               <p>No proof loaded. Click <strong>New Proof</strong> to begin.</p>

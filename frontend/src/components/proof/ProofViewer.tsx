@@ -11,10 +11,12 @@ type RangeDto = {
 
 type ProofViewerProps = { 
   proof: ProofDto, 
-  coloring: Map<number, string>
+  coloring: Map<number, string>,
+  // Called with the 1-based number of the line that was clicked or activated with the keyboard.
+  onSelectLine?: (line: number) => void
 }
 
-export const ProofViewer: FC<ProofViewerProps> = ({ proof, coloring }) => {
+export const ProofViewer: FC<ProofViewerProps> = ({ proof, coloring, onSelectLine }) => {
   const [hoveredRange, setHoveredRange] = useState<RangeDto[] | null>(null);
 
   const handleMouseEnter = (rule: string) => {
@@ -77,6 +79,9 @@ export const ProofViewer: FC<ProofViewerProps> = ({ proof, coloring }) => {
                   color={coloring.get(index)}
                   onMouseEnter={() => handleMouseEnter(step.rule)}
                   onMouseLeave={handleMouseLeave}
+                  onFocus={() => handleMouseEnter(step.rule)}
+                  onBlur={handleMouseLeave}
+                  onSelect={onSelectLine}
                 />
               );
             })}
