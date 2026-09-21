@@ -42,7 +42,7 @@ const Goal: FC<GoalProps> = ({ expression, success }) => {
         {renderExpression(expression)}
       </span>
       {confetti && (
-        <div className="celebration">
+        <div className="celebration" aria-hidden="true">
           {confetti.map(({ emoji, style }, index) => (
             <span key={"emoji" + index} className="emoji" style={style}>
               {emoji}

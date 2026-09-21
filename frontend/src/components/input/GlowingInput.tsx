@@ -1,4 +1,4 @@
-import { FC, useState, ChangeEventHandler } from 'react';
+import { CSSProperties, FC, useState, ChangeEventHandler } from 'react';
 import './glowing.css'
 
 type GlowingInputProps = {
@@ -54,7 +54,7 @@ const GlowingInput: FC<GlowingInputProps> = ({ label, glowColor, shouldGlow, onC
                 id={inputId}
                 type="text"
                 className={`input-field ${glowing ? 'glowing-input' : ''}`}
-                style={{ boxShadow: glowing ? `0 0 10px ${glowColor}, 0 0 40px ${glowColor}, 0 0 80px ${glowColor}` : 'none' }}
+                style={glowing ? { '--glow-color': glowColor } as CSSProperties : undefined}
                 onChange={handleChange}
                 value={value}
                 aria-invalid={message ? true : undefined}

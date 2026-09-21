@@ -80,6 +80,12 @@ describe('Goal celebration', () => {
     expect(Array.from(container.querySelectorAll('.emoji')).map(e => e.outerHTML)).toEqual(before);
   });
 
+  test('keeps the confetti away from assistive technology', () => {
+    const { container } = render(<Goal expression="A → B" success={true} />);
+
+    expect(container.querySelector('.celebration')).toHaveAttribute('aria-hidden', 'true');
+  });
+
   test('hides the confetti after two seconds', () => {
     const { container } = render(<Goal expression="A → B" success={true} />);
     expect(container.querySelector('.celebration')).not.toBeNull();

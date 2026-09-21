@@ -7,6 +7,13 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* One visible focus ring for every control (WCAG 2.4.7, 1.4.11). No rule may switch the outline off; the ring has to stay
+   distinguishable from the glow of a referenced line, which is a box-shadow. */
+:focus-visible {
+  outline: 3px solid #0b5ed7;
+  outline-offset: 2px;
+}
+
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;

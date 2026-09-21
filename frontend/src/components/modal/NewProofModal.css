@@ -62,12 +62,6 @@
   transition: border-color 0.2s;
 }
 
-.modal-body input:focus {
-  outline: none;
-  border-color: #007bff;
-  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.2);
-}
-
 .remove-premise-btn {
   flex-shrink: 0;
   width: 30px;
@@ -95,16 +89,16 @@
   margin: 8px 0 16px;
   padding: 8px 12px;
   font-size: 0.95rem;
-  border: 1px dashed #007bff;
+  border: 1px dashed #0056b3;
   background-color: transparent;
-  color: #007bff;
+  color: #0056b3;
   border-radius: 4px;
   cursor: pointer;
   transition: background-color 0.2s, color 0.2s;
 }
 
 .add-premise-btn:hover {
-  background-color: #007bff;
+  background-color: #0056b3;
   color: #fff;
 }
 
@@ -143,12 +137,12 @@
 }
 
 .submit-btn {
-  background-color: #28a745;
+  background-color: #1e7e34;
   color: #fff;
 }
 
 .submit-btn:hover:not(:disabled) {
-  background-color: #218838;
+  background-color: #19692c;
 }
 
 .submit-btn:disabled {

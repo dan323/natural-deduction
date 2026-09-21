@@ -19,7 +19,7 @@
   font-size: 1rem;
   border: none;
   border-radius: 4px;
-  background-color: #007bff;
+  background-color: #0b5ed7;
   color: #fff;
   cursor: pointer;
   transition: background-color 0.2s;
@@ -27,11 +27,6 @@
 
 .new-proof-btn:hover {
   background-color: #0056b3;
-}
-
-.new-proof-btn:focus {
-  outline: none;
-  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.4);
 }
 
 /* Main content area */
@@ -47,6 +42,6 @@
   background-color: #fff;
   border: 2px dashed #ccc;
   border-radius: 8px;
-  color: #888;
+  color: #595959;
   font-size: 1.1rem;
 }

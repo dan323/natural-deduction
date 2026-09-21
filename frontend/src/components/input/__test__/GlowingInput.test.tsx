@@ -32,7 +32,10 @@ describe('Glowing input', () => {
         act(() => {
             fireEvent.change(input, { target: { value: '1' } });
         });
-        expect(input).toHaveStyle(`box-shadow: 0 0 10px #ffcc00, 0 0 40px #ffcc00, 0 0 80px #ffcc00`);
+        // The glow is drawn by the stylesheet from this property. An inline box-shadow would beat the focus style.
+        expect(input).toHaveClass('glowing-input');
+        expect(input).toHaveStyle('--glow-color: #ffcc00');
+        expect(input.style.boxShadow).toBe('');
     });
 
     test('input does not glow when shouldGlow is false', () => {
@@ -51,7 +54,7 @@ describe('Glowing input', () => {
         act(() => {
             fireEvent.change(input, { target: { value: '1' } });
         });
-        expect(input).not.toHaveStyle(`box-shadow: inset 0 0 10px #ffcc00`);
+        expect(input).not.toHaveStyle('--glow-color: #ffcc00');
     });
 
     test('calls onInput with correct arguments when input changes', () => {
@@ -113,7 +116,7 @@ describe('Glowing input', () => {
         });
         expect(onColorChangeMock).toHaveBeenCalledTimes(1);
         expect(onColorChangeMock).toHaveBeenCalledWith("#ffcc00", -1);
-        expect(input).not.toHaveStyle(`box-shadow: inset 0 0 10px #ffcc00`);
+        expect(input).not.toHaveStyle('--glow-color: #ffcc00');
     });
 
     test('removes glow and calls onColorChange with -1 when input is cleared', () => {
@@ -135,7 +138,7 @@ describe('Glowing input', () => {
             fireEvent.change(input, { target: { value: '' } });
         })
         expect(onColorChangeMock).toHaveBeenCalledWith("#ffcc00", -1);
-        expect(input).not.toHaveStyle(`box-shadow: inset 0 0 10px #ffcc00`);
+        expect(input).not.toHaveStyle('--glow-color: #ffcc00');
     });
 
     test('matches snapshot when shouldGlow is true', () => {

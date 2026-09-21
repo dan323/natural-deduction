@@ -10,6 +10,9 @@ import { LOGIC } from './constant';
 function App() {
   const [colorMapping, setColorMapping] = useState(new Map<number, string>());
   const [isModalOpen, setIsModalOpen] = useState(false);
+  // The control that had the focus when the dialog was opened, read before the page goes inert (a browser moves the
+  // focus away from something that becomes inert), so that the dialog can hand the focus back to it.
+  const [modalOpener, setModalOpener] = useState<HTMLElement | null>(null);
   // Bumped for every new proof; it is the key of the Menu, so that the selected rule, the typed inputs and the last
   // error of the previous proof do not carry over.
   const [proofId, setProofId] = useState(0);
@@ -34,7 +37,10 @@ function App() {
     });
   }, []);
 
-  const handleOpenModal = () => setIsModalOpen(true);
+  const handleOpenModal = () => {
+    setModalOpener(document.activeElement instanceof HTMLElement ? document.activeElement : null);
+    setIsModalOpen(true);
+  };
   const handleCloseModal = () => setIsModalOpen(false);
 
   const handleNewProofSubmit = (premises: string[], goal: string) => {
@@ -58,29 +64,33 @@ function App() {
 
   return (
     <div className="App">
-      <Header />
-      <div className="app-toolbar">
-        <button
-          className="new-proof-btn"
-          onClick={handleOpenModal}
-          aria-label="Start a new proof"
-        >
-          New Proof
-        </button>
+      {/* While the modal is open the page behind it can neither be tabbed to nor read by assistive technology. */}
+      <div inert={isModalOpen}>
+        <Header />
+        <div className="app-toolbar">
+          <button
+            className="new-proof-btn"
+            onClick={handleOpenModal}
+            aria-label="Start a new proof"
+          >
+            New Proof
+          </button>
+        </div>
+        <main className="app-main">
+          <Menu key={proofId} logic={LOGIC} proof={proof} setProof={setProof} onColorChange={onColorChange} />
+          {hasProof ? (
+            <Proof proof={proof} coloring={colorMapping} />
+          ) : (
+            <div className="empty-proof-state" role="status">
+              <p>No proof loaded. Click <strong>New Proof</strong> to begin.</p>
+            </div>
+          )}
+        </main>
       </div>
-      <main className="app-main">
-        <Menu key={proofId} logic={LOGIC} proof={proof} setProof={setProof} onColorChange={onColorChange} />
-        {hasProof ? (
-          <Proof proof={proof} coloring={colorMapping} />
-        ) : (
-          <div className="empty-proof-state" role="status">
-            <p>No proof loaded. Click <strong>New Proof</strong> to begin.</p>
-          </div>
-        )}
-      </main>
 
       <NewProofModal
         isOpen={isModalOpen}
+        opener={modalOpener}
         onClose={handleCloseModal}
         onSubmit={handleNewProofSubmit}
       />
