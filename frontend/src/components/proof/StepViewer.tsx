@@ -67,6 +67,7 @@ export const StepViewer: FC<StepProps> = ({
         {stepIndex + 1}
         <span className="visually-hidden">
           {`, assumption level ${level}${discharged ? ', discharged' : ''}`}
+          {validColor && ', cited by current input'}
         </span>
       </th>
       <td className="step-cell">

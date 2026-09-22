@@ -163,11 +163,13 @@ describe('ProofViewer Component', () => {
     test('every line number is a row header that says its assumption level', () => {
       render(<ProofViewer proof={nested} coloring={mockColoring} />);
 
+      // mockColoring colors lines 1-3, and StepViewer now appends a text equivalent of the
+      // glow to a colored row's header, so those three rows say "cited by current input" too.
       const headers = screen.getAllByRole('rowheader').map(header => header.textContent);
       expect(headers).toEqual([
-        '1, assumption level 0',
-        '2, assumption level 1, discharged',
-        '3, assumption level 2, discharged',
+        '1, assumption level 0, cited by current input',
+        '2, assumption level 1, discharged, cited by current input',
+        '3, assumption level 2, discharged, cited by current input',
         '4, assumption level 2, discharged',
         '5, assumption level 1, discharged',
         '6, assumption level 0',
