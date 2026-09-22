@@ -1,0 +1,26 @@
+projects:
+  - repo: dan323/natural-deduction
+    tasks:
+      - id: e09874
+        description: "#133: PR 6.2: Text equivalent for cited-line highlighting"
+        status: done
+        issue_number: 133
+        issue_url: https://github.com/dan323/natural-deduction/issues/133
+        branch: task/pr-6-2-text-equivalent-for-cited-line-highlig-0b3761
+        pr_url: https://github.com/dan323/natural-deduction/pull/134
+        date: "2026-09-22"
+      - id: a374d7
+        description: "#132: PR 6.1: Expose the proof text protocol in the UI"
+        status: pending
+        issue_number: 132
+        issue_url: https://github.com/dan323/natural-deduction/issues/132
+      - id: bc6d83
+        description: "#123: UI: single empty state with how-it-works and an example proof"
+        status: pending
+        issue_number: 123
+        issue_url: https://github.com/dan323/natural-deduction/issues/123
+      - id: 6baf73
+        description: "#122: UI: formula syntax help and connective buttons"
+        status: pending
+        issue_number: 122
+        issue_url: https://github.com/dan323/natural-deduction/issues/122

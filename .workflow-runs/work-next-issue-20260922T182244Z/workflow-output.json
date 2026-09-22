@@ -1,0 +1,31 @@
+{
+  "workflow": "work-next-issue",
+  "status": "success",
+  "finished_at": "2026-09-22T18:30:53.562470Z",
+  "inputs": {
+    "tasks": "tasks.yml",
+    "repo": "dan323/natural-deduction",
+    "label": "",
+    "max_review_rounds": "3"
+  },
+  "steps": [
+    {
+      "id": "sync-in",
+      "skill": "sync-issues",
+      "status": "success",
+      "output_path": "sync-in/output.json"
+    },
+    {
+      "id": "run-task",
+      "skill": "task-agent",
+      "status": "success",
+      "output_path": "run-task/output.json"
+    },
+    {
+      "id": "review-fix",
+      "skill": "review-fix-loop",
+      "status": "success",
+      "output_path": "review-fix/output.json"
+    }
+  ]
+}

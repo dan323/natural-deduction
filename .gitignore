@@ -6,6 +6,10 @@ target/
 *.war
 *.ear
 
+# Generated files
+.playwright-mcp/
+.claude/worktrees/
+
 # Logging
 *.log
 *.logs

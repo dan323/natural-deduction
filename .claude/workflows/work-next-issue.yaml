@@ -1,0 +1,56 @@
+# work-next-issue workflow
+#
+# Board-free sibling of the auto-board-task plugin's workflow, for repos (like
+# this one) with open GitHub issues but no GitHub Projects (v2) board:
+#
+#   1. sync-issues       — reconcile open issues into tasks.yml. New issues land
+#                          as status: pending; closed issues are marked skipped;
+#                          issues whose task is freshly done get a PR-link comment.
+#   2. task-agent         — pick the first pending task, clone, do the work, open
+#                          a PR, mark status: done with pr_url.
+#   3. review-fix-loop    — independent reviewer + independent fixer loop against
+#                          the new PR (replaces copilot-review-fixer; this repo
+#                          has no Copilot review configured).
+#
+# See ../skills/work-next-issue/SKILL.md for the user-facing entry point.
+
+name: work-next-issue
+description: Pick up the next pending GitHub issue in this repo, open a PR via task-agent, then review and fix it independently of Copilot.
+category: automation
+
+inputs:
+  - name: tasks
+    description: Path to the unified task-agent tasks.yml file.
+    default: "tasks.yml"
+  - name: repo
+    description: owner/repo to sync issues from and open PRs against.
+    default: "dan323/natural-deduction"
+  - name: label
+    description: Only sync issues carrying this label. Optional — default is all open issues.
+  - name: max_review_rounds
+    description: Cap on review-fix-loop rounds.
+    default: "3"
+
+steps:
+  - id: sync-in
+    skill: sync-issues
+    description: Reconcile open GitHub issues into tasks.yml.
+    args:
+      tasks: ${{ inputs.tasks }}
+      repo: ${{ inputs.repo }}
+      label: ${{ inputs.label }}
+
+  - id: run-task
+    skill: task-agent
+    description: Pick up the next pending task and open a PR.
+    args:
+      tasks: ${{ inputs.tasks }}
+
+  - id: review-fix
+    skill: review-fix-loop
+    description: Independently review and fix the new PR (no Copilot dependency).
+    args:
+      pr_url: ${{ steps.run-task.output.pr_url }}
+      repo: ${{ steps.run-task.output.repo }}
+      branch: ${{ steps.run-task.output.branch }}
+      max_rounds: ${{ inputs.max_review_rounds }}
