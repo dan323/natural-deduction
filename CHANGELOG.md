@@ -9,6 +9,8 @@ The project has never been versioned or tagged, since it was not meant for publi
 ## sep-26
 
 ### Added
+- "Undo last step" in the toolbar, which resends the proof without its last step for the backend to revalidate; an
+  in-page confirmation (not `window.confirm`) before "New Proof" discards a proof with more than its premises (#121)
 - This changelog, with one release per month
 - Copyright notice and GPL-3.0-only license metadata in the poms and `frontend/package.json`
 - `done` flag in `ProofResponse`, taken from the domain's `Proof.isDone()`; the UI now uses it instead of computing success itself (#108)

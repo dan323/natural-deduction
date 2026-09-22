@@ -88,6 +88,25 @@ export async function applyAction(logic: string, proof: ProofDto, action: Action
     consumer(result);
 }
 
+// Undo drops the last step and asks the backend to revalidate what remains. The server is stateless (see CLAUDE.md
+// "Statelessness"): every request replays the whole `ProofDto` from scratch, so resending it without its last step
+// is safe by construction, and there is no dedicated "resend" endpoint to ask for the result of that replay.
+// `POST .../proof` does not fit: it treats a text file's last line as the goal, which is wrong once the proof is no
+// longer complete. `POST .../solve` does not fit either: it would keep solving, not just replay what is left.
+// `POST .../action` does fit: a deliberately out-of-range `COPY` is always rejected (a 202, `success: false`) before
+// it can change anything, but `LogicalApplyAction` still runs the full replay first and always reports the domain's
+// own `isDone()` and the proof unchanged (see `RestServiceIT#outOfRangeSourceIsRejectedWithAMessage` and
+// `#undoDropsTheLastStepAndRevalidatesTheDischarge`). That is exactly what undo needs: the remaining steps
+// revalidated (so a discharge only the removed step caused is gone too, since that is derived from the steps on
+// every replay, never stored) and an authoritative `done`.
+export async function undoLastStep(logic: string, proof: ProofDto, consumer: (result: ApplyActionResponse) => void): Promise<void> {
+    const steps = proof.steps.slice(0, -1);
+    const trimmedProof: ProofDto = { steps, logic: proof.logic, goal: proof.goal };
+    // One past the end of the trimmed proof: always out of range, however many steps were dropped.
+    const noOpAction: ActionDto = { name: 'COPY', sources: [steps.length + 1], extraParameters: {} };
+    await applyAction(logic, trimmedProof, noOpAction, consumer);
+}
+
 // The server stops a solve after its own limit (10 seconds by default). This is only a safety net, so that a request
 // that never answers cannot leave the UI waiting for ever.
 const SOLVE_DEADLINE_MS = 60_000;
