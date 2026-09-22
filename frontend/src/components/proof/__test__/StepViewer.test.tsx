@@ -31,6 +31,7 @@ describe('StepViewer Component', () => {
     expect(screen.getByText('1')).toBeInTheDocument();
     expect(screen.getByText('A → B')).toBeInTheDocument();
     expect(screen.getByText('→I')).toBeInTheDocument();
+    expect(screen.getByRole('rowheader')).toHaveTextContent('cited by current input');
   });
 
   test('does not apply glow when color is invalid', () => {
@@ -47,6 +48,7 @@ describe('StepViewer Component', () => {
     const row = screen.getByRole('row');
     expect(row).not.toHaveClass('glow');
     expect(row).not.toHaveStyle('--glow-color: invalid-color');
+    expect(screen.getByRole('rowheader')).not.toHaveTextContent('cited by current input');
   });
 
   test('does not apply glow when color is not provided', () => {
@@ -62,6 +64,7 @@ describe('StepViewer Component', () => {
     const row = screen.getByRole('row');
     expect(row).not.toHaveClass('glow');
     expect(row).not.toHaveStyle('--glow-color: blue');
+    expect(screen.getByRole('rowheader')).not.toHaveTextContent('cited by current input');
   });
 
   test('calls onMouseEnter and onMouseLeave handlers', async () => {
