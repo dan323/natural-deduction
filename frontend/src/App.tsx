@@ -32,6 +32,10 @@ function App() {
   const [proofId, setProofId] = useState(0);
   const menuRef = useRef<MenuHandle>(null);
   const newProofButtonRef = useRef<HTMLButtonElement>(null);
+  // Mirrors `proofId`, readable from inside an in-flight undo request's callback without that closure capturing a
+  // stale value: an undo response that comes back after a newer proof was started (New Proof can be clicked while
+  // an undo is still pending) must not overwrite that newer proof.
+  const proofIdRef = useRef(0);
   const [proof, setProof] = useState<ProofDto>({
     steps: [],
     logic: LOGIC,
@@ -117,7 +121,8 @@ function App() {
     });
     setColorMapping(new Map<number, string>())
     setUndoError('');
-    setProofId(id => id + 1);
+    proofIdRef.current += 1;
+    setProofId(proofIdRef.current);
   };
 
   // Nothing to undo once only the premises are left, or there are no steps at all.
@@ -127,8 +132,13 @@ function App() {
     if (!canUndo || isUndoing) return;
     setUndoError('');
     setIsUndoing(true);
+    const requestedProofId = proofIdRef.current;
     undoLastStep(LOGIC, proof, (result) => {
       setIsUndoing(false);
+      // New Proof stays enabled while an undo is in flight, and it bumps `proofIdRef`. If that happened, this
+      // response is about a proof that no longer exists on screen; applying it (or reporting its error) would
+      // clobber the newer proof, so drop it.
+      if (proofIdRef.current !== requestedProofId) return;
       if (result.proof) {
         const updated = result.proof;
         setProof(updated);

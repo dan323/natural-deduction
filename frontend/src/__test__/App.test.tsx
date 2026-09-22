@@ -480,5 +480,40 @@ describe('App', () => {
       expect(await screen.findByRole('alert')).toHaveTextContent(/network error/i);
       expect(screen.getAllByRole('row')).toHaveLength(3);
     });
+
+    test('a stale response cannot overwrite a newer proof started while it was in flight', async () => {
+      mockBackend([REP], 200, { proof: repProof, success: true, message: '' });
+      const user = await startWithRep();
+      await user.type(screen.getByLabelText(/Line number:/i), '1');
+      await user.click(applyButton());
+      await waitFor(() => expect(applyRequests()).toHaveLength(1));
+
+      // The undo request never resolves on its own; it is resolved by hand below, after New Proof has already
+      // replaced the proof on screen.
+      let resolveUndo: (response: Response) => void = () => {};
+      fetchMock.mockImplementation(async (url: string) =>
+        url.endsWith('/actions')
+          ? jsonResponse(200, [REP])
+          : new Promise<Response>((resolve) => { resolveUndo = resolve; }));
+
+      await user.click(screen.getByRole('button', { name: 'Undo last step' }));
+      await waitFor(() => expect(applyRequests()).toHaveLength(2));
+
+      await startProof(user, 'Q', 'Q');
+      await waitFor(() => expect(screen.getAllByRole('row')).toHaveLength(2)); // header row + the new premise, Q
+
+      // The stale undo response now arrives, for the discarded P |- P proof.
+      resolveUndo(jsonResponse(202, {
+        proof: { steps: [repProof.steps[0]], logic: 'classical', goal: 'P' },
+        success: false,
+        done: false,
+        message: 'Line 2 does not exist, the proof has 1 lines',
+      }));
+
+      // It must neither replace the new proof nor show an error about the old one.
+      await waitFor(() => expect(screen.getByRole('button', { name: 'Undo last step' })).toBeDisabled());
+      expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+      expect(screen.getAllByRole('row')).toHaveLength(2);
+    });
   });
 });
