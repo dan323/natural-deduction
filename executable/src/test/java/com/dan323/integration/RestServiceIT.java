@@ -384,6 +384,40 @@ public class RestServiceIT {
         assertEquals(proof, response.getBody().proof());
     }
 
+    // The frontend's "Undo last step" resends the whole proof minus its last step to POST .../action, with a
+    // deliberately out-of-range COPY (see outOfRangeSourceIsRejectedWithAMessage above and
+    // frontend/src/service/actions.ts#undoLastStep): the server is stateless and always replays every step of the
+    // ProofDto it is given, so this is safe, and the rejected (202) response still carries the domain's own `done`
+    // and the replayed proof unchanged. This checks the discharge case plan.md and issue #121 call out specifically:
+    // DT/NOTI-style rules mark an earlier assumption step disabled only by dropping the assumption level of the
+    // steps that follow it (ProofStep.disable() is never serialized, see StepDto), so once the discharging step
+    // itself is undone, replaying what remains proves the assumption is open again, and `done` correctly flips back.
+    @Test
+    public void undoDropsTheLastStepAndRevalidatesTheDischarge() {
+        // "P" is assumed at level 1, then discharged by ->I into "P -> P" at level 0: the goal is reached.
+        var assumption = new StepDto("P", "Ass", 1, Map.of());
+        var discharging = new StepDto("P -> P", "->I [1-1]", 0, Map.of());
+        var finished = new ProofDto(List.of(assumption, discharging), "classical", "P -> P");
+
+        var doneResponse = restTemplate.exchange(createURLWithPort("/logic/classical/action"), HttpMethod.POST,
+                new HttpEntity<>(new ProofActionRequest(new ActionDto("COPY", List.of(3), Map.of()), finished), headers), ProofResponse.class);
+        assertEquals(HttpStatus.ACCEPTED, doneResponse.getStatusCode());
+        assertFalse(Objects.requireNonNull(doneResponse.getBody()).success());
+        assertTrue(doneResponse.getBody().done());
+        assertEquals(finished, doneResponse.getBody().proof());
+
+        // Undo: resend without the last (discharging) step.
+        var undone = new ProofDto(List.of(assumption), "classical", "P -> P");
+        var undoResponse = restTemplate.exchange(createURLWithPort("/logic/classical/action"), HttpMethod.POST,
+                new HttpEntity<>(new ProofActionRequest(new ActionDto("COPY", List.of(2), Map.of()), undone), headers), ProofResponse.class);
+        assertEquals(HttpStatus.ACCEPTED, undoResponse.getStatusCode());
+        assertFalse(Objects.requireNonNull(undoResponse.getBody()).success());
+        // The remaining prefix (just the open assumption) still replays validly, and is echoed back unchanged...
+        assertEquals(undone, undoResponse.getBody().proof());
+        // ...but the discharge is gone along with the step that caused it: the goal is not proved any more.
+        assertFalse(undoResponse.getBody().done());
+    }
+
     @Test
     public void notApplicableActionIsRejectedWithAMessage() {
         var proof = new ProofDto(List.of(new StepDto("P", "Ass", 0, Map.of())), "classical", "P");

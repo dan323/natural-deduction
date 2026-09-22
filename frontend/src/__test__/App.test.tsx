@@ -28,9 +28,12 @@ describe('App', () => {
       url.endsWith('/actions') ? jsonResponse(200, actions) : jsonResponse(status, body));
   };
 
-  // Opens the New Proof dialog and starts a proof with one premise.
+  // Opens the New Proof dialog and starts a proof with one premise. Confirms discarding the current proof first,
+  // when there is one with more than its premises (the dedicated tests for that confirmation exercise it directly).
   const startProof = async (user: ReturnType<typeof userEvent.setup>, premise: string, goal: string) => {
     await user.click(screen.getByRole('button', { name: /Start a new proof/i }));
+    const confirm = screen.queryByRole('button', { name: 'Discard and start new' });
+    if (confirm) await user.click(confirm);
     await waitFor(() => expect(screen.getByPlaceholderText('Premise 1')).toHaveFocus());
     await user.type(screen.getByPlaceholderText('Premise 1'), premise);
     await user.type(screen.getByPlaceholderText('Enter the goal expression'), goal);
@@ -326,10 +329,11 @@ describe('App', () => {
       expect(screen.getByRole('button', { name: 'Solve' })).toBeDisabled();
     });
 
-    test('offers a new proof, which starts with the rule controls enabled again', async () => {
+    test('offers a new proof, which asks to confirm and then starts with the rule controls enabled again', async () => {
       const user = await completeWithRep();
 
       await user.click(screen.getByRole('button', { name: 'New Proof' }));
+      await user.click(screen.getByRole('button', { name: 'Discard and start new' }));
       await waitFor(() => expect(screen.getByPlaceholderText('Premise 1')).toHaveFocus());
       await user.type(screen.getByPlaceholderText('Premise 1'), 'Q');
       await user.type(screen.getByPlaceholderText('Enter the goal expression'), 'Q');
@@ -344,10 +348,172 @@ describe('App', () => {
       const user = await completeWithRep();
 
       await user.click(screen.getByRole('button', { name: 'New Proof' }));
+      await user.click(screen.getByRole('button', { name: 'Discard and start new' }));
       await waitFor(() => expect(screen.getByPlaceholderText('Premise 1')).toHaveFocus());
       await user.keyboard('{Escape}');
 
       await waitFor(() => expect(screen.getByRole('button', { name: /Start a new proof/i })).toHaveFocus());
+    });
+  });
+
+  describe('confirming before New Proof discards work', () => {
+    test('a proof with only its premises starts a new one right away, without asking', async () => {
+      mockBackend([REP], 200, {});
+      const user = userEvent.setup();
+      render(<App />);
+      await startProof(user, 'P', 'P');
+
+      await user.click(screen.getByRole('button', { name: /Start a new proof/i }));
+
+      expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
+      await waitFor(() => expect(screen.getByPlaceholderText('Premise 1')).toHaveFocus());
+    });
+
+    test('a proof with a step beyond its premises asks first, and Cancel keeps it and hands the focus back', async () => {
+      mockBackend([REP], 200, { proof: repProof, success: true, message: '' });
+      const user = await startWithRep();
+      await user.type(screen.getByLabelText(/Line number:/i), '1');
+      await user.click(applyButton());
+      await waitFor(() => expect(applyRequests()).toHaveLength(1));
+
+      const opener = screen.getByRole('button', { name: /Start a new proof/i });
+      await user.click(opener);
+
+      expect(screen.getByRole('alertdialog')).toHaveTextContent(/discards the current one/i);
+      expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+      await waitFor(() => expect(screen.getByRole('button', { name: 'Cancel' })).toHaveFocus());
+
+      await user.click(screen.getByRole('button', { name: 'Cancel' }));
+
+      expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
+      expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+      expect(opener).toHaveFocus();
+      // Nothing was lost: the proof (2 steps: the premise and the applied rule, plus the header row) is still there.
+      expect(screen.getAllByRole('row')).toHaveLength(3);
+    });
+
+    test('Escape cancels the confirmation the same way as the Cancel button', async () => {
+      mockBackend([REP], 200, { proof: repProof, success: true, message: '' });
+      const user = await startWithRep();
+      await user.type(screen.getByLabelText(/Line number:/i), '1');
+      await user.click(applyButton());
+      await waitFor(() => expect(applyRequests()).toHaveLength(1));
+
+      await user.click(screen.getByRole('button', { name: /Start a new proof/i }));
+      expect(screen.getByRole('alertdialog')).toBeInTheDocument();
+
+      await user.keyboard('{Escape}');
+
+      expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
+      expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    });
+
+    test('confirming discards the current proof and opens the New Proof dialog', async () => {
+      mockBackend([REP], 200, { proof: repProof, success: true, message: '' });
+      const user = await startWithRep();
+      await user.type(screen.getByLabelText(/Line number:/i), '1');
+      await user.click(applyButton());
+      await waitFor(() => expect(applyRequests()).toHaveLength(1));
+
+      await user.click(screen.getByRole('button', { name: /Start a new proof/i }));
+      await user.click(screen.getByRole('button', { name: 'Discard and start new' }));
+
+      expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
+      await waitFor(() => expect(screen.getByPlaceholderText('Premise 1')).toHaveFocus());
+    });
+  });
+
+  describe('undoing the last step', () => {
+    test('is disabled with only the premises, or no proof at all', async () => {
+      mockBackend([REP], 200, {});
+      const user = userEvent.setup();
+      render(<App />);
+
+      expect(screen.getByRole('button', { name: 'Undo last step' })).toBeDisabled();
+
+      await startProof(user, 'P', 'P');
+
+      expect(screen.getByRole('button', { name: 'Undo last step' })).toBeDisabled();
+    });
+
+    test('resends the proof without its last step, and the backend revalidates it', async () => {
+      mockBackend([REP], 200, { proof: repProof, success: true, message: '' });
+      const user = await startWithRep();
+      await user.type(screen.getByLabelText(/Line number:/i), '1');
+      await user.click(applyButton());
+      await waitFor(() => expect(applyRequests()).toHaveLength(1));
+      expect(screen.getAllByRole('row')).toHaveLength(3);
+
+      // The backend, once it replays only the premise, reports it not done: a fresh mock for the undo request.
+      mockBackend([REP], 202, {
+        proof: { steps: [repProof.steps[0]], logic: 'classical', goal: 'P' },
+        success: false,
+        done: false,
+        message: 'Line 2 does not exist, the proof has 1 lines',
+      });
+
+      await user.click(screen.getByRole('button', { name: 'Undo last step' }));
+
+      await waitFor(() => expect(screen.getAllByRole('row')).toHaveLength(2));
+      const [, init] = applyRequests()[applyRequests().length - 1];
+      const body = JSON.parse(init.body);
+      expect(body.proofDto.steps).toEqual([repProof.steps[0]]);
+      expect(body.actionDto.name).toEqual('COPY');
+      expect(body.actionDto.sources).toEqual([2]); // one past the end of the trimmed (1-step) proof
+      // Undoing down to only the premise disables the button again and hands the focus to New Proof.
+      expect(screen.getByRole('button', { name: 'Undo last step' })).toBeDisabled();
+      expect(screen.getByRole('button', { name: /Start a new proof/i })).toHaveFocus();
+    });
+
+    test('a network error is shown and the proof is kept', async () => {
+      mockBackend([REP], 200, { proof: repProof, success: true, message: '' });
+      const user = await startWithRep();
+      await user.type(screen.getByLabelText(/Line number:/i), '1');
+      await user.click(applyButton());
+      await waitFor(() => expect(applyRequests()).toHaveLength(1));
+
+      fetchMock.mockImplementation(async (url: string) =>
+        url.endsWith('/actions') ? jsonResponse(200, [REP]) : Promise.reject(new Error('offline')));
+
+      await user.click(screen.getByRole('button', { name: 'Undo last step' }));
+
+      expect(await screen.findByRole('alert')).toHaveTextContent(/network error/i);
+      expect(screen.getAllByRole('row')).toHaveLength(3);
+    });
+
+    test('a stale response cannot overwrite a newer proof started while it was in flight', async () => {
+      mockBackend([REP], 200, { proof: repProof, success: true, message: '' });
+      const user = await startWithRep();
+      await user.type(screen.getByLabelText(/Line number:/i), '1');
+      await user.click(applyButton());
+      await waitFor(() => expect(applyRequests()).toHaveLength(1));
+
+      // The undo request never resolves on its own; it is resolved by hand below, after New Proof has already
+      // replaced the proof on screen.
+      let resolveUndo: (response: Response) => void = () => {};
+      fetchMock.mockImplementation(async (url: string) =>
+        url.endsWith('/actions')
+          ? jsonResponse(200, [REP])
+          : new Promise<Response>((resolve) => { resolveUndo = resolve; }));
+
+      await user.click(screen.getByRole('button', { name: 'Undo last step' }));
+      await waitFor(() => expect(applyRequests()).toHaveLength(2));
+
+      await startProof(user, 'Q', 'Q');
+      await waitFor(() => expect(screen.getAllByRole('row')).toHaveLength(2)); // header row + the new premise, Q
+
+      // The stale undo response now arrives, for the discarded P |- P proof.
+      resolveUndo(jsonResponse(202, {
+        proof: { steps: [repProof.steps[0]], logic: 'classical', goal: 'P' },
+        success: false,
+        done: false,
+        message: 'Line 2 does not exist, the proof has 1 lines',
+      }));
+
+      // It must neither replace the new proof nor show an error about the old one.
+      await waitFor(() => expect(screen.getByRole('button', { name: 'Undo last step' })).toBeDisabled());
+      expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+      expect(screen.getAllByRole('row')).toHaveLength(2);
     });
   });
 });
