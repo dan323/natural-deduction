@@ -1,5 +1,5 @@
 import { fetchActions, applyAction, solveProof, clearActionsCache, loadProofFromText } from '../actions';
-import { ProofDto, ActionDto } from '../../types';
+import { ProofDto, ActionDto, StepDto } from '../../types';
 
 const proof: ProofDto = { steps: [], logic: 'classical', goal: 'P' };
 const action: ActionDto = { name: 'Rep', sources: [1], extraParameters: { expression: '' } };
@@ -288,6 +288,19 @@ describe('service/actions', () => {
 
       expect(JSON.parse(fetchMock.mock.calls[0][1].body).proofDto).toEqual(openProof);
       expect(consumer).toHaveBeenCalledWith({ success: true, proof: { ...openProof, done: false }, done: false, message: '' });
+    });
+
+    test('a mis-indented line loads at the level the replay gives it, not the one of the text', async () => {
+      // Line 3 lost its indent: it is inside the subproof of line 2, which only ->I [2-3] closes.
+      const misIndented = ['P           Ass', '   Q           Ass', 'P           Rep [1]', 'Q -> P           ->I [2-3]'].join('\n');
+      fetchMock.mockResolvedValueOnce(jsonResponse(202, { proof: parsed, success: false, done: true, message: 'Line 5 does not exist' }));
+      const consumer = jest.fn();
+
+      await loadProofFromText('classical', misIndented, 'Q -> P', consumer);
+
+      expect(JSON.parse(fetchMock.mock.calls[0][1].body).proofDto.steps[2].assmsLevel).toBe(0);
+      expect(consumer).toHaveBeenCalledWith({ success: true, proof: { ...parsed, done: true }, done: true, message: '' });
+      expect(consumer.mock.calls[0][0].proof.steps.map((step: StepDto) => step.assmsLevel)).toEqual([0, 1, 1, 0]);
     });
 
     test('the goal is required', async () => {

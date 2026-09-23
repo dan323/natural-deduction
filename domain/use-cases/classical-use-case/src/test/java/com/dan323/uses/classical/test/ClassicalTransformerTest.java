@@ -74,6 +74,20 @@ public class ClassicalTransformerTest {
         assertEquals(dto, notApplicable.proof());
     }
 
+    // The replay takes the subproof structure from the rules, not from the levels a client sends (they only tell the
+    // premises apart), so a rejected action answers with the proof as the domain sees it, not the request's levels.
+    @Test
+    void rejectedActionsAnswerWithTheReplayedLevels() {
+        var applier = new LogicalApplyAction<>(transformer);
+        var misIndented = proof(new StepDto("P", "Ass", 0, Map.of()), new StepDto("Q", "Ass", 1, Map.of()),
+                new StepDto("P", "Rep [1]", 0, Map.of()), new StepDto("Q -> P", "->I [2-3]", 1, Map.of()));
+        var result = applier.perform(new ActionDto("COPY", List.of(5), Map.of()), misIndented);
+        assertFalse(result.applied());
+        assertTrue(result.done());
+        assertEquals(List.of(0, 1, 1, 0), result.proof().steps().stream().map(StepDto::assmsLevel).toList());
+        assertEquals(List.of("Ass", "Ass", "Rep [1]", "->I [2-3]"), result.proof().steps().stream().map(StepDto::rule).toList());
+    }
+
     @Test
     void resultsCarryTheDomainsDoneVerdict() {
         var applier = new LogicalApplyAction<>(transformer);

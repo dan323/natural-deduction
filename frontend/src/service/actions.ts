@@ -96,8 +96,9 @@ export async function applyAction(logic: string, proof: ProofDto, action: Action
 // longer complete. `POST .../solve` does not fit either: it would keep solving, not just replay what is left.
 // `POST .../action` does fit: a deliberately out-of-range `COPY` is always rejected (a 202, `success: false`) before
 // it can change anything, but `LogicalApplyAction` still runs the full replay first and always reports the domain's
-// own `isDone()` and the proof unchanged (see `RestServiceIT#outOfRangeSourceIsRejectedWithAMessage` and
-// `#undoDropsTheLastStepAndRevalidatesTheDischarge`). That is exactly what undo needs: the remaining steps
+// own `isDone()` and the replayed proof without the action (see `RestServiceIT#outOfRangeSourceIsRejectedWithAMessage`
+// and `#undoDropsTheLastStepAndRevalidatesTheDischarge`). That proof is serialized by the domain, so its assumption
+// levels are the ones the rules imply, not the ones sent (see `#rejectedActionAnswersWithTheReplayedLevels`). That is exactly what undo needs: the remaining steps
 // revalidated (so a discharge only the removed step caused is gone too, since that is derived from the steps on
 // every replay, never stored) and an authoritative `done`.
 export async function undoLastStep(logic: string, proof: ProofDto, consumer: (result: ApplyActionResponse) => void): Promise<void> {
@@ -115,7 +116,9 @@ async function replayProof(logic: string, proof: ProofDto, consumer: (result: Ap
 
 // Loads a proof from text in the layout `proofToText` writes (the one of the backend's `ProofStep.toString()`), for the
 // given goal. The text is split into steps here (see `parseProofText`) and the backend replays them (see `replayProof`),
-// which checks every step and gives the `done` verdict for that goal. `POST .../proof`, the endpoint for proof files, is
+// which checks every step and gives the `done` verdict for that goal. The loaded proof is the one the backend answers
+// with, never the parsed steps: the indentation of the text only marks the premises, the subproof structure comes from
+// the rules, so a mis-indented line comes back at the level its rule implies. `POST .../proof`, the endpoint for proof files, is
 // not used: it rejects a proof that ends inside an open subproof, and takes the last line as the goal, so an unfinished
 // proof would come back as a finished proof of its last line. That is also why the goal is required.
 export async function loadProofFromText(logic: string, text: string, goal: string, consumer: (result: ApplyActionResponse) => void): Promise<void> {

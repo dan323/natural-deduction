@@ -62,7 +62,8 @@ the modal proof format (`Ass`, `|I1`, `->E`, `[]E`, `Refl`, ...). The list is bu
 ```
 
 `200` with `{"proof": {...}, "success": true, "done": false, "message": ""}` when the action was applied, `202` with
-`"success": false` and the reason in `message` (the proof is returned unchanged) when it was well formed but does
+`"success": false` and the reason in `message` (the proof is returned without the action, as the server replayed it: same steps, but the
+assumption levels are the ones the rules imply, whatever levels the request sent) when it was well formed but does
 not apply. The UI appends the `description` of the rule to that message. A request without `actionDto` or `proofDto`, an unknown action name, a malformed expression or a proof
 that is not valid is a `400`.
 
