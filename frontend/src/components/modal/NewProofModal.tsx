@@ -104,10 +104,15 @@ const NewProofModal: FC<NewProofModalProps> = ({ isOpen, opener: openerProp, onC
     if (isOpen) opener.current = openerProp ?? (document.activeElement instanceof HTMLElement ? document.activeElement : null);
   }, [isOpen, openerProp]);
 
-  // Move focus into the dialog when it opens and hand it back to the opener when it closes.
+  // Move focus into the dialog when it opens and hand it back to the opener when it closes. The move is delayed, so it
+  // is skipped when the focus is already inside the dialog: otherwise it would take the focus away from whatever the
+  // user reached in the meantime (e.g. the premise a connective button just typed into).
   useEffect(() => {
     if (!isOpen) return;
-    const timer = setTimeout(() => premiseRefs.current[0]?.focus(), 50);
+    const timer = setTimeout(() => {
+      if (dialogRef.current?.contains(document.activeElement)) return;
+      premiseRefs.current[0]?.focus();
+    }, 50);
     return () => {
       clearTimeout(timer);
       opener.current?.focus();

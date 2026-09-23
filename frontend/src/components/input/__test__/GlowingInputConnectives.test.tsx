@@ -4,13 +4,14 @@ import GlowingInput from '../GlowingInput';
 
 const HINT = 'Syntax: -> implies, & and, | or, - not';
 
-const renderInput = (shouldGlow: boolean, extra: { error?: string; disabled?: boolean } = {}) => {
+const renderInput = (shouldGlow: boolean, extra: { error?: string; disabled?: boolean; isExpression?: boolean } = {}) => {
     const onInput = jest.fn();
     render(
         <GlowingInput
             label="Formula:"
             glowColor="#ffcc00"
             shouldGlow={shouldGlow}
+            isExpression={!shouldGlow}
             onColorChange={jest.fn()}
             onInput={onInput}
             index={0}
@@ -42,6 +43,19 @@ describe('GlowingInput expression syntax help', () => {
         expect(input).not.toHaveAttribute('aria-describedby');
         expect(screen.queryByText(/Syntax:/)).not.toBeInTheDocument();
         expect(screen.queryByRole('button')).not.toBeInTheDocument();
+    });
+
+    test('a text input that is not a formula (e.g. a modal state) has no placeholder, hint or connective buttons', async () => {
+        const user = userEvent.setup();
+        const { input, onInput } = renderInput(false, { isExpression: false });
+
+        expect(input).not.toHaveAttribute('placeholder');
+        expect(input).not.toHaveAttribute('aria-describedby');
+        expect(screen.queryByText(/Syntax:/)).not.toBeInTheDocument();
+        expect(screen.queryByRole('button')).not.toBeInTheDocument();
+
+        await user.type(input, 's1');
+        expect(onInput).toHaveBeenLastCalledWith(0, 's1');
     });
 
     test('the connective buttons show the table symbols, have accessible names and never submit', () => {

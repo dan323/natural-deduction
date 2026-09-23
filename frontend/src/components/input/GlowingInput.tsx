@@ -6,8 +6,11 @@ import './glowing.css'
 type GlowingInputProps = {
     label: string;
     glowColor: string;
-    // True for line-number inputs (they glow the referenced proof line), false for expression inputs.
+    // True for line-number inputs (they glow the referenced proof line), false for text inputs.
     shouldGlow: boolean;
+    // True for formula inputs (EXPRESSION params): they get a formula placeholder, the syntax hint and the connective
+    // buttons. Other text inputs, like a modal STATE, get none of these.
+    isExpression?: boolean;
     onColorChange: (color: string, line: number) => void;
     // A line-number input reports a number, or null while its text is empty or not a whole number; an expression
     // input reports its text.
@@ -26,7 +29,7 @@ function isNumeric(value: string) {
     return /^\d+$/.test(value);
 }
 
-const GlowingInput: FC<GlowingInputProps> = ({ label, glowColor, shouldGlow, onColorChange, onInput, index, error, initialValue, disabled }) => {
+const GlowingInput: FC<GlowingInputProps> = ({ label, glowColor, shouldGlow, isExpression = false, onColorChange, onInput, index, error, initialValue, disabled }) => {
     const [value, setValue] = useState<string>(initialValue ?? '');
 
     const inputId = `glowing-input-${index}`;
@@ -36,14 +39,14 @@ const GlowingInput: FC<GlowingInputProps> = ({ label, glowColor, shouldGlow, onC
     const ownError = shouldGlow && value !== '' && !isNumeric(value) ? NOT_A_LINE_NUMBER : undefined;
     const message = ownError ?? error;
     const glowing = shouldGlow && value !== '' && !message;
-    // An expression input always describes its syntax; the error, when there is one, comes first.
-    const describedBy = [message ? errorId : undefined, shouldGlow ? undefined : hintId].filter(Boolean).join(' ') || undefined;
+    // A formula input always describes its syntax; the error, when there is one, comes first.
+    const describedBy = [message ? errorId : undefined, isExpression ? hintId : undefined].filter(Boolean).join(' ') || undefined;
 
     // Typed text and inserted connectives both go through here.
     const handleChange = (inputValue: string) => {
         setValue(inputValue);
         if (!shouldGlow) {
-            // Expression input: the text is always passed on as a string, even when it looks like a number.
+            // Text input: the text is always passed on as a string, even when it looks like a number.
             onInput(index, inputValue);
         } else if (isNumeric(inputValue)) {
             const numInput = Number.parseInt(inputValue, 10);
@@ -67,13 +70,13 @@ const GlowingInput: FC<GlowingInputProps> = ({ label, glowColor, shouldGlow, onC
                 style={glowing ? { '--glow-color': glowColor } as CSSProperties : undefined}
                 onChange={(event) => handleChange(event.target.value)}
                 value={value}
-                placeholder={shouldGlow ? undefined : 'p -> q'}
+                placeholder={isExpression ? 'p -> q' : undefined}
                 disabled={disabled}
                 aria-invalid={message ? true : undefined}
                 aria-describedby={describedBy}
             />
             {message && <p id={errorId} className="input-error">{message}</p>}
-            {!shouldGlow && (
+            {isExpression && (
                 <>
                     <p id={hintId} className="syntax-hint">Syntax: {SYNTAX_HINT}</p>
                     <ConnectiveButtons getInput={() => inputRef.current} onInsert={handleChange} disabled={disabled} />

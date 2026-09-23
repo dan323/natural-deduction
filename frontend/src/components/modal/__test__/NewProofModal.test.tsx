@@ -556,4 +556,32 @@ describe('NewProofModal syntax help', () => {
     expect(screen.getByLabelText('Premise 2')).toHaveValue('&');
     expect(screen.getByLabelText('Premise 2')).toHaveFocus();
   });
+
+  test('the delayed initial focus does not take the focus from a field the user already reached', () => {
+    jest.useFakeTimers();
+    try {
+      render(<NewProofModal isOpen onClose={jest.fn()} onSubmit={jest.fn()} />);
+      fireEvent.click(screen.getByRole('button', { name: '+ Add Premise' }));
+      // Before the initial focus timer runs, a connective is typed into Premise 2, which gets the focus.
+      fireEvent.click(screen.getByRole('button', { name: 'Insert and (&) in Premise 2' }));
+      expect(screen.getByLabelText('Premise 2')).toHaveFocus();
+
+      act(() => { jest.advanceTimersByTime(100); });
+
+      expect(screen.getByLabelText('Premise 2')).toHaveFocus();
+    } finally {
+      jest.useRealTimers();
+    }
+  });
+
+  test('the first premise gets the focus when the dialog opens', () => {
+    jest.useFakeTimers();
+    try {
+      render(<NewProofModal isOpen onClose={jest.fn()} onSubmit={jest.fn()} />);
+      act(() => { jest.advanceTimersByTime(100); });
+      expect(screen.getByLabelText('Premise 1')).toHaveFocus();
+    } finally {
+      jest.useRealTimers();
+    }
+  });
 });
