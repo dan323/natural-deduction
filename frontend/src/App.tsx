@@ -141,8 +141,12 @@ function App() {
     showNewProof({ steps: steps, logic: LOGIC, goal: goal });
   };
 
-  // Starts the example exactly as if its premises and goal had been typed in the New Proof dialog.
-  const handleTryExample = () => handleNewProofSubmit(EXAMPLE_PREMISES, EXAMPLE_GOAL);
+  // Starts the example exactly as if its premises and goal had been typed in the New Proof dialog. The button goes
+  // away with the empty state, so hand the focus to a control that stays on the page, as `handleUndo` does.
+  const handleTryExample = () => {
+    handleNewProofSubmit(EXAMPLE_PREMISES, EXAMPLE_GOAL);
+    newProofButtonRef.current?.focus();
+  };
 
   const handleLoadText = (text: string, goal: string) => new Promise<string | null>((resolve) => {
     const session = dialogSessionRef.current;

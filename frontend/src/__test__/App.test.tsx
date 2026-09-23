@@ -208,6 +208,18 @@ describe('App', () => {
     ]);
   });
 
+  test('"Try an example" hands the focus to the New Proof button, since the empty state it lives in goes away', async () => {
+    mockBackend([], 200, {});
+    const user = userEvent.setup();
+    render(<App />);
+
+    screen.getByRole('button', { name: 'Try an example' }).focus();
+    await user.keyboard('{Enter}');
+
+    expect(screen.queryByRole('button', { name: 'Try an example' })).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /Start a new proof/i })).toHaveFocus();
+  });
+
   test('"Try an example" starts p -> q, p |- q in one click, the same proof the New Proof dialog would start', async () => {
     const MP: ActionDescriptor = { name: 'MP', params: ['INT', 'INT'] };
     mockBackend([MP], 202, { proof: {}, success: false, message: 'Rule not applicable' });
