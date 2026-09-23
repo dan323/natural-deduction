@@ -32,6 +32,14 @@ const ConnectiveButtons: FC<ConnectiveButtonsProps> = ({ getInput, onInsert, tar
         const start = input.selectionStart ?? input.value.length;
         const end = input.selectionEnd ?? start;
         const result = insertAtCursor(input.value, start, end, text);
+        if (result.value === input.value) {
+            // Same text (e.g. "&" selected and ∧ clicked): the parent will not re-render, so the layout effect would not
+            // run now but on some later, unrelated render, and pull the focus back here. Place the caret directly.
+            pendingCaret.current = null;
+            input.focus();
+            input.setSelectionRange(result.caret, result.caret);
+            return;
+        }
         pendingCaret.current = result.caret;
         onInsert(result.value);
     };
