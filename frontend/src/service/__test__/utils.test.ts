@@ -1,4 +1,4 @@
-import { checkFormula, renderExpression, renderRule } from '../utils';
+import { checkFormula, proofToText, renderExpression, renderRule } from '../utils';
 
 describe('renderExpression', () => {
   test('renders logical operators', () => {
@@ -88,5 +88,31 @@ describe('checkFormula', () => {
 
   test.each(['p $ q', 'p ; q', 'p > q', 'p <-> q', 'p ∧ q', 'p.q'])('rejects the unexpected symbol in %j', (formula) => {
     expect(checkFormula(formula)).toMatch(/Unexpected symbol/);
+  });
+});
+
+describe('proofToText', () => {
+  test('writes each step as ProofStep.toString() does: 3 spaces per level, the expression, 11 spaces, the rule', () => {
+    const text = proofToText({
+      steps: [
+        { expression: 'P', rule: 'Ass', assmsLevel: 0, extraParameters: {} },
+        { expression: 'Q', rule: 'Ass', assmsLevel: 1, extraParameters: {} },
+        { expression: 'P', rule: 'Rep [1]', assmsLevel: 1, extraParameters: {} },
+        { expression: 'Q -> P', rule: '->I [2-3]', assmsLevel: 0, extraParameters: {} },
+      ],
+      logic: 'classical',
+      goal: 'Q -> P',
+    });
+
+    expect(text.split('\n')).toEqual([
+      'P           Ass',
+      '   Q           Ass',
+      '   P           Rep [1]',
+      'Q -> P           ->I [2-3]',
+    ]);
+  });
+
+  test('an empty proof is an empty text', () => {
+    expect(proofToText({ steps: [], logic: 'classical', goal: 'P' })).toBe('');
   });
 });

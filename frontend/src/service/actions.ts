@@ -100,11 +100,43 @@ export async function applyAction(logic: string, proof: ProofDto, action: Action
 // revalidated (so a discharge only the removed step caused is gone too, since that is derived from the steps on
 // every replay, never stored) and an authoritative `done`.
 export async function undoLastStep(logic: string, proof: ProofDto, consumer: (result: ApplyActionResponse) => void): Promise<void> {
-    const steps = proof.steps.slice(0, -1);
-    const trimmedProof: ProofDto = { steps, logic: proof.logic, goal: proof.goal };
-    // One past the end of the trimmed proof: always out of range, however many steps were dropped.
-    const noOpAction: ActionDto = { name: 'COPY', sources: [steps.length + 1], extraParameters: {} };
-    await applyAction(logic, trimmedProof, noOpAction, consumer);
+    await replayProof(logic, { steps: proof.steps.slice(0, -1), logic: proof.logic, goal: proof.goal }, consumer);
+}
+
+// Has the backend replay a proof without changing it, through the out-of-range `COPY` described above. The answer
+// carries the proof and its `done` verdict when the proof is valid (with `success: false`, as for any action that does
+// not apply), or no proof and the reason when it is not.
+async function replayProof(logic: string, proof: ProofDto, consumer: (result: ApplyActionResponse) => void): Promise<void> {
+    // One past the end of the proof: always out of range, however many steps it has.
+    const noOpAction: ActionDto = { name: 'COPY', sources: [proof.steps.length + 1], extraParameters: {} };
+    await applyAction(logic, proof, noOpAction, consumer);
+}
+
+// Loads a proof from text in the layout `proofToText` writes (the one of the backend's `ProofStep.toString()`), through
+// `POST .../proof`, the endpoint that reads proof files. That endpoint takes the expression of the last line as the goal,
+// which is only right for a finished proof, so a non-blank `goal` replaces it. The result is then replayed once more
+// (see `replayProof`), so that it comes back with the backend's `done` verdict for that goal, like every other proof.
+export async function loadProofFromText(logic: string, text: string, goal: string, consumer: (result: ApplyActionResponse) => void): Promise<void> {
+    let parsed: ProofDto;
+    try {
+        const form = new FormData();
+        // Trailing blank lines of a paste would otherwise be rejected as blank proof lines.
+        form.append('file', new Blob([text.trimEnd()], { type: 'text/plain' }), 'proof.txt');
+        const response = await fetch(`/logic/${logic}/proof`, { method: 'POST', body: form });
+        if (!response.ok) {
+            consumer({ success: false, message: await errorMessage(response) });
+            return;
+        }
+        parsed = await response.json();
+    } catch (err) {
+        console.error("Error loading a proof from text:", err);
+        consumer({ success: false, message: 'Network error. Please try again.' });
+        return;
+    }
+    const proof: ProofDto = goal.trim() === '' ? parsed : { ...parsed, goal: goal.trim() };
+    await replayProof(logic, proof, (result) => consumer(result.proof
+        ? { success: true, proof: result.proof, done: result.done, message: '' }
+        : { success: false, message: result.message }));
 }
 
 // The server stops a solve after its own limit (10 seconds by default). This is only a safety net, so that a request

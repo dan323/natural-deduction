@@ -406,3 +406,47 @@ describe('NewProofModal removing a premise', () => {
     expect(screen.getByLabelText('Premise 1')).not.toHaveAttribute('aria-invalid');
   });
 });
+
+describe('NewProofModal loading a proof from text', () => {
+  const onCloseMock = jest.fn();
+  const onSubmitMock = jest.fn();
+
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
+  test('is only offered when the caller can load a proof', () => {
+    render(<NewProofModal isOpen onClose={onCloseMock} onSubmit={onSubmitMock} />);
+    expect(screen.queryByLabelText(/Proof text/)).not.toBeInTheDocument();
+  });
+
+  test('sends the text and the trimmed goal, then closes; Load is disabled while the text is blank', async () => {
+    const onLoadText = jest.fn().mockResolvedValue(null);
+    render(<NewProofModal isOpen onClose={onCloseMock} onSubmit={onSubmitMock} onLoadText={onLoadText} />);
+    const load = screen.getByRole('button', { name: 'Load proof' });
+    expect(load).toBeDisabled();
+
+    fireEvent.change(screen.getByLabelText(/Proof text/), { target: { value: 'P           Ass' } });
+    fireEvent.change(screen.getByLabelText(/Goal of the loaded proof/), { target: { value: ' P ' } });
+    fireEvent.click(load);
+
+    await waitFor(() => expect(onCloseMock).toHaveBeenCalled());
+    expect(onLoadText).toHaveBeenCalledWith('P           Ass', 'P');
+    expect(onSubmitMock).not.toHaveBeenCalled();
+  });
+
+  test('shows why the text could not be loaded, until it is edited', async () => {
+    const onLoadText = jest.fn().mockResolvedValue('Line 1 is not valid: unknown rule');
+    render(<NewProofModal isOpen onClose={onCloseMock} onSubmit={onSubmitMock} onLoadText={onLoadText} />);
+    const text = screen.getByLabelText(/Proof text/);
+    fireEvent.change(text, { target: { value: 'P           Nope' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Load proof' }));
+
+    expect(await screen.findByRole('alert')).toHaveTextContent('Line 1 is not valid: unknown rule');
+    expect(text).toHaveAttribute('aria-invalid', 'true');
+    expect(onCloseMock).not.toHaveBeenCalled();
+
+    fireEvent.change(text, { target: { value: 'P           Ass' } });
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+  });
+});

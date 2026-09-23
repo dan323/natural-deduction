@@ -1,4 +1,4 @@
-import { fetchActions, applyAction, solveProof, clearActionsCache } from '../actions';
+import { fetchActions, applyAction, solveProof, clearActionsCache, loadProofFromText } from '../actions';
 import { ProofDto, ActionDto } from '../../types';
 
 const proof: ProofDto = { steps: [], logic: 'classical', goal: 'P' };
@@ -235,6 +235,100 @@ describe('service/actions', () => {
 
       expect(onError).toHaveBeenCalledWith('Boom');
       expect(consumer).toHaveBeenCalledWith([]);
+    });
+  });
+
+  describe('loadProofFromText', () => {
+    const text = ['P           Ass', '   Q           Ass', '   P           Rep [1]', 'Q -> P           ->I [2-3]'].join('\n');
+    const parsed: ProofDto = {
+      steps: [
+        { expression: 'P', rule: 'Ass', assmsLevel: 0, extraParameters: {} },
+        { expression: 'Q', rule: 'Ass', assmsLevel: 1, extraParameters: {} },
+        { expression: 'P', rule: 'Rep [1]', assmsLevel: 1, extraParameters: {} },
+        { expression: 'Q -> P', rule: '->I [2-3]', assmsLevel: 0, extraParameters: {} },
+      ],
+      logic: 'classical',
+      goal: 'Q -> P',
+    };
+
+    const uploadedText = async (call: unknown[]) => {
+      const [, init] = call as [string, RequestInit];
+      const file = (init.body as FormData).get('file') as File;
+      expect(file.name).toBe('proof.txt');
+      // jsdom's Blob has no text(); FileReader reads it the same way.
+      return new Promise<string>((resolve) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result as string);
+        reader.readAsText(file);
+      });
+    };
+
+    test('uploads the text as the file of POST .../proof, then replays the result for its done verdict', async () => {
+      fetchMock
+        .mockResolvedValueOnce(jsonResponse(201, parsed))
+        .mockResolvedValueOnce(jsonResponse(202, { proof: parsed, success: false, done: true, message: 'Line 5 does not exist' }));
+      const consumer = jest.fn();
+
+      await loadProofFromText('classical', text + '\n\n', '', consumer);
+
+      expect(fetchMock).toHaveBeenCalledTimes(2);
+      const [url, init] = fetchMock.mock.calls[0];
+      expect(url).toBe('/logic/classical/proof');
+      expect(init.method).toBe('POST');
+      expect(init.body).toBeInstanceOf(FormData);
+      // Trailing blank lines are dropped, the rest is sent as is.
+      expect(await uploadedText(fetchMock.mock.calls[0])).toBe(text);
+
+      const [replayUrl, replayInit] = fetchMock.mock.calls[1];
+      expect(replayUrl).toBe('/logic/classical/action');
+      expect(JSON.parse(replayInit.body)).toEqual({
+        actionDto: { name: 'COPY', sources: [5], extraParameters: {} },
+        proofDto: parsed,
+      });
+      expect(consumer).toHaveBeenCalledWith({ success: true, proof: { ...parsed, done: true }, done: true, message: '' });
+    });
+
+    test('a goal replaces the one the backend took from the last line', async () => {
+      const unfinished = { ...parsed, goal: 'R' };
+      fetchMock
+        .mockResolvedValueOnce(jsonResponse(201, parsed))
+        .mockResolvedValueOnce(jsonResponse(202, { proof: unfinished, success: false, done: false, message: '' }));
+      const consumer = jest.fn();
+
+      await loadProofFromText('classical', text, '  R ', consumer);
+
+      expect(JSON.parse(fetchMock.mock.calls[1][1].body).proofDto.goal).toBe('R');
+      expect(consumer).toHaveBeenCalledWith({ success: true, proof: { ...unfinished, done: false }, done: false, message: '' });
+    });
+
+    test('a text the backend cannot read keeps its reason, and nothing is replayed', async () => {
+      fetchMock.mockResolvedValueOnce(jsonResponse(400, { message: 'Line 2 is not valid: unknown rule' }));
+      const consumer = jest.fn();
+
+      await loadProofFromText('classical', text, '', consumer);
+
+      expect(fetchMock).toHaveBeenCalledTimes(1);
+      expect(consumer).toHaveBeenCalledWith({ success: false, message: 'Line 2 is not valid: unknown rule' });
+    });
+
+    test('a goal the replay rejects is reported', async () => {
+      fetchMock
+        .mockResolvedValueOnce(jsonResponse(201, parsed))
+        .mockResolvedValueOnce(jsonResponse(400, { message: 'The proof could not be read' }));
+      const consumer = jest.fn();
+
+      await loadProofFromText('classical', text, 'P &', consumer);
+
+      expect(consumer).toHaveBeenCalledWith({ success: false, message: 'The proof could not be read' });
+    });
+
+    test('a network error is reported', async () => {
+      fetchMock.mockRejectedValueOnce(new TypeError('Failed to fetch'));
+      const consumer = jest.fn();
+
+      await loadProofFromText('classical', text, '', consumer);
+
+      expect(consumer).toHaveBeenCalledWith({ success: false, message: 'Network error. Please try again.' });
     });
   });
 });

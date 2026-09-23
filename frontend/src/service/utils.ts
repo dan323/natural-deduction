@@ -1,3 +1,5 @@
+import { ProofDto } from "../types";
+
 // Renders logical operators in a formula (only symbols, never letters, so a variable named E or I is untouched).
 export function renderExpression(expression: string): string {
   return expression
@@ -74,4 +76,17 @@ export function checkFormula(formula: string): string | null {
   if (state.expectOperand) return 'The formula ends with an operator that has nothing after it.';
   if (state.depth > 0) return 'Unbalanced parentheses: "(" is never closed.';
   return null;
+}
+
+// The text layout of a proof step, as the backend's `ProofStep.toString()` prints it and its `ProofParser.ProofLine`
+// reads it back: 3 spaces of indent per assumption level, the expression, an 11-space gap and the rule.
+const INDENT = ' '.repeat(3);
+const RULE_GAP = ' '.repeat(11);
+
+// Renders a proof as the text `POST /logic/{logic}/proof` accepts, one step per line. The expressions and rules are
+// written as the backend sent them (ASCII `->`, `&`, ...), not as the proof table renders them, so that the text parses.
+export function proofToText(proof: ProofDto): string {
+  return proof.steps
+    .map((step) => INDENT.repeat(step.assmsLevel) + step.expression + RULE_GAP + step.rule)
+    .join('\n');
 }

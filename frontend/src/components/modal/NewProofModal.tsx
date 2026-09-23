@@ -9,6 +9,9 @@ type NewProofModalProps = {
   opener?: HTMLElement | null;
   onClose: () => void;
   onSubmit: (premises: string[], goal: string) => void;
+  // Loads a proof from its text (the layout "Copy proof as text" writes) and an optional goal. Resolves to null once the
+  // proof is loaded, or to the reason it could not be. The dialog only offers loading from text when this is given.
+  onLoadText?: (text: string, goal: string) => Promise<string | null>;
 };
 
 // A premise row. The id is what identifies the row for React, so that its error follows it when another row is removed.
@@ -33,7 +36,7 @@ function trapTab(event: KeyboardEvent, dialog: HTMLElement) {
   }
 }
 
-const NewProofModal: FC<NewProofModalProps> = ({ isOpen, opener: openerProp, onClose, onSubmit }) => {
+const NewProofModal: FC<NewProofModalProps> = ({ isOpen, opener: openerProp, onClose, onSubmit, onLoadText }) => {
   const nextPremiseId = useRef(0);
   const newPremise = (): Premise => ({ id: nextPremiseId.current++, text: '', error: null });
   const [premises, setPremises] = useState<Premise[]>(() => [newPremise()]);
@@ -45,6 +48,13 @@ const NewProofModal: FC<NewProofModalProps> = ({ isOpen, opener: openerProp, onC
   const opener = useRef<HTMLElement | null>(null);
   // The premise that gets the focus after the next render, when a removal takes the focused one away.
   const pendingFocus = useRef<number | null>(null);
+  // "Load from text": the pasted proof, the goal that replaces its last line as the goal (optional), why the last
+  // attempt failed, and whether one is in flight.
+  const [proofText, setProofText] = useState('');
+  const [textGoal, setTextGoal] = useState('');
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const proofTextRef = useRef<HTMLTextAreaElement>(null);
 
   // A dialog that was closed opens empty the next time.
   useEffect(() => {
@@ -52,6 +62,10 @@ const NewProofModal: FC<NewProofModalProps> = ({ isOpen, opener: openerProp, onC
     setPremises([newPremise()]);
     setGoal('');
     setGoalError(null);
+    setProofText('');
+    setTextGoal('');
+    setLoadError(null);
+    setIsLoading(false);
   }, [isOpen]);
 
   useEffect(() => {
@@ -119,6 +133,21 @@ const NewProofModal: FC<NewProofModalProps> = ({ isOpen, opener: openerProp, onC
     onClose();
   };
 
+  const canLoad = proofText.trim() !== '' && !isLoading;
+  const handleLoad = async () => {
+    if (!onLoadText || !canLoad) return;
+    setIsLoading(true);
+    setLoadError(null);
+    const error = await onLoadText(proofText, textGoal.trim());
+    setIsLoading(false);
+    if (error === null) {
+      onClose();
+    } else {
+      setLoadError(error);
+      proofTextRef.current?.focus();
+    }
+  };
+
   if (!isOpen) return null;
 
   return (
@@ -183,6 +212,44 @@ const NewProofModal: FC<NewProofModalProps> = ({ isOpen, opener: openerProp, onC
             aria-describedby={goalError ? 'modal-goal-error' : undefined}
           />
           {goalError && <p id="modal-goal-error" className="modal-error" role="alert">{goalError}</p>}
+
+          {onLoadText && (
+            <section className="load-text-section" aria-labelledby="load-text-title">
+              <h3 id="load-text-title" className="modal-section-label">Or load a proof from text</h3>
+              <label htmlFor="modal-proof-text" className="modal-field-label">
+                Proof text (as written by Copy proof as text, one step per line):
+              </label>
+              <textarea
+                id="modal-proof-text"
+                ref={proofTextRef}
+                value={proofText}
+                onChange={(e) => { setProofText(e.target.value); setLoadError(null); }}
+                rows={5}
+                wrap="off"
+                spellCheck={false}
+                aria-invalid={loadError ? true : undefined}
+                aria-describedby={loadError ? 'modal-proof-text-error' : undefined}
+              />
+              <label htmlFor="modal-proof-text-goal" className="modal-field-label">
+                Goal of the loaded proof (optional, the last line when blank):
+              </label>
+              <input
+                id="modal-proof-text-goal"
+                type="text"
+                value={textGoal}
+                onChange={(e) => { setTextGoal(e.target.value); setLoadError(null); }}
+              />
+              {loadError && <p id="modal-proof-text-error" className="modal-error" role="alert">{loadError}</p>}
+              <button
+                className="load-text-btn"
+                onClick={handleLoad}
+                disabled={!canLoad}
+                aria-disabled={!canLoad}
+              >
+                {isLoading ? 'Loading…' : 'Load proof'}
+              </button>
+            </section>
+          )}
         </div>
         {goal.trim() === '' && (
           <p id="new-proof-submit-hint" className="modal-hint">Enter the goal to start the proof.</p>

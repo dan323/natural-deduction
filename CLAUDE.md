@@ -52,7 +52,7 @@ CI (`.github/workflows/`) has no lint step. Run the full Maven `verify` and `npm
 - Failures are `ErrorResponse{message}` from `RestExceptionHandler`: 404 unknown logic, 400 `InvalidProofException`/`InvalidActionException`, 422 `SolveTimeoutException`, 429 `SolverBusyException`, 500 for anything else.
 
 **Text protocols that span layers (edit these together):**
-- Proof text files (`POST .../proof`) and `ProofStep.toString()` use a fixed layout: 3 spaces of indent per assumption level, an 11-space gap, then the rule, e.g. `->I [1-2]`. `ProofParser.ProofLine`/`parseLine` and `ProofReason.parseReason` depend on this. Frontend `ProofViewer` also regex-parses the `[1-2, 4]` part of rule strings for hover highlighting.
+- Proof text files (`POST .../proof`) and `ProofStep.toString()` use a fixed layout: 3 spaces of indent per assumption level, an 11-space gap, then the rule, e.g. `->I [1-2]`. `ProofParser.ProofLine`/`parseLine` and `ProofReason.parseReason` depend on this. Frontend `proofToText` (`service/utils.ts`, "Copy proof as text") writes it and `loadProofFromText` (`service/actions.ts`, "Load from text" in `NewProofModal`) posts it to that endpoint. Frontend `ProofViewer` also regex-parses the `[1-2, 4]` part of rule strings for hover highlighting.
 - Line numbers in rules and in `ActionDto.sources` are 1-based.
 
 **Java modules (JPMS):** every module has a `module-info.java`. A new package that another module needs must be `exports`ed, and new dependencies need a `requires`. Spring itself runs on the classpath, but the modules still have to compile.

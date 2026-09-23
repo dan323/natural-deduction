@@ -6,7 +6,8 @@ import Menu, { MenuHandle } from './components/menu/Menu';
 import NewProofModal from './components/modal/NewProofModal';
 import { StepDto, ProofDto } from './types';
 import { LOGIC } from './constant';
-import { undoLastStep } from './service/actions';
+import { loadProofFromText, undoLastStep } from './service/actions';
+import { proofToText } from './service/utils';
 
 // The steps counted as the proof's premises: a leading run of `Ass` steps at assumption level 0, the shape
 // `handleNewProofSubmit` creates. The backend treats exactly this prefix as the premises when it replays a proof
@@ -49,6 +50,14 @@ function App() {
   const confirmCancelRef = useRef<HTMLButtonElement>(null);
   const [isUndoing, setIsUndoing] = useState(false);
   const [undoError, setUndoError] = useState('');
+  // What "Copy proof as text" did, and for which proof: copied to the clipboard, or (when the clipboard cannot be used,
+  // e.g. outside a secure context) the text, shown for the user to copy by hand. It is only shown while that proof is
+  // the one on screen, since it is out of date as soon as the proof changes.
+  const [copyResult, setCopyResult] = useState<{ proof: ProofDto, text: string, copied: boolean } | null>(null);
+  const currentCopy = copyResult?.proof === proof ? copyResult : null;
+  // Bumped whenever the New Proof dialog closes, so that a "Load from text" answer arriving after the user cancelled
+  // the dialog is dropped instead of replacing the proof on screen.
+  const dialogSessionRef = useRef(0);
 
   const onColorChange = useCallback((color: string, line: number) => {
     setColorMapping(colorMapping => {
@@ -89,7 +98,10 @@ function App() {
     setConfirmingNewProof(false);
     modalOpener?.focus();
   }, [modalOpener]);
-  const handleCloseModal = () => setIsModalOpen(false);
+  const handleCloseModal = () => {
+    dialogSessionRef.current += 1;
+    setIsModalOpen(false);
+  };
 
   // Escape cancels the inline confirmation, like the dialog does for itself.
   useEffect(() => {
@@ -106,6 +118,15 @@ function App() {
     if (confirmingNewProof) confirmCancelRef.current?.focus();
   }, [confirmingNewProof]);
 
+  // Replaces the proof on screen with a new one, and forgets everything about the previous one.
+  const showNewProof = (newProof: ProofDto) => {
+    setProof(newProof);
+    setColorMapping(new Map<number, string>())
+    setUndoError('');
+    proofIdRef.current += 1;
+    setProofId(proofIdRef.current);
+  };
+
   const handleNewProofSubmit = (premises: string[], goal: string) => {
     const steps: StepDto[] = premises.map((premise) => ({
       expression: premise,
@@ -113,16 +134,32 @@ function App() {
       assmsLevel: 0,
       extraParameters: {},
     }));
+    showNewProof({ steps: steps, logic: LOGIC, goal: goal });
+  };
 
-    setProof({
-      steps: steps,
-      logic: LOGIC,
-      goal: goal,
+  const handleLoadText = (text: string, goal: string) => new Promise<string | null>((resolve) => {
+    const session = dialogSessionRef.current;
+    loadProofFromText(LOGIC, text, goal, (result) => {
+      if (dialogSessionRef.current !== session) {
+        resolve(null);
+      } else if (result.success && result.proof) {
+        showNewProof(result.proof);
+        resolve(null);
+      } else {
+        resolve(result.message || 'Could not load the proof.');
+      }
     });
-    setColorMapping(new Map<number, string>())
-    setUndoError('');
-    proofIdRef.current += 1;
-    setProofId(proofIdRef.current);
+  });
+
+  // Copies the proof in the text layout the backend reads back (see `proofToText`), for "Load from text" or a file.
+  const handleCopyText = async () => {
+    const text = proofToText(proof);
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopyResult({ proof, text, copied: true });
+    } catch {
+      setCopyResult({ proof, text, copied: false });
+    }
   };
 
   // Nothing to undo once only the premises are left, or there are no steps at all.
@@ -170,6 +207,14 @@ function App() {
             {isUndoing ? 'Undoing…' : 'Undo last step'}
           </button>
           <button
+            className="copy-text-btn"
+            onClick={handleCopyText}
+            disabled={proof.steps.length === 0}
+            aria-disabled={proof.steps.length === 0}
+          >
+            Copy proof as text
+          </button>
+          <button
             ref={newProofButtonRef}
             className="new-proof-btn"
             onClick={handleOpenModal}
@@ -189,6 +234,26 @@ function App() {
         {undoError && (
           <p className="undo-error" role="alert" aria-live="assertive">{undoError}</p>
         )}
+        {currentCopy?.copied === true && (
+          <p className="copy-status" role="status">
+            Proof copied to the clipboard as text. To load it again, paste it in the New Proof dialog.
+          </p>
+        )}
+        {currentCopy?.copied === false && (
+          <div className="copy-status">
+            <p role="status">The clipboard is not available here. Copy the proof text below by hand.</p>
+            <label htmlFor="copied-proof-text" className="visually-hidden">Proof as text</label>
+            <textarea
+              id="copied-proof-text"
+              className="copy-fallback"
+              value={currentCopy.text}
+              readOnly
+              rows={Math.min(proof.steps.length, 10)}
+              wrap="off"
+              onFocus={(e) => e.target.select()}
+            />
+          </div>
+        )}
         <main className="app-main">
           <Menu key={proofId} ref={menuRef} logic={LOGIC} proof={proof} setProof={setProof} onColorChange={onColorChange} onNewProof={handleOpenModalFromMenu} />
           {hasProof ? (
@@ -206,6 +271,7 @@ function App() {
         opener={modalOpener}
         onClose={handleCloseModal}
         onSubmit={handleNewProofSubmit}
+        onLoadText={handleLoadText}
       />
     </div>
   );
