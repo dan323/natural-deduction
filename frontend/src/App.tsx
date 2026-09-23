@@ -22,6 +22,10 @@ function premiseCount(steps: StepDto[]): number {
   return count;
 }
 
+// The proof "Try an example" starts: p -> q and p prove q in one Modus Ponens step.
+const EXAMPLE_PREMISES = ['p -> q', 'p'];
+const EXAMPLE_GOAL = 'q';
+
 function App() {
   const [colorMapping, setColorMapping] = useState(new Map<number, string>());
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -135,6 +139,13 @@ function App() {
       extraParameters: {},
     }));
     showNewProof({ steps: steps, logic: LOGIC, goal: goal });
+  };
+
+  // Starts the example exactly as if its premises and goal had been typed in the New Proof dialog. The button goes
+  // away with the empty state, so hand the focus to a control that stays on the page, as `handleUndo` does.
+  const handleTryExample = () => {
+    handleNewProofSubmit(EXAMPLE_PREMISES, EXAMPLE_GOAL);
+    newProofButtonRef.current?.focus();
   };
 
   const handleLoadText = (text: string, goal: string) => new Promise<string | null>((resolve) => {
@@ -263,8 +274,20 @@ function App() {
           {hasProof ? (
             <Proof proof={proof} coloring={colorMapping} onSelectLine={handleSelectLine} />
           ) : (
-            <div className="empty-proof-state" role="status">
-              <p>No proof loaded. Click <strong>New Proof</strong> to begin.</p>
+            <div className="empty-proof-state">
+              <p role="status">No proof loaded. Click <strong>New Proof</strong> to begin.</p>
+              <h2 className="how-it-works-title">How it works</h2>
+              <ol className="how-it-works">
+                <li>Enter the premises and the goal of the proof.</li>
+                <li>Pick an inference rule.</li>
+                <li>Enter the line numbers the rule uses, and apply it.</li>
+              </ol>
+              <button className="try-example-btn" onClick={handleTryExample}>
+                Try an example
+              </button>
+              <p className="try-example-desc">
+                Premises <code>{EXAMPLE_PREMISES.join(', ')}</code>, goal <code>{EXAMPLE_GOAL}</code>.
+              </p>
             </div>
           )}
         </main>
