@@ -1,4 +1,5 @@
-import { ProofDto, ActionDto, ActionDescriptor, ApplyActionResponse } from "../types";
+import { ProofDto, StepDto, ActionDto, ActionDescriptor, ApplyActionResponse } from "../types";
+import { parseProofText } from "./utils";
 
 // Extracts the `message` of an error body ({ "message": "..." }), falling back to the HTTP status.
 async function errorMessage(response: Response): Promise<string> {
@@ -95,16 +96,47 @@ export async function applyAction(logic: string, proof: ProofDto, action: Action
 // longer complete. `POST .../solve` does not fit either: it would keep solving, not just replay what is left.
 // `POST .../action` does fit: a deliberately out-of-range `COPY` is always rejected (a 202, `success: false`) before
 // it can change anything, but `LogicalApplyAction` still runs the full replay first and always reports the domain's
-// own `isDone()` and the proof unchanged (see `RestServiceIT#outOfRangeSourceIsRejectedWithAMessage` and
-// `#undoDropsTheLastStepAndRevalidatesTheDischarge`). That is exactly what undo needs: the remaining steps
+// own `isDone()` and the replayed proof without the action (see `RestServiceIT#outOfRangeSourceIsRejectedWithAMessage`
+// and `#undoDropsTheLastStepAndRevalidatesTheDischarge`). That proof is serialized by the domain, so its assumption
+// levels are the ones the rules imply, not the ones sent (see `#rejectedActionAnswersWithTheReplayedLevels`). That is exactly what undo needs: the remaining steps
 // revalidated (so a discharge only the removed step caused is gone too, since that is derived from the steps on
 // every replay, never stored) and an authoritative `done`.
 export async function undoLastStep(logic: string, proof: ProofDto, consumer: (result: ApplyActionResponse) => void): Promise<void> {
-    const steps = proof.steps.slice(0, -1);
-    const trimmedProof: ProofDto = { steps, logic: proof.logic, goal: proof.goal };
-    // One past the end of the trimmed proof: always out of range, however many steps were dropped.
-    const noOpAction: ActionDto = { name: 'COPY', sources: [steps.length + 1], extraParameters: {} };
-    await applyAction(logic, trimmedProof, noOpAction, consumer);
+    await replayProof(logic, { steps: proof.steps.slice(0, -1), logic: proof.logic, goal: proof.goal }, consumer);
+}
+
+// Has the backend replay a proof without changing it, through the out-of-range `COPY` described above. The answer
+// carries the proof and its `done` verdict when the proof is valid (with `success: false`, as for any action that does
+// not apply), or no proof and the reason when it is not.
+async function replayProof(logic: string, proof: ProofDto, consumer: (result: ApplyActionResponse) => void): Promise<void> {
+    // One past the end of the proof: always out of range, however many steps it has.
+    const noOpAction: ActionDto = { name: 'COPY', sources: [proof.steps.length + 1], extraParameters: {} };
+    await applyAction(logic, proof, noOpAction, consumer);
+}
+
+// Loads a proof from text in the layout `proofToText` writes (the one of the backend's `ProofStep.toString()`), for the
+// given goal. The text is split into steps here (see `parseProofText`) and the backend replays them (see `replayProof`),
+// which checks every step and gives the `done` verdict for that goal. The loaded proof is the one the backend answers
+// with, never the parsed steps: the indentation of the text only marks the premises, the subproof structure comes from
+// the rules, so a mis-indented line comes back at the level its rule implies. `POST .../proof`, the endpoint for proof files, is
+// not used: it rejects a proof that ends inside an open subproof, and takes the last line as the goal, so an unfinished
+// proof would come back as a finished proof of its last line. That is also why the goal is required.
+export async function loadProofFromText(logic: string, text: string, goal: string, consumer: (result: ApplyActionResponse) => void): Promise<void> {
+    if (goal.trim() === '') {
+        consumer({ success: false, message: 'Enter the goal of the proof.' });
+        return;
+    }
+    let steps: StepDto[];
+    try {
+        steps = parseProofText(text);
+    } catch (err) {
+        consumer({ success: false, message: (err as Error).message });
+        return;
+    }
+    const proof: ProofDto = { steps, logic, goal: goal.trim() };
+    await replayProof(logic, proof, (result) => consumer(result.proof
+        ? { success: true, proof: result.proof, done: result.done, message: '' }
+        : { success: false, message: result.message }));
 }
 
 // The server stops a solve after its own limit (10 seconds by default). This is only a safety net, so that a request

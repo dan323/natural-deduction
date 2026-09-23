@@ -37,8 +37,9 @@ public interface ActionsUseCases {
     }
 
     /**
-     * Outcome of applying an action. When the action was not applicable, {@code proof} is the unchanged proof and
-     * {@code message} says why. {@code done} is the domain's verdict on {@code proof}, whether its goal is proved.
+     * Outcome of applying an action. When the action was not applicable, {@code proof} is the replayed proof without
+     * the action (serialized by the domain, so its assumption levels follow from the rules, whatever levels the request
+     * sent) and {@code message} says why. {@code done} is the domain's verdict on {@code proof}, whether its goal is proved.
      */
     record ApplyResult(ProofDto proof, boolean applied, boolean done, String message) {
 

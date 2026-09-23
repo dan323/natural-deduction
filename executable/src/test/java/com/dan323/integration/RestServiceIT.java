@@ -384,6 +384,19 @@ public class RestServiceIT {
         assertEquals(proof, response.getBody().proof());
     }
 
+    // A proof loaded from text (frontend loadProofFromText) is replayed through the same out-of-range COPY; the levels
+    // a client sends do not shape the replay, so the 202 answers with the levels the rules imply, not the request's.
+    @Test
+    public void rejectedActionAnswersWithTheReplayedLevels() {
+        var misIndented = new ProofDto(List.of(new StepDto("P", "Ass", 0, Map.of()), new StepDto("Q", "Ass", 1, Map.of()),
+                new StepDto("P", "Rep [1]", 0, Map.of()), new StepDto("Q -> P", "->I [2-3]", 1, Map.of())), "classical", "Q -> P");
+        var response = restTemplate.exchange(createURLWithPort("/logic/classical/action"), HttpMethod.POST,
+                new HttpEntity<>(new ProofActionRequest(new ActionDto("COPY", List.of(5), Map.of()), misIndented), headers), ProofResponse.class);
+        assertEquals(HttpStatus.ACCEPTED, response.getStatusCode());
+        assertTrue(Objects.requireNonNull(response.getBody()).done());
+        assertEquals(List.of(0, 1, 1, 0), response.getBody().proof().steps().stream().map(StepDto::assmsLevel).toList());
+    }
+
     // The frontend's "Undo last step" resends the whole proof minus its last step to POST .../action, with a
     // deliberately out-of-range COPY (see outOfRangeSourceIsRejectedWithAMessage above and
     // frontend/src/service/actions.ts#undoLastStep): the server is stateless and always replays every step of the

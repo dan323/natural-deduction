@@ -516,4 +516,157 @@ describe('App', () => {
       expect(screen.getAllByRole('row')).toHaveLength(2);
     });
   });
+
+  describe('copying a proof as text and loading it back', () => {
+    // P -> P, proved with a subproof, so that the text has an indented line.
+    const solved = {
+      steps: [
+        { expression: 'P', rule: 'Ass', assmsLevel: 1, extraParameters: {} },
+        { expression: 'P -> P', rule: '->I [1-1]', assmsLevel: 0, extraParameters: {} },
+      ],
+      logic: 'classical',
+      goal: 'P -> P',
+      done: true,
+    };
+    // A backend that solves to `solved` and replays a proof (the out-of-range COPY) unchanged; the proof is done when
+    // a top-level step is its goal, as the domain's `Proof.isDone()` decides.
+    const mockRoundTripBackend = () => {
+      fetchMock.mockImplementation(async (url: string, init?: RequestInit) => {
+        if (url.endsWith('/actions')) return jsonResponse(200, []);
+        if (url.endsWith('/solve')) return jsonResponse(200, solved);
+        const { proofDto } = JSON.parse(String(init!.body));
+        const done = proofDto.steps.some((step: { assmsLevel: number, expression: string }) =>
+          step.assmsLevel === 0 && step.expression === proofDto.goal);
+        return jsonResponse(202, { proof: proofDto, success: false, done, message: 'out of range' });
+      });
+    };
+
+    const proofTextInput = () => screen.getByLabelText(/Proof text/i);
+
+    // Opens the New Proof dialog (discarding the current proof, if asked) and puts the focus on the proof text, once
+    // the dialog has put it on its first premise.
+    const openLoadFromText = async (user: ReturnType<typeof userEvent.setup>) => {
+      await user.click(screen.getByRole('button', { name: /Start a new proof/i }));
+      const confirm = screen.queryByRole('button', { name: 'Discard and start new' });
+      if (confirm) await user.click(confirm);
+      await waitFor(() => expect(screen.getByLabelText('Premise 1')).toHaveFocus());
+      await user.click(proofTextInput());
+    };
+
+    test('there is nothing to copy before a proof has steps', () => {
+      render(<App />);
+      expect(screen.getByRole('button', { name: 'Copy proof as text' })).toBeDisabled();
+    });
+
+    test('a proof copied as text loads back as the same proof', async () => {
+      mockRoundTripBackend();
+      const user = userEvent.setup();
+      render(<App />);
+      await startProof(user, 'Q', 'P -> P');
+      await user.click(await screen.findByRole('button', { name: 'Solve' }));
+      expect(await screen.findByRole('status')).toHaveTextContent('Proof complete.');
+
+      // Copy (to the clipboard stub that user-event installs)
+      await user.click(screen.getByRole('button', { name: 'Copy proof as text' }));
+      expect(await screen.findByText(/Proof copied to the clipboard as text/)).toHaveTextContent('with the goal P -> P');
+      const copied = await navigator.clipboard.readText();
+      expect(copied).toBe('   P           Ass\nP -> P           ->I [1-1]');
+
+      // Paste into a new proof, with its goal, and load it
+      await openLoadFromText(user);
+      await user.paste();
+      expect(proofTextInput()).toHaveValue(copied);
+      await user.type(screen.getByLabelText(/Goal of the loaded proof/i), 'P -> P');
+      await user.click(screen.getByRole('button', { name: 'Load proof' }));
+
+      // The steps were replayed by the backend, and the dialog closed on the loaded proof.
+      await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
+      const [, replay] = applyRequests()[applyRequests().length - 1];
+      expect(JSON.parse(replay.body).proofDto).toEqual({ steps: solved.steps, logic: 'classical', goal: 'P -> P' });
+      expect(screen.getAllByRole('row')).toHaveLength(3);
+      expect(screen.getByRole('status')).toHaveTextContent('Proof complete.');
+
+      // Copying the loaded proof gives the same text again.
+      await user.click(screen.getByRole('button', { name: 'Copy proof as text' }));
+      expect(await navigator.clipboard.readText()).toBe(copied);
+    });
+
+    test('an unfinished proof loads with its goal, not as a finished proof of its last line', async () => {
+      mockRoundTripBackend();
+      const user = userEvent.setup();
+      render(<App />);
+
+      await openLoadFromText(user);
+      await user.paste('Q           Ass');
+      expect(screen.getByRole('button', { name: 'Load proof' })).toBeDisabled();
+      await user.type(screen.getByLabelText(/Goal of the loaded proof/i), 'P -> Q');
+      await user.click(screen.getByRole('button', { name: 'Load proof' }));
+
+      await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
+      const [, replay] = applyRequests()[0];
+      expect(JSON.parse(replay.body).proofDto.goal).toBe('P -> Q');
+      expect(screen.queryByText('Proof complete.')).not.toBeInTheDocument();
+    });
+
+    test('a proof that ends inside an open subproof loads back', async () => {
+      mockRoundTripBackend();
+      const user = userEvent.setup();
+      render(<App />);
+
+      await openLoadFromText(user);
+      await user.paste('Q           Ass\n   P           Ass');
+      await user.type(screen.getByLabelText(/Goal of the loaded proof/i), 'P -> P');
+      await user.click(screen.getByRole('button', { name: 'Load proof' }));
+
+      await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
+      expect(screen.getAllByRole('row')).toHaveLength(3);
+      expect(screen.queryByText('Proof complete.')).not.toBeInTheDocument();
+    });
+
+    test('premises typed with spaces around them are copied without the spaces', async () => {
+      mockRoundTripBackend();
+      const user = userEvent.setup();
+      render(<App />);
+      await startProof(user, '   Q ', 'P -> P');
+
+      await user.click(screen.getByRole('button', { name: 'Copy proof as text' }));
+
+      await screen.findByText(/Proof copied to the clipboard as text/);
+      expect(await navigator.clipboard.readText()).toBe('Q           Ass');
+    });
+
+    test('a text the backend rejects keeps the dialog open with the reason', async () => {
+      fetchMock.mockImplementation(async (url: string) => url.endsWith('/actions')
+        ? jsonResponse(200, [])
+        : jsonResponse(400, { message: 'Line 1 is not valid: unknown rule' }));
+      const user = userEvent.setup();
+      render(<App />);
+
+      await openLoadFromText(user);
+      await user.paste('P           Nope');
+      await user.type(screen.getByLabelText(/Goal of the loaded proof/i), 'P');
+      await user.click(screen.getByRole('button', { name: 'Load proof' }));
+
+      expect(await screen.findByRole('alert')).toHaveTextContent('Line 1 is not valid: unknown rule');
+      expect(screen.getByRole('dialog')).toBeInTheDocument();
+      expect(proofTextInput()).toHaveAttribute('aria-invalid', 'true');
+      expect(proofTextInput()).toHaveFocus();
+    });
+
+    test('without a clipboard the text is shown to be copied by hand', async () => {
+      mockRoundTripBackend();
+      const user = userEvent.setup();
+      // After setup, which installs a clipboard stub of its own.
+      Object.defineProperty(navigator, 'clipboard', { value: undefined, configurable: true });
+      render(<App />);
+      await startProof(user, 'Q', 'P -> P');
+      await user.click(await screen.findByRole('button', { name: 'Solve' }));
+      await screen.findByText('Proof complete.');
+
+      await user.click(screen.getByRole('button', { name: 'Copy proof as text' }));
+
+      expect(await screen.findByText(/clipboard is not available/)).toBeInTheDocument();
+      expect(screen.getByLabelText('Proof as text')).toHaveValue('   P           Ass\nP -> P           ->I [1-1]');
+    });
+  });
 });

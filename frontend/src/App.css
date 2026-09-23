@@ -116,6 +116,53 @@
   text-align: left;
 }
 
+/* Copy proof as text: same look as Undo */
+.copy-text-btn {
+  padding: 9px 20px;
+  font-size: 1rem;
+  border: 1px solid #0b5ed7;
+  border-radius: 4px;
+  background-color: #fff;
+  color: #0b5ed7;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.copy-text-btn:hover:not(:disabled) {
+  background-color: #e7f1ff;
+}
+
+.copy-text-btn:disabled {
+  color: #9ec5fe;
+  border-color: #9ec5fe;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+/* What Copy proof as text did, and the text itself when the clipboard is not available */
+.copy-status {
+  margin: 0 24px 12px;
+  padding: 8px 12px;
+  color: #1a1a1a;
+  background-color: #e7f1ff;
+  border: 1px solid #9ec5fe;
+  border-radius: 4px;
+  font-size: 1rem;
+  text-align: left;
+}
+
+.copy-status p {
+  margin: 0 0 8px;
+}
+
+.copy-fallback {
+  width: 100%;
+  box-sizing: border-box;
+  font-family: monospace;
+  font-size: 0.95rem;
+  white-space: pre;
+}
+
 /* Main content area */
 .app-main {
   padding: 0 16px 40px;

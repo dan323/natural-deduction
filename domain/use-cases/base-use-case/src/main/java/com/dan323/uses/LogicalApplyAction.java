@@ -22,12 +22,12 @@ public class LogicalApplyAction<T extends LogicOperation, Q extends ProofStep<T>
         var lines = action.sources();
         for (int line : lines) {
             if (line < 1 || line > pr.getSteps().size()) {
-                return ActionsUseCases.ApplyResult.rejected(proof, pr.isDone(), "Line " + line + " does not exist, the proof has " + pr.getSteps().size() + " lines");
+                return ActionsUseCases.ApplyResult.rejected(logic.fromProof(pr), pr.isDone(), "Line " + line + " does not exist, the proof has " + pr.getSteps().size() + " lines");
             }
         }
         if (!act.isValid(pr)) {
             var where = lines.isEmpty() ? "" : " to lines " + lines;
-            return ActionsUseCases.ApplyResult.rejected(proof, pr.isDone(), "Rule " + action.name() + " cannot be applied" + where);
+            return ActionsUseCases.ApplyResult.rejected(logic.fromProof(pr), pr.isDone(), "Rule " + action.name() + " cannot be applied" + where);
         }
         act.apply(pr);
         return ActionsUseCases.ApplyResult.applied(logic.fromProof(pr), pr.isDone());

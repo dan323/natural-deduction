@@ -1,5 +1,5 @@
-import { fetchActions, applyAction, solveProof, clearActionsCache } from '../actions';
-import { ProofDto, ActionDto } from '../../types';
+import { fetchActions, applyAction, solveProof, clearActionsCache, loadProofFromText } from '../actions';
+import { ProofDto, ActionDto, StepDto } from '../../types';
 
 const proof: ProofDto = { steps: [], logic: 'classical', goal: 'P' };
 const action: ActionDto = { name: 'Rep', sources: [1], extraParameters: { expression: '' } };
@@ -235,6 +235,108 @@ describe('service/actions', () => {
 
       expect(onError).toHaveBeenCalledWith('Boom');
       expect(consumer).toHaveBeenCalledWith([]);
+    });
+  });
+
+  describe('loadProofFromText', () => {
+    const text = ['P           Ass', '   Q           Ass', '   P           Rep [1]', 'Q -> P           ->I [2-3]'].join('\n');
+    const parsed: ProofDto = {
+      steps: [
+        { expression: 'P', rule: 'Ass', assmsLevel: 0, extraParameters: {} },
+        { expression: 'Q', rule: 'Ass', assmsLevel: 1, extraParameters: {} },
+        { expression: 'P', rule: 'Rep [1]', assmsLevel: 1, extraParameters: {} },
+        { expression: 'Q -> P', rule: '->I [2-3]', assmsLevel: 0, extraParameters: {} },
+      ],
+      logic: 'classical',
+      goal: 'Q -> P',
+    };
+
+    test('reads the text into steps and has the backend replay them, for its done verdict', async () => {
+      fetchMock.mockResolvedValueOnce(jsonResponse(202, { proof: parsed, success: false, done: true, message: 'Line 5 does not exist' }));
+      const consumer = jest.fn();
+
+      await loadProofFromText('classical', text + '\n\n', ' Q -> P ', consumer);
+
+      expect(fetchMock).toHaveBeenCalledTimes(1);
+      const [replayUrl, replayInit] = fetchMock.mock.calls[0];
+      expect(replayUrl).toBe('/logic/classical/action');
+      expect(JSON.parse(replayInit.body)).toEqual({
+        actionDto: { name: 'COPY', sources: [5], extraParameters: {} },
+        proofDto: parsed,
+      });
+      expect(consumer).toHaveBeenCalledWith({ success: true, proof: { ...parsed, done: true }, done: true, message: '' });
+    });
+
+    test('an unfinished proof keeps its goal, even when its last line is at the top level', async () => {
+      const unfinished = { ...parsed, goal: 'R' };
+      fetchMock.mockResolvedValueOnce(jsonResponse(202, { proof: unfinished, success: false, done: false, message: '' }));
+      const consumer = jest.fn();
+
+      await loadProofFromText('classical', text, 'R', consumer);
+
+      expect(JSON.parse(fetchMock.mock.calls[0][1].body).proofDto.goal).toBe('R');
+      expect(consumer).toHaveBeenCalledWith({ success: true, proof: { ...unfinished, done: false }, done: false, message: '' });
+    });
+
+    test('a proof that ends inside an open subproof loads', async () => {
+      const open = ['P           Ass', '   Q           Ass'].join('\n');
+      const openProof: ProofDto = { steps: parsed.steps.slice(0, 2), logic: 'classical', goal: 'Q -> P' };
+      fetchMock.mockResolvedValueOnce(jsonResponse(202, { proof: openProof, success: false, done: false, message: '' }));
+      const consumer = jest.fn();
+
+      await loadProofFromText('classical', open, 'Q -> P', consumer);
+
+      expect(JSON.parse(fetchMock.mock.calls[0][1].body).proofDto).toEqual(openProof);
+      expect(consumer).toHaveBeenCalledWith({ success: true, proof: { ...openProof, done: false }, done: false, message: '' });
+    });
+
+    test('a mis-indented line loads at the level the replay gives it, not the one of the text', async () => {
+      // Line 3 lost its indent: it is inside the subproof of line 2, which only ->I [2-3] closes.
+      const misIndented = ['P           Ass', '   Q           Ass', 'P           Rep [1]', 'Q -> P           ->I [2-3]'].join('\n');
+      fetchMock.mockResolvedValueOnce(jsonResponse(202, { proof: parsed, success: false, done: true, message: 'Line 5 does not exist' }));
+      const consumer = jest.fn();
+
+      await loadProofFromText('classical', misIndented, 'Q -> P', consumer);
+
+      expect(JSON.parse(fetchMock.mock.calls[0][1].body).proofDto.steps[2].assmsLevel).toBe(0);
+      expect(consumer).toHaveBeenCalledWith({ success: true, proof: { ...parsed, done: true }, done: true, message: '' });
+      expect(consumer.mock.calls[0][0].proof.steps.map((step: StepDto) => step.assmsLevel)).toEqual([0, 1, 1, 0]);
+    });
+
+    test('the goal is required', async () => {
+      const consumer = jest.fn();
+
+      await loadProofFromText('classical', text, '  ', consumer);
+
+      expect(fetchMock).not.toHaveBeenCalled();
+      expect(consumer).toHaveBeenCalledWith({ success: false, message: 'Enter the goal of the proof.' });
+    });
+
+    test('a text that is not in the layout is reported with its line, and nothing is sent', async () => {
+      const consumer = jest.fn();
+
+      await loadProofFromText('classical', 'P           Ass\n  Q           Ass', 'P', consumer);
+
+      expect(fetchMock).not.toHaveBeenCalled();
+      expect(consumer).toHaveBeenCalledWith({ success: false, message: 'Line 2 is not valid: the indentation must be groups of 3 spaces' });
+    });
+
+    test('steps the replay rejects are reported', async () => {
+      fetchMock.mockResolvedValueOnce(jsonResponse(400, { message: 'Line 3 does not follow' }));
+      const consumer = jest.fn();
+
+      await loadProofFromText('classical', text, 'Q -> P', consumer);
+
+      expect(consumer).toHaveBeenCalledWith({ success: false, message: 'Line 3 does not follow' });
+    });
+
+    test('a network error is reported', async () => {
+      fetchMock.mockRejectedValueOnce(new TypeError('Failed to fetch'));
+      const consumer = jest.fn();
+
+      await loadProofFromText('classical', text, 'Q -> P', consumer);
+
+      expect(consumer).toHaveBeenCalledWith({ success: false, message: 'Network error. Please try again.' });
     });
   });
 });
