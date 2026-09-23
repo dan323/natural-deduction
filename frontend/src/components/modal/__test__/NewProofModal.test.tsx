@@ -453,6 +453,29 @@ describe('NewProofModal loading a proof from text', () => {
     expect(screen.queryByRole('alert')).not.toBeInTheDocument();
   });
 
+  test('a malformed goal is reported on the goal field and nothing is loaded, until the goal is edited', () => {
+    const onLoadText = jest.fn().mockResolvedValue(null);
+    render(<NewProofModal isOpen onClose={onCloseMock} onSubmit={onSubmitMock} onLoadText={onLoadText} />);
+    const text = screen.getByLabelText(/Proof text/);
+    const goal = screen.getByLabelText(/Goal of the loaded proof/);
+    fireEvent.change(text, { target: { value: 'P           Ass' } });
+    fireEvent.change(goal, { target: { value: '(P & Q' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Load proof' }));
+
+    const alert = screen.getByRole('alert');
+    expect(alert).toHaveTextContent('Unbalanced parentheses');
+    expect(goal).toHaveAttribute('aria-invalid', 'true');
+    expect(goal).toHaveAttribute('aria-describedby', alert.id);
+    expect(goal).toHaveFocus();
+    expect(text).not.toHaveAttribute('aria-invalid');
+    expect(onLoadText).not.toHaveBeenCalled();
+    expect(onCloseMock).not.toHaveBeenCalled();
+
+    fireEvent.change(goal, { target: { value: '(P & Q)' } });
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+    expect(goal).not.toHaveAttribute('aria-invalid');
+  });
+
   test('the answer to a load of a dialog that was closed since does not close the dialog opened again', async () => {
     let finishLoad: (error: string | null) => void = () => undefined;
     const onLoadText = jest.fn(() => new Promise<string | null>((resolve) => { finishLoad = resolve; }));

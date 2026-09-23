@@ -52,8 +52,10 @@ const NewProofModal: FC<NewProofModalProps> = ({ isOpen, opener: openerProp, onC
   const [proofText, setProofText] = useState('');
   const [textGoal, setTextGoal] = useState('');
   const [loadError, setLoadError] = useState<string | null>(null);
+  const [textGoalError, setTextGoalError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const proofTextRef = useRef<HTMLTextAreaElement>(null);
+  const textGoalRef = useRef<HTMLInputElement>(null);
   // Bumped by every load and every close, so that the answer to a load the user walked away from (by closing the
   // dialog, maybe opening it again since) neither closes the dialog nor touches its state.
   const loadAttempt = useRef(0);
@@ -68,6 +70,7 @@ const NewProofModal: FC<NewProofModalProps> = ({ isOpen, opener: openerProp, onC
     setProofText('');
     setTextGoal('');
     setLoadError(null);
+    setTextGoalError(null);
     setIsLoading(false);
   }, [isOpen]);
 
@@ -139,6 +142,14 @@ const NewProofModal: FC<NewProofModalProps> = ({ isOpen, opener: openerProp, onC
   const canLoad = proofText.trim() !== '' && textGoal.trim() !== '' && !isLoading;
   const handleLoad = async () => {
     if (!onLoadText || !canLoad) return;
+    // A malformed goal would only come back as a generic "could not read the proof" error, so it is caught here.
+    const newTextGoalError = checkFormula(textGoal);
+    if (newTextGoalError !== null) {
+      setTextGoalError(newTextGoalError);
+      setLoadError(null);
+      textGoalRef.current?.focus();
+      return;
+    }
     const attempt = ++loadAttempt.current;
     setIsLoading(true);
     setLoadError(null);
@@ -240,11 +251,17 @@ const NewProofModal: FC<NewProofModalProps> = ({ isOpen, opener: openerProp, onC
               </label>
               <input
                 id="modal-proof-text-goal"
+                ref={textGoalRef}
                 required
                 type="text"
                 value={textGoal}
-                onChange={(e) => { setTextGoal(e.target.value); setLoadError(null); }}
+                onChange={(e) => { setTextGoal(e.target.value); setLoadError(null); setTextGoalError(null); }}
+                aria-invalid={textGoalError ? true : undefined}
+                aria-describedby={textGoalError ? 'modal-proof-text-goal-error' : undefined}
               />
+              {textGoalError && (
+                <p id="modal-proof-text-goal-error" className="modal-error" role="alert">{textGoalError}</p>
+              )}
               {loadError && <p id="modal-proof-text-error" className="modal-error" role="alert">{loadError}</p>}
               <button
                 className="load-text-btn"
