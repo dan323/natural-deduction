@@ -220,3 +220,12 @@
   color: #1a1a1a;
   cursor: not-allowed;
 }
+
+/* The syntax the formula fields accept, above the premises */
+.modal-syntax-hint {
+  margin: 0 0 12px;
+}
+
+.modal-body .connective-buttons {
+  margin: 0 0 8px;
+}

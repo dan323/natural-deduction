@@ -1,5 +1,7 @@
 import { FC, Fragment, useState, useEffect, useLayoutEffect, useRef } from 'react';
 import { checkFormula } from '../../service/utils';
+import ConnectiveButtons from '../input/ConnectiveButtons';
+import { SYNTAX_HINT } from '../input/connectives';
 import './NewProofModal.css';
 
 type NewProofModalProps = {
@@ -18,6 +20,11 @@ type NewProofModalProps = {
 // `error` is what checkFormula found wrong; it is only set when Start Proof is pressed, and cleared as soon as the text
 // is edited.
 type Premise = { id: number; text: string; error: string | null };
+
+const SYNTAX_HINT_ID = 'new-proof-syntax-hint';
+
+// The ids that describe a formula field: its error first, when it has one, then the syntax hint.
+const describedBy = (errorId: string | false) => (errorId ? `${errorId} ${SYNTAX_HINT_ID}` : SYNTAX_HINT_ID);
 
 const FOCUSABLE = 'button, input, select, textarea, a[href], [tabindex]:not([tabindex="-1"])';
 
@@ -122,6 +129,12 @@ const NewProofModal: FC<NewProofModalProps> = ({ isOpen, opener: openerProp, onC
     setGoalError(null);
   };
 
+  const handleTextGoalChange = (value: string) => {
+    setTextGoal(value);
+    setLoadError(null);
+    setTextGoalError(null);
+  };
+
   const handleSubmit = () => {
     // A blank premise is just an unused row and is left out; everything else has to look like a formula.
     const checked = premises.map((premise) => (
@@ -178,6 +191,7 @@ const NewProofModal: FC<NewProofModalProps> = ({ isOpen, opener: openerProp, onC
       <div className="modal-content">
         <h2 id="new-proof-modal-title">New Proof</h2>
         <div className="modal-body">
+          <p id={SYNTAX_HINT_ID} className="syntax-hint modal-syntax-hint">Syntax: {SYNTAX_HINT}</p>
           <div role="group" aria-labelledby="new-proof-premises-label">
             <span id="new-proof-premises-label" className="modal-section-label">Premises:</span>
             {premises.map((premise, index) => (
@@ -192,7 +206,7 @@ const NewProofModal: FC<NewProofModalProps> = ({ isOpen, opener: openerProp, onC
                     onChange={(e) => handlePremiseChange(index, e.target.value)}
                     placeholder={`Premise ${index + 1}`}
                     aria-invalid={premise.error ? true : undefined}
-                    aria-describedby={premise.error ? `premise-${index}-error` : undefined}
+                    aria-describedby={describedBy(!!premise.error && `premise-${index}-error`)}
                   />
                   {premises.length > 1 && (
                     <button
@@ -205,6 +219,11 @@ const NewProofModal: FC<NewProofModalProps> = ({ isOpen, opener: openerProp, onC
                     </button>
                   )}
                 </div>
+                <ConnectiveButtons
+                  getInput={() => premiseRefs.current[index]}
+                  onInsert={(text) => handlePremiseChange(index, text)}
+                  target={`Premise ${index + 1}`}
+                />
                 {premise.error && (
                   <p id={`premise-${index}-error`} className="modal-error" role="alert">{premise.error}</p>
                 )}
@@ -225,8 +244,9 @@ const NewProofModal: FC<NewProofModalProps> = ({ isOpen, opener: openerProp, onC
             placeholder="Enter the goal expression"
             required
             aria-invalid={goalError ? true : undefined}
-            aria-describedby={goalError ? 'modal-goal-error' : undefined}
+            aria-describedby={describedBy(!!goalError && 'modal-goal-error')}
           />
+          <ConnectiveButtons getInput={() => goalRef.current} onInsert={handleGoalChange} target="Goal" />
           {goalError && <p id="modal-goal-error" className="modal-error" role="alert">{goalError}</p>}
 
           {onLoadText && (
@@ -255,9 +275,14 @@ const NewProofModal: FC<NewProofModalProps> = ({ isOpen, opener: openerProp, onC
                 required
                 type="text"
                 value={textGoal}
-                onChange={(e) => { setTextGoal(e.target.value); setLoadError(null); setTextGoalError(null); }}
+                onChange={(e) => handleTextGoalChange(e.target.value)}
                 aria-invalid={textGoalError ? true : undefined}
-                aria-describedby={textGoalError ? 'modal-proof-text-goal-error' : undefined}
+                aria-describedby={describedBy(!!textGoalError && 'modal-proof-text-goal-error')}
+              />
+              <ConnectiveButtons
+                getInput={() => textGoalRef.current}
+                onInsert={handleTextGoalChange}
+                target="loaded goal"
               />
               {textGoalError && (
                 <p id="modal-proof-text-goal-error" className="modal-error" role="alert">{textGoalError}</p>

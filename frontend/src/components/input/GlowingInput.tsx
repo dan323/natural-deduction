@@ -1,4 +1,6 @@
-import { CSSProperties, FC, useState, ChangeEventHandler } from 'react';
+import { CSSProperties, FC, useRef, useState } from 'react';
+import ConnectiveButtons from './ConnectiveButtons';
+import { SYNTAX_HINT } from './connectives';
 import './glowing.css'
 
 type GlowingInputProps = {
@@ -29,12 +31,16 @@ const GlowingInput: FC<GlowingInputProps> = ({ label, glowColor, shouldGlow, onC
 
     const inputId = `glowing-input-${index}`;
     const errorId = `${inputId}-error`;
+    const hintId = `${inputId}-hint`;
+    const inputRef = useRef<HTMLInputElement>(null);
     const ownError = shouldGlow && value !== '' && !isNumeric(value) ? NOT_A_LINE_NUMBER : undefined;
     const message = ownError ?? error;
     const glowing = shouldGlow && value !== '' && !message;
+    // An expression input always describes its syntax; the error, when there is one, comes first.
+    const describedBy = [message ? errorId : undefined, shouldGlow ? undefined : hintId].filter(Boolean).join(' ') || undefined;
 
-    const handleChange: ChangeEventHandler<HTMLInputElement> = (event) => {
-        const inputValue = event.target.value;
+    // Typed text and inserted connectives both go through here.
+    const handleChange = (inputValue: string) => {
         setValue(inputValue);
         if (!shouldGlow) {
             // Expression input: the text is always passed on as a string, even when it looks like a number.
@@ -54,17 +60,25 @@ const GlowingInput: FC<GlowingInputProps> = ({ label, glowColor, shouldGlow, onC
         <div className="input-item">
             <label htmlFor={inputId} className="input-label">{label}</label>
             <input
+                ref={inputRef}
                 id={inputId}
                 type="text"
                 className={`input-field ${glowing ? 'glowing-input' : ''}`}
                 style={glowing ? { '--glow-color': glowColor } as CSSProperties : undefined}
-                onChange={handleChange}
+                onChange={(event) => handleChange(event.target.value)}
                 value={value}
+                placeholder={shouldGlow ? undefined : 'p -> q'}
                 disabled={disabled}
                 aria-invalid={message ? true : undefined}
-                aria-describedby={message ? errorId : undefined}
+                aria-describedby={describedBy}
             />
             {message && <p id={errorId} className="input-error">{message}</p>}
+            {!shouldGlow && (
+                <>
+                    <p id={hintId} className="syntax-hint">Syntax: {SYNTAX_HINT}</p>
+                    <ConnectiveButtons getInput={() => inputRef.current} onInsert={handleChange} disabled={disabled} />
+                </>
+            )}
         </div>
     );
 };

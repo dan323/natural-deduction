@@ -191,7 +191,7 @@ describe('NewProofModal focus trap', () => {
     const user = await setup();
 
     await user.tab();
-    expect(screen.getByRole('button', { name: '+ Add Premise' })).toHaveFocus();
+    expect(screen.getByRole('button', { name: 'Insert implies (->) in Premise 1' })).toHaveFocus();
 
     screen.getByRole('button', { name: 'Outside' }).focus();
     await user.tab();
@@ -235,7 +235,7 @@ describe('NewProofModal validation', () => {
     const goalInput = screen.getByLabelText('Goal:');
     expect(screen.getByRole('alert')).toBeInTheDocument();
     expect(goalInput).toHaveAttribute('aria-invalid', 'true');
-    expect(goalInput).toHaveAccessibleDescription(screen.getByRole('alert').textContent as string);
+    expect(goalInput).toHaveAccessibleDescription(expect.stringContaining(screen.getByRole('alert').textContent as string));
     expect(goalInput).toHaveFocus();
     expect(onSubmit).not.toHaveBeenCalled();
     expect(onClose).not.toHaveBeenCalled();
@@ -251,7 +251,7 @@ describe('NewProofModal validation', () => {
     const premiseInput = screen.getByLabelText('Premise 1');
     expect(screen.getByRole('alert')).toBeInTheDocument();
     expect(premiseInput).toHaveAttribute('aria-invalid', 'true');
-    expect(premiseInput).toHaveAccessibleDescription(screen.getByRole('alert').textContent as string);
+    expect(premiseInput).toHaveAccessibleDescription(expect.stringContaining(screen.getByRole('alert').textContent as string));
     expect(premiseInput).toHaveFocus();
     expect(onSubmit).not.toHaveBeenCalled();
     expect(onClose).not.toHaveBeenCalled();
@@ -465,7 +465,7 @@ describe('NewProofModal loading a proof from text', () => {
     const alert = screen.getByRole('alert');
     expect(alert).toHaveTextContent('Unbalanced parentheses');
     expect(goal).toHaveAttribute('aria-invalid', 'true');
-    expect(goal).toHaveAttribute('aria-describedby', alert.id);
+    expect(goal).toHaveAttribute('aria-describedby', `${alert.id} new-proof-syntax-hint`);
     expect(goal).toHaveFocus();
     expect(text).not.toHaveAttribute('aria-invalid');
     expect(onLoadText).not.toHaveBeenCalled();
@@ -495,5 +495,65 @@ describe('NewProofModal loading a proof from text', () => {
     expect(onCloseMock).not.toHaveBeenCalled();
     expect(screen.getByLabelText('Premise 1')).toHaveValue('Q');
     expect(screen.getByRole('button', { name: 'Load proof' })).toBeInTheDocument();
+  });
+});
+
+describe('NewProofModal syntax help', () => {
+  const HINT = 'Syntax: -> implies, & and, | or, - not';
+
+  test('every formula field is described by the syntax hint', () => {
+    render(<NewProofModal isOpen onClose={jest.fn()} onSubmit={jest.fn()} onLoadText={jest.fn()} />);
+
+    expect(screen.getByText(HINT)).toBeInTheDocument();
+    expect(screen.getByLabelText('Premise 1')).toHaveAccessibleDescription(HINT);
+    expect(screen.getByLabelText('Goal:')).toHaveAccessibleDescription(HINT);
+    expect(screen.getByLabelText(/Goal of the loaded proof/)).toHaveAccessibleDescription(HINT);
+  });
+
+  test('the connective buttons never submit the proof', async () => {
+    const user = userEvent.setup();
+    const onSubmit = jest.fn();
+    render(<NewProofModal isOpen onClose={jest.fn()} onSubmit={onSubmit} />);
+
+    for (const button of screen.getAllByRole('button', { name: /^Insert / })) {
+      expect(button).toHaveAttribute('type', 'button');
+    }
+    await user.click(screen.getByRole('button', { name: 'Insert implies (->) in Goal' }));
+    expect(onSubmit).not.toHaveBeenCalled();
+  });
+
+  test('p → q entered with the buttons is submitted as p -> q', async () => {
+    const user = userEvent.setup();
+    const onSubmit = jest.fn();
+    render(<NewProofModal isOpen onClose={jest.fn()} onSubmit={onSubmit} />);
+    const premise = screen.getByLabelText('Premise 1') as HTMLInputElement;
+    const goal = screen.getByLabelText('Goal:') as HTMLInputElement;
+
+    await user.type(premise, 'p ');
+    await user.click(screen.getByRole('button', { name: 'Insert implies (->) in Premise 1' }));
+    expect(premise).toHaveFocus();
+    await user.type(premise, ' q');
+
+    await user.type(goal, 'q');
+    goal.setSelectionRange(0, 0);
+    await user.click(screen.getByRole('button', { name: 'Insert not (-) in Goal' }));
+    await user.click(screen.getByRole('button', { name: 'Insert not (-) in Goal' }));
+    expect(goal).toHaveValue('--q');
+    expect(goal.selectionStart).toBe(2);
+
+    await user.click(screen.getByRole('button', { name: 'Start Proof' }));
+    expect(onSubmit).toHaveBeenCalledWith(['p -> q'], '--q');
+  });
+
+  test('each premise has its own buttons', async () => {
+    const user = userEvent.setup();
+    render(<NewProofModal isOpen onClose={jest.fn()} onSubmit={jest.fn()} />);
+    await user.click(screen.getByRole('button', { name: '+ Add Premise' }));
+
+    await user.click(screen.getByRole('button', { name: 'Insert and (&) in Premise 2' }));
+
+    expect(screen.getByLabelText('Premise 1')).toHaveValue('');
+    expect(screen.getByLabelText('Premise 2')).toHaveValue('&');
+    expect(screen.getByLabelText('Premise 2')).toHaveFocus();
   });
 });
