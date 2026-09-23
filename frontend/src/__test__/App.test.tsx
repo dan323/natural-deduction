@@ -195,6 +195,65 @@ describe('App', () => {
     expect(screen.queryByText(/to get started/)).not.toBeInTheDocument();
   });
 
+  test('the empty state explains the three steps of a proof', () => {
+    mockBackend([], 200, {});
+    render(<App />);
+
+    expect(screen.getByRole('heading', { name: 'How it works' })).toBeInTheDocument();
+    const steps = screen.getAllByRole('listitem').map((item) => item.textContent);
+    expect(steps).toEqual([
+      'Enter the premises and the goal of the proof.',
+      'Pick an inference rule.',
+      'Enter the line numbers the rule uses, and apply it.',
+    ]);
+  });
+
+  test('"Try an example" starts p -> q, p |- q in one click, the same proof the New Proof dialog would start', async () => {
+    const MP: ActionDescriptor = { name: 'MP', params: ['INT', 'INT'] };
+    mockBackend([MP], 202, { proof: {}, success: false, message: 'Rule not applicable' });
+    const user = userEvent.setup();
+    render(<App />);
+
+    await user.click(screen.getByRole('button', { name: 'Try an example' }));
+
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    expect(screen.queryByText(/No proof loaded/)).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Try an example' })).not.toBeInTheDocument();
+    await user.selectOptions(await screen.findByLabelText(/Select Inference Rule:/i), 'MP');
+    const [first, second] = screen.getAllByLabelText(/Line number:/i);
+    await user.type(first, '1');
+    await user.type(second, '2');
+    await user.click(applyButton());
+
+    await waitFor(() => expect(applyRequests()).toHaveLength(1));
+    const exampleProof = JSON.parse(applyRequests()[0][1].body).proofDto;
+    expect(exampleProof).toEqual({
+      steps: [
+        { expression: 'p -> q', rule: 'Ass', assmsLevel: 0, extraParameters: {} },
+        { expression: 'p', rule: 'Ass', assmsLevel: 0, extraParameters: {} },
+      ],
+      logic: 'classical',
+      goal: 'q',
+    });
+
+    // The same premises and goal typed in the New Proof dialog give the very same proof.
+    await user.click(screen.getByRole('button', { name: /Start a new proof/i }));
+    await waitFor(() => expect(screen.getByPlaceholderText('Premise 1')).toHaveFocus());
+    await user.type(screen.getByPlaceholderText('Premise 1'), 'p -> q');
+    await user.click(screen.getByText('+ Add Premise'));
+    await user.type(screen.getByPlaceholderText('Premise 2'), 'p');
+    await user.type(screen.getByPlaceholderText('Enter the goal expression'), 'q');
+    await user.click(screen.getByText('Start Proof'));
+    await user.selectOptions(await screen.findByLabelText(/Select Inference Rule:/i), 'MP');
+    const [again1, again2] = screen.getAllByLabelText(/Line number:/i);
+    await user.type(again1, '1');
+    await user.type(again2, '2');
+    await user.click(applyButton());
+
+    await waitFor(() => expect(applyRequests()).toHaveLength(2));
+    expect(JSON.parse(applyRequests()[1][1].body).proofDto).toEqual(exampleProof);
+  });
+
   test('the Solve button sends the proof to the solver and shows the solved proof', async () => {
     const solved = {
       steps: [

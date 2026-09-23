@@ -179,3 +179,36 @@
   color: #595959;
   font-size: 1.1rem;
 }
+
+.how-it-works-title {
+  margin: 24px 0 8px;
+  font-size: 1.1rem;
+  color: #333;
+}
+
+.how-it-works {
+  margin: 0 0 24px;
+  padding-left: 1.5em;
+  text-align: left;
+  line-height: 1.6;
+}
+
+.try-example-btn {
+  padding: 9px 20px;
+  font-size: 1rem;
+  border: 1px solid #0b5ed7;
+  border-radius: 4px;
+  background-color: #fff;
+  color: #0b5ed7;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.try-example-btn:hover {
+  background-color: #e7f1ff;
+}
+
+.try-example-desc {
+  margin: 8px 0 0;
+  font-size: 0.95rem;
+}
