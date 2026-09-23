@@ -1,4 +1,5 @@
-import { ProofDto, ActionDto, ActionDescriptor, ApplyActionResponse } from "../types";
+import { ProofDto, StepDto, ActionDto, ActionDescriptor, ApplyActionResponse } from "../types";
+import { parseProofText } from "./utils";
 
 // Extracts the `message` of an error body ({ "message": "..." }), falling back to the HTTP status.
 async function errorMessage(response: Response): Promise<string> {
@@ -112,28 +113,24 @@ async function replayProof(logic: string, proof: ProofDto, consumer: (result: Ap
     await applyAction(logic, proof, noOpAction, consumer);
 }
 
-// Loads a proof from text in the layout `proofToText` writes (the one of the backend's `ProofStep.toString()`), through
-// `POST .../proof`, the endpoint that reads proof files. That endpoint takes the expression of the last line as the goal,
-// which is only right for a finished proof, so a non-blank `goal` replaces it. The result is then replayed once more
-// (see `replayProof`), so that it comes back with the backend's `done` verdict for that goal, like every other proof.
+// Loads a proof from text in the layout `proofToText` writes (the one of the backend's `ProofStep.toString()`), for the
+// given goal. The text is split into steps here (see `parseProofText`) and the backend replays them (see `replayProof`),
+// which checks every step and gives the `done` verdict for that goal. `POST .../proof`, the endpoint for proof files, is
+// not used: it rejects a proof that ends inside an open subproof, and takes the last line as the goal, so an unfinished
+// proof would come back as a finished proof of its last line. That is also why the goal is required.
 export async function loadProofFromText(logic: string, text: string, goal: string, consumer: (result: ApplyActionResponse) => void): Promise<void> {
-    let parsed: ProofDto;
-    try {
-        const form = new FormData();
-        // Trailing blank lines of a paste would otherwise be rejected as blank proof lines.
-        form.append('file', new Blob([text.trimEnd()], { type: 'text/plain' }), 'proof.txt');
-        const response = await fetch(`/logic/${logic}/proof`, { method: 'POST', body: form });
-        if (!response.ok) {
-            consumer({ success: false, message: await errorMessage(response) });
-            return;
-        }
-        parsed = await response.json();
-    } catch (err) {
-        console.error("Error loading a proof from text:", err);
-        consumer({ success: false, message: 'Network error. Please try again.' });
+    if (goal.trim() === '') {
+        consumer({ success: false, message: 'Enter the goal of the proof.' });
         return;
     }
-    const proof: ProofDto = goal.trim() === '' ? parsed : { ...parsed, goal: goal.trim() };
+    let steps: StepDto[];
+    try {
+        steps = parseProofText(text);
+    } catch (err) {
+        consumer({ success: false, message: (err as Error).message });
+        return;
+    }
+    const proof: ProofDto = { steps, logic, goal: goal.trim() };
     await replayProof(logic, proof, (result) => consumer(result.proof
         ? { success: true, proof: result.proof, done: result.done, message: '' }
         : { success: false, message: result.message }));

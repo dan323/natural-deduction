@@ -528,39 +528,16 @@ describe('App', () => {
       goal: 'P -> P',
       done: true,
     };
-    // Reads a proof text the way the backend's `ProofParser.ProofLine.split` does: 3 spaces of indent per level, the
-    // expression, an 11-space gap and the rule; the last line is the goal.
-    const parseProofText = (text: string) => {
-      const steps = text.split('\n').map((line) => {
-        const body = line.trimStart();
-        const gap = body.indexOf(' '.repeat(11));
-        return {
-          expression: body.slice(0, gap),
-          rule: body.slice(gap).trimStart(),
-          assmsLevel: (line.length - body.length) / 3,
-          extraParameters: {},
-        };
-      });
-      return { steps, logic: 'classical', goal: steps[steps.length - 1].expression };
-    };
-
-    const readFile = (file: Blob) => new Promise<string>((resolve) => {
-      const reader = new FileReader();
-      reader.onload = () => resolve(reader.result as string);
-      reader.readAsText(file);
-    });
-
-    // A backend that solves to `solved`, reads proof texts, and replays a proof (the out-of-range COPY) unchanged.
+    // A backend that solves to `solved` and replays a proof (the out-of-range COPY) unchanged; the proof is done when
+    // a top-level step is its goal, as the domain's `Proof.isDone()` decides.
     const mockRoundTripBackend = () => {
       fetchMock.mockImplementation(async (url: string, init?: RequestInit) => {
         if (url.endsWith('/actions')) return jsonResponse(200, []);
         if (url.endsWith('/solve')) return jsonResponse(200, solved);
-        if (url.endsWith('/proof')) {
-          const text = await readFile((init!.body as FormData).get('file') as Blob);
-          return jsonResponse(201, parseProofText(text));
-        }
         const { proofDto } = JSON.parse(String(init!.body));
-        return jsonResponse(202, { proof: proofDto, success: false, done: proofDto.goal === 'P -> P', message: 'out of range' });
+        const done = proofDto.steps.some((step: { assmsLevel: number, expression: string }) =>
+          step.assmsLevel === 0 && step.expression === proofDto.goal);
+        return jsonResponse(202, { proof: proofDto, success: false, done, message: 'out of range' });
       });
     };
 
@@ -591,19 +568,21 @@ describe('App', () => {
 
       // Copy (to the clipboard stub that user-event installs)
       await user.click(screen.getByRole('button', { name: 'Copy proof as text' }));
-      expect(await screen.findByText(/Proof copied to the clipboard as text/)).toBeInTheDocument();
+      expect(await screen.findByText(/Proof copied to the clipboard as text/)).toHaveTextContent('with the goal P -> P');
       const copied = await navigator.clipboard.readText();
       expect(copied).toBe('   P           Ass\nP -> P           ->I [1-1]');
 
-      // Paste into a new proof, and load it
+      // Paste into a new proof, with its goal, and load it
       await openLoadFromText(user);
       await user.paste();
       expect(proofTextInput()).toHaveValue(copied);
+      await user.type(screen.getByLabelText(/Goal of the loaded proof/i), 'P -> P');
       await user.click(screen.getByRole('button', { name: 'Load proof' }));
 
-      // The text went through POST .../proof, and the dialog closed on the loaded proof.
+      // The steps were replayed by the backend, and the dialog closed on the loaded proof.
       await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
-      expect(fetchMock).toHaveBeenCalledWith('/logic/classical/proof', expect.objectContaining({ method: 'POST' }));
+      const [, replay] = applyRequests()[applyRequests().length - 1];
+      expect(JSON.parse(replay.body).proofDto).toEqual({ steps: solved.steps, logic: 'classical', goal: 'P -> P' });
       expect(screen.getAllByRole('row')).toHaveLength(3);
       expect(screen.getByRole('status')).toHaveTextContent('Proof complete.');
 
@@ -612,13 +591,14 @@ describe('App', () => {
       expect(await navigator.clipboard.readText()).toBe(copied);
     });
 
-    test('a goal typed next to the text replaces the last line as the goal', async () => {
+    test('an unfinished proof loads with its goal, not as a finished proof of its last line', async () => {
       mockRoundTripBackend();
       const user = userEvent.setup();
       render(<App />);
 
       await openLoadFromText(user);
       await user.paste('Q           Ass');
+      expect(screen.getByRole('button', { name: 'Load proof' })).toBeDisabled();
       await user.type(screen.getByLabelText(/Goal of the loaded proof/i), 'P -> Q');
       await user.click(screen.getByRole('button', { name: 'Load proof' }));
 
@@ -626,6 +606,33 @@ describe('App', () => {
       const [, replay] = applyRequests()[0];
       expect(JSON.parse(replay.body).proofDto.goal).toBe('P -> Q');
       expect(screen.queryByText('Proof complete.')).not.toBeInTheDocument();
+    });
+
+    test('a proof that ends inside an open subproof loads back', async () => {
+      mockRoundTripBackend();
+      const user = userEvent.setup();
+      render(<App />);
+
+      await openLoadFromText(user);
+      await user.paste('Q           Ass\n   P           Ass');
+      await user.type(screen.getByLabelText(/Goal of the loaded proof/i), 'P -> P');
+      await user.click(screen.getByRole('button', { name: 'Load proof' }));
+
+      await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
+      expect(screen.getAllByRole('row')).toHaveLength(3);
+      expect(screen.queryByText('Proof complete.')).not.toBeInTheDocument();
+    });
+
+    test('premises typed with spaces around them are copied without the spaces', async () => {
+      mockRoundTripBackend();
+      const user = userEvent.setup();
+      render(<App />);
+      await startProof(user, '   Q ', 'P -> P');
+
+      await user.click(screen.getByRole('button', { name: 'Copy proof as text' }));
+
+      await screen.findByText(/Proof copied to the clipboard as text/);
+      expect(await navigator.clipboard.readText()).toBe('Q           Ass');
     });
 
     test('a text the backend rejects keeps the dialog open with the reason', async () => {
@@ -637,6 +644,7 @@ describe('App', () => {
 
       await openLoadFromText(user);
       await user.paste('P           Nope');
+      await user.type(screen.getByLabelText(/Goal of the loaded proof/i), 'P');
       await user.click(screen.getByRole('button', { name: 'Load proof' }));
 
       expect(await screen.findByRole('alert')).toHaveTextContent('Line 1 is not valid: unknown rule');

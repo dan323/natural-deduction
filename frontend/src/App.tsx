@@ -129,7 +129,7 @@ function App() {
 
   const handleNewProofSubmit = (premises: string[], goal: string) => {
     const steps: StepDto[] = premises.map((premise) => ({
-      expression: premise,
+      expression: premise.trim(),
       rule: 'Ass',
       assmsLevel: 0,
       extraParameters: {},
@@ -236,12 +236,16 @@ function App() {
         )}
         {currentCopy?.copied === true && (
           <p className="copy-status" role="status">
-            Proof copied to the clipboard as text. To load it again, paste it in the New Proof dialog.
+            Proof copied to the clipboard as text. To load it again, paste it in the New Proof dialog, with the
+            goal <code>{currentCopy.proof.goal}</code>.
           </p>
         )}
         {currentCopy?.copied === false && (
           <div className="copy-status">
-            <p role="status">The clipboard is not available here. Copy the proof text below by hand.</p>
+            <p role="status">
+              The clipboard is not available here. Copy the proof text below by hand; its goal
+              is <code>{currentCopy.proof.goal}</code>.
+            </p>
             <label htmlFor="copied-proof-text" className="visually-hidden">Proof as text</label>
             <textarea
               id="copied-proof-text"

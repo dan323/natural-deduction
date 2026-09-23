@@ -1,5 +1,5 @@
 import { InputHTMLAttributes, useState } from 'react';
-import { render, fireEvent, screen, waitFor } from '@testing-library/react';
+import { act, render, fireEvent, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import NewProofModal from '../NewProofModal';
 
@@ -420,14 +420,16 @@ describe('NewProofModal loading a proof from text', () => {
     expect(screen.queryByLabelText(/Proof text/)).not.toBeInTheDocument();
   });
 
-  test('sends the text and the trimmed goal, then closes; Load is disabled while the text is blank', async () => {
+  test('sends the text and the trimmed goal, then closes; Load is disabled while the text or the goal is blank', async () => {
     const onLoadText = jest.fn().mockResolvedValue(null);
     render(<NewProofModal isOpen onClose={onCloseMock} onSubmit={onSubmitMock} onLoadText={onLoadText} />);
     const load = screen.getByRole('button', { name: 'Load proof' });
     expect(load).toBeDisabled();
 
     fireEvent.change(screen.getByLabelText(/Proof text/), { target: { value: 'P           Ass' } });
+    expect(load).toBeDisabled();
     fireEvent.change(screen.getByLabelText(/Goal of the loaded proof/), { target: { value: ' P ' } });
+    expect(load).toBeEnabled();
     fireEvent.click(load);
 
     await waitFor(() => expect(onCloseMock).toHaveBeenCalled());
@@ -440,6 +442,7 @@ describe('NewProofModal loading a proof from text', () => {
     render(<NewProofModal isOpen onClose={onCloseMock} onSubmit={onSubmitMock} onLoadText={onLoadText} />);
     const text = screen.getByLabelText(/Proof text/);
     fireEvent.change(text, { target: { value: 'P           Nope' } });
+    fireEvent.change(screen.getByLabelText(/Goal of the loaded proof/), { target: { value: 'P' } });
     fireEvent.click(screen.getByRole('button', { name: 'Load proof' }));
 
     expect(await screen.findByRole('alert')).toHaveTextContent('Line 1 is not valid: unknown rule');
@@ -448,5 +451,26 @@ describe('NewProofModal loading a proof from text', () => {
 
     fireEvent.change(text, { target: { value: 'P           Ass' } });
     expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+  });
+
+  test('the answer to a load of a dialog that was closed since does not close the dialog opened again', async () => {
+    let finishLoad: (error: string | null) => void = () => undefined;
+    const onLoadText = jest.fn(() => new Promise<string | null>((resolve) => { finishLoad = resolve; }));
+    const { rerender } = render(<NewProofModal isOpen onClose={onCloseMock} onSubmit={onSubmitMock} onLoadText={onLoadText} />);
+    fireEvent.change(screen.getByLabelText(/Proof text/), { target: { value: 'P           Ass' } });
+    fireEvent.change(screen.getByLabelText(/Goal of the loaded proof/), { target: { value: 'P' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Load proof' }));
+    expect(screen.getByRole('button', { name: 'Loading…' })).toBeDisabled();
+
+    // Cancelled while loading, then opened again, and something typed in it.
+    rerender(<NewProofModal isOpen={false} onClose={onCloseMock} onSubmit={onSubmitMock} onLoadText={onLoadText} />);
+    rerender(<NewProofModal isOpen onClose={onCloseMock} onSubmit={onSubmitMock} onLoadText={onLoadText} />);
+    fireEvent.change(screen.getByLabelText('Premise 1'), { target: { value: 'Q' } });
+
+    await act(async () => finishLoad(null));
+
+    expect(onCloseMock).not.toHaveBeenCalled();
+    expect(screen.getByLabelText('Premise 1')).toHaveValue('Q');
+    expect(screen.getByRole('button', { name: 'Load proof' })).toBeInTheDocument();
   });
 });
