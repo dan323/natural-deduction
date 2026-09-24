@@ -129,6 +129,16 @@ class ModalNextUntilParserTest {
     }
 
     @Test
+    void nextIsEqualOnlyToTheNextOfAnEqualFormula() {
+        var next = new Next(P);
+
+        assertEquals(new Next(P).hashCode(), next.hashCode());
+        assertNotEquals(new Next(Q), next);
+        assertNotEquals(new Always(P), next);
+        assertNotEquals(null, next);
+    }
+
+    @Test
     void theModalParserHasNeitherNextNorUntil() {
         var modal = new ModalLogicParser();
 

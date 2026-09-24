@@ -31,6 +31,16 @@ class StateTermTest {
     }
 
     @Test
+    void theLastWrittenStateHasNoSuccessor() {
+        var last = StateTerm.parse("s0+" + Integer.MAX_VALUE);
+
+        assertFalse(last.hasSuccessor());
+        assertTrue(last.predecessor().hasSuccessor());
+        assertEquals(last, last.predecessor().successor());
+        assertThrows(IllegalStateException.class, last::successor);
+    }
+
+    @Test
     void whatIsNotAStateIsRejected() {
         for (var text : List.of("", "+1", "1", "0+1", "s0+", "s0++1", "s0+a", "s0-1", "s 0", "s0+99999999999", "p & q")) {
             assertThrows(IllegalArgumentException.class, () -> StateTerm.parse(text), text);

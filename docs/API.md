@@ -170,7 +170,9 @@ change.
   `(X p) U q`.
 - States are a name followed by successor steps: `s0`, `s0+1`, `s0+2`. The server keeps them written without spaces
   and with one `+k` at most (`s0 + 1 + 1` is kept as `s0+2`, `s0+0` as `s0`), in `extraParameters.state` and in both
-  sides of a relation (`s0 <= s0+1`). A state that is not like this (`s0-1`, `s0+`) is a `400`.
+  sides of a relation (`s0 <= s0+1`). A state that is not like this (`s0-1`, `s0+`), or whose offset does not fit in
+  an `int` (`s0+99999999999`), is a `400`. The last one, `s0+2147483647`, has no written successor: `XE` and `Succ`
+  on a line in it do not apply (`202`).
 - `GET /logic/modal-next-until/actions` lists the 20 modal actions, with the same descriptors, then:
 
   | name   | params     | rule text    | what it does                                                        |

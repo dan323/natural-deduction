@@ -1,6 +1,7 @@
 package com.dan323.proof.modal.nextuntil;
 
 import com.dan323.expressions.modal.Next;
+import com.dan323.expressions.relation.StateTerm;
 import com.dan323.proof.modal.proof.ModalNaturalDeduction;
 
 import java.util.List;
@@ -11,17 +12,15 @@ import java.util.Optional;
  */
 public final class ModalNextE extends NextUntilRule {
 
-    private final int line;
-
     public ModalNextE(int line) {
         super(ParseModalNextUntilAction.NEXT_E, List.of(line));
-        this.line = line;
     }
 
     @Override
     Optional<Conclusion> conclusion(ModalNaturalDeduction pf) {
-        var term = term(pf, line);
-        var next = formula(pf, line, Next.class);
+        // s0+2147483647 is a state, but its successor cannot be written.
+        var term = term(pf, line(0)).filter(StateTerm::hasSuccessor);
+        var next = formula(pf, line(0), Next.class);
         if (term.isEmpty() || next.isEmpty()) {
             return Optional.empty();
         }

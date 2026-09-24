@@ -14,16 +14,13 @@ import java.util.Optional;
  */
 public final class ModalUntilSometime extends NextUntilRule {
 
-    private final int line;
-
     public ModalUntilSometime(int line) {
         super(ParseModalNextUntilAction.UNTIL_SOMETIME, List.of(line));
-        this.line = line;
     }
 
     @Override
     Optional<Conclusion> conclusion(ModalNaturalDeduction pf) {
-        return formula(pf, line, Until.class)
-                .map(until -> new Conclusion(new Sometime((ModalLogicalOperation) until.getRight()), state(pf, line)));
+        return formula(pf, line(0), Until.class)
+                .map(until -> new Conclusion(new Sometime((ModalLogicalOperation) until.getRight()), state(pf, line(0))));
     }
 }

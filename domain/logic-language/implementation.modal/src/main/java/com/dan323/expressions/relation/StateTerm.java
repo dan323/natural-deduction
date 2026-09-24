@@ -17,13 +17,13 @@ import java.util.regex.Pattern;
  */
 public record StateTerm(String base, int offset) {
 
-    private static final Pattern BASE = Pattern.compile("[\\p{L}_][\\p{L}\\p{N}_]*");
-    private static final Pattern STEP = Pattern.compile("\\d+");
+    private static final Pattern BASE_PATTERN = Pattern.compile("[\\p{L}_][\\p{L}\\p{N}_]*");
+    private static final Pattern STEP_PATTERN = Pattern.compile("\\d+");
     private static final String NOT_A_STATE = "' is not a state: expected a name such as s0, then +1, +2, ...";
 
     public StateTerm {
         Objects.requireNonNull(base);
-        if (!BASE.matcher(base).matches()) {
+        if (!BASE_PATTERN.matcher(base).matches()) {
             throw new IllegalArgumentException("'" + base + "' is not a state name");
         }
         if (offset < 0) {
@@ -44,12 +44,12 @@ public record StateTerm(String base, int offset) {
         for (int i = 0; i < parts.length; i++) {
             parts[i] = parts[i].strip();
         }
-        if (!BASE.matcher(parts[0]).matches()) {
+        if (!BASE_PATTERN.matcher(parts[0]).matches()) {
             throw new IllegalArgumentException("'" + text + NOT_A_STATE);
         }
         int offset = 0;
         for (int i = 1; i < parts.length; i++) {
-            if (!STEP.matcher(parts[i]).matches()) {
+            if (!STEP_PATTERN.matcher(parts[i]).matches()) {
                 throw new IllegalArgumentException("'" + text + NOT_A_STATE);
             }
             try {
@@ -75,9 +75,20 @@ public record StateTerm(String base, int offset) {
         return offset == 0;
     }
 
-    /** @return the next state, {@code s+1} */
+    /** @return whether {@link #successor()} can write the next state, i.e. the offset is below {@link Integer#MAX_VALUE} */
+    public boolean hasSuccessor() {
+        return offset < Integer.MAX_VALUE;
+    }
+
+    /**
+     * @return the next state, {@code s+1}
+     * @throws IllegalStateException if the offset is already {@link Integer#MAX_VALUE} (see {@link #hasSuccessor()})
+     */
     public StateTerm successor() {
-        return new StateTerm(base, Math.addExact(offset, 1));
+        if (!hasSuccessor()) {
+            throw new IllegalStateException(this + " has no written successor");
+        }
+        return new StateTerm(base, offset + 1);
     }
 
     /**

@@ -12,6 +12,8 @@ import java.util.List;
  */
 public class ModalNextUntilExercises implements LogicalExercises {
 
+    private static final String P_UNTIL_Q = "p U q";
+
     private static final List<Exercise> EXERCISES = List.of(
             new Exercise("next-in-and-out", "In and out of the next state",
                     List.of("X p"), "X (p | q)", Difficulty.EASY,
@@ -22,13 +24,13 @@ public class ModalNextUntilExercises implements LogicalExercises {
                     s0: X (p | q)           XI [3]
                     """),
             new Exercise("until-now", "Until, right now",
-                    List.of("q"), "p U q", Difficulty.EASY,
+                    List.of("q"), P_UNTIL_Q, Difficulty.EASY,
                     """
                     s0: q           Ass
                     s0: p U q           UI [1]
                     """),
             new Exercise("until-reaches-its-goal", "Until reaches its goal",
-                    List.of("p U q"), "<> q", Difficulty.EASY,
+                    List.of(P_UNTIL_Q), "<> q", Difficulty.EASY,
                     """
                     s0: p U q           Ass
                     s0: <> q           U<> [1]
@@ -52,7 +54,7 @@ public class ModalNextUntilExercises implements LogicalExercises {
                     s0: X p           XI [3]
                     """),
             new Exercise("until-later", "Until, one step later",
-                    List.of("p", "X q"), "p U q", Difficulty.MEDIUM,
+                    List.of("p", "X q"), P_UNTIL_Q, Difficulty.MEDIUM,
                     """
                     s0: p           Ass
                     s0: X q           Ass
@@ -69,7 +71,7 @@ public class ModalNextUntilExercises implements LogicalExercises {
                     s0: [] p           Ind [1, 2]
                     """),
             new Exercise("until-now-or-next", "Now, or until from the next state",
-                    List.of("p U q"), "q | (X (p U q))", Difficulty.HARD,
+                    List.of(P_UNTIL_Q), "q | (X (p U q))", Difficulty.HARD,
                     """
                     s0: p U q           Ass
                     s0: q | (p & (X (p U q)))           UE [1]

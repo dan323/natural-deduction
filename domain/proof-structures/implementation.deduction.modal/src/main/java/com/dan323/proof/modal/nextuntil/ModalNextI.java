@@ -12,17 +12,14 @@ import java.util.Optional;
  */
 public final class ModalNextI extends NextUntilRule {
 
-    private final int line;
-
     public ModalNextI(int line) {
         super(ParseModalNextUntilAction.NEXT_I, List.of(line));
-        this.line = line;
     }
 
     @Override
     Optional<Conclusion> conclusion(ModalNaturalDeduction pf) {
-        var term = term(pf, line).filter(t -> !t.isBase());
-        var formula = formula(pf, line);
+        var term = term(pf, line(0)).filter(t -> !t.isBase());
+        var formula = formula(pf, line(0));
         if (term.isEmpty() || formula.isEmpty()) {
             return Optional.empty();
         }

@@ -14,12 +14,10 @@ import java.util.Optional;
  */
 public final class ModalUntilI1 extends NextUntilRule {
 
-    private final int line;
     private final ModalLogicalOperation left;
 
     public ModalUntilI1(int line, ModalLogicalOperation left) {
         super(ParseModalNextUntilAction.UNTIL, List.of(line));
-        this.line = line;
         this.left = left;
     }
 
@@ -28,7 +26,7 @@ public final class ModalUntilI1 extends NextUntilRule {
         if (left == null) {
             return Optional.empty();
         }
-        return formula(pf, line).map(right -> new Conclusion(new Until(left, right), state(pf, line)));
+        return formula(pf, line(0)).map(right -> new Conclusion(new Until(left, right), state(pf, line(0))));
     }
 
     @Override

@@ -15,17 +15,14 @@ import java.util.Optional;
  */
 public final class ModalInduction extends NextUntilRule {
 
-    private final int base;
-    private final int step;
-
     public ModalInduction(int base, int step) {
         super(ParseModalNextUntilAction.INDUCTION, List.of(base, step));
-        this.base = base;
-        this.step = step;
     }
 
     @Override
     Optional<Conclusion> conclusion(ModalNaturalDeduction pf) {
+        int base = line(0);
+        int step = line(1);
         var formula = formula(pf, base);
         var always = formula(pf, step, Always.class);
         if (formula.isEmpty() || always.isEmpty() || !state(pf, base).equals(state(pf, step))

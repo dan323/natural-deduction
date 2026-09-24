@@ -46,8 +46,9 @@ class ModalFreshStateTest {
 
     @Test
     void theNextAndUntilRulesAreNotModalRules() {
+        var sources = List.of(1, 1);
         for (var name : List.of("XI", "XE", "Succ", "UI1", "UI2", "UE", "U<>", "Ind")) {
-            assertThrows(IllegalArgumentException.class, () -> ParseModalAction.parseAction(name, List.of(1, 1), null, "s0"), name);
+            assertThrows(IllegalArgumentException.class, () -> ParseModalAction.parseAction(name, sources, null, "s0"), name);
         }
         for (var rule : List.of("XI [1]", "XE [1]", "UI [1]", "UE [1]", "Ind [1, 2]")) {
             assertNull(ParseModalAction.parseReason(rule), rule);

@@ -13,17 +13,14 @@ import java.util.Optional;
  */
 public final class ModalUntilI2 extends NextUntilRule {
 
-    private final int now;
-    private final int next;
-
     public ModalUntilI2(int now, int next) {
         super(ParseModalNextUntilAction.UNTIL, List.of(now, next));
-        this.now = now;
-        this.next = next;
     }
 
     @Override
     Optional<Conclusion> conclusion(ModalNaturalDeduction pf) {
+        int now = line(0);
+        int next = line(1);
         var left = formula(pf, now);
         var until = formula(pf, next, Next.class)
                 .map(Next::getElement)

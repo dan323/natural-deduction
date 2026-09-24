@@ -279,7 +279,59 @@ class NextUntilRulesTest {
     }
 
     @Test
+    void theLastWrittenStateHasNoNextState() {
+        // Its successor cannot be written, so XE and Succ do not apply instead of overflowing.
+        var proof = proof();
+        assume(proof, "X p", "s0+" + Integer.MAX_VALUE);
+
+        assertFalse(new ModalNextE(1).isValid(proof));
+        assertFalse(new ModalSuccessor(1).isValid(proof));
+        assertTrue(new ModalNextI(1).isValid(proof), "it still has a predecessor");
+    }
+
+    @Test
+    void rulesAreEqualWhenTheyUseTheSameLines() {
+        assertEquals(new ModalNextE(1), new ModalNextE(1));
+        assertEquals(new ModalNextE(1).hashCode(), new ModalNextE(1).hashCode());
+        assertNotEquals(new ModalNextE(1), new ModalNextE(2));
+        assertNotEquals(new ModalNextE(1), new ModalNextI(1));
+        assertNotEquals(null, new ModalNextE(1));
+        assertEquals(new ModalInduction(1, 2), new ModalInduction(1, 2));
+        assertNotEquals(new ModalInduction(1, 2), new ModalInduction(2, 1));
+
+        var p = formula("p");
+        assertEquals(new ModalUntilI1(1, p), new ModalUntilI1(1, formula("p")));
+        assertEquals(new ModalUntilI1(1, p).hashCode(), new ModalUntilI1(1, formula("p")).hashCode());
+        assertNotEquals(new ModalUntilI1(1, p), new ModalUntilI1(1, formula("q")));
+        assertNotEquals(new ModalUntilI1(1, p), new ModalUntilI1(2, p));
+        assertNotEquals(new ModalUntilI1(1, p), new ModalUntilE(1));
+
+        assertEquals(new ModalSuccessor(1), new ModalSuccessor(1));
+        assertEquals(new ModalSuccessor(1).hashCode(), new ModalSuccessor(1).hashCode());
+        assertNotEquals(new ModalSuccessor(1), new ModalSuccessor(2));
+    }
+
+    @Test
+    void aProofStartsInS0ByDefault() {
+        var proof = new ModalNextUntilNaturalDeduction();
+
+        assertEquals("s0", proof.getState0());
+        assertFalse(proof.isDone(), "there is no goal yet");
+    }
+
+    @Test
+    void aNewStateSkipsTheUsedBases() {
+        var proof = proof();
+        assumeRelation(proof, "s0 <= s2");
+
+        assertEquals("s3", proof.newState(), "s2 is used, so the count of bases (2) is skipped");
+        assertEquals("", ModalNextUntilNaturalDeduction.base(null));
+        assertEquals("s 2", ModalNextUntilNaturalDeduction.base("s 2"), "not a state: only equal to itself");
+    }
+
+    @Test
     void thereIsNoSolver() {
-        assertThrows(UnsupportedOperationException.class, () -> proof("p").automate());
+        var proof = proof("p");
+        assertThrows(UnsupportedOperationException.class, proof::automate);
     }
 }

@@ -83,10 +83,13 @@ class ModalNextUntilUseTest {
         var modal = new ModalProofTransformer();
         for (var next : AvailableNextUntilAction.values()) {
             var name = next.descriptor().name();
-            assertThrows(RuntimeException.class, () -> modal.from(action(name, List.of(1, 1), Map.of("expression", "P"))), name);
+            var action = action(name, List.of(1, 1), Map.of("expression", "P"));
+            assertThrows(RuntimeException.class, () -> modal.from(action), name);
         }
         var proof = new ProofDto(List.of(step("X p", "Ass", 0, "s0")), "modal", "p");
-        assertThrows(RuntimeException.class, () -> new LogicalApplyAction<>(modal).perform(action("XE", List.of(1), Map.of()), proof));
+        var apply = new LogicalApplyAction<>(modal);
+        var nextE = action("XE", List.of(1), Map.of());
+        assertThrows(RuntimeException.class, () -> apply.perform(nextE, proof));
     }
 
     @Test

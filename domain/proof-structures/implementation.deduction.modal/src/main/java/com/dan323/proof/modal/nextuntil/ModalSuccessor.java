@@ -32,8 +32,8 @@ public final class ModalSuccessor extends RelationalAction {
             return false;
         }
         try {
-            StateTerm.parse(pf.getSteps().get(line - 1).getState());
-            return true;
+            // s0+2147483647 is a state, but its successor cannot be written.
+            return StateTerm.parse(pf.getSteps().get(line - 1).getState()).hasSuccessor();
         } catch (IllegalArgumentException e) {
             return false;
         }

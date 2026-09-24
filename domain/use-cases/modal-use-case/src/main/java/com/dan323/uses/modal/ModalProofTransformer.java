@@ -25,6 +25,8 @@ import java.util.Map;
  */
 public class ModalProofTransformer implements Transformer<ModalOperation, ProofStepModal, ModalNaturalDeduction, AbstractModalAction> {
 
+    /** The key of a step's or an action's state in {@code extraParameters}. */
+    private static final String STATE = "state";
     private static final List<ActionDescriptorDto> ACTIONS = new ModalGetActions().perform();
 
     @Override
@@ -102,7 +104,7 @@ public class ModalProofTransformer implements Transformer<ModalOperation, ProofS
 
     private ModalOperation initialAssumption(ModalNaturalDeduction nd, StepDto step, int line) {
         var operation = parseExpression(step.expression());
-        if (operation instanceof ModalLogicalOperation && !nd.getState0().equals(initialState(step.extraParameters().get("state"), line))) {
+        if (operation instanceof ModalLogicalOperation && !nd.getState0().equals(initialState(step.extraParameters().get(STATE), line))) {
             throw new InvalidProofException("Line " + line + " is not valid: the assumptions are not in a valid state");
         }
         return operation;
@@ -119,7 +121,7 @@ public class ModalProofTransformer implements Transformer<ModalOperation, ProofS
     private void replay(ModalNaturalDeduction nd, StepDto step, int line) {
         AbstractModalAction action;
         try {
-            action = parseWithReason(nd, parseExpression(step.expression()), parseReason(step.rule()), parseState(step.extraParameters().get("state")));
+            action = parseWithReason(nd, parseExpression(step.expression()), parseReason(step.rule()), parseState(step.extraParameters().get(STATE)));
         } catch (RuntimeException e) {
             throw new InvalidProofException("Line " + line + " is not valid: cannot read '" + step.expression() + "' justified by '" + step.rule() + "'", e);
         }
@@ -131,7 +133,7 @@ public class ModalProofTransformer implements Transformer<ModalOperation, ProofS
 
     public AbstractModalAction from(ActionDto action) {
         var expression = ActionExpression.of(action, actions());
-        return parseAction(action.name(), action.sources(), expression.map(this::parseExpression).orElse(null), parseState(action.extraParameters().get("state")));
+        return parseAction(action.name(), action.sources(), expression.map(this::parseExpression).orElse(null), parseState(action.extraParameters().get(STATE)));
     }
 
     @Override
@@ -140,7 +142,7 @@ public class ModalProofTransformer implements Transformer<ModalOperation, ProofS
         var goal = proof.getGoal().toString();
         var steps = new ArrayList<StepDto>();
         for (var step : proof.getSteps()) {
-            steps.add(new StepDto(step.getStep().toString(), step.getProof().toString(), step.getAssumptionLevel(), step.getState() != null ? Map.of("state", step.getState()) : Map.of()));
+            steps.add(new StepDto(step.getStep().toString(), step.getProof().toString(), step.getAssumptionLevel(), step.getState() != null ? Map.of(STATE, step.getState()) : Map.of()));
         }
         return new ProofDto(steps.stream().toList(), logic, goal);
 

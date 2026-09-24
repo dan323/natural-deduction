@@ -28,6 +28,11 @@ abstract sealed class NextUntilRule implements ModalAction
         this.lines = List.copyOf(lines);
     }
 
+    /** The {@code index}-th (0-based) line the rule is applied to, a 1-based line number. */
+    int line(int index) {
+        return lines.get(index);
+    }
+
     /** What the rule derives, in which state, or empty when it does not apply. Only called on valid lines. */
     abstract Optional<Conclusion> conclusion(ModalNaturalDeduction pf);
 

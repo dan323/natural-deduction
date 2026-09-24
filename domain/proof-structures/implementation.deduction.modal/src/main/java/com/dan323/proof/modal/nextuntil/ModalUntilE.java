@@ -17,16 +17,13 @@ import java.util.Optional;
  */
 public final class ModalUntilE extends NextUntilRule {
 
-    private final int line;
-
     public ModalUntilE(int line) {
         super(ParseModalNextUntilAction.UNTIL_E, List.of(line));
-        this.line = line;
     }
 
     @Override
     Optional<Conclusion> conclusion(ModalNaturalDeduction pf) {
-        return formula(pf, line, Until.class).map(until -> new Conclusion(expansion(until), state(pf, line)));
+        return formula(pf, line(0), Until.class).map(until -> new Conclusion(expansion(until), state(pf, line(0))));
     }
 
     /** @return {@code B | (A & X (A U B))} for {@code A U B} */
