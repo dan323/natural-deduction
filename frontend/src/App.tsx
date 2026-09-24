@@ -8,6 +8,7 @@ import { StepDto, ProofDto } from './types';
 import { LOGIC } from './constant';
 import { loadProofFromText, replayProof, undoLastStep } from './service/actions';
 import { proofToText } from './service/utils';
+import { clearSavedProof, readSavedProof, writeSavedProof } from './service/savedProof';
 
 // The steps counted as the proof's premises: a leading run of `Ass` steps at assumption level 0, the shape
 // `handleNewProofSubmit` creates. The backend treats exactly this prefix as the premises when it replays a proof
@@ -41,6 +42,10 @@ function App() {
   // stale value: an undo response that comes back after a newer proof was started (New Proof can be clicked while
   // an undo is still pending) must not overwrite that newer proof.
   const proofIdRef = useRef(0);
+  // Bumped whenever the user starts getting a new proof ("Try an example", or New Proof opening its dialog or its
+  // confirmation), before that proof is shown. `proofIdRef` only changes once a proof is on screen, so the restore of
+  // the saved proof reads this one too: its answer must not replace a proof the user already asked for.
+  const userStartedRef = useRef(0);
   const [proof, setProof] = useState<ProofDto>({
     steps: [],
     logic: LOGIC,
@@ -65,6 +70,9 @@ function App() {
   // "Try an example": whether its proof is being checked by the backend, and why it could not be started.
   const [isStartingExample, setIsStartingExample] = useState(false);
   const [exampleError, setExampleError] = useState('');
+  // Whether the proof saved before a reload is being replayed by the backend, and why it could not be restored.
+  const [isRestoring, setIsRestoring] = useState(false);
+  const [restoreError, setRestoreError] = useState('');
 
   const onColorChange = useCallback((color: string, line: number) => {
     setColorMapping(colorMapping => {
@@ -87,6 +95,7 @@ function App() {
   // Goes straight to the dialog when there is nothing to lose; otherwise asks first. `opener` is who gets the focus
   // back, from whichever control (the toolbar button, or the Menu's once a proof is done) asked for a new proof.
   const requestNewProof = (opener: HTMLElement | null) => {
+    userStartedRef.current += 1;
     setModalOpener(opener);
     if (proof.steps.length > premiseCount(proof.steps)) {
       setConfirmingNewProof(true);
@@ -130,9 +139,63 @@ function App() {
     setProof(newProof);
     setColorMapping(new Map<number, string>())
     setUndoError('');
+    setRestoreError('');
     proofIdRef.current += 1;
     setProofId(proofIdRef.current);
   };
+
+  // On mount, brings back the proof saved before a reload (see the effect below that saves it). It goes through the
+  // backend's replay like any other proof, so that it is checked again and comes back with its `done` verdict; a proof
+  // the backend rejects as invalid (a 400), or saved text that is not a proof, is forgotten and the empty state says so.
+  // Any other failure (the backend unreachable or failing) says nothing about the proof, so it stays saved for the next
+  // reload to try again. An answer arriving after the user started another proof meanwhile ("Try an example" and New
+  // Proof stay usable) is dropped, and the saved proof is left as it is until that proof replaces it; so is one for an
+  // unmounted App (React mounts twice in development).
+  useEffect(() => {
+    const saved = readSavedProof(LOGIC);
+    if (saved.kind === 'none') return;
+    if (saved.kind === 'corrupt') {
+      clearSavedProof();
+      setRestoreError('The proof saved before the page was reloaded could not be read, so it was discarded.');
+      return;
+    }
+    let active = true;
+    const requestedProofId = proofIdRef.current;
+    const requestedStart = userStartedRef.current;
+    setIsRestoring(true);
+    replayProof(LOGIC, saved.proof, (result) => {
+      if (!active) return;
+      setIsRestoring(false);
+      if (proofIdRef.current !== requestedProofId) return;
+      if (userStartedRef.current !== requestedStart) {
+        // The user asked for another proof while this one was being restored (e.g. opened the New Proof dialog, which
+        // did not ask to discard anything since nothing was on screen yet). Say so in the empty state, in case they
+        // cancel; a proof they start replaces the notice and the saved proof.
+        if (result.proof) {
+          setRestoreError('The proof saved before the page was reloaded was not restored, since a new proof was started meanwhile. It is still saved: reload the page to restore it.');
+        }
+        return;
+      }
+      if (result.proof) {
+        showNewProof(result.proof);
+      } else if (result.status === 400) {
+        clearSavedProof();
+        setRestoreError(`The proof saved before the page was reloaded could not be restored: ${result.message || 'the backend rejected it.'}`);
+      } else {
+        // Not a verdict on the proof (no connection, a server error, a busy server): keep it for the next reload.
+        setRestoreError(`The proof saved before the page was reloaded could not be restored right now (${result.message}). It is still saved: reload the page to try again.`);
+      }
+    });
+    return () => { active = false; };
+    // Only on mount: `showNewProof` only calls state setters and reads refs.
+  }, []);
+
+  // Saves every change of the proof on screen (a new proof, a rule, an undo, a solve), for the effect above to restore
+  // after a reload. The empty state is never saved, so that it cannot overwrite a saved proof that is still being
+  // restored.
+  useEffect(() => {
+    if (proof.goal !== '' || proof.steps.length > 0) writeSavedProof(proof);
+  }, [proof]);
 
   // Has the backend check a proof of only its premises and goal (see `replayProof`, the path Undo uses: it parses the
   // goal and every step), since `checkFormula` is only an instant check that can drift from the backend's parser.
@@ -166,6 +229,7 @@ function App() {
   // dropped.
   const handleTryExample = async () => {
     if (isStartingExample) return;
+    userStartedRef.current += 1;
     setExampleError('');
     setIsStartingExample(true);
     const requestedProofId = proofIdRef.current;
@@ -307,7 +371,12 @@ function App() {
             <Proof proof={proof} coloring={colorMapping} onSelectLine={handleSelectLine} />
           ) : (
             <div className="empty-proof-state">
-              <p role="status">No proof loaded. Click <strong>New Proof</strong> to begin.</p>
+              <p role="status">
+                {isRestoring
+                  ? 'Restoring the proof from before the page was reloaded…'
+                  : <>No proof loaded. Click <strong>New Proof</strong> to begin.</>}
+              </p>
+              {restoreError && <p className="restore-error" role="alert">{restoreError}</p>}
               <h2 className="how-it-works-title">How it works</h2>
               <ol className="how-it-works">
                 <li>Enter the premises and the goal of the proof.</li>

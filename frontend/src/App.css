@@ -105,9 +105,10 @@
 }
 
 /* Undo failure, e.g. a network error; same treatment as Menu's own inline error. "Try an example" refused by the
-   backend looks the same. */
+   backend looks the same, and so does a saved proof that could not be restored after a reload. */
 .undo-error,
-.try-example-error {
+.try-example-error,
+.restore-error {
   margin: 0 24px 12px;
   padding: 8px 12px;
   color: #c0392b;
@@ -215,7 +216,8 @@
   opacity: 0.7;
 }
 
-.try-example-error {
+.try-example-error,
+.restore-error {
   margin: 12px 0 0;
 }
 

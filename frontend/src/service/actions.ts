@@ -81,7 +81,7 @@ export async function applyAction(logic: string, proof: ProofDto, action: Action
         // A 202 is a valid request whose action does not apply; its body is a ProofResponse with success=false.
         result = response.ok
             ? withDone(await response.json())
-            : { success: false, message: await errorMessage(response) };
+            : { success: false, message: await errorMessage(response), status: response.status };
     } catch (err) {
         console.error("Error applying an action:", err);
         result = { success: false, message: 'Network error. Please try again.' };

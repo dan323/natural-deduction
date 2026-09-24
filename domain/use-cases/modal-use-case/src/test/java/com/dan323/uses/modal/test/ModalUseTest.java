@@ -1,5 +1,6 @@
 package com.dan323.uses.modal.test;
 
+import com.dan323.model.ActionCategory;
 import com.dan323.model.ActionDescriptorDto;
 import com.dan323.model.ActionDto;
 import com.dan323.model.ParamKind;
@@ -76,6 +77,95 @@ public class ModalUseTest {
 
             assertNotNull(transformer.from(new ActionDto(descriptor.name(), lines, extra)), descriptor.name());
         }
+    }
+
+    // The rule text each modal step carries (what the backend writes in StepDto.rule, see ParseModalAction.parseWithReason)
+    // and its symbol, which is that text as the frontend's renderRule shows it.
+    private static final Map<String, List<String>> RULE_TEXT_AND_SYMBOL = Map.ofEntries(
+            Map.entry("Ass", List.of("Ass", "Ass")), Map.entry("|I1", List.of("|I", "∨I")),
+            Map.entry("|I2", List.of("|I", "∨I")), Map.entry("|E", List.of("|E", "∨E")),
+            Map.entry("&I", List.of("&I", "∧I")), Map.entry("&E1", List.of("&E", "∧E")),
+            Map.entry("&E2", List.of("&E", "∧E")), Map.entry("Rep", List.of("Rep", "Rep")),
+            Map.entry("-E", List.of("-E", "¬E")), Map.entry("-I", List.of("-I", "¬I")),
+            Map.entry("->I", List.of("->I", "→I")), Map.entry("->E", List.of("->E", "→E")),
+            Map.entry("FE", List.of("FE", "⊥E")), Map.entry("FI", List.of("FI", "⊥I")),
+            Map.entry("[]I", List.of("[]I", "□I")), Map.entry("[]E", List.of("[]E", "□E")),
+            Map.entry("<>I", List.of("<>I", "◇I")), Map.entry("<>E", List.of("<>E", "◇E")),
+            Map.entry("Refl", List.of("Refl", "Refl")), Map.entry("Trans", List.of("Trans", "Trans")));
+
+    // The replacements of the frontend's renderRule (service/utils.ts), in the same order.
+    private static String renderRule(String rule) {
+        return rule.replace("->", "→")
+                .replaceAll("(?<!\\d)-(?!\\d)", "¬")
+                .replace("&", "∧")
+                .replace("|", "∨")
+                .replace("[]", "□")
+                .replace("<>", "◇")
+                .replaceFirst("^F(?=[EI])", "⊥");
+    }
+
+    private static Map<String, ActionDescriptorDto> descriptorsByName() {
+        return new ModalConfiguration().modalActions().perform().stream()
+                .collect(Collectors.toMap(ActionDescriptorDto::name, descriptor -> descriptor));
+    }
+
+    @Test
+    void everyDescriptorIsPresentedToTheUser() {
+        var descriptors = new ModalConfiguration().modalActions().perform();
+
+        for (var descriptor : descriptors) {
+            var name = descriptor.name();
+            assertFalse(descriptor.label() == null || descriptor.label().isBlank(), name);
+            assertFalse(descriptor.symbol() == null || descriptor.symbol().isBlank(), name);
+            assertNotNull(descriptor.category(), name);
+            assertFalse(descriptor.description() == null || descriptor.description().isBlank(), name);
+            assertFalse(descriptor.description().endsWith("."), name + ": the client adds the full stop");
+            assertEquals(descriptor.params().size(), descriptor.paramLabels().size(), name);
+            assertTrue(descriptor.paramLabels().stream().noneMatch(String::isBlank), name);
+        }
+        assertEquals(descriptors.size(), descriptors.stream().map(ActionDescriptorDto::label).distinct().count(), "labels are unique");
+    }
+
+    @Test
+    void descriptorSymbolsAreTheProofRuleTexts() {
+        var descriptors = descriptorsByName();
+
+        assertEquals(RULE_TEXT_AND_SYMBOL.keySet(), descriptors.keySet());
+        RULE_TEXT_AND_SYMBOL.forEach((name, ruleAndSymbol) -> {
+            assertEquals(ruleAndSymbol.get(1), renderRule(ruleAndSymbol.get(0)), name);
+            assertEquals(ruleAndSymbol.get(1), descriptors.get(name).symbol(), name);
+        });
+    }
+
+    @Test
+    void descriptorsGroupIntroductionsAndEliminations() {
+        var descriptors = descriptorsByName();
+
+        for (var name : List.of("Ass", "Rep", "Refl", "Trans")) {
+            assertEquals(ActionCategory.OTHER, descriptors.get(name).category(), name);
+        }
+        for (var name : List.of("|I1", "|I2", "&I", "-I", "->I", "FI", "[]I", "<>I")) {
+            assertEquals(ActionCategory.INTRODUCTION, descriptors.get(name).category(), name);
+        }
+        for (var name : List.of("|E", "&E1", "&E2", "-E", "->E", "FE", "[]E", "<>E")) {
+            assertEquals(ActionCategory.ELIMINATION, descriptors.get(name).category(), name);
+        }
+    }
+
+    @Test
+    void descriptorLabelsFollowTheOrderTheActionsExpectTheirInputs() {
+        var descriptors = descriptorsByName();
+
+        var boxI = descriptors.get("[]I");
+        assertEquals("Box introduction", boxI.label());
+        assertEquals(List.of(), boxI.paramLabels());
+        assertEquals("Diamond elimination", descriptors.get("<>E").label());
+        assertEquals(List.of("Assumption (A or s0 <= s1)", "State of A (e.g. s1)"), descriptors.get("Ass").paramLabels());
+        assertEquals(List.of("Falsum (⊥)", "Formula to derive (A)", "State of A (e.g. s1)"), descriptors.get("FE").paramLabels());
+        assertEquals(List.of("Necessity (□A in state s)", "Relation (s <= t)"), descriptors.get("[]E").paramLabels());
+        assertEquals(List.of("Line with A (in state t)", "Relation (s <= t)"), descriptors.get("<>I").paramLabels());
+        assertEquals(List.of("Relation (s <= t)", "Relation (t <= u)"), descriptors.get("Trans").paramLabels());
+        assertEquals(List.of("Implication (A → B)", "Antecedent (A)"), descriptors.get("->E").paramLabels());
     }
 
     @Test

@@ -101,10 +101,16 @@ public class RestServiceIT {
         assertEquals(List.of(ParamKind.EXPRESSION, ParamKind.STATE), byName.get("Ass"));
         assertEquals(List.of(ParamKind.INT, ParamKind.INT), byName.get("[]E"));
         for (var action : response.getBody()) {
-            assertNull(action.label(), action.name());
-            assertNull(action.category(), action.name());
-            assertEquals(List.of(), action.paramLabels(), action.name());
+            assertFalse(action.label().isBlank(), action.name());
+            assertFalse(action.symbol().isBlank(), action.name());
+            assertFalse(action.description().isBlank(), action.name());
+            assertNotNull(action.category(), action.name());
+            assertEquals(action.params().size(), action.paramLabels().size(), action.name());
         }
+        var boxE = Arrays.stream(response.getBody()).filter(action -> action.name().equals("[]E")).findFirst().orElseThrow();
+        assertEquals("Box elimination", boxE.label());
+        assertEquals("□E", boxE.symbol());
+        assertEquals(List.of("Necessity (□A in state s)", "Relation (s <= t)"), boxE.paramLabels());
     }
 
     @Test
