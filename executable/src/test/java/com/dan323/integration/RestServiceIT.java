@@ -8,6 +8,8 @@ import com.dan323.main.Application;
 import com.dan323.main.ApplicationConfiguration;
 import com.dan323.model.ActionDescriptorDto;
 import com.dan323.model.ActionDto;
+import com.dan323.model.Difficulty;
+import com.dan323.model.ExerciseDto;
 import com.dan323.model.ParamKind;
 import com.dan323.model.ProofDto;
 import com.dan323.model.StepDto;
@@ -257,6 +259,28 @@ public class RestServiceIT {
         assertEquals(expected, response.getStatusCode());
         assertNotNull(response.getBody());
         assertFalse(response.getBody().message().isBlank());
+    }
+
+    @Test
+    public void exercisesAreListedWithoutSolutions() {
+        var response = restTemplate.getForEntity(createURLWithPort("/logic/classical/exercises"), ExerciseDto[].class);
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        var exercises = Objects.requireNonNull(response.getBody());
+        assertTrue(exercises.length >= 12, "about a dozen classical exercises");
+        assertEquals(new ExerciseDto("modus-ponens", "Modus ponens", List.of("p", "p -> q"), "q", Difficulty.EASY), exercises[0]);
+
+        var raw = restTemplate.getForObject(createURLWithPort("/logic/classical/exercises"), String.class);
+        assertFalse(raw.contains("solution"), raw);
+        assertFalse(raw.contains("->E"), raw);
+
+        var modal = restTemplate.getForEntity(createURLWithPort("/logic/modal/exercises"), ExerciseDto[].class);
+        assertEquals(HttpStatus.OK, modal.getStatusCode());
+        assertEquals(0, Objects.requireNonNull(modal.getBody()).length);
+
+        var unknown = restTemplate.exchange(createURLWithPort("/logic/nope/exercises"), HttpMethod.GET,
+                new HttpEntity<>(null, headers), ErrorResponse.class);
+        assertError(HttpStatus.NOT_FOUND, unknown);
+        assertEquals("Unknown logic 'nope'", unknown.getBody().message());
     }
 
     @Test

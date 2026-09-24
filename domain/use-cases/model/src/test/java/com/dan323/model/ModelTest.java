@@ -111,4 +111,24 @@ public class ModelTest {
                 () -> new ActionDescriptorDto("DT", null, null, null, null, null, labels));
     }
 
+    @Test
+    void exerciseDtoCopiesItsPremises() {
+        var premises = new ArrayList<>(List.of("p", "p -> q"));
+        var exercise = new ExerciseDto("modus-ponens", "Modus ponens", premises, "q", Difficulty.EASY);
+        premises.add("changed afterwards");
+
+        assertEquals("modus-ponens", exercise.id());
+        assertEquals("Modus ponens", exercise.title());
+        assertEquals(List.of("p", "p -> q"), exercise.premises());
+        assertEquals("q", exercise.goal());
+        assertEquals(Difficulty.EASY, exercise.difficulty());
+        assertEquals(List.of(), new ExerciseDto("identity", "Identity", null, "p -> p", Difficulty.EASY).premises());
+    }
+
+    @Test
+    void difficultiesGoFromEasyToHard() {
+        assertEquals(List.of(Difficulty.EASY, Difficulty.MEDIUM, Difficulty.HARD), List.of(Difficulty.values()));
+        assertEquals(Difficulty.HARD, Difficulty.valueOf("HARD"));
+    }
+
 }

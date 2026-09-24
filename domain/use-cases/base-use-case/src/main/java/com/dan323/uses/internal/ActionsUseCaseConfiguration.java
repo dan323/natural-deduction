@@ -8,6 +8,9 @@ import org.springframework.context.annotation.Configuration;
 import java.time.Duration;
 import java.util.List;
 import java.util.Map;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -25,7 +28,8 @@ public class ActionsUseCaseConfiguration {
     // per logic name; each logic module's own tests check that its pieces fit together.
     @Bean
     @SuppressWarnings({"rawtypes", "unchecked"})
-    public ActionsUseCases useCases(List<LogicalGetActions> getActions, List<Transformer> transformers, List<ProofParser> parsers) {
+    public ActionsUseCases useCases(List<LogicalGetActions> getActions, List<Transformer> transformers, List<ProofParser> parsers,
+                                    List<LogicalExercises> exercises) {
 
         Map<String, Transformer> transformerMap = transformers.stream()
                 .collect(Collectors.toMap(Transformer::logic, Function.identity()));
@@ -37,6 +41,26 @@ public class ActionsUseCaseConfiguration {
                 .collect(Collectors.toMap(Map.Entry::getKey, entry -> new LogicalSolver(entry.getValue(), solveTimeout)));
         Map<String, ActionsUseCases.ParseProof> parserMap = parsers.stream()
                 .collect(Collectors.toMap(ProofParser::logic, parser -> (ActionsUseCases.ParseProof) proof -> transformerMap.get(parser.logic()).fromProof(parser.parseProof(proof))));
+
+        // A logic without a catalog has no exercises, but it is still a known logic (not a 404).
+        Set<String> knownLogics = new HashSet<>(transformerMap.keySet());
+        knownLogics.addAll(actionGetters.keySet());
+        knownLogics.addAll(parserMap.keySet());
+        // A catalog only makes sense for a logic the other use cases serve; otherwise its exercises would be listed
+        // for a logic whose actions, proofs and solver all answer 404.
+        exercises.stream()
+                .map(LogicalExercises::logic)
+                .filter(logic -> !knownLogics.contains(logic))
+                .findFirst()
+                .ifPresent(logic -> {
+                    throw new IllegalStateException("Exercise catalog for unknown logic '" + logic + "'");
+                });
+        Map<String, ActionsUseCases.GetExercises> exerciseMap = new HashMap<>(exercises.stream()
+                .collect(Collectors.toMap(LogicalExercises::logic, catalog -> {
+                    var dtos = catalog.exercises().stream().map(Exercise::toDto).toList();
+                    return (ActionsUseCases.GetExercises) () -> dtos;
+                })));
+        knownLogics.forEach(logic -> exerciseMap.putIfAbsent(logic, List::of));
 
         return new ActionsUseCases() {
 
@@ -58,6 +82,11 @@ public class ActionsUseCaseConfiguration {
             @Override
             public ParseProof parseToProof(String logic) {
                 return lookup(parserMap, logic);
+            }
+
+            @Override
+            public GetExercises getExercises(String logicName) {
+                return lookup(exerciseMap, logicName);
             }
         };
     }
