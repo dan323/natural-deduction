@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>ModalLogicParser.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">jacoco-report-aggregate</a> &gt; <a href="../index.html" class="el_bundle">implementation.modal</a> &gt; <a href="index.source.html" class="el_package">com.dan323.expressions</a> &gt; <span class="el_source">ModalLogicParser.java</span></div><h1>ModalLogicParser.java</h1><pre class="source lang-java linenums">package com.dan323.expressions;
+
+import com.dan323.expressions.modal.*;
+import com.dan323.expressions.relation.Equals;
+import com.dan323.expressions.relation.LessEqual;
+import com.fathzer.soft.javaluator.*;
+
+import java.util.Iterator;
+import java.util.List;
+
+public class ModalLogicParser extends AbstractEvaluator&lt;ModalOperation&gt; {
+
+    // Precedences go in steps of 10 (only their order matters) so that an extension can put an operator in between.
+
+<span class="fc" id="L15">    private static final Operator AND = new Operator(&quot;&amp;&quot;, 2, Operator.Associativity.LEFT, 10);</span>
+<span class="fc" id="L16">    private static final Operator OR = new Operator(&quot;|&quot;, 2, Operator.Associativity.LEFT, 20);</span>
+<span class="fc" id="L17">    private static final Operator IMP = new Operator(&quot;-&gt;&quot;, 2, Operator.Associativity.LEFT, 30);</span>
+<span class="fc" id="L18">    private static final Operator NEG = new Operator(&quot;-&quot;, 1, Operator.Associativity.LEFT, 40);</span>
+<span class="fc" id="L19">    private static final Operator ALW = new Operator(&quot;[]&quot;, 1, Operator.Associativity.LEFT, 50);</span>
+<span class="fc" id="L20">    private static final Operator SOM = new Operator(&quot;&lt;&gt;&quot;, 1, Operator.Associativity.LEFT, 60);</span>
+<span class="fc" id="L21">    private static final Operator LES = new Operator(&quot;&lt;=&quot;, 2, Operator.Associativity.LEFT, 70);</span>
+<span class="fc" id="L22">    private static final Operator EQU = new Operator(&quot;=&quot;, 2, Operator.Associativity.LEFT, 80);</span>
+
+    public ModalLogicParser() {
+<span class="fc" id="L25">        this(List.of());</span>
+<span class="fc" id="L26">    }</span>
+
+    /**
+     * A parser for a language that extends this one: it also reads {@code extraOperators}, which a subclass builds in
+     * its own {@link #evaluate(Operator, Iterator, Object)} before falling back to this one.
+     *
+     * @param extraOperators the operators that the subclass adds
+     */
+    protected ModalLogicParser(List&lt;Operator&gt; extraOperators) {
+<span class="fc" id="L35">        super(buildParams(extraOperators));</span>
+<span class="fc" id="L36">    }</span>
+
+    private static Parameters buildParams(List&lt;Operator&gt; extraOperators) {
+<span class="fc" id="L39">        Parameters parameters = new Parameters();</span>
+<span class="fc" id="L40">        parameters.add(new Constant(&quot;FALSE&quot;));</span>
+<span class="fc" id="L41">        parameters.add(new Constant(&quot;TRUE&quot;));</span>
+<span class="fc" id="L42">        parameters.addOperators(List.of(AND, OR, IMP, NEG, ALW, SOM, LES, EQU));</span>
+<span class="fc" id="L43">        parameters.addOperators(extraOperators);</span>
+<span class="fc" id="L44">        parameters.addExpressionBracket(BracketPair.PARENTHESES);</span>
+<span class="fc" id="L45">        return parameters;</span>
+    }
+
+    @Override
+    protected ModalOperation evaluate(Constant constant, Object evaluationContext) {
+<span class="fc bfc" id="L50" title="All 2 branches covered.">        return &quot;FALSE&quot;.equals(constant.getName()) ? ConstantModal.FALSE : ConstantModal.TRUE;</span>
+    }
+
+    @Override
+    protected ModalOperation evaluate(Operator operator, Iterator&lt;ModalOperation&gt; operands, Object evaluationContext) {
+<span class="pc bpc" id="L55" title="1 of 9 branches missed.">        return switch (operator.getSymbol()) {</span>
+<span class="fc" id="L56">            case &quot;&amp;&quot; -&gt; new ConjunctionModal(operands.next(), operands.next());</span>
+<span class="fc" id="L57">            case &quot;|&quot; -&gt; new DisjunctionModal((ModalLogicalOperation) operands.next(), (ModalLogicalOperation) operands.next());</span>
+<span class="fc" id="L58">            case &quot;-&gt;&quot; -&gt; new ImplicationModal((ModalLogicalOperation) operands.next(), (ModalLogicalOperation) operands.next());</span>
+<span class="fc" id="L59">            case &quot;-&quot; -&gt; new NegationModal((ModalLogicalOperation) operands.next());</span>
+<span class="fc" id="L60">            case &quot;[]&quot; -&gt; new Always((ModalLogicalOperation) operands.next());</span>
+<span class="fc" id="L61">            case &quot;&lt;&gt;&quot; -&gt; new Sometime((ModalLogicalOperation) operands.next());</span>
+<span class="fc" id="L62">            case &quot;&lt;=&quot; -&gt; new LessEqual(operands.next().toString(), operands.next().toString());</span>
+<span class="fc" id="L63">            case &quot;=&quot; -&gt; new Equals(operands.next().toString(), operands.next().toString());</span>
+<span class="nc" id="L64">            default -&gt; throw new IllegalArgumentException(&quot;Invalid operator&quot;);</span>
+        };
+    }
+
+    @Override
+    protected ModalLogicalOperation toValue(String s, Object o) {
+<span class="fc" id="L70">        return new VariableModal(s.trim());</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>
