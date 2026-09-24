@@ -1513,6 +1513,27 @@ describe('App', () => {
       expect(screen.getByRole('button', { name: 'Exercises' })).toHaveFocus();
     });
 
+    test('a confirmation left by an exercise start does not replace a proof started after it', async () => {
+      const user = await applyRuleWhileExerciseStarts();
+      expect(await screen.findByRole('button', { name: 'Discard and start new' })).toBeInTheDocument();
+      // Undo brings the proof back to its premises, so New Proof opens the dialog without asking.
+      await user.click(screen.getByRole('button', { name: 'Undo last step' }));
+      await waitFor(() => expect(screen.getAllByRole('row')).toHaveLength(2));
+
+      // By hand rather than with `startProof`, which would click the stale confirmation.
+      await user.click(screen.getByRole('button', { name: /Start a new proof/i }));
+      expect(await screen.findByRole('dialog')).toBeInTheDocument();
+      await user.type(screen.getByPlaceholderText('Premise 1'), 'R');
+      await user.type(screen.getByPlaceholderText('Enter the goal expression'), 'R');
+      await user.click(screen.getByText('Start Proof'));
+      await dialogClosed();
+
+      // The exercise's confirmation went away with the proof it was about; the new proof stays.
+      expect(screen.queryByRole('button', { name: 'Discard and start new' })).not.toBeInTheDocument();
+      expect(currentExercise()).not.toBeInTheDocument();
+      expect(screen.getByText('GOAL:').parentElement).toHaveTextContent('R');
+    });
+
     test('finishing an exercise marks it solved, in text, and that survives a remount', async () => {
       mockExerciseBackend();
       const user = userEvent.setup();

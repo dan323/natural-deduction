@@ -138,6 +138,8 @@ function App() {
     if (proof.steps.length > premiseCount(proof.steps)) {
       setPendingDiscard(() => proceed);
     } else {
+      // A confirmation still shown for an earlier request (e.g. an exercise start queued it) is superseded by this one.
+      setPendingDiscard(null);
       proceed();
     }
   };
@@ -189,6 +191,8 @@ function App() {
     setUndoError('');
     setRestoreError('');
     setExerciseStartError('');
+    // Whatever a confirmation still on screen would go on to do was asked for about the previous proof.
+    setPendingDiscard(null);
     proofIdRef.current += 1;
     setProofId(proofIdRef.current);
   };
@@ -354,7 +358,10 @@ function App() {
       setIsExercisesOpen(true);
       return;
     }
+    // Also run later, from the confirmation below: by then another proof may have been shown, or asked for, and that
+    // one must not be replaced without asking about it.
     const show = () => {
+      if (proofIdRef.current !== requestedProofId || userStartedRef.current !== requestedStart) return;
       showNewProof(checked.proof, exercise.id);
       setIsExercisesOpen(false);
       // The list, and the Menu button that may have started this, go away: hand the focus to a control that stays.
