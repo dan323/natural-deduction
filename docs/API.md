@@ -21,9 +21,13 @@ order, the inputs the action needs.
    "description": "From A and B, derive A ∧ B", "paramLabels": ["Line with A", "Line with B"]},
   {"name": "MP", "params": ["INT", "INT"], "label": "Modus ponens", "symbol": "→E", "category": "ELIMINATION",
    "description": "From A → B and A, derive B", "paramLabels": ["Implication (A → B)", "Antecedent (A)"]},
-  {"name": "Rep", "params": ["INT"], "label": null, "symbol": null, "category": null, "description": null, "paramLabels": []}
+  {"name": "[]E", "params": ["INT", "INT"], "label": "Box elimination", "symbol": "□E", "category": "ELIMINATION",
+   "description": "From □A in state s and s <= t, derive A in state t",
+   "paramLabels": ["Necessity (□A in state s)", "Relation (s <= t)"]}
 ]
 ```
+
+The first two are from `/logic/classical/actions`, the last from `/logic/modal/actions`.
 
 | Param kind   | Meaning                                | Where it goes in `POST /logic/{logic}/action` |
 |--------------|----------------------------------------|-----------------------------------------------|
@@ -45,7 +49,11 @@ sends `null` (`[]` for `paramLabels`), and a client falls back to `name` and to 
 The order of the `INT` params matters: `MP` needs the implication first and the antecedent second.
 
 Classical logic has 14 actions (the `AvailableAction` names). Modal logic has 20; their names are the rule names of
-the modal proof format (`Ass`, `|I1`, `->E`, `[]E`, `Refl`, ...). The list is built once at startup.
+the modal proof format (`Ass`, `|I1`, `->E`, `[]E`, `Refl`, ...). Both logics fill every presentation field for every
+action. The modal `symbol`s follow the same rule, e.g. `□I` for a step `[]I [2-4]`, and `Refl`/`Trans` for the
+relation rules (category `OTHER`). Modal descriptions write the reachability of states as it is typed, `s <= t`, and
+the `STATE` params of `Ass` and `FE` are labelled `State of A (e.g. s1)`; an `Ass` of a relation formula such as
+`s0 <= s1` ignores its state. The list is built once at startup.
 
 > **Breaking change:** this endpoint used to return strings such as `"ANDI([int, int])"`.
 
