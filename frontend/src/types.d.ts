@@ -25,6 +25,9 @@ export type ApplyActionResponse = {
     // Whether the goal is proved, as decided by the backend. Also set on `proof.done`.
     done?: boolean,
     message: string,
+    // The HTTP status of an error answer (not 2xx); absent when the backend answered, and when it could not be reached.
+    // 400 is the only one that says the proof or the action itself is invalid.
+    status?: number,
 }
 
 // The kind of input an action needs; the names are those of the backend's ParamKind.

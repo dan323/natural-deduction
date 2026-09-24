@@ -67,7 +67,7 @@ describe('service/actions', () => {
 
       await applyAction('classical', proof, action, consumer);
 
-      expect(consumer).toHaveBeenCalledWith({ success: false, message: 'Something went wrong' });
+      expect(consumer).toHaveBeenCalledWith({ success: false, message: 'Something went wrong', status: 500 });
     });
 
     test('an error without a JSON body falls back to the status', async () => {
@@ -76,7 +76,7 @@ describe('service/actions', () => {
 
       await applyAction('classical', proof, action, consumer);
 
-      expect(consumer).toHaveBeenCalledWith({ success: false, message: 'Request failed with status 502.' });
+      expect(consumer).toHaveBeenCalledWith({ success: false, message: 'Request failed with status 502.', status: 502 });
     });
 
     test('a network failure reports a network error', async () => {
