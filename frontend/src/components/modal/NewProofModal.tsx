@@ -66,6 +66,9 @@ const NewProofModal: FC<NewProofModalProps> = ({ isOpen, opener: openerProp, onC
   const [isLoading, setIsLoading] = useState(false);
   // Start Proof: why the backend refused the premises and the goal, and whether a request is in flight.
   const [submitError, setSubmitError] = useState<string | null>(null);
+  // While a request is in flight the premises and the goal are frozen: App shows the proof as soon as the check passes,
+  // so an edit made meanwhile would be silently dropped (or a refusal would describe text no longer shown). The fields
+  // are read-only rather than disabled, so that one keeps the focus.
   const [isSubmitting, setIsSubmitting] = useState(false);
   const submitRef = useRef<HTMLButtonElement>(null);
   const proofTextRef = useRef<HTMLTextAreaElement>(null);
@@ -238,6 +241,7 @@ const NewProofModal: FC<NewProofModalProps> = ({ isOpen, opener: openerProp, onC
                     type="text"
                     value={premise.text}
                     onChange={(e) => handlePremiseChange(index, e.target.value)}
+                    readOnly={isSubmitting}
                     placeholder={`Premise ${index + 1}`}
                     aria-invalid={premise.error ? true : undefined}
                     aria-describedby={describedBy(!!premise.error && `premise-${index}-error`)}
@@ -246,6 +250,7 @@ const NewProofModal: FC<NewProofModalProps> = ({ isOpen, opener: openerProp, onC
                     <button
                       className="remove-premise-btn"
                       onClick={() => handleRemovePremise(index)}
+                      disabled={isSubmitting}
                       aria-label={`Remove premise ${index + 1}`}
                       title="Remove"
                     >
@@ -257,13 +262,14 @@ const NewProofModal: FC<NewProofModalProps> = ({ isOpen, opener: openerProp, onC
                   getInput={() => premiseRefs.current[index]}
                   onInsert={(text) => handlePremiseChange(index, text)}
                   target={`Premise ${index + 1}`}
+                  disabled={isSubmitting}
                 />
                 {premise.error && (
                   <p id={`premise-${index}-error`} className="modal-error" role="alert">{premise.error}</p>
                 )}
               </Fragment>
             ))}
-            <button className="add-premise-btn" onClick={handleAddPremise}>
+            <button className="add-premise-btn" onClick={handleAddPremise} disabled={isSubmitting}>
               + Add Premise
             </button>
           </div>
@@ -275,12 +281,13 @@ const NewProofModal: FC<NewProofModalProps> = ({ isOpen, opener: openerProp, onC
             type="text"
             value={goal}
             onChange={(e) => handleGoalChange(e.target.value)}
+            readOnly={isSubmitting}
             placeholder="Enter the goal expression"
             required
             aria-invalid={goalError ? true : undefined}
             aria-describedby={describedBy(!!goalError && 'modal-goal-error')}
           />
-          <ConnectiveButtons getInput={() => goalRef.current} onInsert={handleGoalChange} target="Goal" />
+          <ConnectiveButtons getInput={() => goalRef.current} onInsert={handleGoalChange} target="Goal" disabled={isSubmitting} />
           {goalError && <p id="modal-goal-error" className="modal-error" role="alert">{goalError}</p>}
 
           {onLoadText && (

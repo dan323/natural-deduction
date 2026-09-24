@@ -351,6 +351,38 @@ describe('NewProofModal validation', () => {
     expect(onClose).toHaveBeenCalledTimes(1);
   });
 
+  test('the premises and the goal cannot be edited while the caller checks them', async () => {
+    const { onSubmit, user } = await setup();
+    let answer: (error: string | null) => void = () => {};
+    onSubmit.mockReturnValue(new Promise<string | null>((resolve) => { answer = resolve; }));
+    await user.type(screen.getByLabelText('Premise 1'), 'P');
+    await user.click(screen.getByRole('button', { name: '+ Add Premise' }));
+    await user.type(screen.getByLabelText('Goal:'), 'P');
+
+    await user.click(startButton());
+
+    const premise = screen.getByLabelText('Premise 1');
+    const goal = screen.getByLabelText('Goal:');
+    expect(premise).toHaveAttribute('readonly');
+    expect(goal).toHaveAttribute('readonly');
+    await user.type(premise, ' & Q');
+    await user.type(goal, ' | Q');
+    expect(premise).toHaveValue('P');
+    expect(goal).toHaveValue('P');
+    expect(screen.getByRole('button', { name: '+ Add Premise' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Remove premise 1' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Insert and (&) in Goal' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Insert and (&) in Premise 1' })).toBeDisabled();
+
+    // A refusal describes exactly the text still shown, and the fields can be edited again.
+    await act(async () => answer('The proof could not be read, check its expressions and rules'));
+    expect(screen.getByRole('alert')).toHaveTextContent('The proof could not be read');
+    expect(goal).not.toHaveAttribute('readonly');
+    await user.type(goal, ' | Q');
+    expect(goal).toHaveValue('P | Q');
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+  });
+
   test('an answer arriving after the modal was closed neither closes it again nor shows an error', async () => {
     let answer: (error: string | null) => void = () => {};
     const onSubmit = jest.fn().mockReturnValue(new Promise<string | null>((resolve) => { answer = resolve; }));
