@@ -161,6 +161,7 @@ describe('Glowing input', () => {
                 label="Enter line number:"
                 glowColor="#ffcc00"
                 shouldGlow={false}
+                isExpression
                 onColorChange={jest.fn()}
                 onInput={jest.fn()}
                 index={0}

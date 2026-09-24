@@ -1,0 +1,38 @@
+/* Buttons that insert a connective into an expression input */
+.connective-buttons {
+    display: flex;
+    gap: 6px;
+    margin: 6px 0 0;
+}
+
+.connective-btn {
+    min-width: 32px;
+    height: 30px;
+    padding: 0 8px;
+    font-size: 1.05rem;
+    line-height: 1;
+    border: 1px solid #0056b3;
+    background-color: #fff;
+    color: #0056b3;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.2s, color 0.2s;
+}
+
+.connective-btn:hover:not(:disabled) {
+    background-color: #0056b3;
+    color: #fff;
+}
+
+.connective-btn:disabled {
+    border-color: #999;
+    color: #595959;
+    cursor: not-allowed;
+}
+
+/* Which syntax an expression input accepts */
+.syntax-hint {
+    color: #595959;
+    font-size: 0.9rem;
+    margin: 4px 0 0;
+}

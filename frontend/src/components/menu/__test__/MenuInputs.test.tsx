@@ -179,6 +179,22 @@ describe('Menu inputs', () => {
         );
     });
 
+    test('only the expression input gets the formula syntax help, not the state input', async () => {
+        const user = userEvent.setup();
+        setupActions([{ name: 'Ass', params: ['EXPRESSION', 'STATE'] }]);
+
+        await select(user, 'Ass');
+        const expression = screen.getByLabelText(/Expression:/i);
+        const state = screen.getByLabelText(/State:/i);
+
+        expect(expression).toHaveAttribute('placeholder', 'p -> q');
+        expect(expression).toHaveAccessibleDescription(/Syntax:/);
+        expect(state).not.toHaveAttribute('placeholder');
+        expect(state).not.toHaveAttribute('aria-describedby');
+        expect(screen.getAllByText(/^Syntax:/)).toHaveLength(1);
+        expect(screen.getAllByRole('button', { name: 'Insert and (&)' })).toHaveLength(1);
+    });
+
     test('line numbers skip over the other kinds of input', async () => {
         const user = userEvent.setup();
         setupActions([{ name: 'MIX', params: ['INT', 'EXPRESSION', 'INT'] }]);

@@ -12,11 +12,57 @@ exports[`Glowing input matches snapshot when shouldGlow is false 1`] = `
       Enter line number:
     </label>
     <input
+      aria-describedby="glowing-input-0-hint"
       class="input-field "
       id="glowing-input-0"
+      placeholder="p -> q"
       type="text"
       value=""
     />
+    <p
+      class="syntax-hint"
+      id="glowing-input-0-hint"
+    >
+      Syntax: -&gt; implies, & and, | or, - not
+    </p>
+    <div
+      aria-label="Connectives"
+      class="connective-buttons"
+      role="group"
+    >
+      <button
+        aria-label="Insert implies (->)"
+        class="connective-btn"
+        title="Insert implies (->)"
+        type="button"
+      >
+        →
+      </button>
+      <button
+        aria-label="Insert and (&)"
+        class="connective-btn"
+        title="Insert and (&)"
+        type="button"
+      >
+        ∧
+      </button>
+      <button
+        aria-label="Insert or (|)"
+        class="connective-btn"
+        title="Insert or (|)"
+        type="button"
+      >
+        ∨
+      </button>
+      <button
+        aria-label="Insert not (-)"
+        class="connective-btn"
+        title="Insert not (-)"
+        type="button"
+      >
+        ¬
+      </button>
+    </div>
   </div>
 </DocumentFragment>
 `;
