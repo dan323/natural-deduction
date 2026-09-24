@@ -42,6 +42,10 @@ function App() {
   // stale value: an undo response that comes back after a newer proof was started (New Proof can be clicked while
   // an undo is still pending) must not overwrite that newer proof.
   const proofIdRef = useRef(0);
+  // Bumped whenever the user starts getting a new proof ("Try an example", or New Proof opening its dialog or its
+  // confirmation), before that proof is shown. `proofIdRef` only changes once a proof is on screen, so the restore of
+  // the saved proof reads this one too: its answer must not replace a proof the user already asked for.
+  const userStartedRef = useRef(0);
   const [proof, setProof] = useState<ProofDto>({
     steps: [],
     logic: LOGIC,
@@ -91,6 +95,7 @@ function App() {
   // Goes straight to the dialog when there is nothing to lose; otherwise asks first. `opener` is who gets the focus
   // back, from whichever control (the toolbar button, or the Menu's once a proof is done) asked for a new proof.
   const requestNewProof = (opener: HTMLElement | null) => {
+    userStartedRef.current += 1;
     setModalOpener(opener);
     if (proof.steps.length > premiseCount(proof.steps)) {
       setConfirmingNewProof(true);
@@ -143,9 +148,9 @@ function App() {
   // backend's replay like any other proof, so that it is checked again and comes back with its `done` verdict; a proof
   // the backend rejects as invalid (a 400), or saved text that is not a proof, is forgotten and the empty state says so.
   // Any other failure (the backend unreachable or failing) says nothing about the proof, so it stays saved for the next
-  // reload to try again. An answer arriving
-  // after another proof was started meanwhile ("Try an example" stays usable) is dropped, as is one for an unmounted App
-  // (React mounts twice in development).
+  // reload to try again. An answer arriving after the user started another proof meanwhile ("Try an example" and New
+  // Proof stay usable) is dropped, and the saved proof is left as it is until that proof replaces it; so is one for an
+  // unmounted App (React mounts twice in development).
   useEffect(() => {
     const saved = readSavedProof(LOGIC);
     if (saved.kind === 'none') return;
@@ -156,11 +161,21 @@ function App() {
     }
     let active = true;
     const requestedProofId = proofIdRef.current;
+    const requestedStart = userStartedRef.current;
     setIsRestoring(true);
     replayProof(LOGIC, saved.proof, (result) => {
       if (!active) return;
       setIsRestoring(false);
       if (proofIdRef.current !== requestedProofId) return;
+      if (userStartedRef.current !== requestedStart) {
+        // The user asked for another proof while this one was being restored (e.g. opened the New Proof dialog, which
+        // did not ask to discard anything since nothing was on screen yet). Say so in the empty state, in case they
+        // cancel; a proof they start replaces the notice and the saved proof.
+        if (result.proof) {
+          setRestoreError('The proof saved before the page was reloaded was not restored, since a new proof was started meanwhile. It is still saved: reload the page to restore it.');
+        }
+        return;
+      }
       if (result.proof) {
         showNewProof(result.proof);
       } else if (result.status === 400) {
@@ -214,6 +229,7 @@ function App() {
   // dropped.
   const handleTryExample = async () => {
     if (isStartingExample) return;
+    userStartedRef.current += 1;
     setExampleError('');
     setIsStartingExample(true);
     const requestedProofId = proofIdRef.current;

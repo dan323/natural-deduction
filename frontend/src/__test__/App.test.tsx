@@ -1049,5 +1049,84 @@ describe('App', () => {
       expect(savedProof()).toEqual(example);
       expect(screen.queryByText('Proof complete.')).not.toBeInTheDocument();
     });
+
+    // A backend whose replay of the saved proof (goal P) waits for `answerRestore`, and whose other replays (the
+    // example's, or a new proof's) wait for `answerOthers` when `holdOthers` is set.
+    const slowRestoreBackend = (holdOthers: boolean) => {
+      const answers = { answerRestore: () => {}, answerOthers: () => {} };
+      fetchMock.mockImplementation(async (url: string, init?: RequestInit) => {
+        if (url.endsWith('/actions')) return jsonResponse(200, [REP]);
+        if (JSON.parse(String(init!.body)).proofDto.goal === repProof.goal) {
+          return new Promise<Response>((resolve) => { answers.answerRestore = () => resolve(replayAnswer(init, true)); });
+        }
+        if (!holdOthers) return replayAnswer(init);
+        return new Promise<Response>((resolve) => { answers.answerOthers = () => resolve(replayAnswer(init)); });
+      });
+      return answers;
+    };
+    const flush = () => act(async () => {
+      await new Promise((resolve) => setTimeout(resolve, 0));
+      await new Promise((resolve) => setTimeout(resolve, 0));
+    });
+
+    test('"Try an example" still wins when the restore answers before the example does', async () => {
+      window.sessionStorage.setItem(SAVED_PROOF_KEY, JSON.stringify(repProof));
+      const answers = slowRestoreBackend(true);
+      const user = userEvent.setup();
+      render(<App />);
+      await waitFor(() => expect(replayRequests()).toHaveLength(1));
+
+      await user.click(screen.getByRole('button', { name: 'Try an example' }));
+      await waitFor(() => expect(replayRequests()).toHaveLength(2));
+      await act(async () => answers.answerRestore());
+      await flush();
+      expect(screen.queryByRole('row')).not.toBeInTheDocument();
+
+      await act(async () => answers.answerOthers());
+      await waitFor(() => expect(screen.getAllByRole('row')).toHaveLength(3));
+      expect(savedProof().goal).toBe('q');
+      expect(screen.queryByText('Proof complete.')).not.toBeInTheDocument();
+    });
+
+    test('a restore answering while the New Proof dialog is open does not replace the proof started from it', async () => {
+      window.sessionStorage.setItem(SAVED_PROOF_KEY, JSON.stringify(repProof));
+      const answers = slowRestoreBackend(false);
+      const user = userEvent.setup();
+      render(<App />);
+      await waitFor(() => expect(replayRequests()).toHaveLength(1));
+
+      await user.click(screen.getByRole('button', { name: /Start a new proof/i }));
+      expect(screen.getByRole('dialog')).toBeInTheDocument();
+      await act(async () => answers.answerRestore());
+      await flush();
+      expect(screen.queryByRole('row')).not.toBeInTheDocument();
+
+      await user.type(screen.getByPlaceholderText('Premise 1'), 'Q');
+      await user.type(screen.getByPlaceholderText('Enter the goal expression'), 'Q');
+      await user.click(screen.getByText('Start Proof'));
+      await dialogClosed();
+      await waitFor(() => expect(screen.getAllByRole('row')).toHaveLength(2));
+      expect(savedProof().goal).toBe('Q');
+      expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+    });
+
+    test('a restore answering while the New Proof dialog is open is not shown after Cancel, and stays saved', async () => {
+      window.sessionStorage.setItem(SAVED_PROOF_KEY, JSON.stringify(repProof));
+      const answers = slowRestoreBackend(false);
+      const user = userEvent.setup();
+      render(<App />);
+      await waitFor(() => expect(replayRequests()).toHaveLength(1));
+
+      await user.click(screen.getByRole('button', { name: /Start a new proof/i }));
+      await act(async () => answers.answerRestore());
+      await flush();
+      await user.click(screen.getByRole('button', { name: 'Cancel' }));
+      await dialogClosed();
+
+      expect(screen.queryByRole('row')).not.toBeInTheDocument();
+      expect(screen.getByText(/No proof loaded/)).toBeInTheDocument();
+      expect(screen.getByRole('alert')).toHaveTextContent('It is still saved: reload the page to restore it.');
+      expect(savedProof()).toEqual(repProof);
+    });
   });
 });
