@@ -2,6 +2,7 @@ import { FC, Fragment, useState, useEffect, useLayoutEffect, useRef } from 'reac
 import { checkFormula } from '../../service/utils';
 import ConnectiveButtons from '../input/ConnectiveButtons';
 import { SYNTAX_HINT } from '../input/connectives';
+import { DEFAULT_LOGIC, LOGICS, logicInfo } from '../../constant';
 import './NewProofModal.css';
 
 type NewProofModalProps = {
@@ -10,14 +11,16 @@ type NewProofModalProps = {
   // inert; when it is left out the element that has the focus as the dialog opens is used.
   opener?: HTMLElement | null;
   onClose: () => void;
-  // Starts a proof from the premises and the goal, once they pass `checkFormula`. Resolves to null once the proof is
+  // The logic the dialog's selector starts at, each time it opens: the one of the proof on screen.
+  logic?: string;
+  // Starts a proof of the chosen logic from the premises and the goal, once they pass `checkFormula`. Resolves to null once the proof is
   // shown, or to the reason it could not be started (the backend has the last word on what is a formula), which the
   // dialog shows while it stays open.
-  onSubmit: (premises: string[], goal: string) => Promise<string | null>;
-  // Loads a finished proof from its text (the layout "Copy proof as text" writes; the last line is its goal). Resolves
+  onSubmit: (premises: string[], goal: string, logic: string) => Promise<string | null>;
+  // Loads a finished proof of the chosen logic from its text (the layout "Copy proof as text" writes; the last line is its goal). Resolves
   // to null once the proof is loaded, or to the reason it could not be (the backend rejects an unfinished or invalid
   // proof). The dialog only offers loading from text when this is given.
-  onLoadText?: (text: string) => Promise<string | null>;
+  onLoadText?: (text: string, logic: string) => Promise<string | null>;
 };
 
 // A premise row. The id is what identifies the row for React, so that its error follows it when another row is removed.
@@ -47,12 +50,14 @@ function trapTab(event: KeyboardEvent, dialog: HTMLElement) {
   }
 }
 
-const NewProofModal: FC<NewProofModalProps> = ({ isOpen, opener: openerProp, onClose, onSubmit, onLoadText }) => {
+const NewProofModal: FC<NewProofModalProps> = ({ isOpen, opener: openerProp, onClose, logic: initialLogic = DEFAULT_LOGIC, onSubmit, onLoadText }) => {
   const nextPremiseId = useRef(0);
   const newPremise = (): Premise => ({ id: nextPremiseId.current++, text: '', error: null });
   const [premises, setPremises] = useState<Premise[]>(() => [newPremise()]);
   const [goal, setGoal] = useState('');
   const [goalError, setGoalError] = useState<string | null>(null);
+  // The logic of the proof to start or load.
+  const [logic, setLogic] = useState(initialLogic);
   const premiseRefs = useRef<Array<HTMLInputElement | null>>([]);
   const goalRef = useRef<HTMLInputElement>(null);
   const dialogRef = useRef<HTMLDivElement>(null);
@@ -77,9 +82,12 @@ const NewProofModal: FC<NewProofModalProps> = ({ isOpen, opener: openerProp, onC
   // (by closing the dialog, maybe opening it again since) neither closes the dialog nor touches its state.
   const loadAttempt = useRef(0);
 
-  // A dialog that was closed opens empty the next time.
+  // A dialog that was closed opens empty the next time, in the logic of the proof on screen.
   useEffect(() => {
-    if (isOpen) return;
+    if (isOpen) {
+      setLogic(initialLogic);
+      return;
+    }
     loadAttempt.current++;
     setPremises([newPremise()]);
     setGoal('');
@@ -89,6 +97,7 @@ const NewProofModal: FC<NewProofModalProps> = ({ isOpen, opener: openerProp, onC
     setIsLoading(false);
     setSubmitError(null);
     setIsSubmitting(false);
+    // Only when the dialog opens or closes: a change of `initialLogic` while it is open must not undo the user's choice.
   }, [isOpen]);
 
   useEffect(() => {
@@ -152,6 +161,13 @@ const NewProofModal: FC<NewProofModalProps> = ({ isOpen, opener: openerProp, onC
     setSubmitError(null);
   };
 
+  // The backend's refusal was about the other logic, so it no longer applies.
+  const handleLogicChange = (value: string) => {
+    setLogic(value);
+    setSubmitError(null);
+    setLoadError(null);
+  };
+
   const handleSubmit = async () => {
     if (isSubmitting || isLoading) return;
     // A blank premise is just an unused row and is left out; everything else has to look like a formula.
@@ -170,7 +186,7 @@ const NewProofModal: FC<NewProofModalProps> = ({ isOpen, opener: openerProp, onC
     const attempt = ++loadAttempt.current;
     setIsSubmitting(true);
     setSubmitError(null);
-    const error = await onSubmit(premises.map((premise) => premise.text.trim()).filter((text) => text !== ''), goal.trim());
+    const error = await onSubmit(premises.map((premise) => premise.text.trim()).filter((text) => text !== ''), goal.trim(), logic);
     if (loadAttempt.current !== attempt) return;
     setIsSubmitting(false);
     if (error === null) {
@@ -187,7 +203,7 @@ const NewProofModal: FC<NewProofModalProps> = ({ isOpen, opener: openerProp, onC
     const attempt = ++loadAttempt.current;
     setIsLoading(true);
     setLoadError(null);
-    const error = await onLoadText(proofText);
+    const error = await onLoadText(proofText, logic);
     if (loadAttempt.current !== attempt) return;
     setIsLoading(false);
     if (error === null) {
@@ -212,6 +228,18 @@ const NewProofModal: FC<NewProofModalProps> = ({ isOpen, opener: openerProp, onC
       <div className="modal-content">
         <h2 id="new-proof-modal-title">New Proof</h2>
         <div className="modal-body">
+          <label htmlFor="modal-logic" className="modal-section-label">Logic:</label>
+          <select
+            id="modal-logic"
+            className="modal-logic-select"
+            value={logic}
+            onChange={(e) => handleLogicChange(e.target.value)}
+            disabled={isSubmitting || isLoading}
+            aria-describedby="modal-logic-desc"
+          >
+            {LOGICS.map((info) => <option key={info.id} value={info.id}>{info.name}</option>)}
+          </select>
+          <p id="modal-logic-desc" className="modal-logic-desc">{logicInfo(logic)?.description}</p>
           <p id={SYNTAX_HINT_ID} className="syntax-hint modal-syntax-hint">Syntax: {SYNTAX_HINT}</p>
           <div role="group" aria-labelledby="new-proof-premises-label">
             <span id="new-proof-premises-label" className="modal-section-label">Premises:</span>
@@ -278,8 +306,8 @@ const NewProofModal: FC<NewProofModalProps> = ({ isOpen, opener: openerProp, onC
             <section className="load-text-section" aria-labelledby="load-text-title">
               <h3 id="load-text-title" className="modal-section-label">Or load a proof from text</h3>
               <label htmlFor="modal-proof-text" className="modal-field-label">
-                Proof text (a finished proof, as written by Copy proof as text, one step per line; its last line is the
-                goal):
+                Proof text (a finished proof of the logic chosen above, as written by Copy proof as text, one step per line;
+                its last line is the goal):
               </label>
               <textarea
                 id="modal-proof-text"

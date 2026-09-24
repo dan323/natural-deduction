@@ -24,8 +24,10 @@ The UI needs the backend, so run both:
 
 ## Logics
 
-The UI is hardcoded to classical logic (`LOGIC` in `src/constant.ts`); there is no logic selector. Modal logic is
-backend-only: its `/actions` and `/solve` endpoints work, but the UI does not render modal states or relation steps.
+The UI offers classical and intuitionistic logic (`LOGICS` in `src/constant.ts`). The logic is picked in the New Proof
+dialog, or on the empty page for "Try an example" and the exercises, and is named next to the goal. Intuitionistic logic
+has no ¬E rule and no solver, so the Menu does not offer Solve for it. Modal logic is backend-only: its `/actions` and
+`/solve` endpoints work, but the UI does not render modal states or relation steps.
 
 The rule menu is built from `GET /logic/{logic}/actions`, which lists each action with the kinds of input it takes
 (`INT`, `EXPRESSION`, `STATE`), and the Solve button calls `POST /logic/{logic}/solve`; see `docs/API.md`.

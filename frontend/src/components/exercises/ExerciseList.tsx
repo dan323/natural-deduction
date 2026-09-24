@@ -1,11 +1,14 @@
 import { FC } from 'react';
 import './ExerciseList.css';
 import { Difficulty, Exercise } from '../../types';
+import { logicName } from '../../constant';
 
 // What the list shows: the exercises while they are being fetched, once they are in, or why they could not be fetched.
 export type ExercisesState = { kind: 'loading' } | { kind: 'loaded', exercises: Exercise[] } | { kind: 'error', message: string };
 
 type ExerciseListProps = {
+    // The logic the exercises are for: the one of the proof on screen (or picked on the empty page).
+    logic: string;
     state: ExercisesState;
     // The ids of the exercises the user has solved, for this logic.
     solved: Set<string>;
@@ -28,7 +31,7 @@ const difficultyTitles: Record<Difficulty, string> = {
 const difficulties = Object.keys(difficultyTitles) as Difficulty[];
 
 // The exercises of the logic, grouped by difficulty. A solved exercise says so in text ("Solved"), not by colour alone.
-const ExerciseList: FC<ExerciseListProps> = ({ state, solved, currentId, startingId, startError, onStart, onClose }) => {
+const ExerciseList: FC<ExerciseListProps> = ({ logic, state, solved, currentId, startingId, startError, onStart, onClose }) => {
     const renderBody = () => {
         if (state.kind === 'loading') return <p role="status">Loading the exercises…</p>;
         if (state.kind === 'error') {
@@ -81,6 +84,7 @@ const ExerciseList: FC<ExerciseListProps> = ({ state, solved, currentId, startin
                 <h2 id="exercises-title" className="exercises-title" tabIndex={-1}>Exercises</h2>
                 <button className="exercises-close-btn" onClick={onClose}>Close exercises</button>
             </div>
+            <p className="exercises-logic">In {logicName(logic)}. To see the exercises of another logic, start a new proof in it.</p>
             {startError && <p className="exercises-error" role="alert">{startError}</p>}
             {renderBody()}
         </section>

@@ -183,6 +183,29 @@
   font-size: 1.1rem;
 }
 
+/* The logic picked on the empty page */
+.empty-logic {
+  margin: 16px 0 0;
+}
+
+.empty-logic-label {
+  margin-right: 8px;
+  font-weight: bold;
+  color: #333;
+}
+
+.empty-logic select {
+  padding: 6px 8px;
+  font-size: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.empty-logic-desc {
+  margin: 8px 0 0;
+  font-size: 0.95rem;
+}
+
 .how-it-works-title {
   margin: 24px 0 8px;
   font-size: 1.1rem;

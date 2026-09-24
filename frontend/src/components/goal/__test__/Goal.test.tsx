@@ -21,6 +21,14 @@ describe('Goal Component', () => {
     expect(getByText(expression)).toBeInTheDocument();
   });
 
+  test('names the logic next to the goal, when it is given', () => {
+    const { getByText, queryByText, rerender } = render(<Goal expression={expression} success={false} />);
+    expect(queryByText(/logic/)).not.toBeInTheDocument();
+
+    rerender(<Goal expression={expression} success={false} logic="intuitionistic" />);
+    expect(getByText('in Intuitionistic logic')).toBeInTheDocument();
+  });
+
   test('applies the correct class and style when success is true', () => {
     const { getByText } = render(<Goal expression={expression} success={true} />);
     

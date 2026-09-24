@@ -183,7 +183,7 @@ To add a new logical system:
    rule, a parser of rule names, an automatic solver)
 3. Add a use-case module exposing the `Transformer`, `ProofParser` and `LogicalGetActions` beans and a `*Configuration`
 4. Import that configuration in `executable/.../ApplicationConfiguration` (no new controller is needed)
-5. Extend the frontend if it should use the new logic (`LOGIC` in `constant.ts`)
+5. Extend the frontend if it should use the new logic (add it to `LOGICS` in `constant.ts`)
 
 See [Development Guide](./DEVELOPMENT.md) for detailed instructions.
 

@@ -1688,4 +1688,177 @@ describe('App', () => {
       expect(JSON.parse(window.sessionStorage.getItem('natural-deduction.proof')!).exerciseId).toBeUndefined();
     });
   });
+
+  describe('picking the logic', () => {
+    const NOTE: ActionDescriptor = { name: 'NOTE', params: ['INT'], label: 'Double negation elimination', symbol: '¬E' };
+    const EXERCISES: Record<string, Exercise[]> = {
+      classical: [
+        { id: 'first', title: 'First', premises: ['P'], goal: 'P', difficulty: 'EASY' },
+        { id: 'double-negation-elimination', title: 'Double negation elimination', premises: ['- (- P)'], goal: 'P', difficulty: 'MEDIUM' },
+      ],
+      intuitionistic: [
+        { id: 'first', title: 'First', premises: ['P'], goal: 'P', difficulty: 'EASY' },
+      ],
+    };
+    // The logic of a request, from its URL `/logic/{logic}/...`.
+    const logicOf = (url: unknown) => String(url).split('/')[2];
+    const requestsTo = (logic: string, resource: string) =>
+      fetchMock.mock.calls.filter(([url]) => String(url) === `/logic/${logic}/${resource}`);
+
+    // Classical logic has NOTE (¬E), intuitionistic logic does not; every other request is answered as for any logic.
+    const mockLogicsBackend = () => {
+      fetchMock.mockImplementation(async (url: string, init?: RequestInit) => {
+        const logic = logicOf(url);
+        if (url.endsWith('/actions')) return jsonResponse(200, logic === 'classical' ? [REP, NOTE] : [REP]);
+        if (url.endsWith('/exercises')) return jsonResponse(200, EXERCISES[logic] ?? []);
+        if (url.endsWith('/action') && isReplay(init)) return replayAnswer(init);
+        if (url.endsWith('/proof')) return jsonResponse(201, { ...repProof, logic, done: true });
+        return jsonResponse(200, { proof: { ...repProof, logic }, success: true, done: true, message: '' });
+      });
+    };
+
+    // Opens the New Proof dialog, picks the logic and starts the proof `premise` |- `goal`.
+    const startProofIn = async (user: ReturnType<typeof userEvent.setup>, logic: string, premise: string, goal: string) => {
+      await user.click(screen.getByRole('button', { name: /Start a new proof/i }));
+      const confirm = screen.queryByRole('button', { name: 'Discard and start new' });
+      if (confirm) await user.click(confirm);
+      await waitFor(() => expect(screen.getByPlaceholderText('Premise 1')).toHaveFocus());
+      await user.selectOptions(dialogLogic(), logic);
+      await user.type(screen.getByPlaceholderText('Premise 1'), premise);
+      await user.type(screen.getByPlaceholderText('Enter the goal expression'), goal);
+      await user.click(screen.getByText('Start Proof'));
+      await dialogClosed();
+    };
+
+    // The logic selector of the New Proof dialog (the empty page has one too, behind the dialog).
+    const dialogLogic = () => within(screen.getByRole('dialog')).getByLabelText('Logic:');
+    const ruleOptions = () => within(screen.getByLabelText(/Select Inference Rule:/i)).getAllByRole('option').map((option) => option.textContent);
+
+    beforeEach(() => {
+      clearExercisesCache();
+      window.localStorage.clear();
+    });
+
+    test('an intuitionistic proof fetches its own rules, has no ¬E and no Solve, and names its logic next to the goal', async () => {
+      mockLogicsBackend();
+      const user = userEvent.setup();
+      render(<App />);
+
+      await startProofIn(user, 'intuitionistic', '- (- P)', 'P');
+
+      await waitFor(() => expect(ruleOptions()).toEqual(['-- Choose a rule --', 'Rep']));
+      expect(requestsTo('intuitionistic', 'actions')).toHaveLength(1);
+      expect(JSON.parse(String(replayRequests()[0][1]!.body)).proofDto.logic).toBe('intuitionistic');
+      expect(replayRequests()[0][0]).toBe('/logic/intuitionistic/action');
+      expect(screen.getByText('in Intuitionistic logic')).toBeInTheDocument();
+      expect(screen.queryByRole('button', { name: 'Solve' })).not.toBeInTheDocument();
+      expect(screen.getByText('Intuitionistic logic has no automatic solver.')).toBeInTheDocument();
+
+      await user.selectOptions(screen.getByLabelText(/Select Inference Rule:/i), 'Rep');
+      await user.type(screen.getByLabelText(/Line number:/i), '1');
+      await user.click(applyButton());
+      await waitFor(() => expect(ruleRequests()).toHaveLength(1));
+      expect(ruleRequests()[0][0]).toBe('/logic/intuitionistic/action');
+    });
+
+    test('switching the logic resets the Menu to the rules of the new logic', async () => {
+      mockLogicsBackend();
+      const user = userEvent.setup();
+      render(<App />);
+      await startProofIn(user, 'classical', '- (- P)', 'P');
+      await waitFor(() => expect(ruleOptions()).toContain('Double negation elimination (¬E)'));
+      await user.selectOptions(screen.getByLabelText(/Select Inference Rule:/i), 'NOTE');
+      expect(screen.getByRole('button', { name: 'Solve' })).toBeInTheDocument();
+      expect(screen.getByText('in Classical logic')).toBeInTheDocument();
+
+      // The dialog starts at the logic of the proof on screen.
+      await user.click(screen.getByRole('button', { name: /Start a new proof/i }));
+      expect(dialogLogic()).toHaveValue('classical');
+      await user.click(screen.getByRole('button', { name: 'Cancel' }));
+      await startProofIn(user, 'intuitionistic', '- (- P)', 'P');
+
+      await waitFor(() => expect(ruleOptions()).toEqual(['-- Choose a rule --', 'Rep']));
+      expect(screen.getByLabelText(/Select Inference Rule:/i)).toHaveValue('');
+      expect(screen.queryByLabelText(/Line number:/i)).not.toBeInTheDocument();
+      expect(screen.getByText('in Intuitionistic logic')).toBeInTheDocument();
+    });
+
+    test('a restored proof keeps its logic', async () => {
+      const saved = { ...repProof, logic: 'intuitionistic' };
+      window.sessionStorage.setItem('natural-deduction.proof', JSON.stringify(saved));
+      mockLogicsBackend();
+      render(<App />);
+
+      await waitFor(() => expect(screen.getAllByRole('row')).toHaveLength(3));
+      expect(replayRequests()[0][0]).toBe('/logic/intuitionistic/action');
+      expect(JSON.parse(String(replayRequests()[0][1]!.body)).proofDto).toEqual(saved);
+      expect(screen.getByText('in Intuitionistic logic')).toBeInTheDocument();
+      await waitFor(() => expect(requestsTo('intuitionistic', 'actions')).toHaveLength(1));
+      expect(JSON.parse(window.sessionStorage.getItem('natural-deduction.proof')!).logic).toBe('intuitionistic');
+      expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+    });
+
+    test('the empty page picks the logic of the example, and of the New Proof dialog', async () => {
+      mockLogicsBackend();
+      const user = userEvent.setup();
+      render(<App />);
+      const picker = screen.getByLabelText('Logic:');
+      expect(picker).toHaveValue('classical');
+
+      await user.selectOptions(picker, 'intuitionistic');
+      expect(picker).toHaveAccessibleDescription(expect.stringContaining('without double negation elimination'));
+      await user.click(screen.getByRole('button', { name: /Start a new proof/i }));
+      expect(dialogLogic()).toHaveValue('intuitionistic');
+      await user.click(screen.getByRole('button', { name: 'Cancel' }));
+
+      await user.click(screen.getByRole('button', { name: 'Try an example' }));
+
+      await waitFor(() => expect(screen.getByText('in Intuitionistic logic')).toBeInTheDocument());
+      expect(replayRequests()[0][0]).toBe('/logic/intuitionistic/action');
+      expect(JSON.parse(String(replayRequests()[0][1]!.body)).proofDto.logic).toBe('intuitionistic');
+    });
+
+    test('"Load from text" loads the text as a proof of the logic picked in the dialog', async () => {
+      mockLogicsBackend();
+      const user = userEvent.setup();
+      render(<App />);
+      await user.click(screen.getByRole('button', { name: /Start a new proof/i }));
+      await user.selectOptions(dialogLogic(), 'intuitionistic');
+      await user.type(screen.getByLabelText(/Proof text/), 'P           Ass');
+      await user.click(screen.getByRole('button', { name: 'Load proof' }));
+      await dialogClosed();
+
+      expect(fetchMock).toHaveBeenCalledWith('/logic/intuitionistic/proof', expect.anything());
+      expect(screen.getByText('in Intuitionistic logic')).toBeInTheDocument();
+    });
+
+    test('the exercise list follows the logic, and so do the solved exercises', async () => {
+      mockLogicsBackend();
+      const user = userEvent.setup();
+      render(<App />);
+      await user.selectOptions(screen.getByLabelText('Logic:'), 'intuitionistic');
+      await user.click(screen.getByRole('button', { name: 'Browse exercises' }));
+
+      expect(await screen.findByText('Solved 0 of 1.')).toBeInTheDocument();
+      expect(screen.getByText(/In Intuitionistic logic\./)).toBeInTheDocument();
+      expect(requestsTo('intuitionistic', 'exercises')).toHaveLength(1);
+      expect(requestsTo('classical', 'exercises')).toHaveLength(0);
+
+      await user.click(screen.getByRole('button', { name: 'Start exercise First' }));
+      await waitFor(() => expect(document.querySelector('.current-exercise')).toHaveTextContent('Exercise: First'));
+      expect(replayRequests()[0][0]).toBe('/logic/intuitionistic/action');
+      await user.selectOptions(await screen.findByLabelText(/Select Inference Rule:/i), 'Rep');
+      await user.type(screen.getByLabelText(/Line number:/i), '1');
+      await user.click(applyButton());
+      await waitFor(() => expect(screen.getByText('Proof complete.')).toBeInTheDocument());
+      expect(JSON.parse(window.localStorage.getItem('natural-deduction.solved-exercises')!)).toEqual({ intuitionistic: ['first'] });
+
+      // The same exercise in classical logic is not solved yet, and the list is the classical one.
+      await startProofIn(user, 'classical', 'P', 'P');
+      await user.click(screen.getByRole('button', { name: 'Exercises' }));
+      expect(await screen.findByText('Solved 0 of 2.')).toBeInTheDocument();
+      expect(screen.getByText(/In Classical logic\./)).toBeInTheDocument();
+      expect(screen.getByText('Double negation elimination', { selector: '.exercise-title' })).toBeInTheDocument();
+    });
+  });
 });

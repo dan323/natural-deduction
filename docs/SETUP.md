@@ -151,7 +151,7 @@ The one application-specific property:
 ### Frontend Configuration
 
 Main configuration files:
-- `frontend/src/constant.ts` - the logic the UI uses (`LOGIC`)
+- `frontend/src/constant.ts` - the logics the UI offers (`LOGICS`)
 - `frontend/tsconfig.json` - TypeScript configuration
 - `frontend/jest.config.ts` - Jest testing configuration
 
@@ -169,10 +169,14 @@ server: {
 },
 ```
 
-The only frontend constant that controls behaviour is the logic type in `frontend/src/constant.ts`:
+The only frontend constant that controls behaviour is the list of logics in `frontend/src/constant.ts`, which the
+logic selectors offer (the first one is the default):
 
 ```typescript
-export const LOGIC: string = "classical"
+export const LOGICS: readonly LogicInfo[] = [
+    { id: 'classical', name: 'Classical', description: '...', hasSolver: true },
+    { id: 'intuitionistic', name: 'Intuitionistic', description: '...', hasSolver: false },
+];
 ```
 
 ## Running Tests

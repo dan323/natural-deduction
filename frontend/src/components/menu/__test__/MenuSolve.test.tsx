@@ -137,4 +137,19 @@ describe('Menu solve button', () => {
         expect(screen.queryByRole('status')).not.toBeInTheDocument();
         expect(screen.getByRole('alert')).toHaveTextContent('Line 9 does not exist');
     });
+
+    test('is not offered for a logic without a solver, which says so instead', () => {
+        render(<Menu {...props} logic="intuitionistic" proof={{ ...proof, logic: 'intuitionistic' }} />);
+
+        expect(screen.queryByRole('button', { name: /Solve/i })).not.toBeInTheDocument();
+        expect(screen.getByText('Intuitionistic logic has no automatic solver.')).toBeInTheDocument();
+        expect(screen.getByRole('button', { name: /Apply Rule/i })).toBeInTheDocument();
+    });
+
+    test('is offered for classical logic', () => {
+        render(<Menu {...props} logic="classical" proof={{ ...proof, logic: 'classical' }} />);
+
+        expect(screen.getByRole('button', { name: /Solve/i })).toBeInTheDocument();
+        expect(screen.queryByText(/has no automatic solver/)).not.toBeInTheDocument();
+    });
 });

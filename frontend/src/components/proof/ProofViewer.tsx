@@ -96,7 +96,7 @@ export const ProofViewer: FC<ProofViewerProps> = ({ proof, coloring, onSelectLin
         </table>
       </div>
       <hr className="proof-divider" />
-      <Goal expression={proof.goal} success={proof.done === true} />
+      <Goal expression={proof.goal} success={proof.done === true} logic={proof.logic} />
     </div>
   );
 };

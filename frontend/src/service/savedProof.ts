@@ -1,7 +1,8 @@
 import { ProofDto, StepDto } from "../types";
+import { isSupportedLogic } from "../constant";
 
 // The proof on screen is kept in `sessionStorage` under this key, so that a reload of the page (in the same tab) finds
-// it again. Only its steps and goal are kept: whether it is done is the backend's verdict, asked for again on restore.
+// it again. Only its steps, logic and goal are kept: whether it is done is the backend's verdict, asked for again on restore.
 // When the proof was started from an exercise, the exercise's id is kept with it, so that the restored proof still counts
 // for that exercise.
 export const SAVED_PROOF_KEY = 'natural-deduction.proof';
@@ -19,9 +20,9 @@ function isStep(value: unknown): value is StepDto {
         && Object.values(step.extraParameters).every((parameter) => typeof parameter === 'string');
 }
 
-// Reads the saved proof of the given logic. Storage that cannot be used (blocked, private mode) counts as nothing saved;
-// text that is not JSON, or JSON that is not a proof of that logic, is corrupt.
-export function readSavedProof(logic: string): SavedProof {
+// Reads the saved proof, which keeps its own logic. Storage that cannot be used (blocked, private mode) counts as nothing
+// saved; text that is not JSON, or JSON that is not a proof of a logic the UI offers, is corrupt.
+export function readSavedProof(): SavedProof {
     let text: string | null;
     try {
         text = window.sessionStorage.getItem(SAVED_PROOF_KEY);
@@ -37,7 +38,8 @@ export function readSavedProof(logic: string): SavedProof {
     }
     if (typeof value !== 'object' || value === null) return { kind: 'corrupt' };
     const saved = value as Record<string, unknown>;
-    if (saved.logic !== logic || typeof saved.goal !== 'string' || saved.goal === ''
+    const logic = saved.logic;
+    if (!isSupportedLogic(logic) || typeof saved.goal !== 'string' || saved.goal === ''
         || !Array.isArray(saved.steps) || !saved.steps.every(isStep)) {
         return { kind: 'corrupt' };
     }
