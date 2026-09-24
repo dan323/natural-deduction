@@ -3,6 +3,7 @@ package com.dan323.controller;
 import com.dan323.rest.model.ErrorResponse;
 import com.dan323.uses.InvalidActionException;
 import com.dan323.uses.InvalidProofException;
+import com.dan323.uses.NoSolverException;
 import com.dan323.uses.SolveTimeoutException;
 import com.dan323.uses.SolverBusyException;
 import com.dan323.uses.UnknownLogicException;
@@ -20,7 +21,8 @@ import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 /**
- * Turns every failure into an {@link ErrorResponse}: 404 for an unknown logic, 400 for bad input, 422 when the solver
+ * Turns every failure into an {@link ErrorResponse}: 404 for an unknown logic, 400 for bad input (and
+ * for a solve in a logic without a solver), 422 when the solver
  * runs out of time, 429 when it is busy and a generic 500 (logged) for anything unexpected. Spring's own request errors (malformed JSON, missing file part, ...) keep their
  * status but get the same body.
  */
@@ -35,7 +37,7 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
         return error(HttpStatus.NOT_FOUND, e.getMessage());
     }
 
-    @ExceptionHandler({InvalidProofException.class, InvalidActionException.class})
+    @ExceptionHandler({InvalidProofException.class, InvalidActionException.class, NoSolverException.class})
     public ResponseEntity<ErrorResponse> handleInvalidInput(IllegalArgumentException e) {
         return error(HttpStatus.BAD_REQUEST, e.getMessage());
     }

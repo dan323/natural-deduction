@@ -38,7 +38,7 @@ public class ActionsUseCaseConfiguration {
         Map<String, ActionsUseCases.ApplyAction> appliers = transformerMap.entrySet().stream()
                 .collect(Collectors.toMap(Map.Entry::getKey, entry -> new LogicalApplyAction(entry.getValue())));
         Map<String, ActionsUseCases.Solve> solvers = transformerMap.entrySet().stream()
-                .collect(Collectors.toMap(Map.Entry::getKey, entry -> new LogicalSolver(entry.getValue(), solveTimeout)));
+                .collect(Collectors.toMap(Map.Entry::getKey, entry -> solver(entry.getKey(), entry.getValue())));
         Map<String, ActionsUseCases.ParseProof> parserMap = parsers.stream()
                 .collect(Collectors.toMap(ProofParser::logic, parser -> (ActionsUseCases.ParseProof) proof -> transformerMap.get(parser.logic()).fromProof(parser.parseProof(proof))));
 
@@ -89,6 +89,16 @@ public class ActionsUseCaseConfiguration {
                 return lookup(exerciseMap, logicName);
             }
         };
+    }
+
+    @SuppressWarnings({"rawtypes", "unchecked"})
+    private ActionsUseCases.Solve solver(String logic, Transformer transformer) {
+        if (!transformer.hasSolver()) {
+            return proof -> {
+                throw new NoSolverException(logic);
+            };
+        }
+        return new LogicalSolver(transformer, solveTimeout);
     }
 
     private static <V> V lookup(Map<String, V> map, String logic) {
