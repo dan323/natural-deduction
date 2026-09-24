@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from '@testing-library/react';
+import { act, cleanup, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import App from '../App';
 import { clearActionsCache } from '../service/actions';
@@ -17,6 +17,8 @@ describe('App', () => {
     fetchMock.mockReset();
     clearActionsCache();
     (global as any).fetch = fetchMock;
+    // The proof on screen is saved in sessionStorage, which jsdom keeps from one test to the next.
+    window.sessionStorage.clear();
   });
 
   const actionRequests = () => fetchMock.mock.calls.filter(([url]) => String(url).endsWith('/actions'));
@@ -862,6 +864,159 @@ describe('App', () => {
 
       expect(await screen.findByText(/clipboard is not available/)).toBeInTheDocument();
       expect(screen.getByLabelText('Proof as text')).toHaveValue('   P           Ass\nP -> P           ->I [1-1]');
+    });
+  });
+
+  describe('keeping the proof across a page reload', () => {
+    const SAVED_PROOF_KEY = 'natural-deduction.proof';
+    const savedProof = () => JSON.parse(window.sessionStorage.getItem(SAVED_PROOF_KEY) ?? 'null');
+    // Starts a proof with one premise on a page that is already rendered.
+    const startProofOnPage = (premise: string, goal: string) => startProof(userEvent.setup(), premise, goal);
+
+    test('reloading mid-proof shows the same proof with the same done state, checked again by the backend', async () => {
+      mockBackend([REP], 200, { proof: repProof, success: true, done: true, message: '' });
+      const user = await startWithRep();
+      await user.type(screen.getByLabelText(/Line number:/i), '1');
+      await user.click(applyButton());
+      await waitFor(() => expect(screen.getAllByRole('row')).toHaveLength(3));
+      expect(screen.getByRole('status')).toHaveTextContent('Proof complete.');
+      // Only the steps and the goal are saved; `done` is asked for again.
+      expect(savedProof()).toEqual(repProof);
+
+      // A reload: the page starts from nothing but the saved proof.
+      cleanup();
+      fetchMock.mockClear();
+      mockBackend([REP], 200, {}, true);
+      render(<App />);
+
+      await waitFor(() => expect(screen.getAllByRole('row')).toHaveLength(3));
+      expect(screen.getByRole('status')).toHaveTextContent('Proof complete.');
+      expect(replayRequests()).toHaveLength(1);
+      expect(JSON.parse(replayRequests()[0][1].body)).toEqual({
+        actionDto: { name: 'COPY', sources: [3], extraParameters: {} },
+        proofDto: repProof,
+      });
+      expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+    });
+
+    test('an unfinished saved proof comes back unfinished, and the page says it is being restored meanwhile', async () => {
+      const unfinished = { steps: [{ expression: 'P', rule: 'Ass', assmsLevel: 0, extraParameters: {} }], logic: 'classical', goal: 'Q' };
+      window.sessionStorage.setItem(SAVED_PROOF_KEY, JSON.stringify(unfinished));
+      let answer: () => void = () => {};
+      fetchMock.mockImplementation(async (url: string, init?: RequestInit) => url.endsWith('/actions')
+        ? jsonResponse(200, [REP])
+        : new Promise<Response>((resolve) => { answer = () => resolve(replayAnswer(init, true)); }));
+      render(<App />);
+
+      expect(screen.getByRole('status')).toHaveTextContent('Restoring the proof from before the page was reloaded');
+      await waitFor(() => expect(replayRequests()).toHaveLength(1));
+      await act(async () => answer());
+
+      await waitFor(() => expect(screen.getAllByRole('row')).toHaveLength(2));
+      expect(screen.queryByText('Proof complete.')).not.toBeInTheDocument();
+      expect(savedProof()).toEqual(unfinished);
+    });
+
+    test.each([
+      ['text that is not JSON', '{"steps": ['],
+      ['JSON that is not a proof', JSON.stringify({ steps: 'P', logic: 'classical', goal: 'P' })],
+      ['a step without a rule', JSON.stringify({ steps: [{ expression: 'P', assmsLevel: 0, extraParameters: {} }], logic: 'classical', goal: 'P' })],
+      ['a proof of another logic', JSON.stringify({ ...repProof, logic: 'modal' })],
+    ])('a corrupt saved proof (%s) is discarded and the empty state says so', async (_, text) => {
+      window.sessionStorage.setItem(SAVED_PROOF_KEY, text);
+      mockBackend([REP], 200, {});
+      render(<App />);
+
+      expect(await screen.findByRole('alert')).toHaveTextContent('could not be read, so it was discarded');
+      expect(screen.getByText(/No proof loaded/)).toBeInTheDocument();
+      expect(window.sessionStorage.getItem(SAVED_PROOF_KEY)).toBeNull();
+      expect(applyRequests()).toHaveLength(0);
+    });
+
+    test('a saved proof the backend rejects is discarded and the empty state gives the reason', async () => {
+      window.sessionStorage.setItem(SAVED_PROOF_KEY, JSON.stringify(repProof));
+      fetchMock.mockImplementation(async (url: string) => url.endsWith('/actions')
+        ? jsonResponse(200, [REP])
+        : jsonResponse(400, { message: 'The proof could not be read, check its expressions and rules' }));
+      render(<App />);
+
+      expect(await screen.findByRole('alert')).toHaveTextContent(
+        'could not be restored: The proof could not be read, check its expressions and rules');
+      expect(screen.getByText(/No proof loaded/)).toBeInTheDocument();
+      expect(screen.queryByRole('row')).not.toBeInTheDocument();
+      expect(window.sessionStorage.getItem(SAVED_PROOF_KEY)).toBeNull();
+
+      // The notice goes away with the next proof.
+      mockBackend([REP], 200, {});
+      await startProofOnPage('P', 'P');
+      expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+    });
+
+    test('a storage that throws is ignored: nothing is restored, and proofs still work', async () => {
+      const blocked = () => { throw new DOMException('The operation is insecure.', 'SecurityError'); };
+      const spies = [
+        jest.spyOn(Storage.prototype, 'getItem').mockImplementation(blocked),
+        jest.spyOn(Storage.prototype, 'setItem').mockImplementation(blocked),
+        jest.spyOn(Storage.prototype, 'removeItem').mockImplementation(blocked),
+      ];
+      try {
+        mockBackend([REP], 200, {});
+        render(<App />);
+
+        expect(screen.getByText(/No proof loaded/)).toBeInTheDocument();
+        await startProofOnPage('P', 'Q');
+        expect(screen.getAllByRole('row')).toHaveLength(2);
+        expect(spies[1]).toHaveBeenCalled();
+        expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+      } finally {
+        spies.forEach((spy) => spy.mockRestore());
+      }
+    });
+
+    test('a new proof replaces the saved one', async () => {
+      window.sessionStorage.setItem(SAVED_PROOF_KEY, JSON.stringify(repProof));
+      mockBackend([REP], 200, {});
+      const user = userEvent.setup();
+      render(<App />);
+      await waitFor(() => expect(screen.getAllByRole('row')).toHaveLength(3));
+
+      await startProof(user, 'Q', 'Q');
+
+      await waitFor(() => expect(screen.getAllByRole('row')).toHaveLength(2));
+      expect(savedProof()).toEqual({
+        steps: [{ expression: 'Q', rule: 'Ass', assmsLevel: 0, extraParameters: {} }],
+        logic: 'classical',
+        goal: 'Q',
+      });
+    });
+
+    test('"Try an example" while the saved proof is still being restored replaces it, and the late answer is dropped', async () => {
+      window.sessionStorage.setItem(SAVED_PROOF_KEY, JSON.stringify(repProof));
+      let answerRestore: () => void = () => {};
+      fetchMock.mockImplementation(async (url: string, init?: RequestInit) => {
+        if (url.endsWith('/actions')) return jsonResponse(200, [REP]);
+        if (JSON.parse(String(init!.body)).proofDto.goal === repProof.goal) {
+          return new Promise<Response>((resolve) => { answerRestore = () => resolve(replayAnswer(init, true)); });
+        }
+        return replayAnswer(init);
+      });
+      const user = userEvent.setup();
+      render(<App />);
+      await waitFor(() => expect(replayRequests()).toHaveLength(1));
+
+      await user.click(screen.getByRole('button', { name: 'Try an example' }));
+      await waitFor(() => expect(screen.getAllByRole('row')).toHaveLength(3));
+      const example = savedProof();
+      expect(example.goal).toBe('q');
+
+      await act(async () => {
+        answerRestore();
+        await new Promise((resolve) => setTimeout(resolve, 0));
+        await new Promise((resolve) => setTimeout(resolve, 0));
+      });
+      expect(screen.getAllByRole('row')).toHaveLength(3);
+      expect(savedProof()).toEqual(example);
+      expect(screen.queryByText('Proof complete.')).not.toBeInTheDocument();
     });
   });
 });
