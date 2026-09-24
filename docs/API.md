@@ -132,7 +132,9 @@ Returns `200` with the logic's exercises, ordered from easy to hard. Each one as
 
 Multipart form with the file in the part `file`, in the layout `ProofStep.toString()` prints (3 spaces of indent per
 assumption level, an 11-space gap, then the rule, e.g. `->I [1-2]`). Returns `201` with the `ProofDto`. A line that
-cannot be parsed, or a step that does not follow, is a `400` whose message names the line.
+cannot be parsed, or a step that does not follow, is a `400` whose message names the line. In a `modal` file a line
+that is in a state starts with the state and `: `, before the indent (`s0: [] p           Ass`,
+`s1:    q           Ass`); a relation between states (`s0 <= s1           Ass`) has no prefix.
 
 ### Intuitionistic logic
 

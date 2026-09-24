@@ -86,11 +86,59 @@ const RULE_GAP = ' '.repeat(11);
 // Renders a proof as the text `POST /logic/{logic}/proof` accepts, one step per line. The expressions and rules are
 // written as the backend sent them (ASCII `->`, `&`, ...), not as the proof table renders them, so that the text parses.
 // They are trimmed: until the backend first answers, the premises are as the user typed them, and a leading space would
-// read back as an indent.
+// read back as an indent. A step in a state (modal logic, see `hasStates`) starts with that state, before the indent, as
+// `ProofStepModal.toString()` prints it and `ModalProofParser.parseLine` reads it: `s1:    p           []E [1, 2]`. A
+// relation between states (`s0 <= s1`) is in no state and has no prefix.
 export function proofToText(proof: ProofDto): string {
   return proof.steps
-    .map((step) => INDENT.repeat(step.assmsLevel) + step.expression.trim() + RULE_GAP + step.rule.trim())
+    .map((step) => statePrefix(step) + INDENT.repeat(step.assmsLevel) + step.expression.trim() + RULE_GAP + step.rule.trim())
     .join('\n');
+}
+
+function statePrefix(step: StepDto): string {
+  const state = step.extraParameters?.state?.trim();
+  return state ? `${state}: ` : '';
+}
+
+// Whether a formula of a logic with states is a relation between states (`s0 <= s1`, `s0 = s1`) rather than a formula
+// that holds in a state. Only the top-level operator counts: the backend's `ModalLogicParser` also accepts a relation
+// inside a connective (`p & s0 <= s1`), and such a formula holds in a state. The relations bind tighter than every
+// connective there, so the formula is a relation exactly when, outside parentheses, it has a relation and no connective.
+export function isRelationFormula(formula: string): boolean {
+  const text = withoutEnclosingParentheses(formula.trim());
+  let depth = 0;
+  let relation = false;
+  for (let i = 0; i < text.length; i++) {
+    const char = text[i];
+    if (char === '(') depth++;
+    else if (char === ')') depth--;
+    else if (depth > 0) continue;
+    else if (text.startsWith('<=', i)) {
+      relation = true;
+      i++;
+    } else if (char === '=') relation = true;
+    else if ('&|-[]<>'.includes(char)) return false;
+  }
+  return relation;
+}
+
+// The formula without the parentheses that enclose all of it, as often as they do: `((p))` is `p`, `(p) & (q)` stays.
+function withoutEnclosingParentheses(formula: string): string {
+  let text = formula;
+  while (text.startsWith('(') && closingParenthesis(text) === text.length - 1) {
+    text = text.slice(1, -1).trim();
+  }
+  return text;
+}
+
+// The index of the parenthesis that closes the one the text starts with, or -1 if it is never closed.
+function closingParenthesis(text: string): number {
+  let depth = 0;
+  for (let i = 0; i < text.length; i++) {
+    if (text[i] === '(') depth++;
+    else if (text[i] === ')' && --depth === 0) return i;
+  }
+  return -1;
 }
 
 // The goal a proof text reads back with: `POST .../proof` takes the last line as the goal. Null for an empty proof.

@@ -3,6 +3,7 @@ import '../Expressions.css';
 import { ProofDto } from '../../types';
 import Goal from '../goal/Goal';
 import StepViewer from './StepViewer';
+import { hasStates } from '../../constant';
 
 type RangeDto = {
   start: number,
@@ -56,6 +57,9 @@ export const ProofViewer: FC<ProofViewerProps> = ({ proof, coloring, onSelectLin
     );
   };
 
+  // A proof in a logic with states (modal) says in its own column which state each step holds in.
+  const showState = hasStates(proof.logic);
+
   // The lowest assumption level among the steps after each one: a step's subproof is closed below that level.
   const lowestLevelAfter = proof.steps.map(() => Infinity);
   for (let index = proof.steps.length - 2; index >= 0; index--) {
@@ -70,6 +74,7 @@ export const ProofViewer: FC<ProofViewerProps> = ({ proof, coloring, onSelectLin
           <thead>
             <tr>
               <th scope="col">Line</th>
+              {showState && <th scope="col">State</th>}
               <th scope="col">Step</th>
               <th scope="col">Rule</th>
             </tr>
@@ -84,6 +89,7 @@ export const ProofViewer: FC<ProofViewerProps> = ({ proof, coloring, onSelectLin
                   className={isHighlighted(index) ? 'highlighted' : ''}
                   color={coloring.get(index)}
                   openLevels={lowestLevelAfter[index]}
+                  showState={showState}
                   onMouseEnter={() => handleMouseEnter(step.rule)}
                   onMouseLeave={handleMouseLeave}
                   onFocus={() => handleMouseEnter(step.rule)}

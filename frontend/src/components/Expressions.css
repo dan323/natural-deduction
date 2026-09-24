@@ -83,6 +83,13 @@
     text-align: right;
 }
 
+/* The state a step of a modal proof holds in (s0, s1, ...), as text in its own column, in the font of the steps. */
+.proof-viewer td.state {
+    text-align: center;
+    font-family: "Courier New", Courier, monospace;
+    white-space: nowrap;
+}
+
 /* Expression and Rule Styles with Preformatted Text */
 .step-viewer pre {
     margin: 0;

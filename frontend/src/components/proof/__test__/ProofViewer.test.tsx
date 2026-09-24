@@ -205,4 +205,27 @@ describe('ProofViewer Component', () => {
       expect(rows[3]).not.toHaveClass('discharged');
     });
   });
+
+  test('a modal proof has a State column that says which state each step is in', () => {
+    const modal: ProofDto = {
+      steps: [
+        { expression: '[] p', rule: 'Ass', assmsLevel: 0, extraParameters: { state: 's0' } },
+        { expression: 's0 <= s1', rule: 'Ass', assmsLevel: 0, extraParameters: {} },
+        { expression: 'p', rule: '[]E [1, 2]', assmsLevel: 0, extraParameters: { state: 's1' } },
+      ],
+      goal: 'p',
+      logic: 'modal',
+    };
+    render(<ProofViewer proof={modal} coloring={new Map()} />);
+
+    expect(screen.getAllByRole('columnheader').map((header) => header.textContent)).toEqual(['Line', 'State', 'Step', 'Rule']);
+    const states = screen.getAllByRole('row').slice(1).map((row) => row.querySelector('td.state')?.textContent);
+    expect(states).toEqual(['s0', '–none (a relation between states)', 's1']);
+  });
+
+  test('a classical proof has no State column', () => {
+    render(<ProofViewer proof={mockProof} coloring={mockColoring} />);
+
+    expect(screen.getAllByRole('columnheader').map((header) => header.textContent)).toEqual(['Line', 'Step', 'Rule']);
+  });
 });

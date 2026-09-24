@@ -141,4 +141,33 @@ describe('StepViewer Component', () => {
       expect(screen.getByRole('rowheader')).not.toHaveTextContent('discharged');
     });
   });
+
+  describe('State column', () => {
+    const renderStep = (step: StepDto, showState?: boolean) => render(<table><tbody>
+      <StepViewer step={step} stepIndex={0} onMouseEnter={mockOnMouseEnter} onMouseLeave={mockOnMouseLeave} showState={showState} />
+    </tbody></table>);
+
+    test('shows the state of a modal step as text in its own cell', () => {
+      renderStep({ expression: '[] p', rule: 'Ass', assmsLevel: 0, extraParameters: { state: 's0' } }, true);
+
+      const cells = screen.getAllByRole('cell');
+      expect(cells).toHaveLength(3);
+      expect(cells[0]).toHaveClass('state');
+      expect(cells[0]).toHaveTextContent('s0');
+      expect(cells[1]).toHaveTextContent('□ p');
+    });
+
+    test('says that a relation between states is in no state', () => {
+      renderStep({ expression: 's0 <= s1', rule: 'Ass', assmsLevel: 0, extraParameters: {} }, true);
+
+      expect(screen.getAllByRole('cell')[0]).toHaveTextContent('none (a relation between states)');
+    });
+
+    test('has no state cell unless asked to, as for a classical proof', () => {
+      renderStep({ expression: 'p', rule: 'Ass', assmsLevel: 0, extraParameters: { state: 's0' } });
+
+      expect(screen.getAllByRole('cell')).toHaveLength(2);
+      expect(screen.queryByText('s0')).not.toBeInTheDocument();
+    });
+  });
 });
