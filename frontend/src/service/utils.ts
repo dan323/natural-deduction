@@ -1,4 +1,4 @@
-import { ProofDto } from "../types";
+import { ProofDto, StepDto } from "../types";
 
 // Renders logical operators in a formula (only symbols, never letters, so a variable named E or I is untouched).
 export function renderExpression(expression: string): string {
@@ -91,4 +91,23 @@ export function proofToText(proof: ProofDto): string {
   return proof.steps
     .map((step) => INDENT.repeat(step.assmsLevel) + step.expression.trim() + RULE_GAP + step.rule.trim())
     .join('\n');
+}
+
+// The goal a proof text reads back with: `POST .../proof` takes the last line as the goal. Null for an empty proof.
+export function loadedGoal(proof: ProofDto): string | null {
+  const last = proof.steps[proof.steps.length - 1] as StepDto | undefined;
+  return last === undefined ? null : last.expression.trim();
+}
+
+// Whether the text of this proof (see `proofToText`) loads back as the same proof, with the same goal. `done` only says
+// that some top-level step is the goal (the domain's `Proof.isDone()`), while the backend reads the last line as the
+// goal, so the last line must also be a top-level step equal to the goal. Spaces are ignored in the comparison, since
+// the goal may still be as the user typed it; any other difference in writing counts as a different goal.
+export function loadsBackWithSameGoal(proof: ProofDto): boolean {
+  const last = proof.steps[proof.steps.length - 1] as StepDto | undefined;
+  const withoutSpaces = (formula: string) => formula.replace(/\s+/g, '');
+  return proof.done === true
+    && last !== undefined
+    && last.assmsLevel === 0
+    && withoutSpaces(last.expression) === withoutSpaces(proof.goal);
 }

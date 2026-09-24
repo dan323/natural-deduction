@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { ReactNode, useCallback, useEffect, useRef, useState } from 'react';
 import './App.css';
 import Proof from './components/proof/ProofViewer';
 import Header from './components/Header';
@@ -7,7 +7,7 @@ import NewProofModal from './components/modal/NewProofModal';
 import { StepDto, ProofDto } from './types';
 import { LOGIC } from './constant';
 import { loadProofFromText, replayProof, undoLastStep } from './service/actions';
-import { proofToText } from './service/utils';
+import { loadedGoal, loadsBackWithSameGoal, proofToText } from './service/utils';
 import { clearSavedProof, readSavedProof, writeSavedProof } from './service/savedProof';
 
 // The steps counted as the proof's premises: a leading run of `Ass` steps at assumption level 0, the shape
@@ -26,6 +26,15 @@ function premiseCount(steps: StepDto[]): number {
 // The proof "Try an example" starts: p -> q and p prove q in one Modus Ponens step.
 const EXAMPLE_PREMISES = ['p -> q', 'p'];
 const EXAMPLE_GOAL = 'q';
+
+// What happens to a copied proof text in the New Proof dialog: `POST .../proof` only reads a finished proof, and takes
+// its last line as the goal. `done` alone does not promise that the text loads back as the same proof: a top-level step
+// other than the last may be the goal (e.g. a premise that already is the goal).
+function copyLoadNote(proof: ProofDto): ReactNode {
+  if (!proof.done) return 'It only loads back in the New Proof dialog once the proof is finished.';
+  if (loadsBackWithSameGoal(proof)) return 'To load it again, paste it in the New Proof dialog.';
+  return <>Its last line is not the goal, so it loads back in the New Proof dialog with the goal <code>{loadedGoal(proof)}</code> instead of <code>{proof.goal}</code>.</>;
+}
 
 function App() {
   const [colorMapping, setColorMapping] = useState(new Map<number, string>());
@@ -262,8 +271,8 @@ function App() {
   });
 
   // Copies the proof in the text layout the backend reads back (see `proofToText`), for "Load from text" or a file. The
-  // backend only reads back a finished proof (the last line is taken as the goal), which the notice says when this one
-  // is not done yet.
+  // backend only reads back a finished proof and takes its last line as the goal, which the notice says when this one
+  // is not done yet, or when its last line is not the goal (see `copyLoadNote`).
   const handleCopyText = async () => {
     const text = proofToText(proof);
     try {
@@ -348,17 +357,14 @@ function App() {
         )}
         {currentCopy?.copied === true && (
           <p className="copy-status" role="status">
-            Proof copied to the clipboard as text.{' '}
-            {currentCopy.proof.done
-              ? 'To load it again, paste it in the New Proof dialog.'
-              : 'It only loads back in the New Proof dialog once the proof is finished.'}
+            Proof copied to the clipboard as text. {copyLoadNote(currentCopy.proof)}
           </p>
         )}
         {currentCopy?.copied === false && (
           <div className="copy-status">
             <p role="status">
               The clipboard is not available here. Copy the proof text below by hand.{' '}
-              {!currentCopy.proof.done && 'It only loads back in the New Proof dialog once the proof is finished.'}
+              {!loadsBackWithSameGoal(currentCopy.proof) && copyLoadNote(currentCopy.proof)}
             </p>
             <label htmlFor="copied-proof-text" className="visually-hidden">Proof as text</label>
             <textarea

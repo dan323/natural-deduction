@@ -1,4 +1,4 @@
-import { checkFormula, proofToText, renderExpression, renderRule } from '../utils';
+import { checkFormula, loadedGoal, loadsBackWithSameGoal, proofToText, renderExpression, renderRule } from '../utils';
 
 describe('renderExpression', () => {
   test('renders logical operators', () => {
@@ -124,5 +124,29 @@ describe('proofToText', () => {
     });
 
     expect(text).toBe('P           Ass');
+  });
+});
+
+describe('loadsBackWithSameGoal', () => {
+  const step = (expression: string, assmsLevel = 0) => ({ expression, rule: 'Ass', assmsLevel, extraParameters: {} });
+
+  test('a done proof whose last line is a top-level step equal to the goal loads back with the same goal', () => {
+    expect(loadsBackWithSameGoal({ steps: [step('P', 1), step('P -> P')], logic: 'classical', goal: 'P->P', done: true })).toBe(true);
+  });
+
+  test('a done proof whose goal is an earlier step, not the last line, does not', () => {
+    const proof = { steps: [step('P'), step('Q')], logic: 'classical', goal: 'P', done: true };
+    expect(loadsBackWithSameGoal(proof)).toBe(false);
+    expect(loadedGoal(proof)).toBe('Q');
+  });
+
+  test('a last line equal to the goal inside a subproof does not', () => {
+    expect(loadsBackWithSameGoal({ steps: [step('P', 1)], logic: 'classical', goal: 'P', done: true })).toBe(false);
+  });
+
+  test('an unfinished or empty proof does not', () => {
+    expect(loadsBackWithSameGoal({ steps: [step('P')], logic: 'classical', goal: 'P', done: false })).toBe(false);
+    expect(loadsBackWithSameGoal({ steps: [], logic: 'classical', goal: 'P', done: true })).toBe(false);
+    expect(loadedGoal({ steps: [], logic: 'classical', goal: 'P' })).toBeNull();
   });
 });

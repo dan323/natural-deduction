@@ -822,6 +822,32 @@ describe('App', () => {
       expect(notice).not.toHaveTextContent(/goal/);
     });
 
+    test('copying a done proof whose last line is not the goal says the goal changes when it is loaded back', async () => {
+      // Done (a top-level step, the premise, is the goal), but the last line, which `POST .../proof` takes as the goal,
+      // is another formula.
+      const pastGoal = {
+        steps: [
+          { expression: 'P', rule: 'Ass', assmsLevel: 0, extraParameters: {} },
+          { expression: 'P | Q', rule: '|I [1]', assmsLevel: 0, extraParameters: {} },
+        ],
+        logic: 'classical',
+        goal: 'P',
+      };
+      // Such a proof, kept from before a page reload (a proof done from its first line cannot be extended in the UI).
+      window.sessionStorage.setItem('natural-deduction.proof', JSON.stringify(pastGoal));
+      mockRoundTripBackend();
+      const user = userEvent.setup();
+      render(<App />);
+      await waitFor(() => expect(screen.getAllByRole('row')).toHaveLength(3));
+      expect(screen.getByRole('status')).toHaveTextContent('Proof complete.');
+
+      await user.click(screen.getByRole('button', { name: 'Copy proof as text' }));
+
+      const notice = await screen.findByText(/Proof copied to the clipboard as text/);
+      expect(notice).toHaveTextContent('Its last line is not the goal, so it loads back in the New Proof dialog with the goal P | Q instead of P.');
+      expect(notice).not.toHaveTextContent('To load it again');
+    });
+
     test('an unfinished proof is rejected with the reason, and the proof on screen stays', async () => {
       mockRoundTripBackend();
       const user = userEvent.setup();
