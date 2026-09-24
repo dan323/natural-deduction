@@ -61,9 +61,9 @@ public final class RuleUtils {
     }
 
     public static &lt;P extends Proof&lt;?, ?&gt;&gt; boolean isValidIndex(P pf, int index) {
-<span class="pc bpc" id="L64" title="1 of 2 branches missed.">        var check1 = 1 &lt;= index;</span>
+<span class="fc bfc" id="L64" title="All 2 branches covered.">        var check1 = 1 &lt;= index;</span>
 <span class="fc bfc" id="L65" title="All 2 branches covered.">        var check2 = pf.getSteps().size() &gt;= index;</span>
-<span class="pc bpc" id="L66" title="1 of 4 branches missed.">        return check1 &amp;&amp; check2;</span>
+<span class="fc bfc" id="L66" title="All 4 branches covered.">        return check1 &amp;&amp; check2;</span>
     }
 
     public static &lt;P extends Proof&lt;?, ?&gt;&gt; boolean isValidPropAtIndex(P pf, int index) {

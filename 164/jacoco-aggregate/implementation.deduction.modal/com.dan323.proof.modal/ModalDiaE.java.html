@@ -53,7 +53,7 @@ public final class ModalDiaE implements ModalAction {
             } else {
 <span class="fc" id="L54">                return false;</span>
             }
-<span class="pc bpc" id="L56" title="1 of 2 branches missed.">        } else if (!(log1.getStep() instanceof ModalLogicalOperation)) {</span>
+<span class="fc bfc" id="L56" title="All 2 branches covered.">        } else if (!(log1.getStep() instanceof ModalLogicalOperation)) {</span>
 <span class="fc" id="L57">            return false;</span>
         }
 
@@ -63,7 +63,7 @@ public final class ModalDiaE implements ModalAction {
 <span class="pc bpc" id="L63" title="1 of 4 branches missed.">        if (!(log1.getState().equals(rightState) &amp;&amp; origin.equals(leftState))) {</span>
 <span class="fc" id="L64">            return false;</span>
         }
-<span class="pc bpc" id="L66" title="1 of 2 branches missed.">        if (pf.stateIsUsedBefore(log1.getState(), pf.getSteps().size() - i - 1)) {</span>
+<span class="pc bpc" id="L66" title="1 of 2 branches missed.">        if (!pf.isFreshState(log1.getState(), leftState, pf.getSteps().size() - i - 1)) {</span>
 <span class="nc" id="L67">            return false;</span>
         }
 <span class="fc bfc" id="L69" title="All 2 branches covered.">        if (!isNotFresh(pf, pf.getSteps().size() - i - 1)) {</span>
