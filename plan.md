@@ -1,16 +1,21 @@
 # UI improvement plan
 
 Based on a live audit of the UI (UX, accessibility, performance, functional bugs), a read of `frontend/src`, and checks
-against the running backend. Out of scope for now: other logics in the UI (modal stays backend-only) and the solver.
+against the running backend. Out of scope for now: changes to the solver. Intuitionistic (PR 9) and modal (PR 10) logic
+are brought to the UI.
 
 Defaults taken for the open questions (change them and the affected steps move): the descriptor DTO **is** extended
 (additively), formula input help is a **hint plus connective buttons** (no Unicode parsing), and **Phase 1 goes first**.
 
-## Status (2026-09-22)
+## Status (2026-09-24)
 
-PRs 1-3, 4.1, 5.1 and 5.2 are merged (#124-#128, #130). 4.2 and 5.3 are also done, folded into #127 and #129 respectively,
-without their own issue. 5.4 is open as #131 (#121, pending review). What is left is PR 5.5-5.6, tracked as #122 (5.5) and #123 (5.6).
-PR 6.1 and 6.2 are new additions, tracked as #132 (6.1) and #133 (6.2).
+PRs 1-6 are merged: 1-3, 4.1, 5.1, 5.2 and 5.4 as #124-#128, #130 and #131; 4.2 and 5.3 folded into #127 and #129;
+5.5 (#122) as #138, 5.6 (#123) as #137, 6.1 (#132) as #135 and 6.2 (#133) as #134.
+PR 7.1-7.3 are pending, tracked as #139 (7.1), #140 (7.2) and #141 (7.3).
+PR 8.1-8.2 and 9.1-9.2 are pending, tracked as #142 (8.1), #143 (8.2), #144 (9.1) and #145 (9.2).
+PR 10.1-10.5 are pending, tracked as #146 (10.1), #147 (10.2), #148 (10.3), #149 (10.4) and #150 (10.5).
+Order: 7.x first (8.2 starts exercises through the 7.1 path), then 8.1, 8.2, 9.1, 9.2, then 10.1-10.5 (10.4 needs 9.2's
+logic selector; 10.5's UI part needs 10.3 and 10.4).
 
 ## Audit summary
 
@@ -167,22 +172,22 @@ Order inside this PR series: 5.1, 5.3, 5.2, 5.4, 5.5, 5.6 (one small PR each).
   goal gets a text/icon marker not only green/red, rule controls are disabled, New Proof is offered. Confetti stays decoration.
 - Tests: `Goal.test.tsx`, `Menu.test.tsx` for the done state.
 
-**5.4 Undo and confirm** (`App.tsx`) — open as #131, pending review
+**5.4 Undo and confirm** (`App.tsx`) — done (#131)
 - "Undo last step" resends the proof without its last step; safe because the server is stateless and replays the
   steps (check the discharge case: `DT`/`NOTI` mark earlier steps disabled, which is derived on replay, so this holds,
   but add a test against the real backend replay in `RestServiceIT` or a component test with a fixture).
 - Confirm before "New Proof" replaces a proof that has more than its premises.
 
-**5.5 Formula input help** (`NewProofModal.tsx`, `GlowingInput.tsx`) — open, tracked as #122
+**5.5 Formula input help** (`NewProofModal.tsx`, `GlowingInput.tsx`) — done (#138, issue #122)
 - Persistent syntax hint ("-> implies, & and, | or, ! not") and buttons that insert the connective at the cursor,
   labelled with the symbol shown in the table. Placeholders on expression inputs.
 
-**5.6 Empty state** (`App.tsx`) — open, tracked as #123
+**5.6 Empty state** (`App.tsx`) — done (#137, issue #123)
 - Single message, three-step "how it works", and a "Try an example" button that loads `p → q`, `p` with goal `q`.
 
 ---
 
-## PR 6.1: Expose the proof text protocol in the UI — open, tracked as #132
+## PR 6.1: Expose the proof text protocol in the UI — done (#135, issue #132)
 
 - Change: the backend's `POST/GET /logic/{logic}/proof` text format (the fixed-indent `->I [1-2]` layout documented in
   `CLAUDE.md`) has zero frontend caller — `service/actions.ts` never calls it. Add a "Copy proof as text" action
@@ -195,7 +200,7 @@ Order inside this PR series: 5.1, 5.3, 5.2, 5.4, 5.5, 5.6 (one small PR each).
 
 ---
 
-## PR 6.2: Text equivalent for cited-line highlighting — open, tracked as #133
+## PR 6.2: Text equivalent for cited-line highlighting — done (#134, issue #133)
 
 - Change: the "glow" that marks lines cited by the currently-focused rule inputs (`StepViewer.tsx`, added in PR 5.1)
   is color/box-shadow only (`glowStyle`/`--glow-color`). Add a visually-hidden text cue (e.g. `aria-describedby` or
@@ -203,6 +208,161 @@ Order inside this PR series: 5.1, 5.3, 5.2, 5.4, 5.5, 5.6 (one small PR each).
   glow.
 - Tests: `StepViewer.test.tsx` — glowing row exposes the hidden text; non-glowing rows don't.
 - Done when: a screen reader announces which row is cited without relying on color.
+
+---
+
+## PR 7: Backend-checked proofs
+
+**7.1 Check a new proof's formulas with the backend before showing it** — open, tracked as #139
+- Change: `NewProofModal` keeps `checkFormula` as the instant check, but on submit `App.handleNewProofSubmit` sends the
+  premises-only proof (premises + goal) through the existing `replayProof` (`service/actions.ts`, the path Undo uses;
+  the transformers parse the goal and every step). A rejection keeps the dialog open with the backend's message; success
+  shows the proof as the backend returned it. "Try an example" goes through the same path. No new endpoint, no backend
+  change. Answers the drift risk of 1.4 without the parse endpoint that step mentioned.
+- Tests: `App.test.tsx`: a formula `checkFormula` accepts but the mocked backend rejects keeps the dialog open with the
+  message; an accepted proof is the one the backend returned; a late answer after Cancel is ignored.
+- Done when: a formula the backend cannot parse never becomes a proof line.
+
+**7.2 Keep the proof across a page reload** (`App.tsx`) — open, tracked as #140
+- Change: nothing in `frontend/src` uses storage today, so a reload loses the proof. Save the current `ProofDto` to
+  `sessionStorage` on every change (read and write wrapped in try/catch); on mount, restore it through `replayProof`
+  so the backend re-checks it and gives back `done`. A rejected or corrupt saved proof falls back to the empty state with
+  a notice. New Proof and "Try an example" overwrite it.
+- Tests: `App.test.tsx`: a saved proof is restored and replayed; a corrupt or rejected one shows the empty state; a
+  storage that throws is ignored; a new proof replaces the saved one.
+- Done when: reloading mid-proof shows the same proof with the same done state.
+
+**7.3 "Load from text" accepts only finished proofs, through `POST .../proof`** — open, tracked as #141
+- Change: "Load from text" posts the text to `POST /logic/{logic}/proof`, which already takes the last line as the goal,
+  the leading `Ass` lines as the premises, and rejects a proof that does not end at the top level or has a step that does
+  not follow. Remove the dialog's goal field, `parseProofText` and the replay-based `loadProofFromText` (keep
+  `proofToText`). The copy notice no longer asks the user to note the goal; for a proof that is not done it says the text
+  only loads back once the proof is finished. `CLAUDE.md` "Text protocols": drop the `parseProofText` note, say the UI
+  loads text through this endpoint.
+- Tests: `actions.test.ts` (the POST call, error handling); `NewProofModal.test.tsx` (no goal field, error shown for an
+  unfinished proof); `App.test.tsx` (a finished proof round-trips copy → load; an unfinished one is rejected);
+  remove the `parseProofText` tests from `utils.test.ts`.
+- Done when: pasting a finished proof rebuilds it with its goal and nothing else to type; an unfinished or invalid one
+  says why it cannot load.
+
+---
+
+## PR 8: Exercises
+
+**8.1 An exercise catalog per logic (backend)** — open, tracked as #142
+- Change: `GET /logic/{logic}/exercises` returns `ExerciseDto(id, title, premises, goal, difficulty)` from a per-logic
+  bean, collected into a map by `logic()` like the other use-case beans. The classical set has about 12 exercises from
+  easy to hard (MP chains, ∧/∨ elimination, →I, ¬I, `--p ⊢ p`, `⊢ p | -p`). Each exercise keeps a reference solution in
+  the proof-text layout, which is never sent to the client. Update `docs/API.md`.
+- Tests: a unit test runs every reference solution through `ProofParser`: it parses, its premises and last line equal
+  the exercise's, and it is done. `RestServiceIT`: 200 with the list, 404 for an unknown logic.
+- Done when: every listed exercise is provable, and a test fails if one is not.
+
+**8.2 Exercises in the UI (frontend)** — open, tracked as #143
+- Change: an "Exercises" list, reachable from the empty state and the toolbar, grouped by difficulty. "Start" opens the
+  exercise through the 7.1 path (backend-checked). Solved exercises are recorded in `localStorage` (wrapped in try/catch)
+  and shown with a text marker, not colour alone. When a proof started from an exercise is done, the completion notice
+  offers "Next exercise".
+- Tests: `actions.test.ts` (fetch and cache); `App.test.tsx`: starting an exercise shows its premises and goal;
+  finishing it marks it solved, which survives a remount; "Next exercise" starts the next one.
+- Done when: a student can work through the list and see which exercises they have solved.
+
+---
+
+## PR 9: Intuitionistic logic
+
+**9.1 Intuitionistic propositional logic (backend)** — open, tracked as #144
+- Investigate first: intuitionistic = classical without double negation elimination (`NOTE`, `ClassicNotE`, "¬E");
+  `FE` (ex falso) stays. Choose between a thin `implementation.deduction.intuitionistic` / `intuitionistic-use-case` pair
+  reusing the classical language and rule classes with its own `NaturalDeduction` subclass and action enum without
+  `NOTE`, or a rule filter on the classical use case; keep the no-default `switch` guarantee of `ClassicGetActions`.
+  Check whether `automate()` uses `NOTE`; if so `POST /logic/intuitionistic/solve` answers 400 "no solver for this
+  logic" instead of producing a classical proof.
+- Change: register `"intuitionistic"` (`Transformer`, `ProofParser`, `LogicalGetActions` without `NOTE`) through a
+  `*Configuration` imported in `ApplicationConfiguration`, with the `module-info` exports/requires. Update `docs/API.md`,
+  add `/logic/intuitionistic/actions` to the `OnMaster.yml` smoke test, and add an intuitionistic exercise set (8.1).
+- Tests: the actions have no `NOTE`, and `NOTE` sent as an action is a 400; the proof of `--p ⊢ p` does not replay
+  under intuitionistic but does under classical; `RestServiceIT` for the endpoints and the solve answer.
+- Done when: `GET /logic/intuitionistic/actions` lists every classical rule except ¬E, and a classical-only proof is
+  rejected.
+
+**9.2 Pick the logic in the UI (frontend)** — open, tracked as #145
+- Change: `LOGIC` in `constant.ts` becomes the list of logics the UI supports (classical, intuitionistic; modal stays
+  backend-only). The New Proof dialog gets a logic selector and the current logic is shown next to the goal. Everything
+  that uses `LOGIC` (`Menu`, `actions.ts`, 7.2's saved proof, 8.2's list) reads it from `proof.logic` instead.
+- Tests: an intuitionistic proof fetches its own rules (no ¬E); switching logic resets the Menu; a restored proof
+  keeps its logic; the exercise list follows the logic.
+- Done when: a student can do the same exercise in both logics and see that `--p ⊢ p` only works classically.
+
+---
+
+## PR 10: Modal logic in the UI
+
+The backend is complete (`/logic/modal/actions|action|solve|proof`); the UI has pieces already (`Menu` renders `STATE`
+inputs and sends `extraParameters.state`, `renderExpression` shows `[]`/`<>` as □/◇) but cannot run a modal proof yet.
+
+**10.1 Describe the modal rules (backend)** — open, tracked as #146
+- Change: `AvailableModalAction` builds its descriptors with `ActionDescriptorDto.of(name, params)` only, so the modal
+  rules have no `label`, `symbol`, `category`, `description` or `paramLabels` (PR 4.1 left `ModalGetActions` alone).
+  Fill them for all 20 rules as `ClassicGetActions` does, in a form that fails to compile or fails a test when a rule is
+  added without a description (e.g. `□I` "Box introduction", `◇E`, `Refl`, `Trans`, and `STATE` param labels such as
+  "State (e.g. s1)"). Symbols must agree with `renderRule` on the rule strings the modal steps carry (`[]I`, `-E`, ...).
+  Update `docs/API.md`.
+- Tests: every modal descriptor has a non-blank label and description and `paramLabels.size() == params.size()`; the
+  existing test that every entry builds an action keeps passing.
+- Done when: `GET /logic/modal/actions` describes each rule as the classical endpoint does.
+
+**10.2 States in modal proofs (frontend)** — open, tracked as #147
+- Change: `ModalProofTransformer.initialAssumption` rejects a premise whose `extraParameters.state` is not the initial
+  state `s0`, and `handleNewProofSubmit` sends `{}`. For a modal proof, premises get `{ state: 's0' }` (investigate
+  first what relation premises such as `s0 <= s1` need; `initialAssumption` only checks logical formulas). `StepViewer`
+  shows each step's state (`extraParameters.state`) in its own column, with a header and text, not colour alone;
+  `proofToText` / the text protocol keep working for modal (check `ModalProofParser`'s line format for the state).
+- Tests: `App.test.tsx` / `StepViewer.test.tsx`: a modal proof's premises carry `s0`; the state column shows each step's
+  state and is absent for classical proofs; an Apply with a `STATE` input round-trips against a mocked modal backend.
+- Done when: a modal proof started in the UI survives its first action, and every row says which state it is in.
+
+**10.3 Modal formula help (frontend)** — open, tracked as #148
+- Change: the #138 hint and connective buttons cover only `→ ∧ ∨ ¬`. For a modal proof add `□` (`[]`) and `◇` (`<>`)
+  buttons and hint entries, and explain relation formulas (`s0 <= s1`, `s0 = s1`) in the hint. `checkFormula` already
+  knows these tokens; add tests for them. Note: `Until` (`U`) exists in the model but `ModalLogicParser` has no operator
+  for it, so it cannot be typed; leave it out of the help.
+- Tests: `GlowingInputConnectives.test.tsx` / `NewProofModal.test.tsx`: modal buttons appear only for modal proofs and
+  insert `[]`/`<>`; `utils.test.ts`: `checkFormula` on `[]p -> p`, `<>(p & q)`, `s0 <= s1`, and a dangling `[]`.
+- Done when: every modal formula can be typed with the buttons, and the hint lists every operator the parser accepts.
+
+**10.4 Offer modal logic in the selector (frontend + exercises)** — open, tracked as #149
+- Change: add `"modal"` to the logics of 9.2's selector once 10.1-10.3 are in; add a modal exercise set to 8.1's
+  catalog (e.g. `[]p ⊢ p` with `Refl`, `[]p ⊢ [][]p` with `Trans`, `p ⊢ <>p`), each with a reference solution checked by
+  the same `ProofParser` test. Extend the `OnMaster.yml` smoke test only if it does not already cover modal actions (it
+  does today).
+- Tests: `App.test.tsx`: choosing modal fetches the modal rules, shows the state column and modal buttons; the modal
+  exercise list loads; backend: the modal reference solutions replay.
+- Done when: a student can pick modal logic, start a modal exercise and finish it in the UI.
+
+**10.5 A `modal-until` logic: modal logic with `Until` (backend, then UI)** — open, tracked as #150
+- Idea: keep `"modal"` as it is and add a new logic, `ModalWithUntil` (URL key `"modal-until"`), that is modal logic plus
+  `Until`. `Until` (`expressions/modal/Until.java`, printed as `A U B`) already exists in the formula model and is handled
+  generically (`RuleUtils`, `DeductionTheorem`, `NotI`, `ModalBoxI`, `ModalDiaE`), but `ModalLogicParser` has no `U`
+  operator and no rule introduces or eliminates it.
+- Investigate first: how to extend rather than copy the modal modules. Likely a parser subclass of `ModalLogicParser`
+  that adds `U` (check that javaluator does not split variables containing a capital `U`, or pick another symbol), a
+  `ModalWithUntilNaturalDeduction` (or reuse `ModalNaturalDeduction`) and an action enum = `AvailableModalAction` + the
+  Until rules. Decide `Until`'s meaning in the state semantics the modal rules use (states ordered by `<=`, as `□`/`◇`
+  and `Refl`/`Trans` use them) and design its rules, e.g. `UI`: from `B` at `s`, derive `A U B` at `s`; from `A` at `s`
+  and `A U B` at a successor, derive `A U B` at `s`; `UE` by cases. Check whether `automate()` copes with `U`; if not,
+  `POST /logic/modal-until/solve` answers 400 "no solver for this logic".
+- Change (backend): new `implementation.deduction.modal-until` / `modal-until-use-case` modules (or a sub-package, per
+  the investigation) with `Transformer`, `ProofParser`, `LogicalGetActions` (10.1-style descriptions) and a
+  `*Configuration` imported in `ApplicationConfiguration`; `module-info` exports/requires; `docs/API.md`; the
+  `OnMaster.yml` smoke test gets `/logic/modal-until/actions`. `"modal"` does not change: `p U q` is still rejected there.
+- Change (frontend, after 10.3 and 10.4): `"modal-until"` in the logic selector; a `U` connective button and hint entry
+  for that logic only; `checkFormula` accepts `U`; a few exercises in 8.1's catalog.
+- Tests: the parser round-trips `p U q` and its precedence against `->`/`&`; `"modal"` still rejects `p U q`; each Until
+  rule's valid and invalid cases; a small proof using `U` replays through `ProofParser`; `RestServiceIT` for the new
+  logic's endpoints; frontend: the `U` button shows only for `modal-until` and inserts `U`.
+- Done when: `/logic/modal-until/...` proves formulas with `A U B` from the REST API and the UI, and `/logic/modal/...`
+  behaves exactly as before.
 
 ---
 
