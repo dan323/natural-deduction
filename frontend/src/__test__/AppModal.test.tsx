@@ -1,18 +1,10 @@
 import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import App from '../App';
-import { LOGICS, LogicInfo } from '../constant';
 import { clearActionsCache } from '../service/actions';
 import { ActionDescriptor, ProofDto, StepDto } from '../types';
 
-// Modal logic is not offered in the selectors yet (#149), but everything about a proof follows its `logic`. These tests
-// offer it for the time they run, so that a modal proof can be started as a user would, against a mocked modal backend.
-const MODAL: LogicInfo = { id: 'modal', name: 'Modal', description: 'Modal logic.', hasSolver: true };
-beforeAll(() => { (LOGICS as LogicInfo[]).push(MODAL); });
-afterAll(() => {
-  const logics = LOGICS as LogicInfo[];
-  logics.splice(logics.indexOf(MODAL), 1);
-});
+// A modal proof is started as a user would, against a mocked modal backend.
 
 function jsonResponse(status: number, body: unknown): Response {
   return { ok: status >= 200 && status < 300, status, json: async () => body } as Response;

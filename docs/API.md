@@ -76,7 +76,9 @@ not apply. The UI appends the `description` of the rule to that message. A reque
 that is not valid is a `400`.
 
 `done` says whether the goal of the returned proof is proved: the domain's `Proof.isDone()`, that is, some step at
-assumption level 0 is the goal (not necessarily the last one). The UI shows it as the goal's success state.
+assumption level 0 is the goal (not necessarily the last one). The UI shows it as the goal's success state. In modal
+logic that check does not look at the step's state yet, so the goal formula derived at level 0 in a state other than
+`s0` also counts as done (a known limitation).
 
 ### Solve a proof: `POST /logic/{logic}/solve`
 
@@ -124,9 +126,12 @@ Returns `200` with the logic's exercises, ordered from easy to hard. Each one as
 - The formulas are written the way the server prints them (fully parenthesized, `- (- p)` rather than `--p`, which
   does not parse), so they can be sent back as they are and match the expressions of the proof's steps.
 - Classical logic has 14 exercises, intuitionistic logic 16 (the classical ones except `double-negation-elimination`
-  and `excluded-middle`, plus four of its own). Modal logic has none yet: it answers `200` with `[]`. An unknown logic is a `404`.
+  and `excluded-middle`, plus four of its own), modal logic 7 (with premises in `s0`, e.g. `box-elimination`, `[] p` to
+  `p`, and `box-transitive`, `[] p` to `[] ([] p)`). A known logic without exercises answers `200` with `[]`; an
+  unknown logic is a `404`.
 - Every exercise has a reference solution on the server, a proof in the proof-file layout (see below) that a unit test
-  replays. It is never sent to the client.
+  replays (for modal logic it also checks that the goal is derived in `s0`, which `done` does not look at). It is
+  never sent to the client.
 
 ### Upload a proof file: `POST /logic/{logic}/proof`
 

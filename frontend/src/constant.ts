@@ -8,8 +8,7 @@ export type LogicInfo = {
     hasSolver: boolean;
 };
 
-// The logics the UI offers, in the order of its selectors. The backend also serves "modal", which the UI cannot run yet
-// (PR 10, #147-#149): it is added here once it can.
+// The logics the UI offers, in the order of its selectors.
 export const LOGICS: readonly LogicInfo[] = [
     {
         id: 'classical',
@@ -22,6 +21,12 @@ export const LOGICS: readonly LogicInfo[] = [
         name: 'Intuitionistic',
         description: 'Classical logic without double negation elimination (¬E), so p does not follow from ¬¬p. There is no solver.',
         hasSolver: false,
+    },
+    {
+        id: 'modal',
+        name: 'Modal',
+        description: 'Adds □ (necessarily) and ◇ (possibly): every formula holds in a state, and s0 <= s1 says that s1 is reachable from s0, a reflexive and transitive relation.',
+        hasSolver: true,
     },
 ];
 

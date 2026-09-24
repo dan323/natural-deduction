@@ -102,8 +102,8 @@ an action, as `modal-use-case` does for `AvailableModalAction`.
 
 ### Step 8: Frontend Support (if needed)
 
-The UI calls relative URLs and offers the logics listed in `LOGICS` in `frontend/src/constant.ts` (classical and
-intuitionistic; modal is backend only). Add the new logic there, with `hasSolver: false` if its `/solve` always answers
+The UI calls relative URLs and offers the logics listed in `LOGICS` in `frontend/src/constant.ts` (classical,
+intuitionistic and modal). Add the new logic there, with `hasSolver: false` if its `/solve` always answers
 400, to make it selectable in the New Proof dialog and on the empty page.
 
 ### Step 9: Update Documentation

@@ -281,7 +281,12 @@ public class RestServiceIT {
 
         var modal = restTemplate.getForEntity(createURLWithPort("/logic/modal/exercises"), ExerciseDto[].class);
         assertEquals(HttpStatus.OK, modal.getStatusCode());
-        assertEquals(0, Objects.requireNonNull(modal.getBody()).length);
+        var modalExercises = Objects.requireNonNull(modal.getBody());
+        assertTrue(modalExercises.length >= 5, "a handful of modal exercises");
+        assertEquals(new ExerciseDto("box-elimination", "What is necessary is true", List.of("[] p"), "p", Difficulty.EASY), modalExercises[0]);
+        var rawModal = restTemplate.getForObject(createURLWithPort("/logic/modal/exercises"), String.class);
+        assertFalse(rawModal.contains("solution"), rawModal);
+        assertFalse(rawModal.contains("Refl"), rawModal);
 
         var unknown = restTemplate.exchange(createURLWithPort("/logic/nope/exercises"), HttpMethod.GET,
                 new HttpEntity<>(null, headers), ErrorResponse.class);

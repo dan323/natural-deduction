@@ -176,6 +176,7 @@ logic selectors offer (the first one is the default):
 export const LOGICS: readonly LogicInfo[] = [
     { id: 'classical', name: 'Classical', description: '...', hasSolver: true },
     { id: 'intuitionistic', name: 'Intuitionistic', description: '...', hasSolver: false },
+    { id: 'modal', name: 'Modal', description: '...', hasSolver: true },
 ];
 ```
 

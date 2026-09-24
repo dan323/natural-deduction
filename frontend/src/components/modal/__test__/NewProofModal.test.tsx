@@ -734,7 +734,7 @@ describe('NewProofModal logic', () => {
     const select = screen.getByLabelText('Logic:');
     expect(select).toHaveValue('intuitionistic');
     expect(select).toHaveAccessibleDescription(expect.stringContaining('without double negation elimination'));
-    expect(screen.getAllByRole('option').map((option) => option.textContent)).toEqual(['Classical', 'Intuitionistic']);
+    expect(screen.getAllByRole('option').map((option) => option.textContent)).toEqual(['Classical', 'Intuitionistic', 'Modal']);
 
     await user.selectOptions(select, 'classical');
     await user.type(screen.getByLabelText('Premise 1'), '--p');
