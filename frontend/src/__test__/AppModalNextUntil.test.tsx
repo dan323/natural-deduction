@@ -2,61 +2,27 @@ import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import App from '../App';
 import { clearActionsCache } from '../service/actions';
-import { ActionDescriptor, ProofDto, StepDto } from '../types';
+import { ActionDescriptor, StepDto } from '../types';
+import { ASSUME, mockStatesBackend, requestsTo as requestsToPath } from './statesBackend';
 
 // A modal-next-until proof is started as a user would, against a mocked modal-next-until backend.
 
-function jsonResponse(status: number, body: unknown): Response {
-  return { ok: status >= 200 && status < 300, status, json: async () => body } as Response;
-}
-
 const NEXT_E: ActionDescriptor = { name: 'XE', params: ['INT'], label: 'Next elimination', symbol: 'XE' };
-const ASSUME: ActionDescriptor = { name: 'Ass', params: ['EXPRESSION', 'STATE'] };
 
 describe('App with a modal-next-until proof', () => {
   const fetchMock = jest.fn();
-
-  // The backend: its rules; a replay (the COPY that New Proof sends) that rejects a premise other than a relation that
-  // is not in `s0`, as `ModalProofTransformer.initialAssumption` does; `XE 1`, which puts `p` in `s0+1` and, since the
-  // goal `p` has to be in `s0` (`ModalNextUntilNaturalDeduction.isDone`), is not done; and `Ass`, which assumes its
-  // expression in its state.
-  const mockBackend = () => {
-    fetchMock.mockImplementation(async (url: string, init?: RequestInit) => {
-      if (url.endsWith('/actions')) return jsonResponse(200, [NEXT_E, ASSUME]);
-      if (url.endsWith('/exercises')) return jsonResponse(200, []);
-      const { proofDto, actionDto } = JSON.parse(String(init!.body)) as { proofDto: ProofDto, actionDto: { name: string, extraParameters: Record<string, string> } };
-      const badPremise = proofDto.steps.findIndex((step) =>
-        step.rule === 'Ass' && step.assmsLevel === 0 && !step.expression.includes('<=') && step.extraParameters.state !== 's0');
-      if (badPremise !== -1) {
-        return jsonResponse(400, { message: `Line ${badPremise + 1} is not valid: the assumptions are not in a valid state` });
-      }
-      const withStep = (step: StepDto) => {
-        const proof = { ...proofDto, steps: [...proofDto.steps, step] };
-        return jsonResponse(200, { proof, success: true, done: false, message: '' });
-      };
-      switch (actionDto.name) {
-        case 'COPY': return jsonResponse(202, { proof: proofDto, success: false, done: false, message: 'out of range' });
-        case 'XE': return withStep({ expression: 'p', rule: 'XE [1]', assmsLevel: 0, extraParameters: { state: 's0+1' } });
-        case 'Ass': return withStep({
-          expression: actionDto.extraParameters.expression, rule: 'Ass', assmsLevel: 1,
-          extraParameters: { state: actionDto.extraParameters.state },
-        });
-        default: return jsonResponse(400, { message: 'unexpected action' });
-      }
-    });
-  };
 
   beforeEach(() => {
     fetchMock.mockReset();
     clearActionsCache();
     (global as any).fetch = fetchMock;
     window.sessionStorage.clear();
-    mockBackend();
+    // `XE 1` puts `p` in `s0+1` and, since the goal `p` has to be in `s0` (`ModalNextUntilNaturalDeduction.isDone`), is
+    // not done.
+    mockStatesBackend(fetchMock, [NEXT_E, ASSUME], { XE: { expression: 'p', rule: 'XE [1]', assmsLevel: 0, extraParameters: { state: 's0+1' } } });
   });
 
-  const requestsTo = (path: string) => fetchMock.mock.calls
-    .filter(([url]) => String(url) === path)
-    .map(([, init]) => JSON.parse(String(init.body)));
+  const requestsTo = (path: string) => requestsToPath(fetchMock, path);
 
   // Picks modal-next-until on the empty page and starts the proof of `p` from `X p` and `s0 <= s0+1`, typing X with its
   // button.

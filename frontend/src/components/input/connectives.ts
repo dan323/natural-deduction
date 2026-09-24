@@ -24,7 +24,9 @@ export const MODAL_CONNECTIVES: readonly Connective[] = [
 export const NEXT_UNTIL_LOGIC = 'modal-next-until';
 
 // Next (`X A`, unary like `-`) and Until (`A U B`, binary), on top of the modal operators. The backend reads them only as
-// words of their own (`Xp` and `pUq` are names), so their buttons type them with spaces around them.
+// words of their own (`Xp` and `pUq` are names), so their buttons type them with spaces around them. X gets no space
+// before it (it usually starts the input or follows `(`), but `insertAtCursor` adds one when a name or number is right
+// before the caret, so that `p U` + X gives `p U X `, not the name `UX`.
 export const NEXT_UNTIL_CONNECTIVES: readonly Connective[] = [
     { symbol: 'X', ascii: 'X', name: 'next', insert: 'X ' },
     { symbol: 'U', ascii: 'U', name: 'until', insert: ' U ' },
@@ -60,9 +62,11 @@ export function syntaxHint(logic?: string): string {
 }
 
 // Puts `text` in place of value[start, end) (the selection, or just the caret when start === end) and returns the new
-// value with the caret position right after the inserted text.
+// value with the caret position right after the inserted text. A `text` that starts with a word character (the X
+// operator) gets a space in front when a word character is right before it, so that it never joins a preceding name.
 export function insertAtCursor(value: string, start: number, end: number, text: string): { value: string; caret: number } {
     const from = Math.max(0, Math.min(start, end, value.length));
     const to = Math.min(value.length, Math.max(start, end, from));
-    return { value: value.slice(0, from) + text + value.slice(to), caret: from + text.length };
+    const inserted = /^\w/.test(text) && /\w$/.test(value.slice(0, from)) ? ` ${text}` : text;
+    return { value: value.slice(0, from) + inserted + value.slice(to), caret: from + inserted.length };
 }

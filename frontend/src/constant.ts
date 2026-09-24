@@ -62,7 +62,7 @@ export function hasSolver(logic: string): boolean {
 // in, in `extraParameters.state`, except a relation between states (`s0 <= s1`, `s0 = s1`), which holds in none. In
 // `modal-next-until` a state may be a successor term, `s0+1` (the state after `s0`), shown and sent as the backend
 // writes it.
-const LOGICS_WITH_STATES: readonly string[] = ['modal', 'modal-next-until'];
+const LOGICS_WITH_STATES: ReadonlySet<string> = new Set(['modal', 'modal-next-until']);
 
 // The state a proof starts in: the backend's `ModalNaturalDeduction` puts its premises there, and rejects a premise
 // (other than a relation) that says it is in any other state.
@@ -71,5 +71,5 @@ export const INITIAL_STATE = 's0';
 // Whether the steps of the logic's proofs are in states, so that the premises need `INITIAL_STATE` and the proof table
 // shows each step's state.
 export function hasStates(logic: string): boolean {
-    return LOGICS_WITH_STATES.includes(logic);
+    return LOGICS_WITH_STATES.has(logic);
 }

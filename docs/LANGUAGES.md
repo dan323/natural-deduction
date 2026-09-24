@@ -196,8 +196,8 @@ In the frontend, every formula field of a modal proof adds □ and ◇ buttons (
 buttons, and its syntax hint also explains the relations `s0 <= s1` and `s0 = s1` (`connectives.ts`); `Until` is left
 out, as it cannot be typed.
 
-A `modal-next-until` proof gets those and also X and U buttons (they type `X ` and ` U `, since the backend reads `X`
-and `U` only as words of their own), and its hint says so and that `s0+1` is the state after `s0`. There, the instant
+A `modal-next-until` proof gets those and also X and U buttons (they type `X ` and ` U `, with a space before `X` too when a
+name is right before the caret, since the backend reads `X` and `U` only as words of their own), and its hint says so and that `s0+1` is the state after `s0`. There, the instant
 check of the New Proof dialog (`checkFormula`) reads `X` as a unary and `U` as a binary operator only as whole words
 (`Xp`, `pUq` and `TRUE` stay names) and a successor state such as `s0+1` or `s0 + 1` as one operand; the State column,
 the State inputs and "Copy proof as text" (`s0+1: p           XE [1]`) take successor states as the backend writes them.

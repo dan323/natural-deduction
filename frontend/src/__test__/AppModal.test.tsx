@@ -3,58 +3,25 @@ import userEvent from '@testing-library/user-event';
 import App from '../App';
 import { clearActionsCache } from '../service/actions';
 import { ActionDescriptor, ProofDto, StepDto } from '../types';
+import { ASSUME, jsonResponse, mockStatesBackend, requestsTo as requestsToPath } from './statesBackend';
 
 // A modal proof is started as a user would, against a mocked modal backend.
 
-function jsonResponse(status: number, body: unknown): Response {
-  return { ok: status >= 200 && status < 300, status, json: async () => body } as Response;
-}
-
 const BOX_E: ActionDescriptor = { name: '[]E', params: ['INT', 'INT'] };
-const ASSUME: ActionDescriptor = { name: 'Ass', params: ['EXPRESSION', 'STATE'] };
 
 describe('App with a modal proof', () => {
   const fetchMock = jest.fn();
-
-  // The modal backend: its rules; a replay (the COPY that New Proof sends) that, like `ModalProofTransformer`
-  // .initialAssumption, rejects a premise other than a relation that is not in `s0`; `[]E 1, 2`, which puts `p` in
-  // `s1`; and `Ass`, which assumes its expression in its state.
-  const mockModalBackend = () => {
-    fetchMock.mockImplementation(async (url: string, init?: RequestInit) => {
-      if (url.endsWith('/actions')) return jsonResponse(200, [BOX_E, ASSUME]);
-      const { proofDto, actionDto } = JSON.parse(String(init!.body)) as { proofDto: ProofDto, actionDto: { name: string, extraParameters: Record<string, string> } };
-      const badPremise = proofDto.steps.findIndex((step) =>
-        step.rule === 'Ass' && step.assmsLevel === 0 && !step.expression.includes('=') && step.extraParameters.state !== 's0');
-      if (badPremise !== -1) {
-        return jsonResponse(400, { message: `Line ${badPremise + 1} is not valid: the assumptions are not in a valid state` });
-      }
-      const withStep = (step: StepDto) => {
-        const proof = { ...proofDto, steps: [...proofDto.steps, step] };
-        return jsonResponse(200, { proof, success: true, done: false, message: '' });
-      };
-      switch (actionDto.name) {
-        case 'COPY': return jsonResponse(202, { proof: proofDto, success: false, done: false, message: 'out of range' });
-        case '[]E': return withStep({ expression: 'p', rule: '[]E [1, 2]', assmsLevel: 0, extraParameters: { state: 's1' } });
-        case 'Ass': return withStep({
-          expression: actionDto.extraParameters.expression, rule: 'Ass', assmsLevel: 1,
-          extraParameters: { state: actionDto.extraParameters.state },
-        });
-        default: return jsonResponse(400, { message: 'unexpected action' });
-      }
-    });
-  };
 
   beforeEach(() => {
     fetchMock.mockReset();
     clearActionsCache();
     (global as any).fetch = fetchMock;
     window.sessionStorage.clear();
-    mockModalBackend();
+    // `[]E 1, 2` puts `p` in `s1`.
+    mockStatesBackend(fetchMock, [BOX_E, ASSUME], { '[]E': { expression: 'p', rule: '[]E [1, 2]', assmsLevel: 0, extraParameters: { state: 's1' } } });
   });
 
-  const requestsTo = (path: string) => fetchMock.mock.calls
-    .filter(([url]) => String(url) === path)
-    .map(([, init]) => JSON.parse(String(init.body)));
+  const requestsTo = (path: string) => requestsToPath(fetchMock, path);
 
   // Picks modal logic on the empty page and starts the proof of `p` from `[]p` and `s0 <= s1` in the New Proof dialog.
   const startModalProof = async () => {

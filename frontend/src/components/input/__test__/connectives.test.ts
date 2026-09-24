@@ -5,6 +5,22 @@ describe('insertAtCursor', () => {
         expect(insertAtCursor('p  q', 2, 2, '->')).toEqual({ value: 'p -> q', caret: 4 });
     });
 
+    test('a word operator gets a space in front when a name is right before the caret, so it does not join it', () => {
+        expect(insertAtCursor('p U', 3, 3, 'X ')).toEqual({ value: 'p U X ', caret: 6 });
+        expect(insertAtCursor('p1', 2, 2, 'X ')).toEqual({ value: 'p1 X ', caret: 5 });
+    });
+
+    test('a word operator gets no extra space at the start, after a space or after a symbol', () => {
+        expect(insertAtCursor('', 0, 0, 'X ')).toEqual({ value: 'X ', caret: 2 });
+        expect(insertAtCursor('p U ', 4, 4, 'X ')).toEqual({ value: 'p U X ', caret: 6 });
+        expect(insertAtCursor('(', 1, 1, 'X ')).toEqual({ value: '(X ', caret: 3 });
+        expect(insertAtCursor('p &', 3, 3, 'X ')).toEqual({ value: 'p &X ', caret: 5 });
+    });
+
+    test('a symbol is inserted as is after a name', () => {
+        expect(insertAtCursor('p', 1, 1, '->')).toEqual({ value: 'p->', caret: 3 });
+    });
+
     test('replaces the selection', () => {
         expect(insertAtCursor('p & q', 2, 3, '->')).toEqual({ value: 'p -> q', caret: 4 });
     });
