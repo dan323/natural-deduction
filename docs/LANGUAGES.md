@@ -187,6 +187,10 @@ Formula ::= Classical | □Formula | ◇Formula | (Formula ∧ Formula) | ...
 API. Formulas relate states with `<=` and `=` (`LessEqual`, `Equals`). The model also has an `Until` operator, but
 `ModalLogicParser` does not parse it, so it cannot be sent through the proof and action API.
 
+In the frontend, every formula field of a modal proof adds □ and ◇ buttons (they type `[]` and `<>`) to the connective
+buttons, and its syntax hint also explains the relations `s0 <= s1` and `s0 = s1` (`connectives.ts`); `Until` is left
+out, as it cannot be typed.
+
 ### Examples
 
 ```
