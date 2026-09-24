@@ -27,11 +27,17 @@ function premiseCount(steps: StepDto[]): number {
 const EXAMPLE_PREMISES = ['p -> q', 'p'];
 const EXAMPLE_GOAL = 'q';
 
-// What happens to a copied proof text in the New Proof dialog: `POST .../proof` only reads a finished proof, and takes
-// its last line as the goal. `done` alone does not promise that the text loads back as the same proof: a top-level step
-// other than the last may be the goal (e.g. a premise that already is the goal).
+// What happens to a copied proof text in the New Proof dialog: `POST .../proof` rejects a text whose last line is not
+// at the top level, and otherwise takes that last line as the goal. So `done` alone does not promise that the text loads
+// back as the same proof (a top-level step other than the last may be the goal, e.g. a premise that already is the
+// goal), and an unfinished proof ending at the top level (e.g. only its premises) loads back as a finished proof of its
+// last line, not rejected.
 function copyLoadNote(proof: ProofDto): ReactNode {
-  if (!proof.done) return 'It only loads back in the New Proof dialog once the proof is finished.';
+  if (!proof.done) {
+    const last = proof.steps[proof.steps.length - 1] as StepDto | undefined;
+    if (last?.assmsLevel !== 0) return 'It only loads back in the New Proof dialog once the proof is finished.';
+    return <>It is not finished, so it loads back in the New Proof dialog as a proof of its last line <code>{loadedGoal(proof)}</code> instead of the goal <code>{proof.goal}</code>.</>;
+  }
   if (loadsBackWithSameGoal(proof)) return 'To load it again, paste it in the New Proof dialog.';
   return <>Its last line is not the goal, so it loads back in the New Proof dialog with the goal <code>{loadedGoal(proof)}</code> instead of <code>{proof.goal}</code>.</>;
 }
@@ -271,8 +277,8 @@ function App() {
   });
 
   // Copies the proof in the text layout the backend reads back (see `proofToText`), for "Load from text" or a file. The
-  // backend only reads back a finished proof and takes its last line as the goal, which the notice says when this one
-  // is not done yet, or when its last line is not the goal (see `copyLoadNote`).
+  // backend rejects a text that does not end at the top level and takes its last line as the goal, which the notice
+  // says when this one is not done yet, or when its last line is not the goal (see `copyLoadNote`).
   const handleCopyText = async () => {
     const text = proofToText(proof);
     try {

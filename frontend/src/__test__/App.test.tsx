@@ -809,11 +809,34 @@ describe('App', () => {
       expect(await navigator.clipboard.readText()).toBe(copied);
     });
 
-    test('copying an unfinished proof says that its text only loads back once the proof is finished', async () => {
+    test('copying an unfinished proof that ends at the top level says it loads back as a proof of its last line', async () => {
       mockRoundTripBackend();
       const user = userEvent.setup();
       render(<App />);
       await startProof(user, 'Q', 'P -> P');
+
+      await user.click(screen.getByRole('button', { name: 'Copy proof as text' }));
+
+      const notice = await screen.findByText(/Proof copied to the clipboard as text/);
+      expect(notice).toHaveTextContent('It is not finished, so it loads back in the New Proof dialog as a proof of its last line Q instead of the goal P -> P.');
+      expect(notice).not.toHaveTextContent('To load it again');
+    });
+
+    test('copying an unfinished proof that ends inside a subproof says that its text only loads back once the proof is finished', async () => {
+      // Kept from before a page reload: the premise Q, then an open assumption P.
+      const openAssumption = {
+        steps: [
+          { expression: 'Q', rule: 'Ass', assmsLevel: 0, extraParameters: {} },
+          { expression: 'P', rule: 'Ass', assmsLevel: 1, extraParameters: {} },
+        ],
+        logic: 'classical',
+        goal: 'P -> P',
+      };
+      window.sessionStorage.setItem('natural-deduction.proof', JSON.stringify(openAssumption));
+      mockRoundTripBackend();
+      const user = userEvent.setup();
+      render(<App />);
+      await waitFor(() => expect(screen.getAllByRole('row')).toHaveLength(3));
 
       await user.click(screen.getByRole('button', { name: 'Copy proof as text' }));
 
