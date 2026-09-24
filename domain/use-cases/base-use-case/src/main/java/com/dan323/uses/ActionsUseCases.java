@@ -2,6 +2,7 @@ package com.dan323.uses;
 
 import com.dan323.model.ActionDescriptorDto;
 import com.dan323.model.ActionDto;
+import com.dan323.model.ExerciseDto;
 import com.dan323.model.ProofDto;
 
 import java.util.List;
@@ -16,8 +17,17 @@ public interface ActionsUseCases {
 
     ParseProof parseToProof(String logic);
 
+    GetExercises getExercises(String logicName);
+
     interface GetActions {
         List<ActionDescriptorDto> perform();
+    }
+
+    /**
+     * The logic's exercise catalog, without the reference solutions. Empty for a known logic that has no catalog.
+     */
+    interface GetExercises {
+        List<ExerciseDto> perform();
     }
 
     interface ParseProof {

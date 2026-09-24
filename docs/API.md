@@ -99,6 +99,24 @@ Runs the automatic solver on the proof (a `ProofDto`) and returns the resulting 
   with `429` and `{"message": "The solver is busy with other proofs, try again in a moment"}`.
 - An invalid proof is a `400`, as for `/action`.
 
+### List the exercises: `GET /logic/{logic}/exercises`
+
+Returns `200` with the logic's exercises, ordered from easy to hard. Each one asks to prove `goal` from `premises`.
+
+```json
+[
+  {"id": "modus-ponens", "title": "Modus ponens", "premises": ["p", "p -> q"], "goal": "q", "difficulty": "EASY"},
+  {"id": "excluded-middle", "title": "The law of excluded middle", "premises": [], "goal": "p | (- p)", "difficulty": "HARD"}
+]
+```
+
+- `id` is stable and unique within the logic. `difficulty` is `EASY`, `MEDIUM` or `HARD`.
+- The formulas are written the way the server prints them (fully parenthesized, `- (- p)` rather than `--p`, which
+  does not parse), so they can be sent back as they are and match the expressions of the proof's steps.
+- Classical logic has 14 exercises. Modal logic has none yet: it answers `200` with `[]`. An unknown logic is a `404`.
+- Every exercise has a reference solution on the server, a proof in the proof-file layout (see below) that a unit test
+  replays. It is never sent to the client.
+
 ### Upload a proof file: `POST /logic/{logic}/proof`
 
 Multipart form with the file in the part `file`, in the layout `ProofStep.toString()` prints (3 spaces of indent per

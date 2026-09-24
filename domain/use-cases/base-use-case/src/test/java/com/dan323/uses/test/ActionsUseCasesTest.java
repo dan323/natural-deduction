@@ -2,11 +2,15 @@ package com.dan323.uses.test;
 
 import com.dan323.model.ActionDescriptorDto;
 import com.dan323.model.ActionDto;
+import com.dan323.model.Difficulty;
+import com.dan323.model.ExerciseDto;
 import com.dan323.model.ProofDto;
 import com.dan323.proof.generic.Action;
 import com.dan323.proof.generic.proof.Proof;
 import com.dan323.uses.ActionsUseCases;
+import com.dan323.uses.Exercise;
 import com.dan323.uses.InvalidActionException;
+import com.dan323.uses.LogicalExercises;
 import com.dan323.uses.LogicalGetActions;
 import com.dan323.uses.ProofParser;
 import com.dan323.uses.Transformer;
@@ -35,7 +39,7 @@ public class ActionsUseCasesTest {
     private final WithParsers useCases = parsers
             -> transformers
             -> getActions
-            -> actionsUseCaseConfiguration.useCases(getActions, transformers, parsers);
+            -> actionsUseCaseConfiguration.useCases(getActions, transformers, parsers, List.of());
 
     @Test
     public void solveTest() {
@@ -61,6 +65,25 @@ public class ActionsUseCasesTest {
         assertEquals(List.of("l1.A1", "l1.A2", "l1.A3"), p1.perform().stream().map(ActionDescriptorDto::name).toList());
         assertEquals(List.of("l2.A1", "l2.A2", "l2.A3"), p2.perform().stream().map(ActionDescriptorDto::name).toList());
         assertThrows(IllegalArgumentException.class, () -> cases.getActions("l3"));
+    }
+
+    @Test
+    public void exercisesTest() {
+        var catalog = new LogicalExercises() {
+            @Override
+            public String logic() {
+                return "l1";
+            }
+
+            @Override
+            public List<Exercise> exercises() {
+                return List.of(new Exercise("e1", "First", List.of("P"), "P", Difficulty.EASY, "the solution"));
+            }
+        };
+        var cases = actionsUseCaseConfiguration.useCases(actionsList(), List.of(), List.of(), List.of(catalog));
+        assertEquals(List.of(new ExerciseDto("e1", "First", List.of("P"), "P", Difficulty.EASY)), cases.getExercises("l1").perform());
+        assertEquals(List.of(), cases.getExercises("l2").perform());
+        assertThrows(UnknownLogicException.class, () -> cases.getExercises("l3"));
     }
 
     @Test

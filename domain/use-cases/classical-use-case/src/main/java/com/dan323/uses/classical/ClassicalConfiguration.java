@@ -1,5 +1,6 @@
 package com.dan323.uses.classical;
 
+import com.dan323.uses.LogicalExercises;
 import com.dan323.uses.LogicalGetActions;
 import com.dan323.uses.ProofParser;
 import com.dan323.uses.Transformer;
@@ -22,6 +23,11 @@ public class ClassicalConfiguration {
     @Bean
     public Transformer classicalTransformer() {
         return new ClassicalProofTransformer();
+    }
+
+    @Bean
+    public LogicalExercises classicalExercises() {
+        return new ClassicalExercises();
     }
 
 }

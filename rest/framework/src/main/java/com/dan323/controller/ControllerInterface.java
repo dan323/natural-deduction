@@ -1,6 +1,7 @@
 package com.dan323.controller;
 
 import com.dan323.model.ActionDescriptorDto;
+import com.dan323.model.ExerciseDto;
 import com.dan323.model.ProofDto;
 import com.dan323.rest.model.ProofActionRequest;
 import com.dan323.rest.model.ProofResponse;
@@ -35,6 +36,11 @@ public class ControllerInterface {
         } else {
             return ResponseEntity.ok().body(actions);
         }
+    }
+
+    @GetMapping("{logic}/exercises")
+    public ResponseEntity<List<ExerciseDto>> getExercises(@PathVariable("logic") String logic) {
+        return ResponseEntity.ok().body(useCase.getExercises(logic).perform());
     }
 
     @PostMapping("{logic}/solve")
