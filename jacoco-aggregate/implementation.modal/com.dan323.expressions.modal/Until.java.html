@@ -20,10 +20,10 @@ public final class Until extends BinaryOperation&lt;ModalOperation&gt; implement
 
     @Override
     public boolean equals(Object obj) {
-<span class="pc bpc" id="L23" title="1 of 2 branches missed.">        if (obj instanceof Until unt) {</span>
+<span class="fc bfc" id="L23" title="All 2 branches covered.">        if (obj instanceof Until unt) {</span>
 <span class="fc bfc" id="L24" title="All 4 branches covered.">            return unt.getLeft().equals(getLeft()) &amp;&amp; unt.getRight().equals(getRight());</span>
         } else {
-<span class="nc" id="L26">            return false;</span>
+<span class="fc" id="L26">            return false;</span>
         }
     }
 }

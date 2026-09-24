@@ -44,7 +44,7 @@ import java.util.Objects;
 <span class="fc bfc" id="L44" title="All 2 branches covered.">        if (!(pf.getSteps().getLast()).getState().equals(stateGreater)) {</span>
 <span class="fc" id="L45">            return false;</span>
         }
-<span class="fc bfc" id="L47" title="All 2 branches covered.">        return !pf.stateIsUsedBefore(stateGreater, pf.getSteps().size() - lastAssumption);</span>
+<span class="fc" id="L47">        return pf.isFreshState(stateGreater, ((LessEqual) log.getStep()).getLeft(), pf.getSteps().size() - lastAssumption);</span>
     }
 
     @Override
