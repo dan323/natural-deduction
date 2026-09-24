@@ -141,7 +141,8 @@ assumption level, an 11-space gap, then the rule, e.g. `->I [1-2]`). Returns `20
 cannot be parsed, or a step that does not follow, is a `400` whose message names the line. In a `modal` file a line
 that is in a state starts with the state and `: `, before the indent (`s0: [] p           Ass`,
 `s1:    q           Ass`); a relation between states (`s0 <= s1           Ass`) has no prefix. A `modal-next-until` file uses the same layout,
-with successor states (`s0+1: p           XE [1]`).
+with successor states (`s0+1: p           XE [1]`); a file that does not prove its goal (the last line) in `s0`, such
+as one that ends with `s0+1: p`, is a `400`.
 
 ### Intuitionistic logic
 

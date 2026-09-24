@@ -225,6 +225,10 @@ public class RestServiceIT {
         assertEquals(new StepDto("s0 <= s0+1", "Succ [1]", 0, Map.of()), proof.steps().get(1));
         assertEquals(new StepDto("p", "[]E [1, 2]", 0, Map.of("state", "s0+1")), proof.steps().get(2));
         assertError(HttpStatus.BAD_REQUEST, postUpload("modal", text));
+        // p in s0+1 does not prove the goal p, which is in s0: no 201 whose done would say otherwise.
+        var notInS0 = postUpload(NEXT_UNTIL, "s0: X p" + gap + "Ass\n" + "s0+1: p" + gap + "XE [1]\n");
+        assertError(HttpStatus.BAD_REQUEST, notInS0);
+        assertEquals("The proof is invalid: it proves its goal in s0+1, not in the initial state s0", notInS0.getBody().message());
     }
 
     @Test

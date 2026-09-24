@@ -169,15 +169,37 @@ class ModalNextUntilUseTest {
     @Test
     void aProofTextWithAWrongStateIsRejected() {
         var parser = new ModalNextUntilProofParser();
-        var replayed = parser.parseProof("""
+        // The rule gives the state: p follows in s0+1, whatever the line says, so the goal p is not proved in s0.
+        var notInS0 = assertThrows(InvalidProofException.class, () -> parser.parseProof("""
                 s0: X p           Ass
                 s1: p           XE [1]
-                """);
-        assertEquals("s0+1", replayed.getSteps().getLast().getState(), "the rule gives the state");
-        assertFalse(replayed.isDone(), "p is in s0+1, not in s0");
+                """));
+        assertEquals("The proof is invalid: it proves its goal in s0+1, not in the initial state s0", notInS0.getMessage());
         assertThrows(InvalidProofException.class, () -> parser.parseProof("""
                 s0: X p           Ass
                 s0+: p           XE [1]
                 """));
+    }
+
+    @Test
+    void aProofTextThatProvesItsGoalInS0EarlierIsAccepted() {
+        var proof = new ModalNextUntilProofParser().parseProof("""
+                s0: p           Ass
+                s0: X p           Ass
+                s0+1: p           XE [2]
+                """);
+
+        assertTrue(proof.isDone(), "line 1 is p in s0");
+    }
+
+    @Test
+    void modalStillLoadsAProofThatEndsInAnotherState() {
+        var proof = new ModalProofParser().parseProof("""
+                s0: [] p           Ass
+                s0 <= s1           Ass
+                s1: p           []E [1, 2]
+                """);
+
+        assertTrue(proof.isDone(), "the modal done looks at the formula only");
     }
 }
