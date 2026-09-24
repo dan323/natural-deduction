@@ -146,6 +146,13 @@ describe('Menu solve button', () => {
         expect(screen.getByRole('button', { name: /Apply Rule/i })).toBeInTheDocument();
     });
 
+    test('is not offered for modal-next-until, whose /solve is a 400', () => {
+        render(<Menu {...props} logic="modal-next-until" proof={{ ...proof, logic: 'modal-next-until' }} />);
+
+        expect(screen.queryByRole('button', { name: /Solve/i })).not.toBeInTheDocument();
+        expect(screen.getByText('Modal with Next and Until logic has no automatic solver.')).toBeInTheDocument();
+    });
+
     test('is offered for classical logic', () => {
         render(<Menu {...props} logic="classical" proof={{ ...proof, logic: 'classical' }} />);
 

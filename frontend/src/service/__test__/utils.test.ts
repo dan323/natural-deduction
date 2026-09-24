@@ -101,6 +101,35 @@ describe('checkFormula', () => {
   });
 });
 
+describe('checkFormula in modal-next-until', () => {
+  const NU = 'modal-next-until';
+
+  test.each([
+    'X p', 'p U q', 'X (p U q)', '(X p) U q', '[] (p -> (X p))', 'X - p', '[] X p', '- p U X q -> r', 'q | (p & (X (p U q)))',
+    'Xp', 'pUq', 'TRUE', 'U1', 'X Xp', 'X(p)', 'p U(q)',
+    's0 <= s0+1', 's0+1 <= s1', 's0 + 1 + 1 = s0+2', 'X p & s1+2 <= s3',
+  ])('accepts %j', (formula) => {
+    expect(checkFormula(formula, NU)).toBeNull();
+  });
+
+  test.each(['X', 'p U', 'U q', 'p X q', 'X U p', 'p U U q', '(X)'])('rejects the misplaced X or U in %j', (formula) => {
+    expect(checkFormula(formula, NU)).not.toBeNull();
+  });
+
+  test.each(['s0+', 's0 + ', 's0+1a <= s1', 's0-1 <= s1', 'X+1', '+1'])('rejects the malformed successor state in %j', (formula) => {
+    expect(checkFormula(formula, NU)).not.toBeNull();
+  });
+
+  test.each(['X p', 'p U q', 's0 <= s0+1'])('the other logics read X and U as names and have no successor states: %j is refused', (formula) => {
+    expect(checkFormula(formula)).not.toBeNull();
+    expect(checkFormula(formula, 'modal')).not.toBeNull();
+  });
+
+  test.each(['Xp', 'pUq', 'X', 'U'])('the other logics accept %j as a name', (formula) => {
+    expect(checkFormula(formula, 'modal')).toBeNull();
+  });
+});
+
 describe('proofToText', () => {
   test('writes each step as ProofStep.toString() does: 3 spaces per level, the expression, 11 spaces, the rule', () => {
     const text = proofToText({
@@ -155,6 +184,54 @@ describe('proofToText', () => {
       's2:    q           Ass',
       's1: p           []E [1, 2]',
     ]);
+  });
+
+  test('a modal-next-until step in a successor state starts with that state, as ModalNextUntilProofParser reads it', () => {
+    const text = proofToText({
+      steps: [
+        { expression: '[] p', rule: 'Ass', assmsLevel: 0, extraParameters: { state: 's0' } },
+        { expression: 's0 <= s0+1', rule: 'Succ [1]', assmsLevel: 0, extraParameters: {} },
+        { expression: 's0+1 <= s1', rule: 'Ass', assmsLevel: 1, extraParameters: {} },
+        { expression: 's0 <= s1', rule: 'Trans [2, 3]', assmsLevel: 1, extraParameters: {} },
+        { expression: 'p', rule: '[]E [1, 4]', assmsLevel: 1, extraParameters: { state: 's1' } },
+        { expression: '[] p', rule: '[]I [3-5]', assmsLevel: 0, extraParameters: { state: 's0+1' } },
+        { expression: 'X ([] p)', rule: 'XI [6]', assmsLevel: 0, extraParameters: { state: 's0' } },
+      ],
+      logic: 'modal-next-until',
+      goal: 'X ([] p)',
+    });
+
+    // The reference solution of the backend's `always-always-next` exercise.
+    expect(text.split('\n')).toEqual([
+      's0: [] p           Ass',
+      's0 <= s0+1           Succ [1]',
+      '   s0+1 <= s1           Ass',
+      '   s0 <= s1           Trans [2, 3]',
+      's1:    p           []E [1, 4]',
+      's0+1: [] p           []I [3-5]',
+      's0: X ([] p)           XI [6]',
+    ]);
+  });
+});
+
+describe('isRelationFormula in modal-next-until', () => {
+  const NU = 'modal-next-until';
+
+  test('a relation between successor states is one', () => {
+    expect(isRelationFormula('s0+1 <= s1', NU)).toBe(true);
+    expect(isRelationFormula('s0 <= s0+1', NU)).toBe(true);
+    expect(isRelationFormula('(s0 + 1 = s1+2)', NU)).toBe(true);
+  });
+
+  test('X and U as words of their own are connectives, but not inside a name', () => {
+    expect(isRelationFormula('X s0 <= s1', NU)).toBe(false);
+    expect(isRelationFormula('p U s0 <= s1', NU)).toBe(false);
+    expect(isRelationFormula('X(p)', NU)).toBe(false);
+    expect(isRelationFormula('Xs <= sU', NU)).toBe(true);
+  });
+
+  test('in modal logic a state may be called X', () => {
+    expect(isRelationFormula('X <= s1', 'modal')).toBe(true);
   });
 });
 

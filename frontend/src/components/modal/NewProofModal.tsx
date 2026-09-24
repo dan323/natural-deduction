@@ -172,9 +172,9 @@ const NewProofModal: FC<NewProofModalProps> = ({ isOpen, opener: openerProp, onC
     if (isSubmitting || isLoading) return;
     // A blank premise is just an unused row and is left out; everything else has to look like a formula.
     const checked = premises.map((premise) => (
-      { ...premise, error: premise.text.trim() === '' ? null : checkFormula(premise.text) }
+      { ...premise, error: premise.text.trim() === '' ? null : checkFormula(premise.text, logic) }
     ));
-    const newGoalError = checkFormula(goal);
+    const newGoalError = checkFormula(goal, logic);
     if (newGoalError !== null || checked.some((premise) => premise.error !== null)) {
       setPremises(checked);
       setGoalError(newGoalError);

@@ -29,7 +29,7 @@ function premiseCount(steps: StepDto[]): number {
 // rejects a premise that is not in the initial state. A relation between states (`s0 <= s1`) is in no state: the
 // backend neither checks nor keeps one for it, and answers it with `{}`, so it gets none here either.
 function premiseParameters(premise: string, proofLogic: string): Record<string, string> {
-  return hasStates(proofLogic) && !isRelationFormula(premise) ? { state: INITIAL_STATE } : {};
+  return hasStates(proofLogic) && !isRelationFormula(premise, proofLogic) ? { state: INITIAL_STATE } : {};
 }
 
 // The proof "Try an example" starts: p -> q and p prove q in one Modus Ponens step.

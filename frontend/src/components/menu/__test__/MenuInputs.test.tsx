@@ -179,6 +179,23 @@ describe('Menu inputs', () => {
         );
     });
 
+    test('a state input takes a successor state such as s0+1 (modal-next-until) and sends it as typed', async () => {
+        const user = userEvent.setup();
+        setupActions([{ name: 'Ass', params: ['EXPRESSION', 'STATE'] }]);
+
+        await select(user, 'Ass');
+        await user.type(screen.getByLabelText(/Expression:/i), 'X p');
+        await user.type(screen.getByLabelText(/State:/i), 's0+1');
+        expect(screen.getByRole('button', { name: /Apply Rule/i })).toBeEnabled();
+        await apply(user);
+
+        expect(mockApplyAction).toHaveBeenLastCalledWith(
+            props.logic, props.proof,
+            { name: 'Ass', sources: [], extraParameters: { expression: 'X p', state: 's0+1' } },
+            expect.any(Function)
+        );
+    });
+
     test('only the expression input gets the formula syntax help, not the state input', async () => {
         const user = userEvent.setup();
         setupActions([{ name: 'Ass', params: ['EXPRESSION', 'STATE'] }]);

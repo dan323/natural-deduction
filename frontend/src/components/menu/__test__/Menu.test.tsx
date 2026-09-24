@@ -103,6 +103,22 @@ describe('Menu Component', () => {
         );
     });
 
+    test.each([
+        ['modal-next-until', true],
+        ['modal', false],
+        ['classical', false],
+    ])('the expression input of a %s proof has the X and U buttons: %p', (logic, nextUntil) => {
+        mockFetchActions.mockImplementation((_logic, callback) => {
+            callback([{ name: 'Ass', params: ['EXPRESSION', 'STATE'] }]);
+        });
+
+        render(<Menu {...defaultProps} logic={logic} proof={{ ...mockProof, logic }} />);
+        fireEvent.change(screen.getByLabelText(/Select Inference Rule:/i), { target: { value: 'Ass' } });
+
+        expect(screen.queryAllByRole('button', { name: /^Insert (next|until) / })).toHaveLength(nextUntil ? 2 : 0);
+        expect(screen.queryAllByRole('button', { name: /^Insert (necessarily|possibly)/ })).toHaveLength(logic === 'classical' ? 0 : 2);
+    });
+
     test('button is enabled when inputs are valid', async () => {
         mockFetchActions.mockImplementation((logic, callback) => {
             callback([{ name: 'Action1', params: ['INT', 'INT'] }, { name: 'Action2', params: ['EXPRESSION'] }]);

@@ -55,4 +55,18 @@ describe('connectives', () => {
             + 'relations between states: s0 <= s1 (s1 is reachable from s0), s0 = s1 (the same state)'
         );
     });
+
+    test('a modal-next-until proof also gets X and U, which are typed with spaces around them', () => {
+        expect(connectivesFor('modal-next-until').map(({ symbol, ascii, insert }) => [symbol, insert ?? ascii])).toEqual([
+            ['→', '->'], ['∧', '&'], ['∨', '|'], ['¬', '-'], ['□', '[]'], ['◇', '<>'], ['X', 'X '], ['U', ' U '],
+        ]);
+    });
+
+    test('the modal-next-until syntax hint adds X, U and successor states', () => {
+        expect(syntaxHint('modal-next-until')).toBe(
+            '-> implies, & and, | or, - not, [] necessarily, <> possibly, X next, U until; '
+            + 'relations between states: s0 <= s1 (s1 is reachable from s0), s0 = s1 (the same state); '
+            + 'X and U only as words of their own (Xp and pUq are names); s0+1 is the state after s0'
+        );
+    });
 });
