@@ -239,9 +239,13 @@ function App() {
   }, [proof, exerciseId]);
 
   // A proof of an exercise that the backend says is done marks the exercise as solved, however it got there (rules, or
-  // the solver).
+  // the solver). The stored ids are merged into the ones already known, so that when storage cannot be used the
+  // exercises solved earlier in this page session still count.
   useEffect(() => {
-    if (proof.done === true && exerciseId !== null) setSolved(markExerciseSolved(LOGIC, exerciseId));
+    if (proof.done === true && exerciseId !== null) {
+      const stored = markExerciseSolved(LOGIC, exerciseId);
+      setSolved((previous) => new Set([...previous, ...stored]));
+    }
   }, [proof, exerciseId]);
 
   // Fetches the exercises the first time they are needed: when the list is opened, or when a proof of an exercise is on

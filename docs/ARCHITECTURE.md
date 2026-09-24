@@ -47,6 +47,8 @@ The Natural Deduction project follows a **plugin-based architecture** with clear
   - Proof visualization
   - Rule selection (built from the action descriptors of the backend) and application
   - A Solve button that asks the backend's automatic solver to finish the proof
+  - An exercise list (`ExerciseList`, from `GET exercises`) grouped by difficulty, with a "Solved n of m" counter, a "(Solved)" marker per exercise and a "Next exercise" button; starting an exercise over a proof with more than its premises asks for confirmation before discarding it
+  - Browser storage: the proof on screen is kept in `sessionStorage` under `natural-deduction.proof` (goal, steps, logic and the `exerciseId` it was started from, if any) so it survives a reload; the solved exercises are kept in `localStorage` under `natural-deduction.solved-exercises`, as a list of exercise ids per logic. Storage that cannot be used is ignored
   - Hardcoded to the classical logic
 
 ### 2. REST API Layer
