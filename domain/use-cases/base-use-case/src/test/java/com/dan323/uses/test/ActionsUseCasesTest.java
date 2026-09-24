@@ -87,6 +87,28 @@ public class ActionsUseCasesTest {
     }
 
     @Test
+    public void exerciseCatalogForUnknownLogicIsRejectedTest() {
+        var catalog = new LogicalExercises() {
+            @Override
+            public String logic() {
+                return "l3";
+            }
+
+            @Override
+            public List<Exercise> exercises() {
+                return List.of();
+            }
+        };
+        var getActions = actionsList();
+        List<Transformer> noTransformers = List.of();
+        List<ProofParser> noParsers = List.of();
+        List<LogicalExercises> catalogs = List.of(catalog);
+        var exception = assertThrows(IllegalStateException.class,
+                () -> actionsUseCaseConfiguration.useCases(getActions, noTransformers, noParsers, catalogs));
+        assertEquals("Exercise catalog for unknown logic 'l3'", exception.getMessage());
+    }
+
+    @Test
     public void applierTest() {
         var cases = useCases
                 .withNoParsers()

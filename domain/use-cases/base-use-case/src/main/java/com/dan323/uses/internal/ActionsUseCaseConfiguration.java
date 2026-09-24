@@ -46,6 +46,15 @@ public class ActionsUseCaseConfiguration {
         Set<String> knownLogics = new HashSet<>(transformerMap.keySet());
         knownLogics.addAll(actionGetters.keySet());
         knownLogics.addAll(parserMap.keySet());
+        // A catalog only makes sense for a logic the other use cases serve; otherwise its exercises would be listed
+        // for a logic whose actions, proofs and solver all answer 404.
+        exercises.stream()
+                .map(LogicalExercises::logic)
+                .filter(logic -> !knownLogics.contains(logic))
+                .findFirst()
+                .ifPresent(logic -> {
+                    throw new IllegalStateException("Exercise catalog for unknown logic '" + logic + "'");
+                });
         Map<String, ActionsUseCases.GetExercises> exerciseMap = new HashMap<>(exercises.stream()
                 .collect(Collectors.toMap(LogicalExercises::logic, catalog -> {
                     var dtos = catalog.exercises().stream().map(Exercise::toDto).toList();
