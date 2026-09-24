@@ -4,6 +4,7 @@ import com.dan323.classical.proof.ParseClassicalAction;
 import com.dan323.model.Difficulty;
 import com.dan323.uses.Exercise;
 import com.dan323.uses.InvalidProofException;
+import com.dan323.uses.classical.ClassicalConfiguration;
 import com.dan323.uses.classical.ClassicalExercises;
 import com.dan323.uses.classical.ParseClassicalProof;
 import org.junit.jupiter.api.DynamicTest;
@@ -17,18 +18,18 @@ import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class ClassicalExercisesTest {
+class ClassicalExercisesTest {
 
     private final ClassicalExercises catalog = new ClassicalExercises();
 
     @TestFactory
-    public Stream<DynamicTest> everyReferenceSolutionProvesItsExercise() {
+    Stream<DynamicTest> everyReferenceSolutionProvesItsExercise() {
         return catalog.exercises().stream()
                 .map(exercise -> DynamicTest.dynamicTest(exercise.id(), () -> assertSolved(exercise)));
     }
 
     @Test
-    public void anUnprovableExerciseIsCaught() {
+    void anUnprovableExerciseIsCaught() {
         var wrongGoal = new Exercise("wrong-goal", "Wrong goal", List.of("p", "p -> q"), "r", Difficulty.EASY, """
                 p           Ass
                 p -> q           Ass
@@ -44,7 +45,7 @@ public class ClassicalExercisesTest {
     }
 
     @Test
-    public void catalogShape() {
+    void catalogShape() {
         var exercises = catalog.exercises();
         assertEquals("classical", catalog.logic());
         assertTrue(exercises.size() >= 12, "about a dozen exercises");
@@ -56,7 +57,14 @@ public class ClassicalExercisesTest {
     }
 
     @Test
-    public void dtoLeavesTheSolutionOut() {
+    void theConfigurationExposesTheCatalog() {
+        var bean = new ClassicalConfiguration().classicalExercises();
+        assertEquals("classical", bean.logic());
+        assertEquals(catalog.exercises(), bean.exercises());
+    }
+
+    @Test
+    void dtoLeavesTheSolutionOut() {
         var exercise = catalog.exercises().getFirst();
         var dto = exercise.toDto();
         assertEquals(exercise.id(), dto.id());

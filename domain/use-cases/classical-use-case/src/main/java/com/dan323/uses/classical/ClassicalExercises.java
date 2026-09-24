@@ -13,9 +13,11 @@ import java.util.List;
  */
 public class ClassicalExercises implements LogicalExercises {
 
+    private static final String P_IMPLIES_Q = "p -> q";
+
     private static final List<Exercise> EXERCISES = List.of(
             new Exercise("modus-ponens", "Modus ponens",
-                    List.of("p", "p -> q"), "q", Difficulty.EASY,
+                    List.of("p", P_IMPLIES_Q), "q", Difficulty.EASY,
                     """
                     p           Ass
                     p -> q           Ass
@@ -42,7 +44,7 @@ public class ClassicalExercises implements LogicalExercises {
                     p           -E [1]
                     """),
             new Exercise("modus-ponens-chain", "A chain of modus ponens",
-                    List.of("p", "p -> q", "q -> r"), "r", Difficulty.EASY,
+                    List.of("p", P_IMPLIES_Q, "q -> r"), "r", Difficulty.EASY,
                     """
                     p           Ass
                     p -> q           Ass
@@ -57,7 +59,7 @@ public class ClassicalExercises implements LogicalExercises {
                     p -> p           ->I [1-1]
                     """),
             new Exercise("hypothetical-syllogism", "Hypothetical syllogism",
-                    List.of("p -> q", "q -> r"), "p -> r", Difficulty.MEDIUM,
+                    List.of(P_IMPLIES_Q, "q -> r"), "p -> r", Difficulty.MEDIUM,
                     """
                     p -> q           Ass
                     q -> r           Ass
@@ -98,7 +100,7 @@ public class ClassicalExercises implements LogicalExercises {
                     q           FE [3]
                     """),
             new Exercise("modus-tollens", "Modus tollens",
-                    List.of("p -> q", "- q"), "- p", Difficulty.MEDIUM,
+                    List.of(P_IMPLIES_Q, "- q"), "- p", Difficulty.MEDIUM,
                     """
                     p -> q           Ass
                     - q           Ass
@@ -116,7 +118,7 @@ public class ClassicalExercises implements LogicalExercises {
                     - (- p)           -I [2-3]
                     """),
             new Exercise("contraposition", "Contraposition",
-                    List.of("p -> q"), "(- q) -> (- p)", Difficulty.HARD,
+                    List.of(P_IMPLIES_Q), "(- q) -> (- p)", Difficulty.HARD,
                     """
                     p -> q           Ass
                        - q           Ass
