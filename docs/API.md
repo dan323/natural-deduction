@@ -76,7 +76,9 @@ not apply. The UI appends the `description` of the rule to that message. A reque
 that is not valid is a `400`.
 
 `done` says whether the goal of the returned proof is proved: the domain's `Proof.isDone()`, that is, some step at
-assumption level 0 is the goal (not necessarily the last one). The UI shows it as the goal's success state.
+assumption level 0 is the goal (not necessarily the last one). The UI shows it as the goal's success state. In modal
+logic that check does not look at the step's state yet, so the goal formula derived at level 0 in a state other than
+`s0` also counts as done (a known limitation).
 
 ### Solve a proof: `POST /logic/{logic}/solve`
 
