@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>Next.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">jacoco-report-aggregate</a> &gt; <a href="../index.html" class="el_bundle">implementation.modal</a> &gt; <a href="index.source.html" class="el_package">com.dan323.expressions.modal</a> &gt; <span class="el_source">Next.java</span></div><h1>Next.java</h1><pre class="source lang-java linenums">package com.dan323.expressions.modal;
+
+/**
+ * Next, written {@code X A}: {@code X A} holds in state {@code s} when {@code A} holds in the successor state
+ * {@code s+1} (see {@link com.dan323.expressions.relation.StateTerm}). Only the {@code modal-next-until} logic reads it.
+ */
+public final class Next extends UnaryModal {
+
+    public Next(ModalLogicalOperation element) {
+<span class="fc" id="L10">        super(element);</span>
+<span class="fc" id="L11">    }</span>
+
+    @Override
+    protected String getOperator() {
+<span class="fc" id="L15">        return &quot;X&quot;;</span>
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+<span class="fc bfc" id="L20" title="All 2 branches covered.">        if (obj instanceof Next next) {</span>
+<span class="fc" id="L21">            return next.getElement().equals(getElement());</span>
+        } else {
+<span class="fc" id="L23">            return false;</span>
+        }
+    }
+
+    @Override
+    public int hashCode() {
+<span class="nc" id="L29">        return getElement().hashCode() * 17 + getClass().hashCode() * 23;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>
