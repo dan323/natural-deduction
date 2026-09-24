@@ -141,7 +141,9 @@ function App() {
 
   // On mount, brings back the proof saved before a reload (see the effect below that saves it). It goes through the
   // backend's replay like any other proof, so that it is checked again and comes back with its `done` verdict; a proof
-  // the backend rejects, or saved text that is not a proof, is forgotten and the empty state says so. An answer arriving
+  // the backend rejects as invalid (a 400), or saved text that is not a proof, is forgotten and the empty state says so.
+  // Any other failure (the backend unreachable or failing) says nothing about the proof, so it stays saved for the next
+  // reload to try again. An answer arriving
   // after another proof was started meanwhile ("Try an example" stays usable) is dropped, as is one for an unmounted App
   // (React mounts twice in development).
   useEffect(() => {
@@ -161,9 +163,12 @@ function App() {
       if (proofIdRef.current !== requestedProofId) return;
       if (result.proof) {
         showNewProof(result.proof);
-      } else {
+      } else if (result.status === 400) {
         clearSavedProof();
         setRestoreError(`The proof saved before the page was reloaded could not be restored: ${result.message || 'the backend rejected it.'}`);
+      } else {
+        // Not a verdict on the proof (no connection, a server error, a busy server): keep it for the next reload.
+        setRestoreError(`The proof saved before the page was reloaded could not be restored right now (${result.message}). It is still saved: reload the page to try again.`);
       }
     });
     return () => { active = false; };

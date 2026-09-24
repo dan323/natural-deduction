@@ -952,6 +952,37 @@ describe('App', () => {
       expect(screen.queryByRole('alert')).not.toBeInTheDocument();
     });
 
+    test.each([
+      ['the backend cannot be reached', () => Promise.reject(new TypeError('Failed to fetch')), 'Network error'],
+      ['a server error', async () => jsonResponse(500, { message: 'Internal error' }), 'Internal error'],
+      ['a busy server', async () => jsonResponse(429, { message: 'Too many requests' }), 'Too many requests'],
+    ])('a saved proof that cannot be replayed because of %s is kept for the next reload', async (_, replay, reason) => {
+      window.sessionStorage.setItem(SAVED_PROOF_KEY, JSON.stringify(repProof));
+      jest.spyOn(console, 'error').mockImplementation(() => {});
+      try {
+        fetchMock.mockImplementation((url: string) => url.endsWith('/actions')
+          ? Promise.resolve(jsonResponse(200, [REP]))
+          : replay());
+        render(<App />);
+
+        const alert = await screen.findByRole('alert');
+        expect(alert).toHaveTextContent(reason);
+        expect(alert).toHaveTextContent('It is still saved: reload the page to try again.');
+        expect(screen.getByText(/No proof loaded/)).toBeInTheDocument();
+        expect(savedProof()).toEqual(repProof);
+
+        // The next reload, with the backend back, restores it.
+        cleanup();
+        fetchMock.mockReset();
+        mockBackend([REP], 200, {}, true);
+        render(<App />);
+        await waitFor(() => expect(screen.getAllByRole('row')).toHaveLength(3));
+        expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+      } finally {
+        (console.error as jest.Mock).mockRestore();
+      }
+    });
+
     test('a storage that throws is ignored: nothing is restored, and proofs still work', async () => {
       const blocked = () => { throw new DOMException('The operation is insecure.', 'SecurityError'); };
       const spies = [
