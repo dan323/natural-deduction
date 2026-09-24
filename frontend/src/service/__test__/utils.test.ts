@@ -158,6 +158,18 @@ describe('isRelationFormula', () => {
     expect(isRelationFormula('[]p -> <>q')).toBe(false);
     expect(isRelationFormula('-(p & q) | r')).toBe(false);
   });
+
+  test('a relation in parentheses is one', () => {
+    expect(isRelationFormula('(s0 <= s1)')).toBe(true);
+    expect(isRelationFormula(' ((s0 = s1)) ')).toBe(true);
+  });
+
+  test('a formula with a relation under a connective is not', () => {
+    expect(isRelationFormula('p & s0 <= s1')).toBe(false);
+    expect(isRelationFormula('(s0 = s1) -> p')).toBe(false);
+    expect(isRelationFormula('-(s0 <= s1)')).toBe(false);
+    expect(isRelationFormula('(s0 <= s1) & (s1 <= s2)')).toBe(false);
+  });
 });
 
 describe('loadsBackWithSameGoal', () => {

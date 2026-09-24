@@ -101,10 +101,44 @@ function statePrefix(step: StepDto): string {
 }
 
 // Whether a formula of a logic with states is a relation between states (`s0 <= s1`, `s0 = s1`) rather than a formula
-// that holds in a state. Only the relations contain "=" (no connective does, and "<>" is not "<="), and the backend's
-// parser rejects any other use of it, so this needs no parsing.
+// that holds in a state. Only the top-level operator counts: the backend's `ModalLogicParser` also accepts a relation
+// inside a connective (`p & s0 <= s1`), and such a formula holds in a state. The relations bind tighter than every
+// connective there, so the formula is a relation exactly when, outside parentheses, it has a relation and no connective.
 export function isRelationFormula(formula: string): boolean {
-  return formula.includes('=');
+  const text = withoutEnclosingParentheses(formula.trim());
+  let depth = 0;
+  let relation = false;
+  for (let i = 0; i < text.length; i++) {
+    const char = text[i];
+    if (char === '(') depth++;
+    else if (char === ')') depth--;
+    else if (depth > 0) continue;
+    else if (text.startsWith('<=', i)) {
+      relation = true;
+      i++;
+    } else if (char === '=') relation = true;
+    else if ('&|-[]<>'.includes(char)) return false;
+  }
+  return relation;
+}
+
+// The formula without the parentheses that enclose all of it, as often as they do: `((p))` is `p`, `(p) & (q)` stays.
+function withoutEnclosingParentheses(formula: string): string {
+  let text = formula;
+  while (text.startsWith('(') && closingParenthesis(text) === text.length - 1) {
+    text = text.slice(1, -1).trim();
+  }
+  return text;
+}
+
+// The index of the parenthesis that closes the one the text starts with, or -1 if it is never closed.
+function closingParenthesis(text: string): number {
+  let depth = 0;
+  for (let i = 0; i < text.length; i++) {
+    if (text[i] === '(') depth++;
+    else if (text[i] === ')' && --depth === 0) return i;
+  }
+  return -1;
 }
 
 // The goal a proof text reads back with: `POST .../proof` takes the last line as the goal. Null for an empty proof.
