@@ -1,4 +1,4 @@
-import { fetchActions, applyAction, solveProof, clearActionsCache, loadProofFromText } from '../actions';
+import { fetchActions, applyAction, solveProof, clearActionsCache, clearExercisesCache, fetchExercises, loadProofFromText } from '../actions';
 import { ProofDto, ActionDto } from '../../types';
 
 const proof: ProofDto = { steps: [], logic: 'classical', goal: 'P' };
@@ -23,6 +23,7 @@ describe('service/actions', () => {
   beforeEach(() => {
     fetchMock.mockReset();
     clearActionsCache();
+    clearExercisesCache();
     (global as any).fetch = fetchMock;
     consoleError = jest.spyOn(console, 'error').mockImplementation(() => undefined);
   });
@@ -323,6 +324,94 @@ describe('service/actions', () => {
       await loadProofFromText('classical', text, consumer);
 
       expect(consumer).toHaveBeenCalledWith({ success: false, message: 'Network error. Please try again.' });
+    });
+  });
+
+  describe('fetchExercises', () => {
+    const exercise = { id: 'modus-ponens', title: 'Modus ponens', premises: ['p', 'p -> q'], goal: 'q', difficulty: 'EASY' };
+
+    test('passes the exercises of the logic to the consumer', async () => {
+      fetchMock.mockResolvedValue(jsonResponse(200, [exercise]));
+      const consumer = jest.fn();
+      const onError = jest.fn();
+
+      await fetchExercises('classical', consumer, onError);
+
+      expect(fetchMock).toHaveBeenCalledWith('/logic/classical/exercises');
+      expect(consumer).toHaveBeenCalledWith([exercise]);
+      expect(onError).not.toHaveBeenCalled();
+    });
+
+    test('a logic without a catalog has no exercises', async () => {
+      fetchMock.mockResolvedValue(jsonResponse(200, []));
+      const consumer = jest.fn();
+
+      await fetchExercises('modal', consumer);
+
+      expect(consumer).toHaveBeenCalledWith([]);
+    });
+
+    test('shares one request per logic, and keeps the logics apart', async () => {
+      fetchMock.mockImplementation(async (url: string) => jsonResponse(200, url.includes('/classical/') ? [exercise] : []));
+      const first = jest.fn();
+      const second = jest.fn();
+      const modal = jest.fn();
+
+      await Promise.all([fetchExercises('classical', first), fetchExercises('classical', second)]);
+      await fetchExercises('modal', modal);
+      await fetchExercises('classical', second);
+
+      expect(fetchMock).toHaveBeenCalledTimes(2);
+      expect(first).toHaveBeenCalledWith([exercise]);
+      expect(second).toHaveBeenNthCalledWith(2, [exercise]);
+      expect(modal).toHaveBeenCalledWith([]);
+    });
+
+    test('does not share the cache of the actions', async () => {
+      fetchMock.mockImplementation(async (url: string) => jsonResponse(200, url.endsWith('/actions') ? [{ name: 'Rep', params: ['INT'] }] : [exercise]));
+      const actions = jest.fn();
+      const exercises = jest.fn();
+
+      await fetchActions('classical', actions);
+      await fetchExercises('classical', exercises);
+
+      expect(actions).toHaveBeenCalledWith([{ name: 'Rep', params: ['INT'] }]);
+      expect(exercises).toHaveBeenCalledWith([exercise]);
+    });
+
+    test('a failed request is not cached, so the next call tries again', async () => {
+      fetchMock.mockResolvedValueOnce(jsonResponse(500, { message: 'Something went wrong' }));
+      fetchMock.mockResolvedValueOnce(jsonResponse(200, [exercise]));
+      const consumer = jest.fn();
+      const onError = jest.fn();
+
+      await fetchExercises('classical', consumer, onError);
+      await fetchExercises('classical', consumer, onError);
+
+      expect(onError).toHaveBeenCalledWith('Something went wrong');
+      expect(consumer).toHaveBeenCalledTimes(1);
+      expect(consumer).toHaveBeenCalledWith([exercise]);
+      expect(fetchMock).toHaveBeenCalledTimes(2);
+    });
+
+    test('an answer that is not a list is an error', async () => {
+      fetchMock.mockResolvedValue(jsonResponse(200, { message: 'not a list' }));
+      const consumer = jest.fn();
+      const onError = jest.fn();
+
+      await fetchExercises('classical', consumer, onError);
+
+      expect(consumer).not.toHaveBeenCalled();
+      expect(onError).toHaveBeenCalledWith('The server did not answer with a list of exercises.');
+    });
+
+    test('reports a network failure', async () => {
+      fetchMock.mockRejectedValue(new TypeError('Failed to fetch'));
+      const onError = jest.fn();
+
+      await fetchExercises('classical', jest.fn(), onError);
+
+      expect(onError).toHaveBeenCalledWith('Failed to fetch');
     });
   });
 });

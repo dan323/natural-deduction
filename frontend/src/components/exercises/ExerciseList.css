@@ -1,0 +1,111 @@
+/* The list of exercises, shown below the toolbar */
+.exercises {
+  margin: 16px auto;
+  max-width: 720px;
+  padding: 16px 24px;
+  background-color: #fff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  text-align: left;
+}
+
+.exercises-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.exercises-title {
+  margin: 0;
+  font-size: 1.3rem;
+}
+
+.exercises-progress {
+  margin: 8px 0 0;
+  color: #333;
+}
+
+.exercises-group-title {
+  margin: 16px 0 8px;
+  font-size: 1.1rem;
+  color: #333;
+}
+
+.exercises-group {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.exercise-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 0;
+  border-top: 1px solid #eee;
+}
+
+.exercise-text {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 8px;
+}
+
+.exercise-title {
+  font-weight: 600;
+}
+
+/* The text says it is solved; the colour only repeats it. */
+.exercise-solved {
+  color: #146c43;
+  font-weight: 600;
+}
+
+.exercise-current {
+  color: #595959;
+}
+
+.exercise-statement {
+  flex-basis: 100%;
+  font-size: 0.95rem;
+}
+
+.exercise-start-btn,
+.exercises-close-btn,
+.exercises-btn {
+  padding: 6px 14px;
+  font-size: 0.95rem;
+  border: 1px solid #0b5ed7;
+  border-radius: 4px;
+  background-color: #fff;
+  color: #0b5ed7;
+  cursor: pointer;
+}
+
+.exercises-btn {
+  padding: 9px 20px;
+  font-size: 1rem;
+}
+
+.exercise-start-btn:hover:not(:disabled),
+.exercises-close-btn:hover,
+.exercises-btn:hover {
+  background-color: #e7f1ff;
+}
+
+.exercise-start-btn:disabled {
+  cursor: wait;
+  opacity: 0.7;
+}
+
+.exercises-error {
+  margin: 8px 0 0;
+  padding: 8px 12px;
+  color: #c0392b;
+  background-color: #fdecea;
+  border: 1px solid #f5c6cb;
+  border-radius: 4px;
+}

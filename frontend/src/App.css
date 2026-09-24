@@ -225,3 +225,29 @@
   margin: 8px 0 0;
   font-size: 0.95rem;
 }
+
+/* The exercise the proof on screen was started from */
+.current-exercise {
+  margin: 12px 0 0;
+  font-size: 1rem;
+  color: #333;
+}
+
+.browse-exercises {
+  margin: 20px 0 0;
+  font-size: 0.95rem;
+}
+
+.browse-exercises-btn {
+  padding: 6px 14px;
+  font-size: 0.95rem;
+  border: 1px solid #0b5ed7;
+  border-radius: 4px;
+  background-color: #fff;
+  color: #0b5ed7;
+  cursor: pointer;
+}
+
+.browse-exercises-btn:hover {
+  background-color: #e7f1ff;
+}

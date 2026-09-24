@@ -1,8 +1,8 @@
-import { act, cleanup, render, screen, waitFor } from '@testing-library/react';
+import { act, cleanup, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import App from '../App';
-import { clearActionsCache } from '../service/actions';
-import { ActionDescriptor } from '../types';
+import { clearActionsCache, clearExercisesCache } from '../service/actions';
+import { ActionDescriptor, Exercise } from '../types';
 
 function jsonResponse(status: number, body: unknown): Response {
   return { ok: status >= 200 && status < 300, status, json: async () => body } as Response;
@@ -1227,6 +1227,248 @@ describe('App', () => {
       expect(screen.getByText(/No proof loaded/)).toBeInTheDocument();
       expect(screen.getByRole('alert')).toHaveTextContent('It is still saved: reload the page to restore it.');
       expect(savedProof()).toEqual(repProof);
+    });
+  });
+
+  describe('exercises', () => {
+    const EXERCISES: Exercise[] = [
+      { id: 'first', title: 'First', premises: ['P'], goal: 'P', difficulty: 'EASY' },
+      { id: 'second', title: 'Second', premises: ['Q'], goal: 'Q', difficulty: 'MEDIUM' },
+      { id: 'third', title: 'Third', premises: [], goal: 'R | (- R)', difficulty: 'HARD' },
+    ];
+    const exerciseRequests = () => fetchMock.mock.calls.filter(([url]) => String(url).endsWith('/exercises'));
+
+    // The backend: the Rep rule, the exercises (or `exercisesAnswer`), a replay that accepts the proof as it is and never
+    // says it is done (or `replay`), and a rule that finishes the proof P |- P.
+    const mockExerciseBackend = (
+      exercisesAnswer: () => Response = () => jsonResponse(200, EXERCISES),
+      replay: (init?: RequestInit) => Response = (init) => replayAnswer(init),
+    ) => {
+      fetchMock.mockImplementation(async (url: string, init?: RequestInit) => {
+        if (url.endsWith('/actions')) return jsonResponse(200, [REP]);
+        if (url.endsWith('/exercises')) return exercisesAnswer();
+        if (url.endsWith('/action') && isReplay(init)) return replay(init);
+        return jsonResponse(200, { proof: repProof, success: true, done: true, message: '' });
+      });
+    };
+
+    // The line above the proof that names its exercise.
+    const currentExercise = () => document.querySelector('.current-exercise');
+    const exerciseItem = (title: string) => screen.getByText(title, { selector: '.exercise-title' }).closest('li')!;
+
+    const startExercise = async (user: ReturnType<typeof userEvent.setup>, title: string) => {
+      await user.click(await screen.findByRole('button', { name: `Start exercise ${title}` }));
+      await waitFor(() => expect(currentExercise()).toHaveTextContent(`Exercise: ${title}`));
+    };
+
+    // Applies Rep to line 1, which the backend answers with the finished proof P |- P.
+    const finishWithRep = async (user: ReturnType<typeof userEvent.setup>) => {
+      await user.selectOptions(await screen.findByLabelText(/Select Inference Rule:/i), 'Rep');
+      await user.type(screen.getByLabelText(/Line number:/i), '1');
+      await user.click(applyButton());
+      await waitFor(() => expect(screen.getByRole('status')).toHaveTextContent('Proof complete.'));
+    };
+
+    beforeEach(() => {
+      clearExercisesCache();
+      window.localStorage.clear();
+    });
+
+    test('the list is reachable from the empty state and from the toolbar, and groups the exercises by difficulty', async () => {
+      mockExerciseBackend();
+      const user = userEvent.setup();
+      render(<App />);
+      // Nothing is fetched before the list is asked for.
+      expect(exerciseRequests()).toHaveLength(0);
+
+      await user.click(screen.getByRole('button', { name: 'Browse exercises' }));
+
+      const easy = await screen.findByRole('region', { name: 'Easy' });
+      expect(within(easy).getByText('First')).toBeInTheDocument();
+      expect(within(easy).getByText('P ⊢ P')).toBeInTheDocument();
+      expect(within(screen.getByRole('region', { name: 'Medium' })).getByText('Second')).toBeInTheDocument();
+      expect(within(screen.getByRole('region', { name: 'Hard' })).getByText('⊢ R | (- R)')).toBeInTheDocument();
+      expect(screen.getByText('Solved 0 of 3.')).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Exercises' })).toHaveAttribute('aria-expanded', 'true');
+
+      await user.click(screen.getByRole('button', { name: 'Close exercises' }));
+      expect(screen.queryByRole('region', { name: 'Exercises' })).not.toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Exercises' })).toHaveFocus();
+
+      await user.click(screen.getByRole('button', { name: 'Exercises' }));
+      expect(await screen.findByRole('region', { name: 'Exercises' })).toBeInTheDocument();
+      // The list is fetched once.
+      expect(exerciseRequests()).toHaveLength(1);
+      expect(exerciseRequests()[0][0]).toBe('/logic/classical/exercises');
+    });
+
+    test('a logic without exercises says so', async () => {
+      mockExerciseBackend(() => jsonResponse(200, []));
+      const user = userEvent.setup();
+      render(<App />);
+
+      await user.click(screen.getByRole('button', { name: 'Exercises' }));
+
+      expect(await screen.findByText('There are no exercises for this logic yet.')).toBeInTheDocument();
+    });
+
+    test('exercises that could not be fetched are fetched again when the list is opened again', async () => {
+      let fail = true;
+      mockExerciseBackend(() => fail ? jsonResponse(500, { message: 'Something went wrong' }) : jsonResponse(200, EXERCISES));
+      const user = userEvent.setup();
+      render(<App />);
+
+      await user.click(screen.getByRole('button', { name: 'Exercises' }));
+      expect(await screen.findByRole('alert')).toHaveTextContent('The exercises could not be loaded: Something went wrong');
+
+      fail = false;
+      await user.click(screen.getByRole('button', { name: 'Exercises' }));
+      await user.click(screen.getByRole('button', { name: 'Exercises' }));
+
+      expect(await screen.findByRole('region', { name: 'Easy' })).toBeInTheDocument();
+      expect(exerciseRequests()).toHaveLength(2);
+    });
+
+    test('starting an exercise has the backend check it, then shows its premises and goal', async () => {
+      mockExerciseBackend();
+      const user = userEvent.setup();
+      render(<App />);
+      await user.click(screen.getByRole('button', { name: 'Browse exercises' }));
+
+      await startExercise(user, 'Second');
+
+      expect(replayRequests()).toHaveLength(1);
+      expect(JSON.parse(String(replayRequests()[0][1]!.body)).proofDto).toEqual({
+        steps: [{ expression: 'Q', rule: 'Ass', assmsLevel: 0, extraParameters: {} }],
+        logic: 'classical',
+        goal: 'Q',
+      });
+      const rows = screen.getAllByRole('row');
+      expect(rows).toHaveLength(2);
+      expect(rows[1]).toHaveTextContent('Q');
+      expect(screen.getByText('GOAL:').parentElement).toHaveTextContent('Q');
+      // The list closes, and hands the focus to its toolbar button.
+      expect(screen.queryByRole('region', { name: 'Exercises' })).not.toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Exercises' })).toHaveFocus();
+    });
+
+    test('an exercise the backend refuses is not shown, and the list says why', async () => {
+      mockExerciseBackend(undefined, () => jsonResponse(400, { message: 'Cannot parse R | (- R)' }));
+      const user = userEvent.setup();
+      render(<App />);
+      await user.click(screen.getByRole('button', { name: 'Browse exercises' }));
+
+      await user.click(await screen.findByRole('button', { name: 'Start exercise Third' }));
+
+      expect(await screen.findByRole('alert')).toHaveTextContent('The exercise "Third" could not be started: Cannot parse R | (- R)');
+      expect(screen.queryAllByRole('row')).toHaveLength(0);
+      expect(screen.getByRole('region', { name: 'Exercises' })).toBeInTheDocument();
+    });
+
+    test('finishing an exercise marks it solved, in text, and that survives a remount', async () => {
+      mockExerciseBackend();
+      const user = userEvent.setup();
+      render(<App />);
+      await user.click(screen.getByRole('button', { name: 'Browse exercises' }));
+      expect(exerciseItem('First')).not.toHaveTextContent('(Solved)');
+      await startExercise(user, 'First');
+      expect(currentExercise()).not.toHaveTextContent('(Solved)');
+
+      await finishWithRep(user);
+
+      expect(currentExercise()).toHaveTextContent('Exercise: First (Solved)');
+      await user.click(screen.getByRole('button', { name: 'Exercises' }));
+      expect(exerciseItem('First')).toHaveTextContent('(Solved)');
+      expect(exerciseItem('Second')).not.toHaveTextContent('(Solved)');
+      expect(screen.getByText('Solved 1 of 3.')).toBeInTheDocument();
+
+      // A new visit: nothing on screen, but the solved exercises are remembered.
+      cleanup();
+      window.sessionStorage.clear();
+      clearExercisesCache();
+      render(<App />);
+      await user.click(screen.getByRole('button', { name: 'Browse exercises' }));
+      await screen.findByRole('region', { name: 'Easy' });
+      expect(exerciseItem('First')).toHaveTextContent('(Solved)');
+      expect(exerciseItem('Second')).not.toHaveTextContent('(Solved)');
+    });
+
+    test('solving a proof that did not come from an exercise marks nothing solved', async () => {
+      mockExerciseBackend();
+      const user = userEvent.setup();
+      render(<App />);
+      await startProof(user, 'P', 'P');
+
+      await finishWithRep(user);
+
+      expect(window.localStorage.getItem('natural-deduction.solved-exercises')).toBeNull();
+      expect(screen.queryByRole('button', { name: 'Next exercise' })).not.toBeInTheDocument();
+    });
+
+    test('"Next exercise" starts the next exercise of the list', async () => {
+      mockExerciseBackend();
+      const user = userEvent.setup();
+      render(<App />);
+      await user.click(screen.getByRole('button', { name: 'Browse exercises' }));
+      await startExercise(user, 'First');
+      // Only offered once the proof is done.
+      expect(screen.queryByRole('button', { name: 'Next exercise' })).not.toBeInTheDocument();
+      await finishWithRep(user);
+
+      await user.click(screen.getByRole('button', { name: 'Next exercise' }));
+      // Starting it discards the finished proof, which asks first, like New Proof.
+      await user.click(screen.getByRole('button', { name: 'Discard and start new' }));
+
+      await waitFor(() => expect(currentExercise()).toHaveTextContent('Exercise: Second'));
+      expect(JSON.parse(String(replayRequests().at(-1)![1]!.body)).proofDto.goal).toBe('Q');
+      expect(screen.getAllByRole('row')).toHaveLength(2);
+    });
+
+    test('the last exercise offers no "Next exercise"', async () => {
+      mockExerciseBackend(() => jsonResponse(200, [EXERCISES[0]]));
+      const user = userEvent.setup();
+      render(<App />);
+      await user.click(screen.getByRole('button', { name: 'Browse exercises' }));
+      await startExercise(user, 'First');
+
+      await finishWithRep(user);
+
+      expect(screen.getByRole('button', { name: 'New Proof' })).toBeInTheDocument();
+      expect(screen.queryByRole('button', { name: 'Next exercise' })).not.toBeInTheDocument();
+    });
+
+    test('a proof of an exercise stays one across a reload: finishing it then marks it solved and offers the next one', async () => {
+      mockExerciseBackend();
+      const user = userEvent.setup();
+      render(<App />);
+      await user.click(screen.getByRole('button', { name: 'Browse exercises' }));
+      await startExercise(user, 'First');
+      expect(JSON.parse(window.sessionStorage.getItem('natural-deduction.proof')!).exerciseId).toBe('first');
+
+      // A reload: the page starts from nothing but the saved proof, and fetches the exercises to know which it is.
+      cleanup();
+      clearExercisesCache();
+      render(<App />);
+      await waitFor(() => expect(currentExercise()).toHaveTextContent('Exercise: First'));
+
+      await finishWithRep(user);
+
+      expect(currentExercise()).toHaveTextContent('Exercise: First (Solved)');
+      expect(JSON.parse(window.localStorage.getItem('natural-deduction.solved-exercises')!)).toEqual({ classical: ['first'] });
+      expect(screen.getByRole('button', { name: 'Next exercise' })).toBeInTheDocument();
+    });
+
+    test('a proof started another way is not an exercise, even after one', async () => {
+      mockExerciseBackend();
+      const user = userEvent.setup();
+      render(<App />);
+      await user.click(screen.getByRole('button', { name: 'Browse exercises' }));
+      await startExercise(user, 'First');
+
+      await startProof(user, 'Q', 'Q');
+
+      expect(document.querySelector('.current-exercise')).not.toBeInTheDocument();
+      expect(JSON.parse(window.sessionStorage.getItem('natural-deduction.proof')!).exerciseId).toBeUndefined();
     });
   });
 });

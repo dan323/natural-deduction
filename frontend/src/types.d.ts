@@ -49,3 +49,16 @@ export type ActionDescriptor = {
     description?: string | null,
     paramLabels?: Array<string> | null,
 }
+
+// How hard an exercise is; the names are those of the backend's `ExerciseDto.difficulty`.
+export type Difficulty = 'EASY' | 'MEDIUM' | 'HARD';
+
+// One exercise of `GET /logic/{logic}/exercises`: prove `goal` from `premises`. `id` is stable and unique within the
+// logic. The formulas are written the way the server prints them, so they can be sent back as they are.
+export type Exercise = {
+    id: string,
+    title: string,
+    premises: Array<string>,
+    goal: string,
+    difficulty: Difficulty,
+}
