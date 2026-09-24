@@ -189,8 +189,8 @@ has empty `extraParameters`. A proof starts in `s0`: a premise (a leading top-le
 say `{"state": "s0"}`, or the proof is a `400` ("the assumptions are not in a valid state"); a relation premise such as
 `s0 <= s1` needs no state. In the proof-file layout a step in a state starts with it, before the indent
 (`s1:    p           []E [1, 2]`); a relation line has no prefix. The UI sends its premises this way and shows each
-step's state in a State column. The model also has an `Until` operator, but
-`ModalLogicParser` does not parse it, so it cannot be sent through the proof and action API.
+step's state in a State column. `ModalLogicParser` does not parse the model's `Until`
+operator; the `modal-next-until` logic below does.
 
 In the frontend, every formula field of a modal proof adds □ and ◇ buttons (they type `[]` and `<>`) to the connective
 buttons, and its syntax hint also explains the relations `s0 <= s1` and `s0 = s1` (`connectives.ts`); `Until` is left
@@ -278,6 +278,27 @@ All classical rules apply in each world. Additionally:
 7. □q               (□-Introduction on 6)
 8. □(p → q) ∧ □p → □q  (→-Introduction, discharged assumption 1)
 ```
+
+## Modal Logic with Next and Until (`modal-next-until`)
+
+`modal-next-until` reads modal logic over **discrete time**: every state `s` has a successor `s+1`, and `<=` is the
+reflexive-transitive closure of the successor (`s <= t` when `t` is `s+k` for some `k >= 0`). So `[] A` is "from now
+on, always" and `<> A` is "now or later", as in linear temporal logic, and two connectives are added:
+
+- **Next**, `X A`: `A` holds in `s+1`.
+- **Until**, `A U B` (strong): `B` holds in some `s+k`, and `A` in `s`, ..., `s+(k-1)`.
+
+States are terms: `s0`, `s0+1`, `s0+2`, ... (`StateTerm`, in `com.dan323.expressions.relation`). `ModalNextUntilLogicParser`
+reads `X` with the unary connectives and `U` between them and `&` (see `docs/API.md`), and only as words of their own.
+
+Rules (on top of the modal ones): `XI`/`XE` move a formula between `X A` in `s` and `A` in `s+1`; `Succ` gives
+`s <= s+1`; `UI` introduces `A U B` from `B` now, or from `A` now and `X (A U B)`; `UE` unfolds `A U B` into
+`B | (A & X (A U B))`; `U<>` gives `<> B`; `Ind` is induction, from `A` and `[] (A -> X A)` derive `[] A`. The fresh
+state of `[]I`/`<>E` must be a new name (`s0+1` is not fresh), and a proof is done only when the goal is in `s0`.
+
+Each rule is sound for that reading. With `Ind` and `U<>`, every axiom of the usual complete axiomatization of
+future-time linear temporal logic (the `X` and `[]` distribution laws, `X - A <-> - X A`, `[] A -> A & X [] A`,
+induction, the Until expansion law and `A U B -> <> B`) is derivable, which is the argument for completeness.
 
 ## Comparison: Classical vs Modal
 

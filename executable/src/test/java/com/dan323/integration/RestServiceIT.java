@@ -122,6 +122,130 @@ public class RestServiceIT {
         assertEquals(2, Objects.requireNonNull(response.getBody()).proof().steps().size());
     }
 
+    private static final String NEXT_UNTIL = "modal-next-until";
+
+    private static StepDto last(ProofDto proof) {
+        return proof.steps().get(proof.steps().size() - 1);
+    }
+
+    private ResponseEntity<ProofResponse> applyNextUntil(ActionDto action, ProofDto proof) {
+        return restTemplate.exchange(createURLWithPort("/logic/" + NEXT_UNTIL + "/action"), HttpMethod.POST,
+                new HttpEntity<>(new ProofActionRequest(action, proof), headers), ProofResponse.class);
+    }
+
+    @Test
+    public void modalNextUntilActionsAreTheModalOnesThenNextAndUntil() {
+        var modal = Objects.requireNonNull(restTemplate.getForObject(createURLWithPort("/logic/modal/actions"), ActionDescriptorDto[].class));
+        var response = restTemplate.getForEntity(createURLWithPort("/logic/" + NEXT_UNTIL + "/actions"), ActionDescriptorDto[].class);
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        var actions = Arrays.asList(Objects.requireNonNull(response.getBody()));
+        assertEquals(Arrays.asList(modal), actions.subList(0, modal.length));
+        assertEquals(List.of("XI", "XE", "Succ", "UI1", "UI2", "UE", "U<>", "Ind"),
+                actions.subList(modal.length, actions.size()).stream().map(ActionDescriptorDto::name).toList());
+        for (var action : actions) {
+            assertFalse(action.label().isBlank(), action.name());
+            assertFalse(action.symbol().isBlank(), action.name());
+            assertFalse(action.description().isBlank(), action.name());
+            assertEquals(action.params().size(), action.paramLabels().size(), action.name());
+        }
+    }
+
+    @Test
+    public void modalNextUntilProvesWithNextAndUntil() {
+        var proof = new ProofDto(List.of(new StepDto("p", "Ass", 0, Map.of("state", "s0")),
+                new StepDto("X q", "Ass", 0, Map.of("state", "s0"))), NEXT_UNTIL, "p U q");
+
+        var next = Objects.requireNonNull(applyNextUntil(new ActionDto("XE", List.of(2), Map.of()), proof).getBody());
+        assertTrue(next.success());
+        assertEquals(new StepDto("q", "XE [2]", 0, Map.of("state", "s0+1")), last(next.proof()));
+
+        var untilNow = Objects.requireNonNull(applyNextUntil(new ActionDto("UI1", List.of(3), Map.of("expression", "p")), next.proof()).getBody());
+        var back = Objects.requireNonNull(applyNextUntil(new ActionDto("XI", List.of(4), Map.of()), untilNow.proof()).getBody());
+        assertEquals(new StepDto("X (p U q)", "XI [4]", 0, Map.of("state", "s0")), last(back.proof()));
+        assertFalse(back.done());
+
+        var response = applyNextUntil(new ActionDto("UI2", List.of(1, 5), Map.of()), back.proof());
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        var body = Objects.requireNonNull(response.getBody());
+        assertTrue(body.done());
+        assertEquals(NEXT_UNTIL, body.proof().logic());
+        assertEquals(new StepDto("p U q", "UI [1, 5]", 0, Map.of("state", "s0")), last(body.proof()));
+    }
+
+    @Test
+    public void modalNextUntilRejectsARuleInTheWrongState() {
+        var proof = new ProofDto(List.of(new StepDto("p", "Ass", 0, Map.of("state", "s0"))), NEXT_UNTIL, "X p");
+
+        var response = applyNextUntil(new ActionDto("XI", List.of(1), Map.of()), proof);
+
+        assertEquals(HttpStatus.ACCEPTED, response.getStatusCode());
+        assertFalse(Objects.requireNonNull(response.getBody()).success());
+
+        var badState = restTemplate.exchange(createURLWithPort("/logic/" + NEXT_UNTIL + "/action"), HttpMethod.POST,
+                new HttpEntity<>(new ProofActionRequest(new ActionDto("Ass", List.of(), Map.of("expression", "q", "state", "s0-1")), proof), headers),
+                ErrorResponse.class);
+        assertError(HttpStatus.BAD_REQUEST, badState);
+    }
+
+    @Test
+    public void modalNextUntilHasNoSolver() {
+        var response = restTemplate.exchange(createURLWithPort("/logic/" + NEXT_UNTIL + "/solve"), HttpMethod.POST,
+                new HttpEntity<>(new ProofDto(List.of(), NEXT_UNTIL, "p -> p"), headers), ErrorResponse.class);
+        assertError(HttpStatus.BAD_REQUEST, response);
+        assertEquals("There is no solver for the logic 'modal-next-until'", response.getBody().message());
+    }
+
+    @Test
+    public void modalNextUntilLoadsAProofText() {
+        var gap = " ".repeat(11);
+        var text = "s0: [] p" + gap + "Ass\n"
+                + "s0 <= s0+1" + gap + "Succ [1]\n"
+                + "s0+1: p" + gap + "[]E [1, 2]\n"
+                + "s0: X p" + gap + "XI [3]\n";
+        var upload = new HttpHeaders();
+        upload.setContentType(MediaType.MULTIPART_FORM_DATA);
+        var part = new HttpHeaders();
+        part.setContentType(MediaType.TEXT_PLAIN);
+        var resource = new ByteArrayResource(text.getBytes(StandardCharsets.UTF_8)) {
+            @Override
+            public String getFilename() {
+                return "next.pf";
+            }
+        };
+        MultiValueMap<String, Object> map = new LinkedMultiValueMap<>();
+        map.add("file", new HttpEntity<>(resource, part));
+
+        var response = restTemplate.exchange(createURLWithPort("/logic/" + NEXT_UNTIL + "/proof"), HttpMethod.POST,
+                new HttpEntity<>(map, upload), ProofDto.class);
+
+        assertEquals(HttpStatus.CREATED, response.getStatusCode());
+        var proof = Objects.requireNonNull(response.getBody());
+        assertEquals(NEXT_UNTIL, proof.logic());
+        assertEquals("X p", proof.goal());
+        assertEquals(new StepDto("s0 <= s0+1", "Succ [1]", 0, Map.of()), proof.steps().get(1));
+        assertEquals(new StepDto("p", "[]E [1, 2]", 0, Map.of("state", "s0+1")), proof.steps().get(2));
+        assertError(HttpStatus.BAD_REQUEST, postUpload("modal", text));
+    }
+
+    @Test
+    public void modalNextUntilExercisesAreListedWithoutSolutions() {
+        var response = restTemplate.getForEntity(createURLWithPort("/logic/" + NEXT_UNTIL + "/exercises"), ExerciseDto[].class);
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        var exercises = Objects.requireNonNull(response.getBody());
+        assertTrue(exercises.length >= 8);
+        assertEquals(new ExerciseDto("next-in-and-out", "In and out of the next state", List.of("X p"), "X (p | q)", Difficulty.EASY), exercises[0]);
+        var raw = restTemplate.getForObject(createURLWithPort("/logic/" + NEXT_UNTIL + "/exercises"), String.class);
+        assertFalse(raw.contains("XE ["), raw);
+    }
+
+    @Test
+    public void modalDoesNotHaveTheNextAndUntilRules() {
+        var proof = new ProofDto(List.of(new StepDto("P", "Ass", 0, Map.of("state", "s0"))), "modal", "P");
+        var response = restTemplate.exchange(createURLWithPort("/logic/modal/action"), HttpMethod.POST,
+                new HttpEntity<>(new ProofActionRequest(new ActionDto("Succ", List.of(1), Map.of()), proof), headers), ErrorResponse.class);
+        assertError(HttpStatus.BAD_REQUEST, response);
+    }
+
     private ResponseEntity<ProofDto> solve(String logic, ProofDto proof) {
         return restTemplate.exchange(createURLWithPort("/logic/" + logic + "/solve"), HttpMethod.POST,
                 new HttpEntity<>(proof, headers), ProofDto.class);

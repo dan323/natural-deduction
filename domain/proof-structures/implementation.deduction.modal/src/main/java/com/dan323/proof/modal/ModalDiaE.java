@@ -63,7 +63,7 @@ public final class ModalDiaE implements ModalAction {
         if (!(log1.getState().equals(rightState) && origin.equals(leftState))) {
             return false;
         }
-        if (pf.stateIsUsedBefore(log1.getState(), pf.getSteps().size() - i - 1)) {
+        if (!pf.isFreshState(log1.getState(), leftState, pf.getSteps().size() - i - 1)) {
             return false;
         }
         if (!isNotFresh(pf, pf.getSteps().size() - i - 1)) {

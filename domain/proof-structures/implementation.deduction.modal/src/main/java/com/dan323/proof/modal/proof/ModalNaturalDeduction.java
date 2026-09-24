@@ -14,7 +14,11 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-public final class ModalNaturalDeduction extends Proof<ModalOperation, ProofStepModal> {
+/**
+ * A proof of modal logic. A logic that extends modal logic (see {@code ModalNextUntilNaturalDeduction}) subclasses it
+ * to read its own rules ({@link #parse()}) and to decide which states are fresh.
+ */
+public class ModalNaturalDeduction extends Proof<ModalOperation, ProofStepModal> {
 
     private final String state0;
 
@@ -73,6 +77,20 @@ public final class ModalNaturalDeduction extends Proof<ModalOperation, ProofStep
             }
         }
         return appears;
+    }
+
+    /**
+     * Whether {@code state} can be the fresh state that {@code []I} and {@code <>E} introduce at step {@code k}, with the
+     * relation {@code from <= state}: in modal logic, when it is not used before {@code k}
+     * ({@link #stateIsUsedBefore}).
+     *
+     * @param state the state that should be fresh
+     * @param from  the other side of the relation {@code from <= state}
+     * @param k     the step where {@code state} is introduced
+     * @return whether {@code state} is fresh there
+     */
+    public boolean isFreshState(String state, String from, int k) {
+        return !stateIsUsedBefore(state, k);
     }
 
     private boolean appears(String state, ProofStepModal step) {

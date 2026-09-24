@@ -60,7 +60,8 @@ Defines how logical formulas are represented and parsed.
   - Modal counterparts of the classical operators (`ConjunctionModal`, ...) plus `Always` (`[]`), `Sometime` (`<>`)
     and `Until` (model only: the parser does not accept it)
   - Relation formulas between states: `LessEqual` (`<=`) and `Equals` (`=`)
-  - `ModalLogicParser`, built on javaluator
+  - `ModalLogicParser`, built on javaluator, and `ModalNextUntilLogicParser` (adds Next `X`, the `Next` formula, and
+    Until `U`; states are `StateTerm`s such as `s0+1`)
 - **Dependencies**: framework/, javaluator
 - **Used By**: implementation.deduction.modal/
 - **Java Packages**: `com.dan323.expressions` (parser), `com.dan323.expressions.modal`, `com.dan323.expressions.relation`
@@ -105,7 +106,11 @@ Defines and implements inference rules for natural deduction.
   - The automatic solver (`ModalAutomate`)
 - **Dependencies**: logic-language/implementation.modal, framework.deduction/
 - **Used By**: modal-use-case/
-- **Java Packages**: `com.dan323.proof.modal`, `com.dan323.proof.modal.proof`, `com.dan323.proof.modal.relational`
+  - `com.dan323.proof.modal.nextuntil`: `ModalNextUntilNaturalDeduction` (successor-aware freshness, the goal must be
+    in `s0`, no solver), the Next and Until rules (`ModalNextI`, `ModalUntilE`, `ModalInduction`, ...) and
+    `ParseModalNextUntilAction`
+- **Java Packages**: `com.dan323.proof.modal`, `com.dan323.proof.modal.proof`, `com.dan323.proof.modal.relational`,
+  `com.dan323.proof.modal.nextuntil`
 
 ### use-cases/
 
@@ -149,7 +154,10 @@ Orchestrates the application logic by combining logic languages and proof struct
   20 rule names with their inputs, including states), `ModalConfiguration`
 - **Dependencies**: logic-language/implementation.modal, proof-structures/implementation.deduction.modal, base-use-case/, model/
 - **Used By**: executable/
-- **Java Package**: `com.dan323.uses.modal`
+- Also wires `modal-next-until` (package `com.dan323.uses.modal.nextuntil`): `ModalNextUntilConfiguration`, the
+  transformer, parser and actions subclass or extend the modal ones (`AvailableNextUntilAction` adds 8 actions), and
+  `ModalNextUntilExercises`
+- **Java Packages**: `com.dan323.uses.modal`, `com.dan323.uses.modal.nextuntil`
 
 ## REST and Executable Modules
 
