@@ -1,12 +1,12 @@
 package com.dan323.uses.modal;
 
-import com.dan323.expressions.ModalLogicParser;
 import com.dan323.expressions.modal.ModalLogicalOperation;
 import com.dan323.expressions.modal.ModalOperation;
 import com.dan323.model.ActionDescriptorDto;
 import com.dan323.model.ActionDto;
 import com.dan323.model.ProofDto;
 import com.dan323.model.StepDto;
+import com.dan323.proof.generic.proof.ProofReason;
 import com.dan323.proof.modal.AbstractModalAction;
 import com.dan323.proof.modal.proof.ModalNaturalDeduction;
 import com.dan323.proof.modal.proof.ParseModalAction;
@@ -19,6 +19,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Reads and writes modal proofs. A logic that extends modal logic (see {@code ModalUntilProofTransformer}) overrides
+ * the protected methods that read its formulas, rules and actions.
+ */
 public class ModalProofTransformer implements Transformer<ModalOperation, ProofStepModal, ModalNaturalDeduction, AbstractModalAction> {
 
     private static final List<ActionDescriptorDto> ACTIONS = new ModalGetActions().perform();
@@ -26,6 +30,32 @@ public class ModalProofTransformer implements Transformer<ModalOperation, ProofS
     @Override
     public String logic() {
         return "modal";
+    }
+
+    /** The actions of this logic, to know which ones take an expression. */
+    protected List<ActionDescriptorDto> actions() {
+        return ACTIONS;
+    }
+
+    /** An empty proof of this logic that starts in state {@code s0}. */
+    protected ModalNaturalDeduction newProof() {
+        return new ModalNaturalDeduction("s0");
+    }
+
+    protected ModalOperation parseExpression(String expression) {
+        return ParseModalAction.parseExpression(expression);
+    }
+
+    protected ProofReason parseReason(String rule) {
+        return ParseModalAction.parseReason(rule);
+    }
+
+    protected AbstractModalAction parseWithReason(ModalNaturalDeduction proof, ModalOperation step, ProofReason reason, String state) {
+        return ParseModalAction.parseWithReason(proof, step, reason, state);
+    }
+
+    protected AbstractModalAction parseAction(String name, List<Integer> sources, ModalOperation expression, String state) {
+        return ParseModalAction.parseAction(name, sources, expression, state);
     }
 
     @Override
@@ -39,8 +69,8 @@ public class ModalProofTransformer implements Transformer<ModalOperation, ProofS
         }
     }
 
-    private static ModalNaturalDeduction replayProof(ProofDto proof) {
-        ModalNaturalDeduction nd = new ModalNaturalDeduction("s0");
+    private ModalNaturalDeduction replayProof(ProofDto proof) {
+        ModalNaturalDeduction nd = newProof();
         List<ModalOperation> assmsLst = new ArrayList<>();
         boolean assms = true;
         int line = 0;
@@ -51,29 +81,29 @@ public class ModalProofTransformer implements Transformer<ModalOperation, ProofS
             } else {
                 if (assms) {
                     assms = false;
-                    nd.initializeProof(assmsLst, ParseModalAction.parseExpression(proof.goal()));
+                    nd.initializeProof(assmsLst, parseExpression(proof.goal()));
                 }
                 replay(nd, step, line);
             }
         }
         if (assms) {
-            nd.initializeProof(assmsLst, ParseModalAction.parseExpression(proof.goal()));
+            nd.initializeProof(assmsLst, parseExpression(proof.goal()));
         }
         return nd;
     }
 
-    private static ModalOperation initialAssumption(ModalNaturalDeduction nd, StepDto step, int line) {
-        var operation = ParseModalAction.parseExpression(step.expression());
+    private ModalOperation initialAssumption(ModalNaturalDeduction nd, StepDto step, int line) {
+        var operation = parseExpression(step.expression());
         if (operation instanceof ModalLogicalOperation && !nd.getState0().equals(step.extraParameters().get("state"))) {
             throw new InvalidProofException("Line " + line + " is not valid: the assumptions are not in a valid state");
         }
         return operation;
     }
 
-    private static void replay(ModalNaturalDeduction nd, StepDto step, int line) {
+    private void replay(ModalNaturalDeduction nd, StepDto step, int line) {
         AbstractModalAction action;
         try {
-            action = ParseModalAction.parseWithReason(nd, ParseModalAction.parseExpression(step.expression()), ParseModalAction.parseReason(step.rule()), step.extraParameters().get("state"));
+            action = parseWithReason(nd, parseExpression(step.expression()), parseReason(step.rule()), step.extraParameters().get("state"));
         } catch (RuntimeException e) {
             throw new InvalidProofException("Line " + line + " is not valid: cannot read '" + step.expression() + "' justified by '" + step.rule() + "'", e);
         }
@@ -84,14 +114,13 @@ public class ModalProofTransformer implements Transformer<ModalOperation, ProofS
     }
 
     public AbstractModalAction from(ActionDto action) {
-        var parser = new ModalLogicParser();
-        var expression = ActionExpression.of(action, ACTIONS);
-        return ParseModalAction.parseAction(action.name(), action.sources(), expression.map(parser::evaluate).orElse(null), action.extraParameters().get("state"));
+        var expression = ActionExpression.of(action, actions());
+        return parseAction(action.name(), action.sources(), expression.map(this::parseExpression).orElse(null), action.extraParameters().get("state"));
     }
 
     @Override
     public ProofDto fromProof(ModalNaturalDeduction proof) {
-        var logic = "modal";
+        var logic = logic();
         var goal = proof.getGoal().toString();
         var steps = new ArrayList<StepDto>();
         for (var step : proof.getSteps()) {

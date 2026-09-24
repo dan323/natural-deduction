@@ -10,24 +10,37 @@ import java.util.List;
 
 public class ModalLogicParser extends AbstractEvaluator<ModalOperation> {
 
-    private static final Operator AND = new Operator("&", 2, Operator.Associativity.LEFT, 1);
-    private static final Operator OR = new Operator("|", 2, Operator.Associativity.LEFT, 2);
-    private static final Operator IMP = new Operator("->", 2, Operator.Associativity.LEFT, 3);
-    private static final Operator NEG = new Operator("-", 1, Operator.Associativity.LEFT, 4);
-    private static final Operator ALW = new Operator("[]", 1, Operator.Associativity.LEFT, 5);
-    private static final Operator SOM = new Operator("<>", 1, Operator.Associativity.LEFT, 6);
-    private static final Operator LES = new Operator("<=", 2, Operator.Associativity.LEFT, 7);
-    private static final Operator EQU = new Operator("=", 2, Operator.Associativity.LEFT, 8);
+    // Precedences go in steps of 10 (only their order matters) so that an extension can put an operator in between.
+
+    private static final Operator AND = new Operator("&", 2, Operator.Associativity.LEFT, 10);
+    private static final Operator OR = new Operator("|", 2, Operator.Associativity.LEFT, 20);
+    private static final Operator IMP = new Operator("->", 2, Operator.Associativity.LEFT, 30);
+    private static final Operator NEG = new Operator("-", 1, Operator.Associativity.LEFT, 40);
+    private static final Operator ALW = new Operator("[]", 1, Operator.Associativity.LEFT, 50);
+    private static final Operator SOM = new Operator("<>", 1, Operator.Associativity.LEFT, 60);
+    private static final Operator LES = new Operator("<=", 2, Operator.Associativity.LEFT, 70);
+    private static final Operator EQU = new Operator("=", 2, Operator.Associativity.LEFT, 80);
 
     public ModalLogicParser() {
-        super(buildParams());
+        this(List.of());
     }
 
-    private static Parameters buildParams() {
+    /**
+     * A parser for a language that extends this one: it also reads {@code extraOperators}, which a subclass builds in
+     * its own {@link #evaluate(Operator, Iterator, Object)} before falling back to this one.
+     *
+     * @param extraOperators the operators that the subclass adds
+     */
+    protected ModalLogicParser(List<Operator> extraOperators) {
+        super(buildParams(extraOperators));
+    }
+
+    private static Parameters buildParams(List<Operator> extraOperators) {
         Parameters parameters = new Parameters();
         parameters.add(new Constant("FALSE"));
         parameters.add(new Constant("TRUE"));
         parameters.addOperators(List.of(AND, OR, IMP, NEG, ALW, SOM, LES, EQU));
+        parameters.addOperators(extraOperators);
         parameters.addExpressionBracket(BracketPair.PARENTHESES);
         return parameters;
     }

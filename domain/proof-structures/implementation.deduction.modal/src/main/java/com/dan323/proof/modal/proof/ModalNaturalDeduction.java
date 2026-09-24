@@ -17,13 +17,25 @@ import java.util.stream.Collectors;
 public final class ModalNaturalDeduction extends Proof<ModalOperation, ProofStepModal> {
 
     private final String state0;
+    private final ParseAction<AbstractModalAction, ModalNaturalDeduction, ModalOperation, ProofStepModal> rules;
 
     public ModalNaturalDeduction(String state0) {
-        this.state0 = state0;
+        this(state0, ParseModalAction::parse);
     }
 
     public ModalNaturalDeduction(){
-        this.state0="s0";
+        this("s0");
+    }
+
+    /**
+     * A proof of a logic that extends modal logic with rules of its own.
+     *
+     * @param state0 the initial state
+     * @param rules  reads the action that justifies a step, see {@link #parse()}
+     */
+    public ModalNaturalDeduction(String state0, ParseAction<AbstractModalAction, ModalNaturalDeduction, ModalOperation, ProofStepModal> rules) {
+        this.state0 = state0;
+        this.rules = rules;
     }
 
     public String getState0() {
@@ -39,7 +51,7 @@ public final class ModalNaturalDeduction extends Proof<ModalOperation, ProofStep
 
     @Override
     public List<AbstractModalAction> parse() {
-        return ((ParseAction<AbstractModalAction, ModalNaturalDeduction, ModalOperation, ProofStepModal>) ParseModalAction::parse).translateToActions(this);
+        return rules.translateToActions(this);
     }
 
     @Override

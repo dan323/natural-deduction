@@ -4,7 +4,7 @@ This document describes the REST API endpoints for the Natural Deduction system.
 
 ## Endpoints
 
-The server keeps no session. Every logic (`classical`, `intuitionistic`, `modal`) is served under `/logic/{logic}`; the client sends
+The server keeps no session. Every logic (`classical`, `intuitionistic`, `modal`, `modal-until`) is served under `/logic/{logic}`; the client sends
 the whole proof with every request.
 
 Every non-2xx response has the body `{"message": "..."}`. An unknown logic is a 404, malformed input a 400, a
@@ -53,7 +53,8 @@ the modal proof format (`Ass`, `|I1`, `->E`, `[]E`, `Refl`, ...). Both logics fi
 action. The modal `symbol`s follow the same rule, e.g. `□I` for a step `[]I [2-4]`, and `Refl`/`Trans` for the
 relation rules (category `OTHER`). Modal descriptions write the reachability of states as it is typed, `s <= t`, and
 the `STATE` params of `Ass` and `FE` are labelled `State of A (e.g. s1)`; an `Ass` of a relation formula such as
-`s0 <= s1` ignores its state. The list is built once at startup.
+`s0 <= s1` ignores its state. `modal-until` has the 20 modal actions, with the same descriptors, and then its four
+Until rules (see [Modal logic with Until](#modal-logic-with-until)). The list is built once at startup.
 
 > **Breaking change:** this endpoint used to return strings such as `"ANDI([int, int])"`.
 
@@ -124,7 +125,8 @@ Returns `200` with the logic's exercises, ordered from easy to hard. Each one as
 - The formulas are written the way the server prints them (fully parenthesized, `- (- p)` rather than `--p`, which
   does not parse), so they can be sent back as they are and match the expressions of the proof's steps.
 - Classical logic has 14 exercises, intuitionistic logic 16 (the classical ones except `double-negation-elimination`
-  and `excluded-middle`, plus four of its own). Modal logic has none yet: it answers `200` with `[]`. An unknown logic is a `404`.
+  and `excluded-middle`, plus four of its own), `modal-until` 6 (premises and goal in the initial state `s0`). Modal
+  logic has none yet: it answers `200` with `[]`. An unknown logic is a `404`.
 - Every exercise has a reference solution on the server, a proof in the proof-file layout (see below) that a unit test
   replays. It is never sent to the client.
 
@@ -146,6 +148,37 @@ shares everything else with `classical`: the formula syntax, the proof and proof
   e.g. the classical proof of `- (- p) ⊢ p`.
 - `POST /logic/intuitionistic/solve` is a `400`: the classical solver may use double negation elimination, so its
   proofs are not necessarily intuitionistic.
+
+### Modal logic with Until
+
+`modal-until` is modal logic plus the binary operator Until, written `A U B`. It shares everything else with `modal`:
+the states, the formula syntax, the proof and proof-file formats, and the 20 modal rules with their descriptors.
+`modal` itself does not change: it has no `U` operator (`p U q` there is still one variable called `p U q`, as before)
+and no Until rules.
+
+- **Syntax.** `U` binds tighter than `&`, `|` and `->` and looser than `-`, `[]` and `<>`, and groups to the left:
+  `- p U q -> r` is `((- p) U q) -> r`, `p U q U r` is `(p U q) U r`. It is an operator only as a word of its own, so
+  `TRUE`, `Up` or `pUq` are still names, and no variable can be called `U`. The server prints `A U B`, with
+  parentheses around a compound side, as for the other connectives.
+- **Meaning.** `A U B` holds in state `s` when `B` holds in some state `t` with `s <= t`, and `A` holds in every state
+  `u` with `s <= u`, `u <= t` and `u` different from `t` (the strong until: `B` does happen). The reachability `<=` is
+  read as a partial order (reflexive, transitive and antisymmetric), which proves the same modal formulas as a
+  preorder.
+- **Rules.** Each one reads lines in one state and writes its conclusion in that state:
+
+  | Action | Step         | Inputs                        | Derives                               |
+  |--------|--------------|-------------------------------|---------------------------------------|
+  | `UI1`  | `UI [n]`     | line with `B`, formula `A`    | `A U B` (B holds now)                 |
+  | `UI2`  | `UI [n, m]`  | line with `□A`, line with `◇B` | `A U B`                              |
+  | `UE1`  | `UE [n]`     | line with `A U B`             | `◇B`                                  |
+  | `UE2`  | `UE [n, m]`  | line with `A U B`, line with `¬B` | `A` (B does not hold yet, so A does) |
+
+  Their descriptors have the symbols `UI`/`UE` and the categories `INTRODUCTION`/`ELIMINATION`. They are sound, not
+  complete: for instance `p & <> (p U q)` does not give `p U q` (in a branching or dense order the states between
+  are not covered).
+- **Solver.** `POST /logic/modal-until/solve` runs the modal solver. Every rule it uses is a rule of this logic, but it
+  reads `A U B` as if it were a variable and never uses an Until rule: it proves `[] (p U q) ⊢ p U q`, and answers
+  `q ⊢ p U q` with an unfinished proof (`200`, `done: false`).
 
 ## Other endpoints
 

@@ -58,9 +58,9 @@ Defines how logical formulas are represented and parsed.
 - **Purpose**: Modal propositional logic
 - **Key Components**:
   - Modal counterparts of the classical operators (`ConjunctionModal`, ...) plus `Always` (`[]`), `Sometime` (`<>`)
-    and `Until` (model only: the parser does not accept it)
+    and `Until` (`U`)
   - Relation formulas between states: `LessEqual` (`<=`) and `Equals` (`=`)
-  - `ModalLogicParser`, built on javaluator
+  - `ModalLogicParser`, built on javaluator (no `U`), and `ModalUntilLogicParser`, which adds `U` for `modal-until`
 - **Dependencies**: framework/, javaluator
 - **Used By**: implementation.deduction.modal/
 - **Java Packages**: `com.dan323.expressions` (parser), `com.dan323.expressions.modal`, `com.dan323.expressions.relation`
@@ -102,10 +102,13 @@ Defines and implements inference rules for natural deduction.
   - One `Modal*` class per rule (`ModalBoxE`, `ModalDiaI`, ...) and the relational rules `Reflexive` (`Refl`) and
     `Transitive` (`Trans`)
   - `ParseModalAction` - builds a rule from its name; it is the source of truth for the rule names
+  - The Until rules of `modal-until` (`ModalUntilI1`, `ModalUntilI2`, `ModalUntilE1`, `ModalUntilE2`) and
+    `ParseModalUntilAction`, which reads them and falls back to `ParseModalAction`
   - The automatic solver (`ModalAutomate`)
 - **Dependencies**: logic-language/implementation.modal, framework.deduction/
 - **Used By**: modal-use-case/
-- **Java Packages**: `com.dan323.proof.modal`, `com.dan323.proof.modal.proof`, `com.dan323.proof.modal.relational`
+- **Java Packages**: `com.dan323.proof.modal`, `com.dan323.proof.modal.proof`, `com.dan323.proof.modal.relational`,
+  `com.dan323.proof.modal.until`
 
 ### use-cases/
 
@@ -144,12 +147,14 @@ Orchestrates the application logic by combining logic languages and proof struct
 - **Java Package**: `com.dan323.uses.classical`
 
 #### modal-use-case/
-- **Purpose**: Wires modal logic (logic name `modal`)
+- **Purpose**: Wires modal logic (logic name `modal`) and modal logic with Until (logic name `modal-until`)
 - **Key Components**: `ModalProofTransformer`, `ModalProofParser`, `ModalGetActions` and `AvailableModalAction` (the
-  20 rule names with their inputs, including states), `ModalConfiguration`
+  20 rule names with their inputs, including states), `ModalConfiguration`; for `modal-until`, subclasses of the
+  transformer and parser, `AvailableUntilAction` (the four Until rules), `ModalUntilExercises` and
+  `ModalUntilConfiguration`
 - **Dependencies**: logic-language/implementation.modal, proof-structures/implementation.deduction.modal, base-use-case/, model/
 - **Used By**: executable/
-- **Java Package**: `com.dan323.uses.modal`
+- **Java Package**: `com.dan323.uses.modal`, `com.dan323.uses.modal.until`
 
 ## REST and Executable Modules
 

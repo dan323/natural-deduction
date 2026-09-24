@@ -2,16 +2,13 @@ package com.dan323.uses.modal;
 
 import com.dan323.model.ActionCategory;
 import com.dan323.model.ActionDescriptorDto;
-import com.dan323.model.ParamKind;
-
-import java.util.List;
 
 import static com.dan323.model.ActionCategory.ELIMINATION;
 import static com.dan323.model.ActionCategory.INTRODUCTION;
 import static com.dan323.model.ActionCategory.OTHER;
-import static com.dan323.model.ParamKind.EXPRESSION;
-import static com.dan323.model.ParamKind.INT;
-import static com.dan323.model.ParamKind.STATE;
+import static com.dan323.uses.modal.ActionInput.formula;
+import static com.dan323.uses.modal.ActionInput.line;
+import static com.dan323.uses.modal.ActionInput.state;
 
 /**
  * The actions of modal logic: the rule names understood by {@code ParseModalAction.parseAction} (what a client sends
@@ -75,29 +72,11 @@ public enum AvailableModalAction {
     private final ActionDescriptorDto descriptor;
 
     AvailableModalAction(String ruleName, String label, String symbol, ActionCategory category, String description,
-                         Input... inputs) {
-        var inputList = List.of(inputs);
-        this.descriptor = new ActionDescriptorDto(ruleName, inputList.stream().map(Input::kind).toList(), label, symbol,
-                category, description, inputList.stream().map(Input::label).toList());
+                         ActionInput... inputs) {
+        this.descriptor = ActionInput.describe(ruleName, label, symbol, category, description, inputs);
     }
 
     public ActionDescriptorDto descriptor() {
         return descriptor;
-    }
-
-    /** An input of an action: what kind of value it is, and how to call it. */
-    private record Input(ParamKind kind, String label) {
-    }
-
-    private static Input line(String label) {
-        return new Input(INT, label);
-    }
-
-    private static Input formula(String label) {
-        return new Input(EXPRESSION, label);
-    }
-
-    private static Input state(String label) {
-        return new Input(STATE, label);
     }
 }

@@ -238,6 +238,10 @@ public class RestServiceIT {
     }
 
     private ResponseEntity<ErrorResponse> postUpload(String logic, String contents) {
+        return upload(logic, contents, ErrorResponse.class);
+    }
+
+    private <T> ResponseEntity<T> upload(String logic, String contents, Class<T> responseType) {
         var upload = new HttpHeaders();
         upload.setContentType(MediaType.MULTIPART_FORM_DATA);
         var part = new HttpHeaders();
@@ -251,7 +255,7 @@ public class RestServiceIT {
         MultiValueMap<String, Object> map = new LinkedMultiValueMap<>();
         map.add("file", new HttpEntity<>(resource, part));
         return restTemplate.exchange(createURLWithPort("/logic/" + logic + "/proof"), HttpMethod.POST,
-                new HttpEntity<>(map, upload), ErrorResponse.class);
+                new HttpEntity<>(map, upload), responseType);
     }
 
     private ResponseEntity<String> postAction(String logic, String json) {
@@ -377,6 +381,80 @@ public class RestServiceIT {
         assertTrue(ids.contains("excluded-middle-not-refutable"));
         assertFalse(ids.contains("double-negation-elimination"));
         assertFalse(ids.contains("excluded-middle"));
+    }
+
+    private static final Map<String, String> S0 = Map.of("state", "s0");
+
+    @Test
+    public void modalUntilActionsAreTheModalOnesPlusTheUntilRules() {
+        var modal = Objects.requireNonNull(restTemplate.getForObject(createURLWithPort("/logic/modal/actions"), ActionDescriptorDto[].class));
+        var response = restTemplate.getForEntity(createURLWithPort("/logic/modal-until/actions"), ActionDescriptorDto[].class);
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        var actions = List.of(Objects.requireNonNull(response.getBody()));
+        assertEquals(modal.length + 4, actions.size());
+        assertEquals(List.of(modal), actions.subList(0, modal.length));
+        assertEquals(List.of("UI1", "UI2", "UE1", "UE2"), actions.subList(modal.length, actions.size()).stream().map(ActionDescriptorDto::name).toList());
+        assertTrue(Arrays.stream(modal).noneMatch(action -> action.name().startsWith("U")));
+    }
+
+    @Test
+    public void modalUntilProvesAnUntil() {
+        var proof = new ProofDto(List.of(new StepDto("q", "Ass", 0, S0)), "modal-until", "p U q");
+        var response = restTemplate.exchange(createURLWithPort("/logic/modal-until/action"), HttpMethod.POST,
+                new HttpEntity<>(new ProofActionRequest(new ActionDto("UI1", List.of(1), Map.of("expression", "p")), proof), headers), ProofResponse.class);
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        var body = Objects.requireNonNull(response.getBody());
+        assertTrue(body.success());
+        assertTrue(body.done());
+        assertEquals(new StepDto("p U q", "UI [1]", 0, S0), body.proof().steps().get(body.proof().steps().size() - 1));
+        assertEquals("modal-until", body.proof().logic());
+    }
+
+    @Test
+    public void modalStillHasNoUntil() {
+        var proof = new ProofDto(List.of(new StepDto("q", "Ass", 0, S0)), "modal", "p");
+        var action = restTemplate.exchange(createURLWithPort("/logic/modal/action"), HttpMethod.POST,
+                new HttpEntity<>(new ProofActionRequest(new ActionDto("UI1", List.of(1), Map.of("expression", "p")), proof), headers), ErrorResponse.class);
+        assertError(HttpStatus.BAD_REQUEST, action);
+
+        var untilStep = new ProofDto(List.of(new StepDto("q", "Ass", 0, S0), new StepDto("p U q", "UI [1]", 0, S0)), "modal", "p U q");
+        var replay = restTemplate.exchange(createURLWithPort("/logic/modal/action"), HttpMethod.POST,
+                new HttpEntity<>(new ProofActionRequest(new ActionDto("Rep", List.of(1), Map.of()), untilStep), headers), ErrorResponse.class);
+        assertError(HttpStatus.BAD_REQUEST, replay);
+        assertTrue(replay.getBody().message().startsWith("Line 2 "), replay.getBody().message());
+    }
+
+    @Test
+    public void modalUntilProofFilesAreUploaded() {
+        var gap = " ".repeat(11);
+        var notYet = String.join("\n", "s0: p U q" + gap + "Ass", "s0: - q" + gap + "Ass", "s0: p" + gap + "UE [1, 2]");
+        var response = upload("modal-until", notYet, ProofDto.class);
+        assertEquals(HttpStatus.CREATED, response.getStatusCode());
+        var proof = Objects.requireNonNull(response.getBody());
+        assertTrue(proof.isDone());
+        assertEquals(new StepDto("p", "UE [1, 2]", 0, S0), proof.steps().get(proof.steps().size() - 1));
+
+        assertError(HttpStatus.BAD_REQUEST, postUpload("modal", notYet));
+    }
+
+    @Test
+    public void modalUntilSolvesWithTheModalSolver() {
+        var solved = solve("modal-until", new ProofDto(List.of(new StepDto("[] (p U q)", "Ass", 0, S0)), "modal-until", "p U q"));
+        assertEquals(HttpStatus.OK, solved.getStatusCode());
+        assertTrue(Objects.requireNonNull(solved.getBody()).isDone());
+
+        var unfinished = solve("modal-until", new ProofDto(List.of(new StepDto("q", "Ass", 0, S0)), "modal-until", "p U q"));
+        assertEquals(HttpStatus.OK, unfinished.getStatusCode());
+        assertFalse(Objects.requireNonNull(unfinished.getBody()).isDone());
+    }
+
+    @Test
+    public void modalUntilExercisesAreListed() {
+        var response = restTemplate.getForEntity(createURLWithPort("/logic/modal-until/exercises"), ExerciseDto[].class);
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        var exercises = Objects.requireNonNull(response.getBody());
+        assertEquals(6, exercises.length);
+        assertEquals(new ExerciseDto("until-now", "Until, right now", List.of("q"), "p U q", Difficulty.EASY), exercises[0]);
     }
 
     @Test
