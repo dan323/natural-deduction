@@ -68,6 +68,10 @@ function App() {
     logic: LOGIC,
     goal: '',
   });
+  // Mirrors `proof`, for an in-flight exercise start to see whether the proof on screen changed while it waited (a rule
+  // applied in the Menu, or an undo, neither of which bumps `proofIdRef`).
+  const proofRef = useRef(proof);
+  useEffect(() => { proofRef.current = proof; }, [proof]);
 
   // Shown next to the toolbar's New Proof button instead of starting a new proof right away (opening the dialog, or
   // starting an exercise), whenever the current proof has more than its premises: an in-page confirmation, not
@@ -105,6 +109,9 @@ function App() {
   const [startingExerciseId, setStartingExerciseId] = useState<string | null>(null);
   const [exerciseStartError, setExerciseStartError] = useState('');
   const exercisesButtonRef = useRef<HTMLButtonElement>(null);
+  // Set when "Browse exercises" opens the list: that button goes away with the list open, so the list's heading takes
+  // the focus once it is shown.
+  const focusExercisesOnOpenRef = useRef(false);
 
   const onColorChange = useCallback((color: string, line: number) => {
     setColorMapping(colorMapping => {
@@ -309,12 +316,16 @@ function App() {
 
   // "Start" in the list of exercises, and "Next exercise": starts the exercise exactly as if its premises and goal had
   // been typed in the New Proof dialog, through the same backend check, and remembers which exercise it is. A refusal
-  // is shown in the list (opened if it was not). An answer arriving after another proof was started is dropped.
+  // is shown in the list (opened if it was not). An answer arriving after another proof was started is dropped. The Menu
+  // stays usable while the backend checks the exercise, so if the proof on screen changed meanwhile (a rule, an undo)
+  // and now has more than its premises, discarding it asks first, again, even if it was confirmed (or needed no
+  // confirmation) when Start was clicked.
   const startExercise = async (exercise: Exercise) => {
     userStartedRef.current += 1;
     setExerciseStartError('');
     setStartingExerciseId(exercise.id);
     const requestedProofId = proofIdRef.current;
+    const requestedProof = proofRef.current;
     const checked = await checkNewProof(exercise.premises, exercise.goal);
     setStartingExerciseId(null);
     if (proofIdRef.current !== requestedProofId) return;
@@ -323,10 +334,19 @@ function App() {
       setIsExercisesOpen(true);
       return;
     }
-    showNewProof(checked.proof, exercise.id);
-    setIsExercisesOpen(false);
-    // The list, and the Menu button that may have started this, go away: hand the focus to a control that stays.
-    exercisesButtonRef.current?.focus();
+    const show = () => {
+      showNewProof(checked.proof, exercise.id);
+      setIsExercisesOpen(false);
+      // The list, and the Menu button that may have started this, go away: hand the focus to a control that stays.
+      exercisesButtonRef.current?.focus();
+    };
+    const current = proofRef.current;
+    if (current !== requestedProof && current.steps.length > premiseCount(current.steps)) {
+      setModalOpener(exercisesButtonRef.current);
+      setPendingDiscard(() => show);
+      return;
+    }
+    show();
   };
 
   const requestExercise = (exercise: Exercise, opener: HTMLElement | null) => {
@@ -344,6 +364,16 @@ function App() {
     if (exercisesState?.kind === 'error') setExercisesState(null);
     setIsExercisesOpen(true);
   };
+  const handleBrowseExercises = () => {
+    focusExercisesOnOpenRef.current = true;
+    handleToggleExercises();
+  };
+  // See `focusExercisesOnOpenRef`.
+  useEffect(() => {
+    if (!isExercisesOpen || !focusExercisesOnOpenRef.current) return;
+    focusExercisesOnOpenRef.current = false;
+    document.getElementById('exercises-title')?.focus();
+  }, [isExercisesOpen]);
   const handleCloseExercises = () => {
     setIsExercisesOpen(false);
     exercisesButtonRef.current?.focus();
@@ -535,7 +565,7 @@ function App() {
               {!isExercisesOpen && (
                 <p className="browse-exercises">
                   Or practise with a graded exercise:{' '}
-                  <button className="browse-exercises-btn" onClick={handleToggleExercises}>Browse exercises</button>
+                  <button className="browse-exercises-btn" onClick={handleBrowseExercises}>Browse exercises</button>
                 </p>
               )}
             </div>

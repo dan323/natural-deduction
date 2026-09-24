@@ -1302,6 +1302,21 @@ describe('App', () => {
       expect(exerciseRequests()[0][0]).toBe('/logic/classical/exercises');
     });
 
+    test('"Browse exercises" hands the focus to the list it opens, since the button goes away', async () => {
+      mockExerciseBackend();
+      const user = userEvent.setup();
+      render(<App />);
+
+      await user.click(screen.getByRole('button', { name: 'Browse exercises' }));
+
+      expect(screen.queryByRole('button', { name: 'Browse exercises' })).not.toBeInTheDocument();
+      expect(screen.getByRole('heading', { name: 'Exercises' })).toHaveFocus();
+      // Opening it from the toolbar keeps the focus on the toolbar button, which stays.
+      await user.click(screen.getByRole('button', { name: 'Close exercises' }));
+      await user.click(screen.getByRole('button', { name: 'Exercises' }));
+      expect(screen.getByRole('button', { name: 'Exercises' })).toHaveFocus();
+    });
+
     test('a logic without exercises says so', async () => {
       mockExerciseBackend(() => jsonResponse(200, []));
       const user = userEvent.setup();
@@ -1363,6 +1378,51 @@ describe('App', () => {
       expect(await screen.findByRole('alert')).toHaveTextContent('The exercise "Third" could not be started: Cannot parse R | (- R)');
       expect(screen.queryAllByRole('row')).toHaveLength(0);
       expect(screen.getByRole('region', { name: 'Exercises' })).toBeInTheDocument();
+    });
+
+    // Starts the proof P |- P, then the exercise "Second", whose check by the backend is held until the returned
+    // function is called; meanwhile Rep is applied in the Menu, which is still usable.
+    const applyRuleWhileExerciseStarts = async () => {
+      let answerExercise: (() => void) | null = null;
+      mockExerciseBackend(undefined, (init) => {
+        if (JSON.parse(String(init!.body)).proofDto.goal !== 'Q') return replayAnswer(init);
+        return new Promise<Response>((resolve) => { answerExercise = () => resolve(replayAnswer(init)); }) as unknown as Response;
+      });
+      const user = userEvent.setup();
+      render(<App />);
+      await startProof(user, 'P', 'P');
+      await user.click(screen.getByRole('button', { name: 'Exercises' }));
+      // Only the premises are on screen, so starting the exercise does not ask.
+      await user.click(await screen.findByRole('button', { name: 'Start exercise Second' }));
+      await waitFor(() => expect(answerExercise).not.toBeNull());
+      await finishWithRep(user);
+      expect(screen.getAllByRole('row')).toHaveLength(3);
+      await act(async () => answerExercise!());
+      return user;
+    };
+
+    test('a step applied while an exercise is being started is not discarded without asking', async () => {
+      const user = await applyRuleWhileExerciseStarts();
+
+      expect(await screen.findByRole('button', { name: 'Discard and start new' })).toBeInTheDocument();
+      expect(screen.getAllByRole('row')).toHaveLength(3);
+      expect(currentExercise()).not.toBeInTheDocument();
+
+      await user.click(screen.getByRole('button', { name: 'Discard and start new' }));
+
+      await waitFor(() => expect(currentExercise()).toHaveTextContent('Exercise: Second'));
+      expect(screen.getAllByRole('row')).toHaveLength(2);
+      expect(screen.getByRole('button', { name: 'Exercises' })).toHaveFocus();
+    });
+
+    test('cancelling the discard of a step applied while an exercise was being started keeps that step', async () => {
+      const user = await applyRuleWhileExerciseStarts();
+
+      await user.click(await screen.findByRole('button', { name: 'Cancel' }));
+
+      expect(screen.getAllByRole('row')).toHaveLength(3);
+      expect(currentExercise()).not.toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Exercises' })).toHaveFocus();
     });
 
     test('finishing an exercise marks it solved, in text, and that survives a remount', async () => {

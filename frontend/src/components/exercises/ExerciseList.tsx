@@ -78,7 +78,7 @@ const ExerciseList: FC<ExerciseListProps> = ({ state, solved, currentId, startin
     return (
         <section id="exercises-panel" className="exercises" aria-labelledby="exercises-title">
             <div className="exercises-header">
-                <h2 id="exercises-title" className="exercises-title">Exercises</h2>
+                <h2 id="exercises-title" className="exercises-title" tabIndex={-1}>Exercises</h2>
                 <button className="exercises-close-btn" onClick={onClose}>Close exercises</button>
             </div>
             {startError && <p className="exercises-error" role="alert">{startError}</p>}
