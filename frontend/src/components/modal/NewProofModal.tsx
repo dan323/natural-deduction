@@ -1,7 +1,7 @@
 import { FC, Fragment, useState, useEffect, useLayoutEffect, useRef } from 'react';
 import { checkFormula } from '../../service/utils';
 import ConnectiveButtons from '../input/ConnectiveButtons';
-import { SYNTAX_HINT } from '../input/connectives';
+import { syntaxHint } from '../input/connectives';
 import { DEFAULT_LOGIC, LOGICS, logicInfo } from '../../constant';
 import './NewProofModal.css';
 
@@ -240,7 +240,7 @@ const NewProofModal: FC<NewProofModalProps> = ({ isOpen, opener: openerProp, onC
             {LOGICS.map((info) => <option key={info.id} value={info.id}>{info.name}</option>)}
           </select>
           <p id="modal-logic-desc" className="modal-logic-desc">{logicInfo(logic)?.description}</p>
-          <p id={SYNTAX_HINT_ID} className="syntax-hint modal-syntax-hint">Syntax: {SYNTAX_HINT}</p>
+          <p id={SYNTAX_HINT_ID} className="syntax-hint modal-syntax-hint">Syntax: {syntaxHint(logic)}</p>
           <div role="group" aria-labelledby="new-proof-premises-label">
             <span id="new-proof-premises-label" className="modal-section-label">Premises:</span>
             {premises.map((premise, index) => (
@@ -275,6 +275,7 @@ const NewProofModal: FC<NewProofModalProps> = ({ isOpen, opener: openerProp, onC
                   onInsert={(text) => handlePremiseChange(index, text)}
                   target={`Premise ${index + 1}`}
                   disabled={isSubmitting}
+                  logic={logic}
                 />
                 {premise.error && (
                   <p id={`premise-${index}-error`} className="modal-error" role="alert">{premise.error}</p>
@@ -299,7 +300,7 @@ const NewProofModal: FC<NewProofModalProps> = ({ isOpen, opener: openerProp, onC
             aria-invalid={goalError ? true : undefined}
             aria-describedby={describedBy(!!goalError && 'modal-goal-error')}
           />
-          <ConnectiveButtons getInput={() => goalRef.current} onInsert={handleGoalChange} target="Goal" disabled={isSubmitting} />
+          <ConnectiveButtons getInput={() => goalRef.current} onInsert={handleGoalChange} target="Goal" disabled={isSubmitting} logic={logic} />
           {goalError && <p id="modal-goal-error" className="modal-error" role="alert">{goalError}</p>}
 
           {onLoadText && (

@@ -86,6 +86,23 @@ describe('Menu Component', () => {
         });
     });
 
+    test.each([
+        ['modal', true],
+        ['classical', false],
+    ])('the expression input of a %s proof has modal buttons: %p', (logic, modal) => {
+        mockFetchActions.mockImplementation((_logic, callback) => {
+            callback([{ name: 'Ass', params: ['EXPRESSION', 'STATE'] }]);
+        });
+
+        render(<Menu {...defaultProps} logic={logic} proof={{ ...mockProof, logic }} />);
+        fireEvent.change(screen.getByLabelText(/Select Inference Rule:/i), { target: { value: 'Ass' } });
+
+        expect(screen.queryAllByRole('button', { name: /^Insert (necessarily|possibly)/ })).toHaveLength(modal ? 2 : 0);
+        expect(screen.getByLabelText(/Expression:/i)).toHaveAccessibleDescription(
+            modal ? expect.stringContaining('s0 <= s1') : 'Syntax: -> implies, & and, | or, - not'
+        );
+    });
+
     test('button is enabled when inputs are valid', async () => {
         mockFetchActions.mockImplementation((logic, callback) => {
             callback([{ name: 'Action1', params: ['INT', 'INT'] }, { name: 'Action2', params: ['EXPRESSION'] }]);
