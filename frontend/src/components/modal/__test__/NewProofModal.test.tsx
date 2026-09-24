@@ -63,7 +63,7 @@ describe('NewProofModal Component', () => {
 
     fireEvent.click(getByText('Start Proof'));
 
-    expect(onSubmitMock).toHaveBeenCalledWith(['P -> Q'], 'Q');
+    expect(onSubmitMock).toHaveBeenCalledWith(['P -> Q'], 'Q', 'classical');
     await waitFor(() => expect(onCloseMock).toHaveBeenCalled());
   });
 
@@ -177,11 +177,13 @@ describe('NewProofModal focus trap', () => {
 
     await user.tab();
 
-    expect(screen.getByLabelText('Premise 1')).toHaveFocus();
+    expect(screen.getByLabelText('Logic:')).toHaveFocus();
   });
 
   test('Shift+Tab from the first control wraps to the last one', async () => {
     const user = await setup();
+    await user.tab({ shift: true });
+    expect(screen.getByLabelText('Logic:')).toHaveFocus();
 
     await user.tab({ shift: true });
 
@@ -196,7 +198,7 @@ describe('NewProofModal focus trap', () => {
 
     screen.getByRole('button', { name: 'Outside' }).focus();
     await user.tab();
-    expect(screen.getByLabelText('Premise 1')).toHaveFocus();
+    expect(screen.getByLabelText('Logic:')).toHaveFocus();
   });
 });
 
@@ -289,7 +291,7 @@ describe('NewProofModal validation', () => {
     await user.click(startButton());
 
     expect(screen.queryByRole('alert')).not.toBeInTheDocument();
-    expect(onSubmit).toHaveBeenCalledWith(['P & Q'], 'Q');
+    expect(onSubmit).toHaveBeenCalledWith(['P & Q'], 'Q', 'classical');
     await waitFor(() => expect(onClose).toHaveBeenCalled());
   });
 
@@ -313,7 +315,7 @@ describe('NewProofModal validation', () => {
     await user.type(screen.getByLabelText('Goal:'), 'p -> q');
     await user.click(startButton());
 
-    expect(onSubmit).toHaveBeenCalledWith([], 'p -> q');
+    expect(onSubmit).toHaveBeenCalledWith([], 'p -> q', 'classical');
   });
 
   test('a proof the caller refuses keeps the modal open with the reason, until a field is edited', async () => {
@@ -521,7 +523,7 @@ describe('NewProofModal loading a proof from text', () => {
     fireEvent.click(load);
 
     await waitFor(() => expect(onCloseMock).toHaveBeenCalled());
-    expect(onLoadText).toHaveBeenCalledWith('P           Ass');
+    expect(onLoadText).toHaveBeenCalledWith('P           Ass', 'classical');
     expect(onSubmitMock).not.toHaveBeenCalled();
   });
 
@@ -628,7 +630,7 @@ describe('NewProofModal syntax help', () => {
     expect(goal.selectionStart).toBe(2);
 
     await user.click(screen.getByRole('button', { name: 'Start Proof' }));
-    expect(onSubmit).toHaveBeenCalledWith(['p -> q'], '--q');
+    expect(onSubmit).toHaveBeenCalledWith(['p -> q'], '--q', 'classical');
   });
 
   test('each premise has its own buttons', async () => {
@@ -669,5 +671,50 @@ describe('NewProofModal syntax help', () => {
     } finally {
       jest.useRealTimers();
     }
+  });
+});
+
+describe('NewProofModal logic', () => {
+  test('starts at the logic it is given, and submits the one picked', async () => {
+    const onSubmit = jest.fn().mockResolvedValue(null);
+    const user = userEvent.setup();
+    render(<NewProofModal isOpen={true} onClose={jest.fn()} logic="intuitionistic" onSubmit={onSubmit} />);
+    await waitFor(() => expect(screen.getByLabelText('Premise 1')).toHaveFocus());
+    const select = screen.getByLabelText('Logic:');
+    expect(select).toHaveValue('intuitionistic');
+    expect(select).toHaveAccessibleDescription(expect.stringContaining('without double negation elimination'));
+    expect(screen.getAllByRole('option').map((option) => option.textContent)).toEqual(['Classical', 'Intuitionistic']);
+
+    await user.selectOptions(select, 'classical');
+    await user.type(screen.getByLabelText('Premise 1'), '--p');
+    await user.type(screen.getByLabelText('Goal:'), 'p');
+    await user.click(screen.getByRole('button', { name: 'Start Proof' }));
+
+    expect(onSubmit).toHaveBeenCalledWith(['--p'], 'p', 'classical');
+  });
+
+  test('opens again at the given logic, not the one picked last time', async () => {
+    const user = userEvent.setup();
+    const { rerender } = render(<NewProofModal isOpen={true} onClose={jest.fn()} logic="classical" onSubmit={jest.fn()} />);
+    await user.selectOptions(screen.getByLabelText('Logic:'), 'intuitionistic');
+
+    rerender(<NewProofModal isOpen={false} onClose={jest.fn()} logic="classical" onSubmit={jest.fn()} />);
+    rerender(<NewProofModal isOpen={true} onClose={jest.fn()} logic="classical" onSubmit={jest.fn()} />);
+
+    expect(screen.getByLabelText('Logic:')).toHaveValue('classical');
+  });
+
+  test('loads the text as a proof of the logic picked, and a refusal goes away when the logic changes', async () => {
+    const onLoadText = jest.fn().mockResolvedValue('Line 2 uses -E, which is not a rule of intuitionistic logic');
+    const user = userEvent.setup();
+    render(<NewProofModal isOpen={true} onClose={jest.fn()} logic="intuitionistic" onSubmit={jest.fn()} onLoadText={onLoadText} />);
+    await user.type(screen.getByLabelText(/Proof text/), 'P           Ass');
+    await user.click(screen.getByRole('button', { name: 'Load proof' }));
+
+    expect(onLoadText).toHaveBeenCalledWith('P           Ass', 'intuitionistic');
+    expect(await screen.findByRole('alert')).toHaveTextContent('not a rule of intuitionistic logic');
+
+    await user.selectOptions(screen.getByLabelText('Logic:'), 'classical');
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
   });
 });

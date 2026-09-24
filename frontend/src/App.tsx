@@ -1,4 +1,4 @@
-import { ReactNode, useCallback, useEffect, useRef, useState } from 'react';
+import { ReactNode, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import './App.css';
 import Proof from './components/proof/ProofViewer';
 import Header from './components/Header';
@@ -6,7 +6,7 @@ import Menu, { MenuHandle } from './components/menu/Menu';
 import NewProofModal from './components/modal/NewProofModal';
 import ExerciseList, { ExercisesState } from './components/exercises/ExerciseList';
 import { StepDto, ProofDto, Exercise } from './types';
-import { LOGIC } from './constant';
+import { DEFAULT_LOGIC, LOGICS, logicInfo } from './constant';
 import { fetchExercises, loadProofFromText, replayProof, undoLastStep } from './service/actions';
 import { markExerciseSolved, readSolvedExercises } from './service/solvedExercises';
 import { loadedGoal, loadsBackWithSameGoal, proofToText } from './service/utils';
@@ -65,9 +65,12 @@ function App() {
   const userStartedRef = useRef(0);
   const [proof, setProof] = useState<ProofDto>({
     steps: [],
-    logic: LOGIC,
+    logic: DEFAULT_LOGIC,
     goal: '',
   });
+  // The logic of everything on the page: the proof on screen, its rules, the exercises, "Try an example", and where the New
+  // Proof dialog starts. Before any proof is shown it is the one picked on the empty page.
+  const logic = proof.logic;
   // Mirrors `proof`, for an in-flight exercise start to see whether the proof on screen changed while it waited (a rule
   // applied in the Menu, or an undo, neither of which bumps `proofIdRef`).
   const proofRef = useRef(proof);
@@ -102,9 +105,15 @@ function App() {
   // Whether the list of exercises is shown, and the exercises themselves: null until they are first needed (the list is
   // opened, or a proof of an exercise is on screen and "Next exercise" needs to know the next one).
   const [isExercisesOpen, setIsExercisesOpen] = useState(false);
-  const [exercisesState, setExercisesState] = useState<ExercisesState | null>(null);
-  // The ids of the solved exercises of the logic, kept in localStorage (see `solvedExercises`).
-  const [solved, setSolved] = useState(() => readSolvedExercises(LOGIC));
+  // They are fetched per logic, so the ones of another logic count as not fetched yet.
+  const [exercisesOf, setExercisesOf] = useState<{ logic: string, state: ExercisesState } | null>(null);
+  const exercisesState = exercisesOf?.logic === logic ? exercisesOf.state : null;
+  // The ids of the solved exercises of the logic, kept in localStorage (see `solvedExercises`), together with the ones
+  // solved in this page session, per logic, which still count when storage cannot be used.
+  const [solvedThisSession, setSolvedThisSession] = useState<Record<string, string[]>>({});
+  const solved = useMemo(
+    () => new Set([...readSolvedExercises(logic), ...(solvedThisSession[logic] ?? [])]),
+    [logic, solvedThisSession]);
   // The exercise being checked by the backend before it is shown, and why the last one could not be started.
   const [startingExerciseId, setStartingExerciseId] = useState<string | null>(null);
   const [exerciseStartError, setExerciseStartError] = useState('');
@@ -214,7 +223,7 @@ function App() {
   // Proof stay usable) is dropped, and the saved proof is left as it is until that proof replaces it; so is one for an
   // unmounted App (React mounts twice in development).
   useEffect(() => {
-    const saved = readSavedProof(LOGIC);
+    const saved = readSavedProof();
     if (saved.kind === 'none') return;
     if (saved.kind === 'corrupt') {
       clearSavedProof();
@@ -225,7 +234,7 @@ function App() {
     const requestedProofId = proofIdRef.current;
     const requestedStart = userStartedRef.current;
     setIsRestoring(true);
-    replayProof(LOGIC, saved.proof, (result) => {
+    replayProof(saved.proof.logic, saved.proof, (result) => {
       if (!active) return;
       setIsRestoring(false);
       if (proofIdRef.current !== requestedProofId) return;
@@ -264,43 +273,50 @@ function App() {
   // exercises solved earlier in this page session still count.
   useEffect(() => {
     if (proof.done === true && exerciseId !== null) {
-      const stored = markExerciseSolved(LOGIC, exerciseId);
-      setSolved((previous) => new Set([...previous, ...stored]));
+      const stored = markExerciseSolved(proof.logic, exerciseId);
+      setSolvedThisSession((previous) => ({
+        ...previous,
+        [proof.logic]: [...new Set([...(previous[proof.logic] ?? []), ...stored])],
+      }));
     }
   }, [proof, exerciseId]);
 
   // Fetches the exercises the first time they are needed: when the list is opened, or when a proof of an exercise is on
   // screen (also after a reload), since "Next exercise" needs the list. A failed fetch is only tried again when the list
-  // is opened again (see `handleToggleExercises`).
+  // is opened again (see `handleToggleExercises`). They are the exercises of the logic on screen, fetched again when it
+  // changes; an answer for a logic that is no longer on screen is dropped.
   useEffect(() => {
     if (exercisesState !== null || (!isExercisesOpen && exerciseId === null)) return;
-    setExercisesState({ kind: 'loading' });
+    const requested = logic;
+    setExercisesOf({ logic: requested, state: { kind: 'loading' } });
+    const settle = (state: ExercisesState) =>
+      setExercisesOf((previous) => (previous?.logic === requested ? { logic: requested, state } : previous));
     fetchExercises(
-      LOGIC,
-      (exercises) => setExercisesState({ kind: 'loaded', exercises }),
-      (message) => setExercisesState({ kind: 'error', message }));
-  }, [exercisesState, isExercisesOpen, exerciseId]);
+      requested,
+      (exercises) => settle({ kind: 'loaded', exercises }),
+      (message) => settle({ kind: 'error', message }));
+  }, [exercisesState, isExercisesOpen, exerciseId, logic]);
 
   // Has the backend check a proof of only its premises and goal (see `replayProof`, the path Undo uses: it parses the
   // goal and every step), since `checkFormula` is only an instant check that can drift from the backend's parser.
   // Resolves to the proof as the backend returned it, or to the reason it was refused.
-  const checkNewProof = (premises: string[], goal: string) => new Promise<{ proof: ProofDto } | { error: string }>((resolve) => {
+  const checkNewProof = (premises: string[], goal: string, proofLogic: string) => new Promise<{ proof: ProofDto } | { error: string }>((resolve) => {
     const steps: StepDto[] = premises.map((premise) => ({
       expression: premise.trim(),
       rule: 'Ass',
       assmsLevel: 0,
       extraParameters: {},
     }));
-    replayProof(LOGIC, { steps: steps, logic: LOGIC, goal: goal }, (result) => resolve(result.proof
+    replayProof(proofLogic, { steps: steps, logic: proofLogic, goal: goal }, (result) => resolve(result.proof
       ? { proof: result.proof }
       : { error: result.message || 'Could not start the proof.' }));
   });
 
   // Start Proof in the New Proof dialog: the proof is only shown once the backend accepted it, and a refusal keeps the
   // dialog open with the reason. An answer arriving after the dialog was closed is dropped.
-  const handleNewProofSubmit = async (premises: string[], goal: string): Promise<string | null> => {
+  const handleNewProofSubmit = async (premises: string[], goal: string, proofLogic: string): Promise<string | null> => {
     const session = dialogSessionRef.current;
-    const checked = await checkNewProof(premises, goal);
+    const checked = await checkNewProof(premises, goal, proofLogic);
     if (dialogSessionRef.current !== session) return null;
     if ('error' in checked) return checked.error;
     showNewProof(checked.proof);
@@ -318,7 +334,7 @@ function App() {
     setExampleError('');
     setIsStartingExample(true);
     const requestedProofId = proofIdRef.current;
-    const checked = await checkNewProof(EXAMPLE_PREMISES, EXAMPLE_GOAL);
+    const checked = await checkNewProof(EXAMPLE_PREMISES, EXAMPLE_GOAL, logic);
     setIsStartingExample(false);
     if (proofIdRef.current !== requestedProofId) return;
     // That later request wins. It may still be cancelled (the New Proof dialog), and then nothing replaces the empty
@@ -349,7 +365,8 @@ function App() {
     setStartingExerciseId(exercise.id);
     const requestedProofId = proofIdRef.current;
     const requestedProof = proofRef.current;
-    const checked = await checkNewProof(exercise.premises, exercise.goal);
+    // The list only shows the exercises of the logic on screen.
+    const checked = await checkNewProof(exercise.premises, exercise.goal, logic);
     setStartingExerciseId(null);
     if (proofIdRef.current !== requestedProofId) return;
     // The user asked for another proof meanwhile (e.g. New Proof, which may be waiting for its own discard confirmation
@@ -395,7 +412,7 @@ function App() {
     }
     setExerciseStartError('');
     // Opening the list again tries again to fetch exercises that could not be fetched.
-    if (exercisesState?.kind === 'error') setExercisesState(null);
+    if (exercisesState?.kind === 'error') setExercisesOf(null);
     setIsExercisesOpen(true);
   };
   const handleBrowseExercises = () => {
@@ -424,9 +441,9 @@ function App() {
   // "Load from text" in the New Proof dialog: the backend reads the text as a finished proof (see `loadProofFromText`),
   // which is only shown once it is accepted; a refusal keeps the dialog open with the reason. An answer arriving after
   // the dialog was closed is dropped.
-  const handleLoadText = (text: string) => new Promise<string | null>((resolve) => {
+  const handleLoadText = (text: string, proofLogic: string) => new Promise<string | null>((resolve) => {
     const session = dialogSessionRef.current;
-    loadProofFromText(LOGIC, text, (result) => {
+    loadProofFromText(proofLogic, text, (result) => {
       if (dialogSessionRef.current !== session) {
         resolve(null);
       } else if (result.success && result.proof) {
@@ -459,7 +476,7 @@ function App() {
     setUndoError('');
     setIsUndoing(true);
     const requestedProofId = proofIdRef.current;
-    undoLastStep(LOGIC, proof, (result) => {
+    undoLastStep(logic, proof, (result) => {
       setIsUndoing(false);
       // New Proof stays enabled while an undo is in flight, and it bumps `proofIdRef`. If that happened, this
       // response is about a proof that no longer exists on screen; applying it (or reporting its error) would
@@ -480,6 +497,14 @@ function App() {
   };
 
   const hasProof = proof.goal !== '' || proof.steps.length > 0;
+
+  // The logic picked on the empty page, for "Try an example", the exercises and the New Proof dialog. There is no proof
+  // to lose, so it just changes.
+  const handleEmptyLogicChange = (value: string) => {
+    setExampleError('');
+    setExerciseStartError('');
+    setProof((previous) => ({ ...previous, logic: value }));
+  };
 
   return (
     <div className="App">
@@ -557,6 +582,7 @@ function App() {
         )}
         {isExercisesOpen && (
           <ExerciseList
+            logic={logic}
             state={exercisesState ?? { kind: 'loading' }}
             solved={solved}
             currentId={exerciseId}
@@ -572,7 +598,7 @@ function App() {
               Exercise: <strong>{currentExercise.title}</strong>{solved.has(currentExercise.id) ? ' (Solved)' : ''}
             </p>
           )}
-          <Menu key={proofId} ref={menuRef} logic={LOGIC} proof={proof} setProof={setMenuProof} onColorChange={onColorChange} onNewProof={handleOpenModalFromMenu} onNextExercise={handleNextExercise} />
+          <Menu key={proofId} ref={menuRef} logic={logic} proof={proof} setProof={setMenuProof} onColorChange={onColorChange} onNewProof={handleOpenModalFromMenu} onNextExercise={handleNextExercise} />
           {hasProof ? (
             <Proof proof={proof} coloring={colorMapping} onSelectLine={handleSelectLine} />
           ) : (
@@ -583,6 +609,21 @@ function App() {
                   : <>No proof loaded. Click <strong>New Proof</strong> to begin.</>}
               </p>
               {restoreError && <p className="restore-error" role="alert">{restoreError}</p>}
+              <div className="empty-logic">
+                <label htmlFor="empty-logic-select" className="empty-logic-label">Logic:</label>
+                <select
+                  id="empty-logic-select"
+                  value={logic}
+                  onChange={(e) => handleEmptyLogicChange(e.target.value)}
+                  disabled={isStartingExample || startingExerciseId !== null}
+                  aria-describedby="empty-logic-desc"
+                >
+                  {LOGICS.map((info) => <option key={info.id} value={info.id}>{info.name}</option>)}
+                </select>
+                <p id="empty-logic-desc" className="empty-logic-desc">
+                  {logicInfo(logic)?.description} The example and the exercises use this logic.
+                </p>
+              </div>
               <h2 className="how-it-works-title">How it works</h2>
               <ol className="how-it-works">
                 <li>Enter the premises and the goal of the proof.</li>
@@ -611,6 +652,7 @@ function App() {
         isOpen={isModalOpen}
         opener={modalOpener}
         onClose={handleCloseModal}
+        logic={logic}
         onSubmit={handleNewProofSubmit}
         onLoadText={handleLoadText}
       />

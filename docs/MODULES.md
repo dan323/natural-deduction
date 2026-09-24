@@ -204,7 +204,7 @@ React-based user interface.
   - `Menu` - the rule menu, built from the action descriptors, with the Apply Rule and Solve buttons
   - `ProofViewer` / `StepViewer` - the proof, with hover highlighting of the lines a rule uses
   - `Goal`, `NewProofModal`, `GlowingInput`, and `service/actions.ts` (the calls to `/logic/{logic}/...`)
-- **Logic**: hardcoded to `classical` (`LOGIC` in `src/constant.ts`); modal is backend only
+- **Logic**: picked in the New Proof dialog (or on the empty page) from `LOGICS` in `src/constant.ts` (classical, intuitionistic); modal is backend only
 - **Location**: `frontend/src/`
 - **Build**: `npm run build`
 - **Type check**: `npm run typecheck`

@@ -227,7 +227,7 @@ mvn clean install
 | `pom.xml` (root) | Maven parent configuration |
 | `executable/pom.xml` | Spring Boot dependencies |
 | `frontend/package.json` | Node.js dependencies |
-| `frontend/src/constant.ts` | The logic the UI uses (`LOGIC`) |
+| `frontend/src/constant.ts` | The logics the UI offers (`LOGICS`) |
 | `frontend/vite.config.ts` | Vite config, incl. the `/logic` dev proxy |
 | `Dockerfile` | Image of the jar (non-root, health check) |
 | `.github/workflows/` | CI: `CompileAndTest.yml`, `frontend.yml`, `OnMaster.yml` (Docker publish), `OnMerge.yml` |

@@ -1,5 +1,6 @@
 .goal {
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
     justify-content: center;
     /* Center the content horizontally */
@@ -27,6 +28,12 @@
     margin-left: 1rem;
     font-size: 1.1rem;
     font-weight: bold;
+}
+
+.goal-logic {
+    margin-left: 1rem;
+    font-size: 1.1rem;
+    color: #595959;
 }
 
 .goal-marker-success {

@@ -4,8 +4,11 @@ import { fetchActions, applyAction, solveProof } from '../../service/actions';
 import './Menu.css';
 import GlowingInput from '../input/GlowingInput';
 import { ProofDto, ActionDto, ActionDescriptor, ActionCategory, ApplyActionResponse, ParamKind } from '../../types';
+import { hasSolver, logicName } from '../../constant';
 
 type MenuProps = {
+    // The logic of the proof (`proof.logic`): its rules are offered, and Solve only when it has a solver. App remounts the
+    // Menu for every new proof, so a proof of another logic starts with no rule selected.
     logic: string;
     onColorChange: (color: string, line: number) => void;
     setProof: (proof: ProofDto) => void;
@@ -234,6 +237,7 @@ const Menu: FC<MenuProps> = ({ logic, onColorChange, setProof, proof, ref, onNew
     };
 
     const busy = isLoading || isSolving;
+    const canSolve = hasSolver(logic);
     const noProof = proof.steps.length === 0 && !proof.goal;
 
     // Without a proof there is nothing to apply a rule to; App shows the hint to start one.
@@ -313,16 +317,19 @@ const Menu: FC<MenuProps> = ({ logic, onColorChange, setProof, proof, ref, onNew
                 >
                     {isLoading ? 'Applying…' : 'Apply Rule'}
                 </button>
-                <button
-                    className="menu-button menu-button-secondary"
-                    onClick={solve}
-                    disabled={busy || done}
-                    aria-disabled={busy || done}
-                    title="Let the solver try to finish the whole proof"
-                >
-                    {isSolving ? 'Solving…' : 'Solve'}
-                </button>
+                {canSolve && (
+                    <button
+                        className="menu-button menu-button-secondary"
+                        onClick={solve}
+                        disabled={busy || done}
+                        aria-disabled={busy || done}
+                        title="Let the solver try to finish the whole proof"
+                    >
+                        {isSolving ? 'Solving…' : 'Solve'}
+                    </button>
+                )}
             </div>
+            {!canSolve && !done && <p className="menu-hint menu-no-solver">{logicName(logic)} has no automatic solver.</p>}
             {!canApply && !done && <p id="apply-hint" className="menu-hint">{applyHint}</p>}
         </div>
     );

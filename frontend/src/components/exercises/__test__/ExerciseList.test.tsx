@@ -12,6 +12,7 @@ type Props = Parameters<typeof ExerciseList>[0];
 
 const renderList = (state: ExercisesState, overrides: Partial<Props> = {}) => {
   const props: Props = {
+    logic: 'classical',
     state,
     solved: new Set<string>(),
     currentId: null,
@@ -26,6 +27,14 @@ const renderList = (state: ExercisesState, overrides: Partial<Props> = {}) => {
 };
 
 describe('ExerciseList', () => {
+  test('says which logic the exercises are for', () => {
+    const { rerender } = renderList({ kind: 'loaded', exercises: EXERCISES });
+    expect(screen.getByText(/In Classical logic\./)).toBeInTheDocument();
+
+    rerender({ logic: 'intuitionistic' });
+    expect(screen.getByText(/In Intuitionistic logic\./)).toBeInTheDocument();
+  });
+
   test('groups the exercises by difficulty, leaving out the empty groups', () => {
     renderList({ kind: 'loaded', exercises: EXERCISES });
 

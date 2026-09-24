@@ -1,10 +1,13 @@
 import { CSSProperties, FC, useEffect, useState } from 'react';
 import './goal.css';
 import { renderExpression } from '../../service/utils';
+import { logicName } from '../../constant';
 
 type GoalProps = {
   expression: string;
   success: boolean;
+  // The logic of the proof, named next to the goal, since the same goal may be provable in one logic and not in another.
+  logic?: string;
 };
 
 const emojis = ['🎉', '🎊', '🎈', '🥳', '✨']; // Array of emojis for celebration
@@ -24,7 +27,7 @@ function rollConfetti(): Confetti[] {
   }));
 }
 
-const Goal: FC<GoalProps> = ({ expression, success }) => {
+const Goal: FC<GoalProps> = ({ expression, success, logic }) => {
   const [confetti, setConfetti] = useState<Confetti[] | null>(null);
 
   useEffect(() => {
@@ -47,6 +50,7 @@ const Goal: FC<GoalProps> = ({ expression, success }) => {
       <span className={success ? 'goal-marker goal-marker-success' : 'goal-marker goal-marker-failure'}>
         {success ? '✓ Proved' : 'Not proved yet'}
       </span>
+      {logic && <span className="goal-logic">in {logicName(logic)}</span>}
       {confetti && (
         <div className="celebration" aria-hidden="true">
           {confetti.map(({ emoji, style }, index) => (
