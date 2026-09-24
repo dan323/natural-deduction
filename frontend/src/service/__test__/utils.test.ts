@@ -58,6 +58,12 @@ describe('checkFormula', () => {
     'x <= y',
     'x = y1',
     'p_1 & q_2',
+    '[]p -> p',
+    '<>(p & q)',
+    '[]<>p',
+    '-[]-p',
+    's0 <= s1',
+    's0 = s1',
   ])('accepts %j', (formula) => {
     expect(checkFormula(formula)).toBeNull();
   });
@@ -67,6 +73,10 @@ describe('checkFormula', () => {
   });
 
   test.each(['p ->', 'q &&', 'p |', 'p &', 'p -> q ->', '-', 'p = '])('rejects the dangling operator in %j', (formula) => {
+    expect(checkFormula(formula)).not.toBeNull();
+  });
+
+  test.each(['[]', '<>', 'p -> []', '[] <>', '([])', '<>(p & q) & []'])('rejects the dangling modal operator in %j', (formula) => {
     expect(checkFormula(formula)).not.toBeNull();
   });
 

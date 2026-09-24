@@ -1,5 +1,5 @@
 import { FC, useLayoutEffect, useRef } from 'react';
-import { CONNECTIVES, insertAtCursor } from './connectives';
+import { connectivesFor, insertAtCursor } from './connectives';
 import './connectives.css';
 
 type ConnectiveButtonsProps = {
@@ -10,11 +10,13 @@ type ConnectiveButtonsProps = {
     // Names the input in the buttons' accessible names when several inputs have their own buttons, e.g. "Goal".
     target?: string;
     disabled?: boolean;
+    // The logic of the proof the formula is for: a modal proof also gets the □ and ◇ buttons.
+    logic?: string;
 };
 
 // One button per connective, labelled with the symbol of the proof table, that types its ASCII form at the caret of
 // the input (replacing the selection), then gives the focus back to the input with the caret after the insertion.
-const ConnectiveButtons: FC<ConnectiveButtonsProps> = ({ getInput, onInsert, target, disabled }) => {
+const ConnectiveButtons: FC<ConnectiveButtonsProps> = ({ getInput, onInsert, target, disabled, logic }) => {
     // Where the caret goes once the parent has rendered the new value; setting it earlier would be undone by React.
     const pendingCaret = useRef<number | null>(null);
 
@@ -46,7 +48,7 @@ const ConnectiveButtons: FC<ConnectiveButtonsProps> = ({ getInput, onInsert, tar
 
     return (
         <div className="connective-buttons" role="group" aria-label={target ? `Connectives for ${target}` : 'Connectives'}>
-            {CONNECTIVES.map(({ symbol, ascii, name }) => (
+            {connectivesFor(logic).map(({ symbol, ascii, name }) => (
                 <button
                     key={ascii}
                     type="button"

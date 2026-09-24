@@ -674,6 +674,57 @@ describe('NewProofModal syntax help', () => {
   });
 });
 
+describe('NewProofModal modal formula help', () => {
+  const MODAL_HINT = 'Syntax: -> implies, & and, | or, - not, [] necessarily, <> possibly; '
+    + 'relations between states: s0 <= s1 (s1 is reachable from s0), s0 = s1 (the same state)';
+
+  test('a modal proof gets the modal hint and □ ◇ buttons for every formula field', async () => {
+    const user = userEvent.setup();
+    render(<NewProofModal isOpen onClose={jest.fn()} logic="modal" onSubmit={jest.fn()} />);
+    await user.click(screen.getByRole('button', { name: '+ Add Premise' }));
+
+    expect(screen.getByText(MODAL_HINT)).toBeInTheDocument();
+    expect(screen.getByLabelText('Premise 1')).toHaveAccessibleDescription(MODAL_HINT);
+    expect(screen.getByLabelText('Goal:')).toHaveAccessibleDescription(MODAL_HINT);
+    for (const target of ['Premise 1', 'Premise 2', 'Goal']) {
+      expect(screen.getByRole('button', { name: `Insert necessarily ([]) in ${target}` })).toHaveTextContent('□');
+      expect(screen.getByRole('button', { name: `Insert possibly (<>) in ${target}` })).toHaveTextContent('◇');
+    }
+  });
+
+  test('□p and ◇p entered with the buttons are submitted as []p and <>p', async () => {
+    const user = userEvent.setup();
+    const onSubmit = jest.fn().mockResolvedValue(null);
+    render(<NewProofModal isOpen onClose={jest.fn()} logic="modal" onSubmit={onSubmit} />);
+
+    await user.click(screen.getByRole('button', { name: 'Insert necessarily ([]) in Premise 1' }));
+    await user.type(screen.getByLabelText('Premise 1'), 'p');
+    await user.click(screen.getByRole('button', { name: 'Insert possibly (<>) in Goal' }));
+    await user.type(screen.getByLabelText('Goal:'), 'p');
+    await user.click(screen.getByRole('button', { name: 'Start Proof' }));
+
+    expect(onSubmit).toHaveBeenCalledWith(['[]p'], '<>p', 'modal');
+  });
+
+  test('a classical proof has no modal buttons, nor the modal hint', () => {
+    render(<NewProofModal isOpen onClose={jest.fn()} logic="classical" onSubmit={jest.fn()} />);
+
+    expect(screen.queryByRole('button', { name: /necessarily|possibly/ })).not.toBeInTheDocument();
+    expect(screen.queryByText(/relations between states/)).not.toBeInTheDocument();
+  });
+
+  test('the help follows the logic picked in the dialog', async () => {
+    const user = userEvent.setup();
+    render(<NewProofModal isOpen onClose={jest.fn()} logic="modal" onSubmit={jest.fn()} />);
+    expect(screen.getByRole('button', { name: 'Insert necessarily ([]) in Goal' })).toBeInTheDocument();
+
+    await user.selectOptions(screen.getByLabelText('Logic:'), 'intuitionistic');
+
+    expect(screen.queryByRole('button', { name: /necessarily|possibly/ })).not.toBeInTheDocument();
+    expect(screen.getByLabelText('Goal:')).toHaveAccessibleDescription('Syntax: -> implies, & and, | or, - not');
+  });
+});
+
 describe('NewProofModal logic', () => {
   test('starts at the logic it is given, and submits the one picked', async () => {
     const onSubmit = jest.fn().mockResolvedValue(null);
