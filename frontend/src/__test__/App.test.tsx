@@ -1454,6 +1454,54 @@ describe('App', () => {
       expect(JSON.parse(window.sessionStorage.getItem('natural-deduction.proof')!).goal).toBe('P');
     });
 
+    // A backend whose replays of the example (goal q) and of the exercise "Second" (goal Q) each wait for their own
+    // answer.
+    const slowExampleAndExerciseBackend = () => {
+      const answers: { example: (() => void) | null, exercise: (() => void) | null } = { example: null, exercise: null };
+      mockExerciseBackend(undefined, (init) => {
+        const which = JSON.parse(String(init!.body)).proofDto.goal === 'q' ? 'example' : 'exercise';
+        return new Promise<Response>((resolve) => { answers[which] = () => resolve(replayAnswer(init)); }) as unknown as Response;
+      });
+      return answers;
+    };
+
+    test('an exercise started while "Try an example" is being checked wins, even when the example answers first', async () => {
+      const answers = slowExampleAndExerciseBackend();
+      const user = userEvent.setup();
+      render(<App />);
+      await user.click(screen.getByRole('button', { name: 'Try an example' }));
+      await waitFor(() => expect(answers.example).not.toBeNull());
+      await user.click(screen.getByRole('button', { name: 'Browse exercises' }));
+      await user.click(await screen.findByRole('button', { name: 'Start exercise Second' }));
+      await waitFor(() => expect(answers.exercise).not.toBeNull());
+
+      await act(async () => answers.example!());
+      expect(screen.queryByRole('row')).not.toBeInTheDocument();
+      await act(async () => answers.exercise!());
+
+      await waitFor(() => expect(currentExercise()).toHaveTextContent('Exercise: Second'));
+      expect(screen.getByText('GOAL:').parentElement).toHaveTextContent('Q');
+      expect(JSON.parse(window.sessionStorage.getItem('natural-deduction.proof')!).goal).toBe('Q');
+    });
+
+    test('an example dropped for a New Proof dialog that was then cancelled says it was not started', async () => {
+      const answers = slowExampleAndExerciseBackend();
+      const user = userEvent.setup();
+      render(<App />);
+      await user.click(screen.getByRole('button', { name: 'Try an example' }));
+      await waitFor(() => expect(answers.example).not.toBeNull());
+      await user.click(screen.getByRole('button', { name: /Start a new proof/i }));
+      expect(await screen.findByRole('dialog')).toBeInTheDocument();
+
+      await act(async () => answers.example!());
+      await user.click(screen.getByRole('button', { name: 'Cancel' }));
+      await dialogClosed();
+
+      expect(screen.queryByRole('row')).not.toBeInTheDocument();
+      expect(screen.getByRole('alert')).toHaveTextContent('The example was not started, since a new proof was asked for meanwhile.');
+      expect(screen.getByRole('button', { name: 'Try an example' })).toBeEnabled();
+    });
+
     test('a solver answer for one exercise that arrives after another was started neither replaces it nor marks it solved', async () => {
       let answerSolve: (() => void) | null = null;
       fetchMock.mockImplementation(async (url: string, init?: RequestInit) => {

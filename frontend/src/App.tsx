@@ -309,17 +309,24 @@ function App() {
 
   // Starts the example exactly as if its premises and goal had been typed in the New Proof dialog, through the same
   // backend check. The button goes away with the empty state, so hand the focus to a control that stays on the page,
-  // as `handleUndo` does. An answer arriving after another proof was started (the dialog can be opened meanwhile) is
-  // dropped.
+  // as `handleUndo` does. An answer arriving after another proof was started, or asked for (the dialog can be opened,
+  // or an exercise started, meanwhile), is dropped.
   const handleTryExample = async () => {
     if (isStartingExample) return;
     userStartedRef.current += 1;
+    const requestedStart = userStartedRef.current;
     setExampleError('');
     setIsStartingExample(true);
     const requestedProofId = proofIdRef.current;
     const checked = await checkNewProof(EXAMPLE_PREMISES, EXAMPLE_GOAL);
     setIsStartingExample(false);
     if (proofIdRef.current !== requestedProofId) return;
+    // That later request wins. It may still be cancelled (the New Proof dialog), and then nothing replaces the empty
+    // state, so say there that the example was not started; a proof that is started replaces the empty state.
+    if (userStartedRef.current !== requestedStart) {
+      setExampleError('The example was not started, since a new proof was asked for meanwhile. Click "Try an example" again to start it.');
+      return;
+    }
     if ('error' in checked) {
       setExampleError(checked.error);
       return;
