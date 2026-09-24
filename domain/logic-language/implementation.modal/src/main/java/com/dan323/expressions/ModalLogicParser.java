@@ -23,6 +23,17 @@ public class ModalLogicParser extends AbstractEvaluator<ModalOperation> {
         super(buildParams());
     }
 
+    /**
+     * A parser for a language that extends this one, with its own operators: those it shares with this one keep their
+     * symbols (this parser's {@link #evaluate(Operator, Iterator, Object)} builds them), and a subclass builds the
+     * others before falling back to this one.
+     *
+     * @param parameters the constants, operators and brackets of the extended language
+     */
+    protected ModalLogicParser(Parameters parameters) {
+        super(parameters);
+    }
+
     private static Parameters buildParams() {
         Parameters parameters = new Parameters();
         parameters.add(new Constant("FALSE"));

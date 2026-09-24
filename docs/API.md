@@ -4,7 +4,7 @@ This document describes the REST API endpoints for the Natural Deduction system.
 
 ## Endpoints
 
-The server keeps no session. Every logic (`classical`, `intuitionistic`, `modal`) is served under `/logic/{logic}`; the client sends
+The server keeps no session. Every logic (`classical`, `intuitionistic`, `modal`, `modal-next-until`) is served under `/logic/{logic}`; the client sends
 the whole proof with every request.
 
 Every non-2xx response has the body `{"message": "..."}`. An unknown logic is a 404, malformed input a 400, a
@@ -108,7 +108,7 @@ Runs the automatic solver on the proof (a `ProofDto`) and returns the resulting 
 - At most as many solves as there are processors (at least 2) run at once, per logic. Another one is answered at once
   with `429` and `{"message": "The solver is busy with other proofs, try again in a moment"}`.
 - An invalid proof is a `400`, as for `/action`.
-- A logic without a solver of its own (`intuitionistic`) answers `400` with
+- A logic without a solver of its own (`intuitionistic`, `modal-next-until`) answers `400` with
   `{"message": "There is no solver for the logic 'intuitionistic'"}`.
 
 ### List the exercises: `GET /logic/{logic}/exercises`
@@ -127,8 +127,9 @@ Returns `200` with the logic's exercises, ordered from easy to hard. Each one as
   does not parse), so they can be sent back as they are and match the expressions of the proof's steps.
 - Classical logic has 14 exercises, intuitionistic logic 16 (the classical ones except `double-negation-elimination`
   and `excluded-middle`, plus four of its own), modal logic 7 (with premises in `s0`, e.g. `box-elimination`, `[] p` to
-  `p`, and `box-transitive`, `[] p` to `[] ([] p)`). A known logic without exercises answers `200` with `[]`; an
-  unknown logic is a `404`.
+  `p`, and `box-transitive`, `[] p` to `[] ([] p)`), `modal-next-until` 9, from `next-in-and-out` (`X p ⊢ X (p | q)`)
+  to `always-always-next` (`[] p ⊢ X ([] p)`). A known logic without exercises answers `200` with `[]`; an unknown
+  logic is a `404`.
 - Every exercise has a reference solution on the server, a proof in the proof-file layout (see below) that a unit test
   replays (for modal logic it also checks that the goal is derived in `s0`, which `done` does not look at). It is
   never sent to the client.
@@ -139,7 +140,9 @@ Multipart form with the file in the part `file`, in the layout `ProofStep.toStri
 assumption level, an 11-space gap, then the rule, e.g. `->I [1-2]`). Returns `201` with the `ProofDto`. A line that
 cannot be parsed, or a step that does not follow, is a `400` whose message names the line. In a `modal` file a line
 that is in a state starts with the state and `: `, before the indent (`s0: [] p           Ass`,
-`s1:    q           Ass`); a relation between states (`s0 <= s1           Ass`) has no prefix.
+`s1:    q           Ass`); a relation between states (`s0 <= s1           Ass`) has no prefix. A `modal-next-until` file uses the same layout,
+with successor states (`s0+1: p           XE [1]`); a file that does not prove its goal (the last line) in `s0`, such
+as one that ends with `s0+1: p`, is a `400`.
 
 ### Intuitionistic logic
 
@@ -153,6 +156,45 @@ shares everything else with `classical`: the formula syntax, the proof and proof
   e.g. the classical proof of `- (- p) ⊢ p`.
 - `POST /logic/intuitionistic/solve` is a `400`: the classical solver may use double negation elimination, so its
   proofs are not necessarily intuitionistic.
+
+### Modal logic with Next and Until
+
+`modal-next-until` is modal logic over discrete time: every state `s` has a successor `s+1`, and `s <= t` holds when
+`t` is `s`, `s+1`, `s+2`, ... It adds two connectives to the modal formulas: Next, `X A` (`A` holds in `s+1`), and
+Until, `A U B` (`B` holds in some `s+k` and `A` in every state from `s` up to, not including, `s+k`). `"modal"` does not
+change.
+
+- Formulas: `X` is a unary connective like `-`, `[]` and `<>`, and any of these can follow another (`X - p`,
+  `[] X p`). `U` binds tighter than `&`, `|` and `->` and looser than the unary connectives, and groups to the left:
+  `- p U X q -> r` is `((- p) U (X q)) -> r`. `X` and `U` are operators only as words of their own, so `TRUE`, `Xp`
+  and `pUq` are names, and no variable can be called `X` or `U`. The server prints `X p`, `p U q`, `X (p U q)`,
+  `(X p) U q`.
+- States are a name followed by successor steps: `s0`, `s0+1`, `s0+2`. The server keeps them written without spaces
+  and with one `+k` at most (`s0 + 1 + 1` is kept as `s0+2`, `s0+0` as `s0`), in `extraParameters.state` and in both
+  sides of a relation (`s0 <= s0+1`). A state that is not like this (`s0-1`, `s0+`), or whose offset does not fit in
+  an `int` (`s0+99999999999`), is a `400`. The last one, `s0+2147483647`, has no written successor: `XE` and `Succ`
+  on a line in it do not apply (`202`).
+- `GET /logic/modal-next-until/actions` lists the 20 modal actions, with the same descriptors, then:
+
+  | name   | params     | rule text    | what it does                                                        |
+  |--------|------------|--------------|---------------------------------------------------------------------|
+  | `XI`   | INT        | `XI [i]`     | from `A` in `s+1`, derive `X A` in `s`                              |
+  | `XE`   | INT        | `XE [i]`     | from `X A` in `s`, derive `A` in `s+1`                              |
+  | `Succ` | INT        | `Succ [i]`   | from any formula in `s`, derive the relation `s <= s+1`             |
+  | `UI1`  | INT, EXPR  | `UI [i]`     | from `B` in `s`, derive `A U B` in `s` (`A` is the expression)      |
+  | `UI2`  | INT, INT   | `UI [i, j]`  | from `A` and `X (A U B)` in `s`, derive `A U B` in `s`              |
+  | `UE`   | INT        | `UE [i]`     | from `A U B` in `s`, derive `B \| (A & X (A U B))` in `s`           |
+  | `U<>`  | INT        | `U<> [i]`    | from `A U B` in `s`, derive `<> B` in `s`                           |
+  | `Ind`  | INT, INT   | `Ind [i, j]` | from `A` and `[] (A -> X A)` in `s`, derive `[] A` in `s`           |
+
+- `XI` needs a line whose state is written as a successor: `A` in `s1` does not give `X A` anywhere, even if some
+  earlier line says `s0 <= s1`.
+- The fresh state of `[]I` and `<>E` must be a new name, not `s0+1` (the successor of `s0` is not arbitrary), and no
+  earlier line may use it or any of its successors; nor may the other side of its relation (`t+1 <= t`). `<>E`
+  accepts a last line in any state whose name is used before, such as `s0+3`.
+- A proof is done when a top-level line is the goal in `s0` (or the goal is a relation): `X p ⊢ p` is not done by
+  `p` in `s0+1`. In `modal`, `done` still looks at the formula only.
+- `POST /logic/modal-next-until/solve` is a `400`: the modal solver uses none of the Next and Until rules.
 
 ## Other endpoints
 

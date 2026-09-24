@@ -44,7 +44,7 @@ public final class ModalBoxI implements ModalAction {
         if (!(pf.getSteps().getLast()).getState().equals(stateGreater)) {
             return false;
         }
-        return !pf.stateIsUsedBefore(stateGreater, pf.getSteps().size() - lastAssumption);
+        return pf.isFreshState(stateGreater, ((LessEqual) log.getStep()).getLeft(), pf.getSteps().size() - lastAssumption);
     }
 
     @Override

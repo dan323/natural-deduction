@@ -4,6 +4,7 @@ import com.dan323.uses.classical.ClassicalConfiguration;
 import com.dan323.uses.intuitionistic.IntuitionisticConfiguration;
 import com.dan323.uses.internal.ActionsUseCaseConfiguration;
 import com.dan323.uses.modal.ModalConfiguration;
+import com.dan323.uses.modal.nextuntil.ModalNextUntilConfiguration;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
@@ -14,6 +15,7 @@ import org.springframework.context.annotation.Import;
  */
 @Configuration
 @ComponentScan("com.dan323.controller")
-@Import({ActionsUseCaseConfiguration.class, ClassicalConfiguration.class, IntuitionisticConfiguration.class, ModalConfiguration.class})
+@Import({ActionsUseCaseConfiguration.class, ClassicalConfiguration.class, IntuitionisticConfiguration.class, ModalConfiguration.class,
+        ModalNextUntilConfiguration.class})
 public class ApplicationConfiguration {
 }
