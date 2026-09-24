@@ -285,6 +285,7 @@ const Menu: FC<MenuProps> = ({ logic, onColorChange, setProof, proof, ref, onNew
                                 initialValue={kind === 'INT' ? (sources[sourceIndexOf(params, index)]?.toString() ?? '') : undefined}
                                 shouldGlow={kind === 'INT'}
                                 isExpression={kind === 'EXPRESSION'}
+                                logic={logic}
                                 disabled={done}
                                 error={kind === 'INT' ? lineError(sourceIndexOf(params, index)) : undefined}
                             />

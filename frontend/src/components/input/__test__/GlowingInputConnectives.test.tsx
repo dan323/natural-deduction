@@ -4,7 +4,7 @@ import GlowingInput from '../GlowingInput';
 
 const HINT = 'Syntax: -> implies, & and, | or, - not';
 
-const renderInput = (shouldGlow: boolean, extra: { error?: string; disabled?: boolean; isExpression?: boolean } = {}) => {
+const renderInput = (shouldGlow: boolean, extra: { error?: string; disabled?: boolean; isExpression?: boolean; logic?: string } = {}) => {
     const onInput = jest.fn();
     render(
         <GlowingInput
@@ -113,5 +113,51 @@ describe('GlowingInput expression syntax help', () => {
         renderInput(false, { disabled: true });
 
         screen.getAllByRole('button').forEach((button) => expect(button).toBeDisabled());
+    });
+
+    describe('in a modal proof', () => {
+        const MODAL_HINT = `${HINT}, [] necessarily, <> possibly; `
+            + 'relations between states: s0 <= s1 (s1 is reachable from s0), s0 = s1 (the same state)';
+
+        test('the hint also lists □, ◇ and the relations between states, and there are □ and ◇ buttons', () => {
+            const { input } = renderInput(false, { logic: 'modal' });
+
+            expect(input).toHaveAccessibleDescription(MODAL_HINT);
+            const buttons = screen.getAllByRole('button');
+            expect(buttons.map((button) => button.textContent)).toEqual(['→', '∧', '∨', '¬', '□', '◇']);
+            expect(buttons.slice(4).map((button) => button.getAttribute('aria-label'))).toEqual([
+                'Insert necessarily ([])', 'Insert possibly (<>)',
+            ]);
+        });
+
+        test('□ and ◇ insert [] and <> at the caret', async () => {
+            const user = userEvent.setup();
+            const { input, onInput } = renderInput(false, { logic: 'modal' });
+            await user.type(input, 'p -> p');
+            input.setSelectionRange(0, 0);
+
+            await user.click(screen.getByRole('button', { name: 'Insert necessarily ([])' }));
+            expect(input).toHaveValue('[]p -> p');
+            expect(input.selectionStart).toBe(2);
+
+            input.setSelectionRange(7, 7);
+            await user.click(screen.getByRole('button', { name: 'Insert possibly (<>)' }));
+            expect(input).toHaveValue('[]p -> <>p');
+            expect(onInput).toHaveBeenLastCalledWith(0, '[]p -> <>p');
+        });
+
+        test.each(['classical', 'intuitionistic'])('a %s proof has no modal buttons', (logic) => {
+            const { input } = renderInput(false, { logic });
+
+            expect(input).toHaveAccessibleDescription(HINT);
+            expect(screen.queryByRole('button', { name: /necessarily|possibly/ })).not.toBeInTheDocument();
+        });
+
+        test('a modal state input still has no hint or buttons', () => {
+            const { input } = renderInput(false, { logic: 'modal', isExpression: false });
+
+            expect(input).not.toHaveAttribute('aria-describedby');
+            expect(screen.queryByRole('button')).not.toBeInTheDocument();
+        });
     });
 });

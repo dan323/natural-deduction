@@ -1,6 +1,6 @@
 import { CSSProperties, FC, useRef, useState } from 'react';
 import ConnectiveButtons from './ConnectiveButtons';
-import { SYNTAX_HINT } from './connectives';
+import { syntaxHint } from './connectives';
 import './glowing.css'
 
 type GlowingInputProps = {
@@ -21,6 +21,8 @@ type GlowingInputProps = {
     // The text the input starts with, e.g. a line that was picked by clicking a row of the proof. Only read on mount.
     initialValue?: string;
     disabled?: boolean;
+    // The logic of the proof: the syntax hint and the connective buttons of a formula input follow it (modal adds □ ◇).
+    logic?: string;
 };
 
 const NOT_A_LINE_NUMBER = 'Enter a whole number, like 3.';
@@ -29,7 +31,7 @@ function isNumeric(value: string) {
     return /^\d+$/.test(value);
 }
 
-const GlowingInput: FC<GlowingInputProps> = ({ label, glowColor, shouldGlow, isExpression = false, onColorChange, onInput, index, error, initialValue, disabled }) => {
+const GlowingInput: FC<GlowingInputProps> = ({ label, glowColor, shouldGlow, isExpression = false, onColorChange, onInput, index, error, initialValue, disabled, logic }) => {
     const [value, setValue] = useState<string>(initialValue ?? '');
 
     const inputId = `glowing-input-${index}`;
@@ -78,8 +80,8 @@ const GlowingInput: FC<GlowingInputProps> = ({ label, glowColor, shouldGlow, isE
             {message && <p id={errorId} className="input-error">{message}</p>}
             {isExpression && (
                 <>
-                    <p id={hintId} className="syntax-hint">Syntax: {SYNTAX_HINT}</p>
-                    <ConnectiveButtons getInput={() => inputRef.current} onInsert={handleChange} disabled={disabled} />
+                    <p id={hintId} className="syntax-hint">Syntax: {syntaxHint(logic)}</p>
+                    <ConnectiveButtons getInput={() => inputRef.current} onInsert={handleChange} disabled={disabled} logic={logic} />
                 </>
             )}
         </div>
