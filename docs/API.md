@@ -4,7 +4,7 @@ This document describes the REST API endpoints for the Natural Deduction system.
 
 ## Endpoints
 
-The server keeps no session. Every logic (`classical`, `modal`) is served under `/logic/{logic}`; the client sends
+The server keeps no session. Every logic (`classical`, `intuitionistic`, `modal`) is served under `/logic/{logic}`; the client sends
 the whole proof with every request.
 
 Every non-2xx response has the body `{"message": "..."}`. An unknown logic is a 404, malformed input a 400, a
@@ -98,6 +98,8 @@ Runs the automatic solver on the proof (a `ProofDto`) and returns the resulting 
 - At most as many solves as there are processors (at least 2) run at once, per logic. Another one is answered at once
   with `429` and `{"message": "The solver is busy with other proofs, try again in a moment"}`.
 - An invalid proof is a `400`, as for `/action`.
+- A logic without a solver of its own (`intuitionistic`) answers `400` with
+  `{"message": "There is no solver for the logic 'intuitionistic'"}`.
 
 ### List the exercises: `GET /logic/{logic}/exercises`
 
@@ -113,7 +115,8 @@ Returns `200` with the logic's exercises, ordered from easy to hard. Each one as
 - `id` is stable and unique within the logic. `difficulty` is `EASY`, `MEDIUM` or `HARD`.
 - The formulas are written the way the server prints them (fully parenthesized, `- (- p)` rather than `--p`, which
   does not parse), so they can be sent back as they are and match the expressions of the proof's steps.
-- Classical logic has 14 exercises. Modal logic has none yet: it answers `200` with `[]`. An unknown logic is a `404`.
+- Classical logic has 14 exercises, intuitionistic logic 16 (the classical ones except `double-negation-elimination`
+  and `excluded-middle`, plus four of its own). Modal logic has none yet: it answers `200` with `[]`. An unknown logic is a `404`.
 - Every exercise has a reference solution on the server, a proof in the proof-file layout (see below) that a unit test
   replays. It is never sent to the client.
 
@@ -122,6 +125,19 @@ Returns `200` with the logic's exercises, ordered from easy to hard. Each one as
 Multipart form with the file in the part `file`, in the layout `ProofStep.toString()` prints (3 spaces of indent per
 assumption level, an 11-space gap, then the rule, e.g. `->I [1-2]`). Returns `201` with the `ProofDto`. A line that
 cannot be parsed, or a step that does not follow, is a `400` whose message names the line.
+
+### Intuitionistic logic
+
+`intuitionistic` is classical logic without double negation elimination (`NOTE`, the rule `-E`, shown as ¬E). It
+shares everything else with `classical`: the formula syntax, the proof and proof-file formats, the other rules
+(including ex falso, `FE`) and their descriptors.
+
+- `GET /logic/intuitionistic/actions` lists every classical action except `NOTE`, with the same descriptors.
+- `NOTE` sent to `POST /logic/intuitionistic/action` is a `400` (`Rule NOTE is not a rule of intuitionistic logic`).
+- A proof (in a request, or an uploaded file) with a step justified by `-E` is a `400` whose message names that line,
+  e.g. the classical proof of `- (- p) ⊢ p`.
+- `POST /logic/intuitionistic/solve` is a `400`: the classical solver may use double negation elimination, so its
+  proofs are not necessarily intuitionistic.
 
 ## Other endpoints
 

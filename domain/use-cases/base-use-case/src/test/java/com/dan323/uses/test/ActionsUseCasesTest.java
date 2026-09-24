@@ -12,6 +12,7 @@ import com.dan323.uses.Exercise;
 import com.dan323.uses.InvalidActionException;
 import com.dan323.uses.LogicalExercises;
 import com.dan323.uses.LogicalGetActions;
+import com.dan323.uses.NoSolverException;
 import com.dan323.uses.ProofParser;
 import com.dan323.uses.Transformer;
 import com.dan323.uses.UnknownLogicException;
@@ -52,6 +53,48 @@ public class ActionsUseCasesTest {
         assertEquals(genericProof("l1"), p1.perform(genericProof("l1")));
         assertEquals(genericProof("l2"), p2.perform(genericProof("l2")));
         assertThrows(IllegalArgumentException.class, () -> cases.solveProblem("l3"));
+    }
+
+    @Test
+    @SuppressWarnings({"rawtypes", "unchecked"})
+    public void logicWithoutSolverTest() {
+        Transformer solving = Transformers.getTransformers().getFirst();
+        Transformer notSolving = new Transformer() {
+            @Override
+            public String logic() {
+                return solving.logic();
+            }
+
+            @Override
+            public Proof from(ProofDto proofDto) {
+                return solving.from(proofDto);
+            }
+
+            @Override
+            public Action from(ActionDto actionDto) {
+                return solving.from(actionDto);
+            }
+
+            @Override
+            public ProofDto fromProof(Proof proof) {
+                return solving.fromProof(proof);
+            }
+
+            @Override
+            public boolean hasSolver() {
+                return false;
+            }
+        };
+        assertTrue(solving.hasSolver());
+        ActionsUseCases cases = useCases
+                .withNoParsers()
+                .withTransformers(List.of(notSolving))
+                .withNoActions();
+        var solve = cases.solveProblem("l1");
+        var exception = assertThrows(NoSolverException.class, () -> solve.perform(genericProof("l1")));
+        assertEquals("There is no solver for the logic 'l1'", exception.getMessage());
+        // The other use cases of the logic still work
+        assertTrue(cases.applyAction("l1").perform(actionAddOneStep(), genericProof("l1")).applied());
     }
 
     @Test

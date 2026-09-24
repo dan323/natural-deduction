@@ -40,7 +40,8 @@ public interface ActionsUseCases {
 
     /**
      * Runs the automatic solver. Fails with {@link SolveTimeoutException} if it takes too long. A proof the solver
-     * cannot finish is returned as far as it got, see {@link ProofDto#isDone()}.
+     * cannot finish is returned as far as it got, see {@link ProofDto#isDone()}. Fails with {@link NoSolverException}
+     * for a logic without a solver of its own.
      */
     interface Solve {
         ProofDto perform(ProofDto proof);

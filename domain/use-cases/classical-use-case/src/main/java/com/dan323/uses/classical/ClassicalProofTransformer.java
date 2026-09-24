@@ -83,7 +83,7 @@ public class ClassicalProofTransformer implements Transformer<ClassicalLogicOper
 
     @Override
     public ProofDto fromProof(NaturalDeduction proof) {
-        var logic = "classical";
+        var logic = logic();
         var goal = proof.getGoal().toString();
         var steps = new ArrayList<StepDto>();
         for (var step : proof.getSteps()) {

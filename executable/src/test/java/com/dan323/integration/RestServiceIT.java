@@ -283,6 +283,96 @@ public class RestServiceIT {
         assertEquals("Unknown logic 'nope'", unknown.getBody().message());
     }
 
+    private static final String DOUBLE_NEGATION_ELIMINATION = "- (- p)" + " ".repeat(11) + "Ass\n"
+            + "p" + " ".repeat(11) + "-E [1]\n";
+
+    @Test
+    public void intuitionisticActionsAreTheClassicalOnesWithoutDoubleNegationElimination() {
+        var classical = Objects.requireNonNull(restTemplate.getForObject(createURLWithPort("/logic/classical/actions"), ActionDescriptorDto[].class));
+        var response = restTemplate.getForEntity(createURLWithPort("/logic/intuitionistic/actions"), ActionDescriptorDto[].class);
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        var expected = Arrays.stream(classical).filter(action -> !action.name().equals("NOTE")).toList();
+        assertEquals(expected, List.of(Objects.requireNonNull(response.getBody())));
+        assertEquals(classical.length - 1, response.getBody().length);
+    }
+
+    @Test
+    public void intuitionisticRejectsDoubleNegationElimination() {
+        var premise = new ProofDto(List.of(new StepDto("- (- p)", "Ass", 0, Map.of())), "intuitionistic", "p");
+        var note = new ProofActionRequest(new ActionDto("NOTE", List.of(1), Map.of()), premise);
+        var rejected = restTemplate.exchange(createURLWithPort("/logic/intuitionistic/action"), HttpMethod.POST,
+                new HttpEntity<>(note, headers), ErrorResponse.class);
+        assertError(HttpStatus.BAD_REQUEST, rejected);
+        assertEquals("Rule NOTE is not a rule of intuitionistic logic", rejected.getBody().message());
+
+        var classical = restTemplate.exchange(createURLWithPort("/logic/classical/action"), HttpMethod.POST,
+                new HttpEntity<>(note, headers), ProofResponse.class);
+        assertEquals(HttpStatus.OK, classical.getStatusCode());
+        assertTrue(Objects.requireNonNull(classical.getBody()).done());
+
+        // A proof that already uses the rule does not replay either
+        var classicalOnly = new ProofDto(List.of(new StepDto("- (- p)", "Ass", 0, Map.of()), new StepDto("p", "-E [1]", 0, Map.of())), "intuitionistic", "p");
+        var replay = restTemplate.exchange(createURLWithPort("/logic/intuitionistic/action"), HttpMethod.POST,
+                new HttpEntity<>(new ProofActionRequest(new ActionDto("COPY", List.of(1), Map.of()), classicalOnly), headers), ErrorResponse.class);
+        assertError(HttpStatus.BAD_REQUEST, replay);
+        assertTrue(replay.getBody().message().startsWith("Line 2 "), replay.getBody().message());
+    }
+
+    @Test
+    public void intuitionisticActionsApply() {
+        var proof = new ProofDto(List.of(new StepDto("p & q", "Ass", 0, Map.of())), "intuitionistic", "q");
+        var response = restTemplate.exchange(createURLWithPort("/logic/intuitionistic/action"), HttpMethod.POST,
+                new HttpEntity<>(new ProofActionRequest(new ActionDto("ANDE2", List.of(1), Map.of()), proof), headers), ProofResponse.class);
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        var body = Objects.requireNonNull(response.getBody());
+        assertTrue(body.success());
+        assertTrue(body.done());
+        assertEquals("intuitionistic", body.proof().logic());
+    }
+
+    @Test
+    public void intuitionisticUploadRejectsAClassicalOnlyProof() {
+        var rejected = postUpload("intuitionistic", DOUBLE_NEGATION_ELIMINATION);
+        assertError(HttpStatus.BAD_REQUEST, rejected);
+        assertTrue(rejected.getBody().message().startsWith("Line 2 "), rejected.getBody().message());
+
+        var upload = new HttpHeaders();
+        upload.setContentType(MediaType.MULTIPART_FORM_DATA);
+        var part = new HttpHeaders();
+        part.setContentType(MediaType.TEXT_PLAIN);
+        MultiValueMap<String, Object> map = new LinkedMultiValueMap<>();
+        map.add("file", new HttpEntity<>(new ByteArrayResource(DOUBLE_NEGATION_ELIMINATION.getBytes(StandardCharsets.UTF_8)) {
+            @Override
+            public String getFilename() {
+                return "myProof.pf";
+            }
+        }, part));
+        var classical = restTemplate.exchange(createURLWithPort("/logic/classical/proof"), HttpMethod.POST,
+                new HttpEntity<>(map, upload), ProofDto.class);
+        assertEquals(HttpStatus.CREATED, classical.getStatusCode());
+        assertTrue(Objects.requireNonNull(classical.getBody()).isDone());
+    }
+
+    @Test
+    public void intuitionisticHasNoSolver() {
+        var response = restTemplate.exchange(createURLWithPort("/logic/intuitionistic/solve"), HttpMethod.POST,
+                new HttpEntity<>(new ProofDto(List.of(), "intuitionistic", "p -> p"), headers), ErrorResponse.class);
+        assertError(HttpStatus.BAD_REQUEST, response);
+        assertEquals("There is no solver for the logic 'intuitionistic'", response.getBody().message());
+    }
+
+    @Test
+    public void intuitionisticExercisesAreListed() {
+        var response = restTemplate.getForEntity(createURLWithPort("/logic/intuitionistic/exercises"), ExerciseDto[].class);
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        var ids = Arrays.stream(Objects.requireNonNull(response.getBody())).map(ExerciseDto::id).toList();
+        assertTrue(ids.size() >= 12, "about a dozen intuitionistic exercises");
+        assertTrue(ids.contains("modus-ponens"));
+        assertTrue(ids.contains("excluded-middle-not-refutable"));
+        assertFalse(ids.contains("double-negation-elimination"));
+        assertFalse(ids.contains("excluded-middle"));
+    }
+
     @Test
     public void unknownLogicIsNotFound() {
         var actions = restTemplate.exchange(createURLWithPort("/logic/nope/actions"), HttpMethod.GET,

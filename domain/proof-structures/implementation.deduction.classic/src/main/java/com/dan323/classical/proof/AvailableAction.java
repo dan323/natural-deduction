@@ -18,4 +18,16 @@ public enum AvailableAction {
     public String getActionName(){
         return actionName;
     }
+
+    /**
+     * Whether the rule is also a rule of intuitionistic logic, which is classical logic without double negation
+     * elimination ({@link #NOTE}); ex falso ({@link #FE}) stays.
+     */
+    public boolean isIntuitionistic() {
+        // No default branch: adding an action does not compile until it is decided here.
+        return switch (this) {
+            case NOTE -> false;
+            case ASSUME, ORI1, ORI2, ORE, ANDI, ANDE1, ANDE2, COPY, NOTI, DT, MP, FE, FI -> true;
+        };
+    }
 }
