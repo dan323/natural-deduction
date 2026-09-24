@@ -1381,8 +1381,8 @@ describe('App', () => {
     });
 
     // Starts the proof P |- P, then the exercise "Second", whose check by the backend is held until the returned
-    // function is called; meanwhile Rep is applied in the Menu, which is still usable.
-    const applyRuleWhileExerciseStarts = async () => {
+    // function is called; meanwhile Rep is applied in the Menu, which is still usable, then `beforeAnswer` runs.
+    const applyRuleWhileExerciseStarts = async (beforeAnswer?: (user: ReturnType<typeof userEvent.setup>) => Promise<void>) => {
       let answerExercise: (() => void) | null = null;
       mockExerciseBackend(undefined, (init) => {
         if (JSON.parse(String(init!.body)).proofDto.goal !== 'Q') return replayAnswer(init);
@@ -1397,9 +1397,82 @@ describe('App', () => {
       await waitFor(() => expect(answerExercise).not.toBeNull());
       await finishWithRep(user);
       expect(screen.getAllByRole('row')).toHaveLength(3);
+      await beforeAnswer?.(user);
       await act(async () => answerExercise!());
       return user;
     };
+
+    test("New Proof asked for while an exercise is being started wins over the exercise's late answer", async () => {
+      const user = await applyRuleWhileExerciseStarts(async (u) => {
+        await u.click(screen.getByRole('button', { name: /Start a new proof/i }));
+        expect(screen.getByRole('button', { name: 'Discard and start new' })).toBeInTheDocument();
+      });
+
+      await user.click(screen.getByRole('button', { name: 'Discard and start new' }));
+
+      // The New Proof dialog opens, as asked; the exercise is not started behind it.
+      expect(await screen.findByRole('dialog')).toBeInTheDocument();
+      expect(currentExercise()).not.toBeInTheDocument();
+      expect(screen.getAllByRole('row')).toHaveLength(3);
+    });
+
+    test('an exercise answer arriving while the New Proof dialog is open is not swapped in behind it', async () => {
+      let answerExercise: (() => void) | null = null;
+      mockExerciseBackend(undefined, (init) => {
+        if (JSON.parse(String(init!.body)).proofDto.goal !== 'Q') return replayAnswer(init);
+        return new Promise<Response>((resolve) => { answerExercise = () => resolve(replayAnswer(init)); }) as unknown as Response;
+      });
+      const user = userEvent.setup();
+      render(<App />);
+      await startProof(user, 'P', 'P');
+      await user.click(screen.getByRole('button', { name: 'Exercises' }));
+      await user.click(await screen.findByRole('button', { name: 'Start exercise Second' }));
+      await waitFor(() => expect(answerExercise).not.toBeNull());
+      // Only the premises are on screen, so the dialog opens straight away.
+      await user.click(screen.getByRole('button', { name: /Start a new proof/i }));
+      expect(await screen.findByRole('dialog')).toBeInTheDocument();
+
+      await act(async () => answerExercise!());
+
+      expect(currentExercise()).not.toBeInTheDocument();
+      expect(screen.getByText('GOAL:').parentElement).toHaveTextContent('P');
+      expect(JSON.parse(window.sessionStorage.getItem('natural-deduction.proof')!).goal).toBe('P');
+    });
+
+    test('a solver answer for one exercise that arrives after another was started neither replaces it nor marks it solved', async () => {
+      let answerSolve: (() => void) | null = null;
+      fetchMock.mockImplementation(async (url: string, init?: RequestInit) => {
+        if (url.endsWith('/actions')) return jsonResponse(200, [REP]);
+        if (url.endsWith('/exercises')) return jsonResponse(200, EXERCISES);
+        if (url.endsWith('/action') && isReplay(init)) return replayAnswer(init);
+        if (url.endsWith('/solve')) {
+          return new Promise<Response>((resolve) => {
+            answerSolve = () => resolve(jsonResponse(200, { proof: { ...repProof, done: true }, success: true, done: true, message: '' }));
+          }) as unknown as Response;
+        }
+        return jsonResponse(500, { message: 'unexpected' });
+      });
+      const user = userEvent.setup();
+      render(<App />);
+      await user.click(screen.getByRole('button', { name: 'Browse exercises' }));
+      await startExercise(user, 'First');
+      await user.click(await screen.findByRole('button', { name: 'Solve' }));
+      await waitFor(() => expect(answerSolve).not.toBeNull());
+      // Only the premises are on screen, so starting another exercise does not ask.
+      await user.click(screen.getByRole('button', { name: 'Exercises' }));
+      await startExercise(user, 'Second');
+
+      await act(async () => answerSolve!());
+
+      expect(currentExercise()).toHaveTextContent('Exercise: Second');
+      expect(currentExercise()).not.toHaveTextContent('(Solved)');
+      expect(screen.getAllByRole('row')).toHaveLength(2);
+      expect(screen.getByText('GOAL:').parentElement).toHaveTextContent('Q');
+      expect(window.localStorage.getItem('natural-deduction.solved-exercises')).toBeNull();
+      const saved = JSON.parse(window.sessionStorage.getItem('natural-deduction.proof')!);
+      expect(saved.exerciseId).toBe('second');
+      expect(saved.goal).toBe('Q');
+    });
 
     test('a step applied while an exercise is being started is not discarded without asking', async () => {
       const user = await applyRuleWhileExerciseStarts();

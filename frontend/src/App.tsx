@@ -192,6 +192,15 @@ function App() {
     setProofId(proofIdRef.current);
   };
 
+  // The Menu's way to replace the proof (a rule applied, or the solver's answer). Its answers can arrive after the Menu
+  // they belong to was replaced by a newer proof (New Proof, an exercise or "Try an example" can be started while a rule
+  // or the solver is pending), and must not replace that newer proof: it would then be shown, saved and possibly marked
+  // solved as the newer proof's exercise. Each Menu is keyed by `proofId`, so it gets the callback bound to its own proof.
+  const setMenuProof = useCallback((updated: ProofDto) => {
+    if (proofIdRef.current !== proofId) return;
+    setProof(updated);
+  }, [proofId]);
+
   // On mount, brings back the proof saved before a reload (see the effect below that saves it). It goes through the
   // backend's replay like any other proof, so that it is checked again and comes back with its `done` verdict; a proof
   // the backend rejects as invalid (a 400), or saved text that is not a proof, is forgotten and the empty state says so.
@@ -316,12 +325,14 @@ function App() {
 
   // "Start" in the list of exercises, and "Next exercise": starts the exercise exactly as if its premises and goal had
   // been typed in the New Proof dialog, through the same backend check, and remembers which exercise it is. A refusal
-  // is shown in the list (opened if it was not). An answer arriving after another proof was started is dropped. The Menu
+  // is shown in the list (opened if it was not). An answer arriving after another proof was started, or asked for, is
+  // dropped. The Menu
   // stays usable while the backend checks the exercise, so if the proof on screen changed meanwhile (a rule, an undo)
   // and now has more than its premises, discarding it asks first, again, even if it was confirmed (or needed no
   // confirmation) when Start was clicked.
   const startExercise = async (exercise: Exercise) => {
     userStartedRef.current += 1;
+    const requestedStart = userStartedRef.current;
     setExerciseStartError('');
     setStartingExerciseId(exercise.id);
     const requestedProofId = proofIdRef.current;
@@ -329,6 +340,9 @@ function App() {
     const checked = await checkNewProof(exercise.premises, exercise.goal);
     setStartingExerciseId(null);
     if (proofIdRef.current !== requestedProofId) return;
+    // The user asked for another proof meanwhile (e.g. New Proof, which may be waiting for its own discard confirmation
+    // or have its dialog open): that request wins.
+    if (userStartedRef.current !== requestedStart) return;
     if ('error' in checked) {
       setExerciseStartError(`The exercise "${exercise.title}" could not be started: ${checked.error}`);
       setIsExercisesOpen(true);
@@ -538,7 +552,7 @@ function App() {
               Exercise: <strong>{currentExercise.title}</strong>{solved.has(currentExercise.id) ? ' (Solved)' : ''}
             </p>
           )}
-          <Menu key={proofId} ref={menuRef} logic={LOGIC} proof={proof} setProof={setProof} onColorChange={onColorChange} onNewProof={handleOpenModalFromMenu} onNextExercise={handleNextExercise} />
+          <Menu key={proofId} ref={menuRef} logic={LOGIC} proof={proof} setProof={setMenuProof} onColorChange={onColorChange} onNewProof={handleOpenModalFromMenu} onNextExercise={handleNextExercise} />
           {hasProof ? (
             <Proof proof={proof} coloring={colorMapping} onSelectLine={handleSelectLine} />
           ) : (
