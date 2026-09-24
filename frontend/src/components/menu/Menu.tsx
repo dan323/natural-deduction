@@ -14,6 +14,8 @@ type MenuProps = {
     ref?: Ref<MenuHandle>;
     // Offered next to the "Proof complete" message, once there is nothing left to do in this proof.
     onNewProof?: () => void;
+    // Offered next to the "Proof complete" message too, when the proof was started from an exercise that has a next one.
+    onNextExercise?: () => void;
 };
 
 export type MenuHandle = {
@@ -64,7 +66,7 @@ const renderOption = (action: ActionDescriptor) => (
 // `index` is the position among all inputs of an action; `sources` only holds the INT inputs.
 const sourceIndexOf = (params: ParamKind[], index: number) => params.slice(0, index).filter(kind => kind === 'INT').length;
 
-const Menu: FC<MenuProps> = ({ logic, onColorChange, setProof, proof, ref, onNewProof }) => {
+const Menu: FC<MenuProps> = ({ logic, onColorChange, setProof, proof, ref, onNewProof, onNextExercise }) => {
     const [actions, setActions] = useState<ActionDescriptor[]>([]);
     const [selectedAction, setSelectedAction] = useState<string>('');
     // One entry per INT input: the line typed in it, or null while it is empty or not a whole number.
@@ -297,6 +299,9 @@ const Menu: FC<MenuProps> = ({ logic, onColorChange, setProof, proof, ref, onNew
             {/* Outside of the status, so that only the message is announced. */}
             {done && onNewProof && (
                 <button className="menu-button menu-new-proof" onClick={onNewProof}>New Proof</button>
+            )}
+            {done && onNextExercise && (
+                <button className="menu-button menu-new-proof" onClick={onNextExercise}>Next exercise</button>
             )}
             <div className="menu-buttons">
                 <button

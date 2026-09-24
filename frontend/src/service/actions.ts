@@ -1,4 +1,4 @@
-import { ProofDto, ActionDto, ActionDescriptor, ApplyActionResponse } from "../types";
+import { ProofDto, ActionDto, ActionDescriptor, ApplyActionResponse, Exercise } from "../types";
 
 // Extracts the `message` of an error body ({ "message": "..." }), falling back to the HTTP status.
 async function errorMessage(response: Response): Promise<string> {
@@ -13,37 +13,53 @@ async function errorMessage(response: Response): Promise<string> {
     return `Request failed with status ${response.status}.`;
 }
 
-// The list of actions of a logic never changes while the server runs, so every consumer shares one request per logic
-// (the Menu is remounted for each new proof, and mounted twice in development). A failed request is dropped, so that
-// the next call tries again.
-const actionsCache = new Map<string, Promise<ActionDescriptor[]>>();
+// A list the server answers for `GET /logic/{logic}/{resource}` never changes while it runs, so every consumer shares
+// one request per logic (the Menu is remounted for each new proof, and mounted twice in development). A failed request
+// is dropped, so that the next call tries again.
+function perLogicCache<T>(resource: string) {
+    const cache = new Map<string, Promise<T[]>>();
 
-async function requestActions(logic: string): Promise<ActionDescriptor[]> {
-    const response = await fetch(`/logic/${logic}/actions`);
-    if (!response.ok) {
-        throw new Error(await errorMessage(response));
-    }
-    return response.json();
+    const request = async (logic: string): Promise<T[]> => {
+        const response = await fetch(`/logic/${logic}/${resource}`);
+        if (!response.ok) {
+            throw new Error(await errorMessage(response));
+        }
+        const body: unknown = await response.json();
+        if (!Array.isArray(body)) {
+            throw new Error(`The server did not answer with a list of ${resource}.`);
+        }
+        return body as T[];
+    };
+
+    const load = (logic: string): Promise<T[]> => {
+        let pending = cache.get(logic);
+        if (pending === undefined) {
+            const started: Promise<T[]> = request(logic).catch((err) => {
+                if (cache.get(logic) === started) {
+                    cache.delete(logic);
+                }
+                throw err;
+            });
+            cache.set(logic, started);
+            pending = started;
+        }
+        return pending;
+    };
+
+    return { load, clear: () => cache.clear() };
 }
 
-function loadActions(logic: string): Promise<ActionDescriptor[]> {
-    let pending = actionsCache.get(logic);
-    if (pending === undefined) {
-        const request: Promise<ActionDescriptor[]> = requestActions(logic).catch((err) => {
-            if (actionsCache.get(logic) === request) {
-                actionsCache.delete(logic);
-            }
-            throw err;
-        });
-        actionsCache.set(logic, request);
-        pending = request;
-    }
-    return pending;
-}
+const actionsCache = perLogicCache<ActionDescriptor>('actions');
+const exercisesCache = perLogicCache<Exercise>('exercises');
 
 // Forgets the cached lists of actions. Meant for tests.
 export function clearActionsCache(): void {
     actionsCache.clear();
+}
+
+// Forgets the cached lists of exercises. Meant for tests.
+export function clearExercisesCache(): void {
+    exercisesCache.clear();
 }
 
 export async function fetchActions(
@@ -52,10 +68,25 @@ export async function fetchActions(
     onError?: (message: string) => void
 ): Promise<void> {
     try {
-        consumer(await loadActions(logic));
+        consumer(await actionsCache.load(logic));
     } catch (err) {
         console.error("Error fetching actions:", err);
         onError?.(err instanceof Error ? err.message : 'Could not load the available rules.');
+    }
+}
+
+// The exercises of a logic (`GET /logic/{logic}/exercises`), ordered from easy to hard; a logic without a catalog has
+// none. Cached like the actions.
+export async function fetchExercises(
+    logic: string,
+    consumer: (exercises: Exercise[]) => void,
+    onError?: (message: string) => void
+): Promise<void> {
+    try {
+        consumer(await exercisesCache.load(logic));
+    } catch (err) {
+        console.error("Error fetching exercises:", err);
+        onError?.(err instanceof Error ? err.message : 'Could not load the exercises.');
     }
 }
 
