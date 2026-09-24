@@ -188,6 +188,7 @@ function App() {
     setColorMapping(new Map<number, string>())
     setUndoError('');
     setRestoreError('');
+    setExerciseStartError('');
     proofIdRef.current += 1;
     setProofId(proofIdRef.current);
   };
@@ -341,8 +342,13 @@ function App() {
     setStartingExerciseId(null);
     if (proofIdRef.current !== requestedProofId) return;
     // The user asked for another proof meanwhile (e.g. New Proof, which may be waiting for its own discard confirmation
-    // or have its dialog open): that request wins.
-    if (userStartedRef.current !== requestedStart) return;
+    // or have its dialog open): that request wins. It may still be cancelled, and then nothing replaces the proof on
+    // screen, so say in the list that the exercise was not started; a proof that is started replaces the notice.
+    if (userStartedRef.current !== requestedStart) {
+      setExerciseStartError(`The exercise "${exercise.title}" was not started, since a new proof was asked for meanwhile. Start it again to try it.`);
+      setIsExercisesOpen(true);
+      return;
+    }
     if ('error' in checked) {
       setExerciseStartError(`The exercise "${exercise.title}" could not be started: ${checked.error}`);
       setIsExercisesOpen(true);

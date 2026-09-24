@@ -1416,6 +1416,21 @@ describe('App', () => {
       expect(screen.getAllByRole('row')).toHaveLength(3);
     });
 
+    test('an exercise dropped for a New Proof whose discard was then cancelled says it was not started', async () => {
+      const user = await applyRuleWhileExerciseStarts(async (u) => {
+        await u.click(screen.getByRole('button', { name: /Start a new proof/i }));
+        await u.click(screen.getByRole('button', { name: 'Cancel' }));
+      });
+
+      expect(await screen.findByRole('alert')).toHaveTextContent('The exercise "Second" was not started, since a new proof was asked for meanwhile.');
+      expect(currentExercise()).not.toBeInTheDocument();
+      expect(screen.getAllByRole('row')).toHaveLength(3);
+
+      // Starting a proof replaces the notice.
+      await startProof(user, 'R', 'R');
+      expect(screen.queryByText(/was not started/)).not.toBeInTheDocument();
+    });
+
     test('an exercise answer arriving while the New Proof dialog is open is not swapped in behind it', async () => {
       let answerExercise: (() => void) | null = null;
       mockExerciseBackend(undefined, (init) => {
