@@ -32,8 +32,8 @@ public final class ModalSuccessor extends RelationalAction {
 <span class="fc" id="L32">            return false;</span>
         }
         try {
-<span class="fc" id="L35">            StateTerm.parse(pf.getSteps().get(line - 1).getState());</span>
-<span class="fc" id="L36">            return true;</span>
+            // s0+2147483647 is a state, but its successor cannot be written.
+<span class="fc" id="L36">            return StateTerm.parse(pf.getSteps().get(line - 1).getState()).hasSuccessor();</span>
 <span class="nc" id="L37">        } catch (IllegalArgumentException e) {</span>
 <span class="nc" id="L38">            return false;</span>
         }
@@ -49,12 +49,12 @@ public final class ModalSuccessor extends RelationalAction {
 
     @Override
     public boolean equals(Object o) {
-<span class="nc bnc" id="L52" title="All 4 branches missed.">        return o instanceof ModalSuccessor successor &amp;&amp; successor.line == line;</span>
+<span class="pc bpc" id="L52" title="1 of 4 branches missed.">        return o instanceof ModalSuccessor successor &amp;&amp; successor.line == line;</span>
     }
 
     @Override
     public int hashCode() {
-<span class="nc" id="L57">        return Objects.hash(getClass(), line);</span>
+<span class="fc" id="L57">        return Objects.hash(getClass(), line);</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>

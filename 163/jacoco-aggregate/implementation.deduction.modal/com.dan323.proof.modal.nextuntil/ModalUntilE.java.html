@@ -17,22 +17,19 @@ import java.util.Optional;
  */
 public final class ModalUntilE extends NextUntilRule {
 
-    private final int line;
-
     public ModalUntilE(int line) {
-<span class="fc" id="L23">        super(ParseModalNextUntilAction.UNTIL_E, List.of(line));</span>
-<span class="fc" id="L24">        this.line = line;</span>
-<span class="fc" id="L25">    }</span>
+<span class="fc" id="L21">        super(ParseModalNextUntilAction.UNTIL_E, List.of(line));</span>
+<span class="fc" id="L22">    }</span>
 
     @Override
     Optional&lt;Conclusion&gt; conclusion(ModalNaturalDeduction pf) {
-<span class="fc" id="L29">        return formula(pf, line, Until.class).map(until -&gt; new Conclusion(expansion(until), state(pf, line)));</span>
+<span class="fc" id="L26">        return formula(pf, line(0), Until.class).map(until -&gt; new Conclusion(expansion(until), state(pf, line(0))));</span>
     }
 
     /** @return {@code B | (A &amp; X (A U B))} for {@code A U B} */
     public static DisjunctionModal expansion(Until until) {
-<span class="fc" id="L34">        return new DisjunctionModal((ModalLogicalOperation) until.getRight(),</span>
-<span class="fc" id="L35">                new ConjunctionModal((ModalLogicalOperation) until.getLeft(), new Next(until)));</span>
+<span class="fc" id="L31">        return new DisjunctionModal((ModalLogicalOperation) until.getRight(),</span>
+<span class="fc" id="L32">                new ConjunctionModal((ModalLogicalOperation) until.getLeft(), new Next(until)));</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>

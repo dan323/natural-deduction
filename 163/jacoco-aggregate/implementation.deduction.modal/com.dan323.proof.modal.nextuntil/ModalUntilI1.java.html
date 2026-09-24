@@ -14,31 +14,29 @@ import java.util.Optional;
  */
 public final class ModalUntilI1 extends NextUntilRule {
 
-    private final int line;
     private final ModalLogicalOperation left;
 
     public ModalUntilI1(int line, ModalLogicalOperation left) {
-<span class="fc" id="L21">        super(ParseModalNextUntilAction.UNTIL, List.of(line));</span>
-<span class="fc" id="L22">        this.line = line;</span>
-<span class="fc" id="L23">        this.left = left;</span>
-<span class="fc" id="L24">    }</span>
+<span class="fc" id="L20">        super(ParseModalNextUntilAction.UNTIL, List.of(line));</span>
+<span class="fc" id="L21">        this.left = left;</span>
+<span class="fc" id="L22">    }</span>
 
     @Override
     Optional&lt;Conclusion&gt; conclusion(ModalNaturalDeduction pf) {
-<span class="fc bfc" id="L28" title="All 2 branches covered.">        if (left == null) {</span>
-<span class="fc" id="L29">            return Optional.empty();</span>
+<span class="fc bfc" id="L26" title="All 2 branches covered.">        if (left == null) {</span>
+<span class="fc" id="L27">            return Optional.empty();</span>
         }
-<span class="fc" id="L31">        return formula(pf, line).map(right -&gt; new Conclusion(new Until(left, right), state(pf, line)));</span>
+<span class="fc" id="L29">        return formula(pf, line(0)).map(right -&gt; new Conclusion(new Until(left, right), state(pf, line(0))));</span>
     }
 
     @Override
     public boolean equals(Object obj) {
-<span class="nc bnc" id="L36" title="All 4 branches missed.">        return super.equals(obj) &amp;&amp; Objects.equals(((ModalUntilI1) obj).left, left);</span>
+<span class="fc bfc" id="L34" title="All 4 branches covered.">        return super.equals(obj) &amp;&amp; Objects.equals(((ModalUntilI1) obj).left, left);</span>
     }
 
     @Override
     public int hashCode() {
-<span class="nc" id="L41">        return super.hashCode() * 7 + Objects.hashCode(left);</span>
+<span class="fc" id="L39">        return super.hashCode() * 7 + Objects.hashCode(left);</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>

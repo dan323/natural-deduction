@@ -12,21 +12,18 @@ import java.util.Optional;
  */
 public final class ModalNextI extends NextUntilRule {
 
-    private final int line;
-
     public ModalNextI(int line) {
-<span class="fc" id="L18">        super(ParseModalNextUntilAction.NEXT_I, List.of(line));</span>
-<span class="fc" id="L19">        this.line = line;</span>
-<span class="fc" id="L20">    }</span>
+<span class="fc" id="L16">        super(ParseModalNextUntilAction.NEXT_I, List.of(line));</span>
+<span class="fc" id="L17">    }</span>
 
     @Override
     Optional&lt;Conclusion&gt; conclusion(ModalNaturalDeduction pf) {
-<span class="fc bfc" id="L24" title="All 2 branches covered.">        var term = term(pf, line).filter(t -&gt; !t.isBase());</span>
-<span class="fc" id="L25">        var formula = formula(pf, line);</span>
-<span class="pc bpc" id="L26" title="1 of 4 branches missed.">        if (term.isEmpty() || formula.isEmpty()) {</span>
-<span class="fc" id="L27">            return Optional.empty();</span>
+<span class="fc bfc" id="L21" title="All 2 branches covered.">        var term = term(pf, line(0)).filter(t -&gt; !t.isBase());</span>
+<span class="fc" id="L22">        var formula = formula(pf, line(0));</span>
+<span class="pc bpc" id="L23" title="1 of 4 branches missed.">        if (term.isEmpty() || formula.isEmpty()) {</span>
+<span class="fc" id="L24">            return Optional.empty();</span>
         }
-<span class="fc" id="L29">        return Optional.of(new Conclusion(new Next(formula.get()), term.get().predecessor().toString()));</span>
+<span class="fc" id="L26">        return Optional.of(new Conclusion(new Next(formula.get()), term.get().predecessor().toString()));</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>

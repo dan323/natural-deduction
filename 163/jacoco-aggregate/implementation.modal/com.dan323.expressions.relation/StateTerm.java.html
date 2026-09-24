@@ -17,13 +17,13 @@ import java.util.regex.Pattern;
  */
 public record StateTerm(String base, int offset) {
 
-<span class="fc" id="L20">    private static final Pattern BASE = Pattern.compile(&quot;[\\p{L}_][\\p{L}\\p{N}_]*&quot;);</span>
-<span class="fc" id="L21">    private static final Pattern STEP = Pattern.compile(&quot;\\d+&quot;);</span>
+<span class="fc" id="L20">    private static final Pattern BASE_PATTERN = Pattern.compile(&quot;[\\p{L}_][\\p{L}\\p{N}_]*&quot;);</span>
+<span class="fc" id="L21">    private static final Pattern STEP_PATTERN = Pattern.compile(&quot;\\d+&quot;);</span>
     private static final String NOT_A_STATE = &quot;' is not a state: expected a name such as s0, then +1, +2, ...&quot;;
 
 <span class="fc" id="L24">    public StateTerm {</span>
 <span class="fc" id="L25">        Objects.requireNonNull(base);</span>
-<span class="fc bfc" id="L26" title="All 2 branches covered.">        if (!BASE.matcher(base).matches()) {</span>
+<span class="fc bfc" id="L26" title="All 2 branches covered.">        if (!BASE_PATTERN.matcher(base).matches()) {</span>
 <span class="fc" id="L27">            throw new IllegalArgumentException(&quot;'&quot; + base + &quot;' is not a state name&quot;);</span>
         }
 <span class="fc bfc" id="L29" title="All 2 branches covered.">        if (offset &lt; 0) {</span>
@@ -44,12 +44,12 @@ public record StateTerm(String base, int offset) {
 <span class="fc bfc" id="L44" title="All 2 branches covered.">        for (int i = 0; i &lt; parts.length; i++) {</span>
 <span class="fc" id="L45">            parts[i] = parts[i].strip();</span>
         }
-<span class="fc bfc" id="L47" title="All 2 branches covered.">        if (!BASE.matcher(parts[0]).matches()) {</span>
+<span class="fc bfc" id="L47" title="All 2 branches covered.">        if (!BASE_PATTERN.matcher(parts[0]).matches()) {</span>
 <span class="fc" id="L48">            throw new IllegalArgumentException(&quot;'&quot; + text + NOT_A_STATE);</span>
         }
 <span class="fc" id="L50">        int offset = 0;</span>
 <span class="fc bfc" id="L51" title="All 2 branches covered.">        for (int i = 1; i &lt; parts.length; i++) {</span>
-<span class="fc bfc" id="L52" title="All 2 branches covered.">            if (!STEP.matcher(parts[i]).matches()) {</span>
+<span class="fc bfc" id="L52" title="All 2 branches covered.">            if (!STEP_PATTERN.matcher(parts[i]).matches()) {</span>
 <span class="fc" id="L53">                throw new IllegalArgumentException(&quot;'&quot; + text + NOT_A_STATE);</span>
             }
             try {
@@ -75,9 +75,20 @@ public record StateTerm(String base, int offset) {
 <span class="fc bfc" id="L75" title="All 2 branches covered.">        return offset == 0;</span>
     }
 
-    /** @return the next state, {@code s+1} */
+    /** @return whether {@link #successor()} can write the next state, i.e. the offset is below {@link Integer#MAX_VALUE} */
+    public boolean hasSuccessor() {
+<span class="fc bfc" id="L80" title="All 2 branches covered.">        return offset &lt; Integer.MAX_VALUE;</span>
+    }
+
+    /**
+     * @return the next state, {@code s+1}
+     * @throws IllegalStateException if the offset is already {@link Integer#MAX_VALUE} (see {@link #hasSuccessor()})
+     */
     public StateTerm successor() {
-<span class="fc" id="L80">        return new StateTerm(base, Math.addExact(offset, 1));</span>
+<span class="fc bfc" id="L88" title="All 2 branches covered.">        if (!hasSuccessor()) {</span>
+<span class="fc" id="L89">            throw new IllegalStateException(this + &quot; has no written successor&quot;);</span>
+        }
+<span class="fc" id="L91">        return new StateTerm(base, offset + 1);</span>
     }
 
     /**
@@ -85,15 +96,15 @@ public record StateTerm(String base, int offset) {
      * @throws IllegalStateException if this is a base, which has no written predecessor
      */
     public StateTerm predecessor() {
-<span class="fc bfc" id="L88" title="All 2 branches covered.">        if (isBase()) {</span>
-<span class="fc" id="L89">            throw new IllegalStateException(base + &quot; has no written predecessor&quot;);</span>
+<span class="fc bfc" id="L99" title="All 2 branches covered.">        if (isBase()) {</span>
+<span class="fc" id="L100">            throw new IllegalStateException(base + &quot; has no written predecessor&quot;);</span>
         }
-<span class="fc" id="L91">        return new StateTerm(base, offset - 1);</span>
+<span class="fc" id="L102">        return new StateTerm(base, offset - 1);</span>
     }
 
     @Override
     public String toString() {
-<span class="fc bfc" id="L96" title="All 2 branches covered.">        return offset == 0 ? base : base + &quot;+&quot; + offset;</span>
+<span class="fc bfc" id="L107" title="All 2 branches covered.">        return offset == 0 ? base : base + &quot;+&quot; + offset;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>

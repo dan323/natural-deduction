@@ -15,24 +15,21 @@ import java.util.Optional;
  */
 public final class ModalInduction extends NextUntilRule {
 
-    private final int base;
-    private final int step;
-
     public ModalInduction(int base, int step) {
-<span class="fc" id="L22">        super(ParseModalNextUntilAction.INDUCTION, List.of(base, step));</span>
-<span class="fc" id="L23">        this.base = base;</span>
-<span class="fc" id="L24">        this.step = step;</span>
-<span class="fc" id="L25">    }</span>
+<span class="fc" id="L19">        super(ParseModalNextUntilAction.INDUCTION, List.of(base, step));</span>
+<span class="fc" id="L20">    }</span>
 
     @Override
     Optional&lt;Conclusion&gt; conclusion(ModalNaturalDeduction pf) {
-<span class="fc" id="L29">        var formula = formula(pf, base);</span>
-<span class="fc" id="L30">        var always = formula(pf, step, Always.class);</span>
-<span class="pc bpc" id="L31" title="1 of 6 branches missed.">        if (formula.isEmpty() || always.isEmpty() || !state(pf, base).equals(state(pf, step))</span>
-<span class="fc bfc" id="L32" title="All 2 branches covered.">                || !always.get().getElement().equals(new ImplicationModal(formula.get(), new Next(formula.get())))) {</span>
-<span class="fc" id="L33">            return Optional.empty();</span>
+<span class="fc" id="L24">        int base = line(0);</span>
+<span class="fc" id="L25">        int step = line(1);</span>
+<span class="fc" id="L26">        var formula = formula(pf, base);</span>
+<span class="fc" id="L27">        var always = formula(pf, step, Always.class);</span>
+<span class="pc bpc" id="L28" title="1 of 6 branches missed.">        if (formula.isEmpty() || always.isEmpty() || !state(pf, base).equals(state(pf, step))</span>
+<span class="fc bfc" id="L29" title="All 2 branches covered.">                || !always.get().getElement().equals(new ImplicationModal(formula.get(), new Next(formula.get())))) {</span>
+<span class="fc" id="L30">            return Optional.empty();</span>
         }
-<span class="fc" id="L35">        return Optional.of(new Conclusion(new Always(formula.get()), state(pf, base)));</span>
+<span class="fc" id="L32">        return Optional.of(new Conclusion(new Always(formula.get()), state(pf, base)));</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>

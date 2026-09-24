@@ -28,61 +28,66 @@ abstract sealed class NextUntilRule implements ModalAction
 <span class="fc" id="L28">        this.lines = List.copyOf(lines);</span>
 <span class="fc" id="L29">    }</span>
 
+    /** The {@code index}-th (0-based) line the rule is applied to, a 1-based line number. */
+    int line(int index) {
+<span class="fc" id="L33">        return lines.get(index);</span>
+    }
+
     /** What the rule derives, in which state, or empty when it does not apply. Only called on valid lines. */
     abstract Optional&lt;Conclusion&gt; conclusion(ModalNaturalDeduction pf);
 
-<span class="fc" id="L34">    record Conclusion(ModalLogicalOperation formula, String state) {</span>
+<span class="fc" id="L39">    record Conclusion(ModalLogicalOperation formula, String state) {</span>
     }
 
     @Override
     public boolean isValid(ModalNaturalDeduction pf) {
-<span class="fc bfc" id="L39" title="All 4 branches covered.">        return lines.stream().allMatch(line -&gt; RuleUtils.isValidIndexAndProp(pf, line)) &amp;&amp; conclusion(pf).isPresent();</span>
+<span class="fc bfc" id="L44" title="All 4 branches covered.">        return lines.stream().allMatch(line -&gt; RuleUtils.isValidIndexAndProp(pf, line)) &amp;&amp; conclusion(pf).isPresent();</span>
     }
 
     @Override
     public void applyStepSupplier(ModalNaturalDeduction pf, ProofStepSupplier&lt;ModalOperation, ProofStepModal&gt; supp) {
-<span class="fc" id="L44">        var conclusion = conclusion(pf).orElseThrow();</span>
-<span class="fc" id="L45">        pf.getSteps().add(supp.generateProofStep(RuleUtils.getLastAssumptionLevel(pf), conclusion.formula(),</span>
-<span class="fc" id="L46">                new ProofReason(name, List.of(), lines)));</span>
-<span class="fc" id="L47">    }</span>
+<span class="fc" id="L49">        var conclusion = conclusion(pf).orElseThrow();</span>
+<span class="fc" id="L50">        pf.getSteps().add(supp.generateProofStep(RuleUtils.getLastAssumptionLevel(pf), conclusion.formula(),</span>
+<span class="fc" id="L51">                new ProofReason(name, List.of(), lines)));</span>
+<span class="fc" id="L52">    }</span>
 
     @Override
     public void apply(ModalNaturalDeduction pf) {
-<span class="fc" id="L51">        var state = conclusion(pf).orElseThrow().state();</span>
-<span class="fc" id="L52">        applyStepSupplier(pf, (assLevel, log, reason) -&gt; new ProofStepModal(state, assLevel, (ModalLogicalOperation) log, reason));</span>
-<span class="fc" id="L53">    }</span>
+<span class="fc" id="L56">        var state = conclusion(pf).orElseThrow().state();</span>
+<span class="fc" id="L57">        applyStepSupplier(pf, (assLevel, log, reason) -&gt; new ProofStepModal(state, assLevel, (ModalLogicalOperation) log, reason));</span>
+<span class="fc" id="L58">    }</span>
 
     /** The formula at line {@code line} (1-based), empty for a relation. */
     static Optional&lt;ModalLogicalOperation&gt; formula(ModalNaturalDeduction pf, int line) {
-<span class="fc bfc" id="L57" title="All 2 branches covered.">        return pf.getSteps().get(line - 1).getStep() instanceof ModalLogicalOperation formula ? Optional.of(formula) : Optional.empty();</span>
+<span class="fc bfc" id="L62" title="All 2 branches covered.">        return pf.getSteps().get(line - 1).getStep() instanceof ModalLogicalOperation formula ? Optional.of(formula) : Optional.empty();</span>
     }
 
     /** The formula at line {@code line} if it is a {@code type}. */
     static &lt;F extends ModalLogicalOperation&gt; Optional&lt;F&gt; formula(ModalNaturalDeduction pf, int line, Class&lt;F&gt; type) {
-<span class="fc" id="L62">        return formula(pf, line).filter(type::isInstance).map(type::cast);</span>
+<span class="fc" id="L67">        return formula(pf, line).filter(type::isInstance).map(type::cast);</span>
     }
 
     static String state(ModalNaturalDeduction pf, int line) {
-<span class="fc" id="L66">        return pf.getSteps().get(line - 1).getState();</span>
+<span class="fc" id="L71">        return pf.getSteps().get(line - 1).getState();</span>
     }
 
     /** The state of line {@code line} as a term, empty when it is not one. */
     static Optional&lt;StateTerm&gt; term(ModalNaturalDeduction pf, int line) {
         try {
-<span class="fc" id="L72">            return Optional.of(StateTerm.parse(state(pf, line)));</span>
-<span class="fc" id="L73">        } catch (IllegalArgumentException e) {</span>
-<span class="fc" id="L74">            return Optional.empty();</span>
+<span class="fc" id="L77">            return Optional.of(StateTerm.parse(state(pf, line)));</span>
+<span class="fc" id="L78">        } catch (IllegalArgumentException e) {</span>
+<span class="fc" id="L79">            return Optional.empty();</span>
         }
     }
 
     @Override
     public boolean equals(Object obj) {
-<span class="nc bnc" id="L80" title="All 6 branches missed.">        return obj != null &amp;&amp; obj.getClass().equals(getClass()) &amp;&amp; ((NextUntilRule) obj).lines.equals(lines);</span>
+<span class="pc bpc" id="L85" title="1 of 6 branches missed.">        return obj != null &amp;&amp; obj.getClass().equals(getClass()) &amp;&amp; ((NextUntilRule) obj).lines.equals(lines);</span>
     }
 
     @Override
     public int hashCode() {
-<span class="nc" id="L85">        return getClass().hashCode() * 31 + lines.hashCode();</span>
+<span class="fc" id="L90">        return getClass().hashCode() * 31 + lines.hashCode();</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>

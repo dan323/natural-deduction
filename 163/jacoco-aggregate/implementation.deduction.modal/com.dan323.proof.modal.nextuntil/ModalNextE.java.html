@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>ModalNextE.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">jacoco-report-aggregate</a> &gt; <a href="../index.html" class="el_bundle">implementation.deduction.modal</a> &gt; <a href="index.source.html" class="el_package">com.dan323.proof.modal.nextuntil</a> &gt; <span class="el_source">ModalNextE.java</span></div><h1>ModalNextE.java</h1><pre class="source lang-java linenums">package com.dan323.proof.modal.nextuntil;
 
 import com.dan323.expressions.modal.Next;
+import com.dan323.expressions.relation.StateTerm;
 import com.dan323.proof.modal.proof.ModalNaturalDeduction;
 
 import java.util.List;
@@ -11,21 +12,19 @@ import java.util.Optional;
  */
 public final class ModalNextE extends NextUntilRule {
 
-    private final int line;
-
     public ModalNextE(int line) {
-<span class="fc" id="L17">        super(ParseModalNextUntilAction.NEXT_E, List.of(line));</span>
-<span class="fc" id="L18">        this.line = line;</span>
-<span class="fc" id="L19">    }</span>
+<span class="fc" id="L16">        super(ParseModalNextUntilAction.NEXT_E, List.of(line));</span>
+<span class="fc" id="L17">    }</span>
 
     @Override
     Optional&lt;Conclusion&gt; conclusion(ModalNaturalDeduction pf) {
-<span class="fc" id="L23">        var term = term(pf, line);</span>
-<span class="fc" id="L24">        var next = formula(pf, line, Next.class);</span>
-<span class="pc bpc" id="L25" title="1 of 4 branches missed.">        if (term.isEmpty() || next.isEmpty()) {</span>
-<span class="fc" id="L26">            return Optional.empty();</span>
+        // s0+2147483647 is a state, but its successor cannot be written.
+<span class="fc" id="L22">        var term = term(pf, line(0)).filter(StateTerm::hasSuccessor);</span>
+<span class="fc" id="L23">        var next = formula(pf, line(0), Next.class);</span>
+<span class="fc bfc" id="L24" title="All 4 branches covered.">        if (term.isEmpty() || next.isEmpty()) {</span>
+<span class="fc" id="L25">            return Optional.empty();</span>
         }
-<span class="fc" id="L28">        return Optional.of(new Conclusion(next.get().getElement(), term.get().successor().toString()));</span>
+<span class="fc" id="L27">        return Optional.of(new Conclusion(next.get().getElement(), term.get().successor().toString()));</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>

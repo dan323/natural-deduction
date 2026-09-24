@@ -14,17 +14,14 @@ import java.util.Optional;
  */
 public final class ModalUntilSometime extends NextUntilRule {
 
-    private final int line;
-
     public ModalUntilSometime(int line) {
-<span class="fc" id="L20">        super(ParseModalNextUntilAction.UNTIL_SOMETIME, List.of(line));</span>
-<span class="fc" id="L21">        this.line = line;</span>
-<span class="fc" id="L22">    }</span>
+<span class="fc" id="L18">        super(ParseModalNextUntilAction.UNTIL_SOMETIME, List.of(line));</span>
+<span class="fc" id="L19">    }</span>
 
     @Override
     Optional&lt;Conclusion&gt; conclusion(ModalNaturalDeduction pf) {
-<span class="fc" id="L26">        return formula(pf, line, Until.class)</span>
-<span class="fc" id="L27">                .map(until -&gt; new Conclusion(new Sometime((ModalLogicalOperation) until.getRight()), state(pf, line)));</span>
+<span class="fc" id="L23">        return formula(pf, line(0), Until.class)</span>
+<span class="fc" id="L24">                .map(until -&gt; new Conclusion(new Sometime((ModalLogicalOperation) until.getRight()), state(pf, line(0))));</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>

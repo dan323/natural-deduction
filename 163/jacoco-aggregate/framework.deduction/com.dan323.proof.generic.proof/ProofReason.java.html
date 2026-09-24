@@ -46,8 +46,8 @@ public class ProofReason {
     }
 
     public static ProofReason parseReason(String ruleString, Map&lt;String, Function&lt;String, ProofReason&gt;&gt; extra) {
-<span class="pc bpc" id="L49" title="8 of 13 branches missed.">        ProofReason proofReason = switch (ruleString.substring(0, 3)) {</span>
-<span class="nc" id="L50">            case &quot;Ass&quot; -&gt; new ProofReason(&quot;Ass&quot;, List.of(), List.of());</span>
+<span class="pc bpc" id="L49" title="7 of 13 branches missed.">        ProofReason proofReason = switch (ruleString.substring(0, 3)) {</span>
+<span class="fc" id="L50">            case &quot;Ass&quot; -&gt; new ProofReason(&quot;Ass&quot;, List.of(), List.of());</span>
 <span class="nc" id="L51">            case &quot;|I &quot; -&gt; new ProofReason(&quot;|I&quot;, List.of(), Arrays.stream(parseArray(ruleString, 2)).boxed().toList());</span>
 <span class="nc" id="L52">            case &quot;|E &quot; -&gt; new ProofReason(&quot;|E&quot;, List.of(), Arrays.stream(parseArray(ruleString, 2)).boxed().toList());</span>
 <span class="fc" id="L53">            case &quot;&amp;I &quot; -&gt; new ProofReason(&quot;&amp;I&quot;, List.of(), Arrays.stream(parseArray(ruleString, 2)).boxed().toList());</span>
