@@ -18,5 +18,17 @@ import com.dan323.classical.*;
     public String getActionName(){
 <span class="nc" id="L19">        return actionName;</span>
     }
+
+    /**
+     * Whether the rule is also a rule of intuitionistic logic, which is classical logic without double negation
+     * elimination ({@link #NOTE}); ex falso ({@link #FE}) stays.
+     */
+    public boolean isIntuitionistic() {
+        // No default branch: adding an action does not compile until it is decided here.
+<span class="fc bfc" id="L28" title="All 2 branches covered.">        return switch (this) {</span>
+<span class="fc" id="L29">            case NOTE -&gt; false;</span>
+<span class="fc" id="L30">            case ASSUME, ORI1, ORI2, ORE, ANDI, ANDE1, ANDE2, COPY, NOTI, DT, MP, FE, FI -&gt; true;</span>
+        };
+    }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>
