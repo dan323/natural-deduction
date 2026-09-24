@@ -1,5 +1,6 @@
 package com.dan323.uses.modal;
 
+import com.dan323.uses.LogicalExercises;
 import com.dan323.uses.LogicalGetActions;
 import com.dan323.uses.ProofParser;
 import com.dan323.uses.Transformer;
@@ -22,6 +23,11 @@ public class ModalConfiguration {
     @Bean
     public ProofParser modalProofParser() {
         return new ModalProofParser();
+    }
+
+    @Bean
+    public LogicalExercises modalExercises() {
+        return new ModalExercises();
     }
 
 }

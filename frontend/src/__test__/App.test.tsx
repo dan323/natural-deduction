@@ -1021,7 +1021,7 @@ describe('App', () => {
       ['text that is not JSON', '{"steps": ['],
       ['JSON that is not a proof', JSON.stringify({ steps: 'P', logic: 'classical', goal: 'P' })],
       ['a step without a rule', JSON.stringify({ steps: [{ expression: 'P', assmsLevel: 0, extraParameters: {} }], logic: 'classical', goal: 'P' })],
-      ['a proof of another logic', JSON.stringify({ ...repProof, logic: 'modal' })],
+      ['a proof of a logic the UI does not offer', JSON.stringify({ ...repProof, logic: 'temporal' })],
     ])('a corrupt saved proof (%s) is discarded and the empty state says so', async (_, text) => {
       window.sessionStorage.setItem(SAVED_PROOF_KEY, text);
       mockBackend([REP], 200, {});
@@ -1696,6 +1696,9 @@ describe('App', () => {
         { id: 'first', title: 'First', premises: ['P'], goal: 'P', difficulty: 'EASY' },
         { id: 'double-negation-elimination', title: 'Double negation elimination', premises: ['- (- P)'], goal: 'P', difficulty: 'MEDIUM' },
       ],
+      modal: [
+        { id: 'box-elimination', title: 'What is necessary is true', premises: ['[] p'], goal: 'p', difficulty: 'EASY' },
+      ],
       intuitionistic: [
         { id: 'first', title: 'First', premises: ['P'], goal: 'P', difficulty: 'EASY' },
       ],
@@ -1759,6 +1762,30 @@ describe('App', () => {
       await user.click(applyButton());
       await waitFor(() => expect(ruleRequests()).toHaveLength(1));
       expect(ruleRequests()[0][0]).toBe('/logic/intuitionistic/action');
+    });
+
+    test('a modal proof fetches the modal rules, has a State column, modal connectives and Solve', async () => {
+      mockLogicsBackend();
+      const user = userEvent.setup();
+      render(<App />);
+      await user.click(screen.getByRole('button', { name: /Start a new proof/i }));
+      await waitFor(() => expect(screen.getByPlaceholderText('Premise 1')).toHaveFocus());
+      const dialog = screen.getByRole('dialog');
+      expect(within(dialog).queryByRole('button', { name: /Insert necessarily/ })).not.toBeInTheDocument();
+      await user.selectOptions(dialogLogic(), 'modal');
+      expect(within(dialog).getByRole('button', { name: 'Insert necessarily ([]) in Goal' })).toBeInTheDocument();
+      expect(within(dialog).getByRole('button', { name: 'Insert possibly (<>) in Goal' })).toBeInTheDocument();
+      await user.click(screen.getByRole('button', { name: 'Cancel' }));
+
+      await startProofIn(user, 'modal', '[[] P', 'P');
+
+      await waitFor(() => expect(ruleOptions()).toEqual(['-- Choose a rule --', 'Rep']));
+      expect(requestsTo('modal', 'actions')).toHaveLength(1);
+      expect(replayRequests()[0][0]).toBe('/logic/modal/action');
+      expect(JSON.parse(String(replayRequests()[0][1]!.body)).proofDto.steps[0].extraParameters).toEqual({ state: 's0' });
+      expect(screen.getByRole('columnheader', { name: 'State' })).toBeInTheDocument();
+      expect(screen.getByText('in Modal logic')).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Solve' })).toBeInTheDocument();
     });
 
     test('switching the logic resets the Menu to the rules of the new logic', async () => {
@@ -1859,6 +1886,31 @@ describe('App', () => {
       expect(await screen.findByText('Solved 0 of 2.')).toBeInTheDocument();
       expect(screen.getByText(/In Classical logic\./)).toBeInTheDocument();
       expect(screen.getByText('Double negation elimination', { selector: '.exercise-title' })).toBeInTheDocument();
+    });
+
+    test('the modal exercise list loads, and a modal exercise starts with its premises in s0 and can be finished', async () => {
+      mockLogicsBackend();
+      const user = userEvent.setup();
+      render(<App />);
+      await user.selectOptions(screen.getByLabelText('Logic:'), 'modal');
+      await user.click(screen.getByRole('button', { name: 'Browse exercises' }));
+
+      expect(await screen.findByText('Solved 0 of 1.')).toBeInTheDocument();
+      expect(screen.getByText(/In Modal logic\./)).toBeInTheDocument();
+      expect(requestsTo('modal', 'exercises')).toHaveLength(1);
+
+      await user.click(screen.getByRole('button', { name: 'Start exercise What is necessary is true' }));
+      await waitFor(() => expect(document.querySelector('.current-exercise')).toHaveTextContent('Exercise: What is necessary is true'));
+      expect(replayRequests()[0][0]).toBe('/logic/modal/action');
+      const premise = JSON.parse(String(replayRequests()[0][1]!.body)).proofDto.steps[0];
+      expect(premise).toEqual({ expression: '[] p', rule: 'Ass', assmsLevel: 0, extraParameters: { state: 's0' } });
+      expect(screen.getByRole('columnheader', { name: 'State' })).toBeInTheDocument();
+
+      await user.selectOptions(await screen.findByLabelText(/Select Inference Rule:/i), 'Rep');
+      await user.type(screen.getByLabelText(/Line number:/i), '1');
+      await user.click(applyButton());
+      await waitFor(() => expect(screen.getByText('Proof complete.')).toBeInTheDocument());
+      expect(JSON.parse(window.localStorage.getItem('natural-deduction.solved-exercises')!)).toEqual({ modal: ['box-elimination'] });
     });
   });
 });
