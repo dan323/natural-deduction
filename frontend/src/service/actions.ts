@@ -1,5 +1,4 @@
-import { ProofDto, StepDto, ActionDto, ActionDescriptor, ApplyActionResponse } from "../types";
-import { parseProofText } from "./utils";
+import { ProofDto, ActionDto, ActionDescriptor, ApplyActionResponse } from "../types";
 
 // Extracts the `message` of an error body ({ "message": "..." }), falling back to the HTTP status.
 async function errorMessage(response: Response): Promise<string> {
@@ -115,29 +114,35 @@ export async function replayProof(logic: string, proof: ProofDto, consumer: (res
     await applyAction(logic, proof, noOpAction, consumer);
 }
 
-// Loads a proof from text in the layout `proofToText` writes (the one of the backend's `ProofStep.toString()`), for the
-// given goal. The text is split into steps here (see `parseProofText`) and the backend replays them (see `replayProof`),
-// which checks every step and gives the `done` verdict for that goal. The loaded proof is the one the backend answers
-// with, never the parsed steps: the indentation of the text only marks the premises, the subproof structure comes from
-// the rules, so a mis-indented line comes back at the level its rule implies. `POST .../proof`, the endpoint for proof files, is
-// not used: it rejects a proof that ends inside an open subproof, and takes the last line as the goal, so an unfinished
-// proof would come back as a finished proof of its last line. That is also why the goal is required.
-export async function loadProofFromText(logic: string, text: string, goal: string, consumer: (result: ApplyActionResponse) => void): Promise<void> {
-    if (goal.trim() === '') {
-        consumer({ success: false, message: 'Enter the goal of the proof.' });
+// Loads a finished proof from text in the layout `proofToText` writes (the one of the backend's `ProofStep.toString()`),
+// through `POST /logic/{logic}/proof`, the endpoint for proof files: the backend reads the leading top-level `Ass` lines
+// as the premises and the last line as the goal, replays every step, and rejects (a 400 naming the line) a text it
+// cannot read, a step that does not follow, or a proof that does not end at the top level. So only a finished proof
+// loads, with its goal and nothing else to type. The loaded proof is the one the backend answers with, never the text:
+// the subproof structure comes from the rules. Trailing spaces and blank lines at the end of a paste are dropped first,
+// since the backend reads a blank line as an error.
+export async function loadProofFromText(logic: string, text: string, consumer: (result: ApplyActionResponse) => void): Promise<void> {
+    const cleaned = text.split(/\r?\n/).map((line) => line.trimEnd()).join('\n').trimEnd();
+    if (cleaned === '') {
+        consumer({ success: false, message: 'The proof is empty.' });
         return;
     }
-    let steps: StepDto[];
+    let result: ApplyActionResponse;
     try {
-        steps = parseProofText(text);
+        const body = new FormData();
+        body.append('file', new Blob([cleaned], { type: 'text/plain' }), 'proof.txt');
+        const response = await fetch(`/logic/${logic}/proof`, { method: 'POST', body });
+        if (response.ok) {
+            const proof: ProofDto = await response.json();
+            result = { success: true, proof, done: proof.done, message: '' };
+        } else {
+            result = { success: false, message: await errorMessage(response), status: response.status };
+        }
     } catch (err) {
-        consumer({ success: false, message: (err as Error).message });
-        return;
+        console.error("Error loading a proof from text:", err);
+        result = { success: false, message: 'Network error. Please try again.' };
     }
-    const proof: ProofDto = { steps, logic, goal: goal.trim() };
-    await replayProof(logic, proof, (result) => consumer(result.proof
-        ? { success: true, proof: result.proof, done: result.done, message: '' }
-        : { success: false, message: result.message }));
+    consumer(result);
 }
 
 // The server stops a solve after its own limit (10 seconds by default). This is only a safety net, so that a request

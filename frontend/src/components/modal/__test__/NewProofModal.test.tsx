@@ -506,60 +506,62 @@ describe('NewProofModal loading a proof from text', () => {
     expect(screen.queryByLabelText(/Proof text/)).not.toBeInTheDocument();
   });
 
-  test('sends the text and the trimmed goal, then closes; Load is disabled while the text or the goal is blank', async () => {
+  test('sends the text alone, then closes; there is no goal to type, and Load is disabled while the text is blank', async () => {
     const onLoadText = jest.fn().mockResolvedValue(null);
     render(<NewProofModal isOpen onClose={onCloseMock} onSubmit={onSubmitMock} onLoadText={onLoadText} />);
     const load = screen.getByRole('button', { name: 'Load proof' });
     expect(load).toBeDisabled();
+    expect(screen.queryByLabelText(/Goal of the loaded proof/)).not.toBeInTheDocument();
+    expect(screen.getAllByRole('textbox', { name: /Goal/ })).toHaveLength(1);
 
-    fireEvent.change(screen.getByLabelText(/Proof text/), { target: { value: 'P           Ass' } });
+    fireEvent.change(screen.getByLabelText(/Proof text/), { target: { value: '  ' } });
     expect(load).toBeDisabled();
-    fireEvent.change(screen.getByLabelText(/Goal of the loaded proof/), { target: { value: ' P ' } });
+    fireEvent.change(screen.getByLabelText(/Proof text/), { target: { value: 'P           Ass' } });
     expect(load).toBeEnabled();
     fireEvent.click(load);
 
     await waitFor(() => expect(onCloseMock).toHaveBeenCalled());
-    expect(onLoadText).toHaveBeenCalledWith('P           Ass', 'P');
+    expect(onLoadText).toHaveBeenCalledWith('P           Ass');
     expect(onSubmitMock).not.toHaveBeenCalled();
   });
 
-  test('shows why the text could not be loaded, until it is edited', async () => {
-    const onLoadText = jest.fn().mockResolvedValue('Line 1 is not valid: unknown rule');
+  test('says why an unfinished proof could not be loaded, until the text is edited', async () => {
+    const onLoadText = jest.fn().mockResolvedValue('The proof is invalid: it does not end at the top level');
+    render(<NewProofModal isOpen onClose={onCloseMock} onSubmit={onSubmitMock} onLoadText={onLoadText} />);
+    const text = screen.getByLabelText(/Proof text/);
+    fireEvent.change(text, { target: { value: 'P           Ass\n   Q           Ass' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Load proof' }));
+
+    const alert = await screen.findByRole('alert');
+    expect(alert).toHaveTextContent('The proof is invalid: it does not end at the top level');
+    expect(text).toHaveAttribute('aria-invalid', 'true');
+    expect(text).toHaveAttribute('aria-describedby', alert.id);
+    expect(text).toHaveFocus();
+    expect(onCloseMock).not.toHaveBeenCalled();
+
+    fireEvent.change(text, { target: { value: 'P           Ass' } });
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+    expect(text).not.toHaveAttribute('aria-invalid');
+  });
+
+  test('the text cannot be edited while the caller loads it, so the proof loaded is the text on screen', async () => {
+    let finishLoad: (error: string | null) => void = () => undefined;
+    const onLoadText = jest.fn(() => new Promise<string | null>((resolve) => { finishLoad = resolve; }));
     render(<NewProofModal isOpen onClose={onCloseMock} onSubmit={onSubmitMock} onLoadText={onLoadText} />);
     const text = screen.getByLabelText(/Proof text/);
     fireEvent.change(text, { target: { value: 'P           Nope' } });
-    fireEvent.change(screen.getByLabelText(/Goal of the loaded proof/), { target: { value: 'P' } });
     fireEvent.click(screen.getByRole('button', { name: 'Load proof' }));
 
-    expect(await screen.findByRole('alert')).toHaveTextContent('Line 1 is not valid: unknown rule');
-    expect(text).toHaveAttribute('aria-invalid', 'true');
-    expect(onCloseMock).not.toHaveBeenCalled();
+    expect(text).toHaveAttribute('readonly');
+    expect(screen.getByRole('button', { name: 'Loading…' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Start Proof' })).toBeDisabled();
 
-    fireEvent.change(text, { target: { value: 'P           Ass' } });
-    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
-  });
+    await act(async () => finishLoad('Line 1 is not valid: unknown rule'));
 
-  test('a malformed goal is reported on the goal field and nothing is loaded, until the goal is edited', () => {
-    const onLoadText = jest.fn().mockResolvedValue(null);
-    render(<NewProofModal isOpen onClose={onCloseMock} onSubmit={onSubmitMock} onLoadText={onLoadText} />);
-    const text = screen.getByLabelText(/Proof text/);
-    const goal = screen.getByLabelText(/Goal of the loaded proof/);
-    fireEvent.change(text, { target: { value: 'P           Ass' } });
-    fireEvent.change(goal, { target: { value: '(P & Q' } });
-    fireEvent.click(screen.getByRole('button', { name: 'Load proof' }));
-
-    const alert = screen.getByRole('alert');
-    expect(alert).toHaveTextContent('Unbalanced parentheses');
-    expect(goal).toHaveAttribute('aria-invalid', 'true');
-    expect(goal).toHaveAttribute('aria-describedby', `${alert.id} new-proof-syntax-hint`);
-    expect(goal).toHaveFocus();
-    expect(text).not.toHaveAttribute('aria-invalid');
-    expect(onLoadText).not.toHaveBeenCalled();
-    expect(onCloseMock).not.toHaveBeenCalled();
-
-    fireEvent.change(goal, { target: { value: '(P & Q)' } });
-    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
-    expect(goal).not.toHaveAttribute('aria-invalid');
+    expect(screen.getByRole('alert')).toHaveTextContent('Line 1 is not valid: unknown rule');
+    expect(text).toHaveValue('P           Nope');
+    expect(text).not.toHaveAttribute('readonly');
+    expect(screen.getByRole('button', { name: 'Load proof' })).toBeEnabled();
   });
 
   test('the answer to a load of a dialog that was closed since does not close the dialog opened again', async () => {
@@ -567,7 +569,6 @@ describe('NewProofModal loading a proof from text', () => {
     const onLoadText = jest.fn(() => new Promise<string | null>((resolve) => { finishLoad = resolve; }));
     const { rerender } = render(<NewProofModal isOpen onClose={onCloseMock} onSubmit={onSubmitMock} onLoadText={onLoadText} />);
     fireEvent.change(screen.getByLabelText(/Proof text/), { target: { value: 'P           Ass' } });
-    fireEvent.change(screen.getByLabelText(/Goal of the loaded proof/), { target: { value: 'P' } });
     fireEvent.click(screen.getByRole('button', { name: 'Load proof' }));
     expect(screen.getByRole('button', { name: 'Loading…' })).toBeDisabled();
 
@@ -593,7 +594,6 @@ describe('NewProofModal syntax help', () => {
     expect(screen.getByText(HINT)).toBeInTheDocument();
     expect(screen.getByLabelText('Premise 1')).toHaveAccessibleDescription(HINT);
     expect(screen.getByLabelText('Goal:')).toHaveAccessibleDescription(HINT);
-    expect(screen.getByLabelText(/Goal of the loaded proof/)).toHaveAccessibleDescription(HINT);
   });
 
   test('the connective buttons never submit the proof', async () => {

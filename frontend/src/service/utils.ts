@@ -93,33 +93,21 @@ export function proofToText(proof: ProofDto): string {
     .join('\n');
 }
 
-// Reads one line of that layout the way the backend's `ProofParser.ProofLine.split` does (keep the two in step): the
-// indent must be groups of 3 spaces, the expression ends at the first 11-space gap, the rule starts after the last
-// double space.
-function parseProofLine(line: string): StepDto {
-  const body = line.trimStart();
-  if (body === '') throw new Error('the line is blank');
-  const indent = line.length - body.length;
-  if (indent % 3 !== 0 || !line.startsWith(' '.repeat(indent))) throw new Error('the indentation must be groups of 3 spaces');
-  const gap = body.indexOf(RULE_GAP);
-  if (gap < 1) throw new Error(`expected an expression, ${RULE_GAP.length} spaces and a rule`);
-  const rule = body.substring(body.lastIndexOf('  ') + 2);
-  if (rule.trim() === '') throw new Error('the rule is missing');
-  return { expression: body.substring(0, gap), rule, assmsLevel: indent / 3, extraParameters: {} };
+// The goal a proof text reads back with: `POST .../proof` takes the last line as the goal. Null for an empty proof.
+export function loadedGoal(proof: ProofDto): string | null {
+  const last = proof.steps[proof.steps.length - 1] as StepDto | undefined;
+  return last === undefined ? null : last.expression.trim();
 }
 
-// Reads a proof text written by `proofToText` back into its steps, one per line; trailing spaces, and blank lines at the
-// end of a paste, are ignored. Throws an Error naming the first line that cannot be read. Only the layout is checked
-// here: whether the steps follow is for the backend to say when the proof is replayed. Unlike `POST .../proof`, this
-// accepts a proof that ends inside an open subproof, which is how an unfinished proof is often copied.
-export function parseProofText(text: string): StepDto[] {
-  const trimmed = text.trimEnd();
-  if (trimmed === '') throw new Error('The proof is empty.');
-  return trimmed.split(/\r?\n/).map((line, index) => {
-    try {
-      return parseProofLine(line.trimEnd());
-    } catch (err) {
-      throw new Error(`Line ${index + 1} is not valid: ${(err as Error).message}`);
-    }
-  });
+// Whether the text of this proof (see `proofToText`) loads back as the same proof, with the same goal. `done` only says
+// that some top-level step is the goal (the domain's `Proof.isDone()`), while the backend reads the last line as the
+// goal, so the last line must also be a top-level step equal to the goal. Spaces are ignored in the comparison, since
+// the goal may still be as the user typed it; any other difference in writing counts as a different goal.
+export function loadsBackWithSameGoal(proof: ProofDto): boolean {
+  const last = proof.steps[proof.steps.length - 1] as StepDto | undefined;
+  const withoutSpaces = (formula: string) => formula.replace(/\s+/g, '');
+  return proof.done === true
+    && last !== undefined
+    && last.assmsLevel === 0
+    && withoutSpaces(last.expression) === withoutSpaces(proof.goal);
 }

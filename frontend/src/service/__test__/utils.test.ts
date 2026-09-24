@@ -1,4 +1,4 @@
-import { checkFormula, parseProofText, proofToText, renderExpression, renderRule } from '../utils';
+import { checkFormula, loadedGoal, loadsBackWithSameGoal, proofToText, renderExpression, renderRule } from '../utils';
 
 describe('renderExpression', () => {
   test('renders logical operators', () => {
@@ -127,33 +127,26 @@ describe('proofToText', () => {
   });
 });
 
-describe('parseProofText', () => {
-  const steps = [
-    { expression: 'P', rule: 'Ass', assmsLevel: 0, extraParameters: {} },
-    { expression: 'Q', rule: 'Ass', assmsLevel: 1, extraParameters: {} },
-    { expression: 'P', rule: 'Rep [1]', assmsLevel: 1, extraParameters: {} },
-    { expression: 'Q -> P', rule: '->I [2-3]', assmsLevel: 0, extraParameters: {} },
-  ];
+describe('loadsBackWithSameGoal', () => {
+  const step = (expression: string, assmsLevel = 0) => ({ expression, rule: 'Ass', assmsLevel, extraParameters: {} });
 
-  test('reads back what proofToText writes', () => {
-    expect(parseProofText(proofToText({ steps, logic: 'classical', goal: 'Q -> P' }))).toEqual(steps);
+  test('a done proof whose last line is a top-level step equal to the goal loads back with the same goal', () => {
+    expect(loadsBackWithSameGoal({ steps: [step('P', 1), step('P -> P')], logic: 'classical', goal: 'P->P', done: true })).toBe(true);
   });
 
-  test('accepts CRLF line ends, trailing spaces and trailing blank lines', () => {
-    expect(parseProofText('P           Ass  \r\n   Q           Ass\r\n\r\n')).toEqual(steps.slice(0, 2));
+  test('a done proof whose goal is an earlier step, not the last line, does not', () => {
+    const proof = { steps: [step('P'), step('Q')], logic: 'classical', goal: 'P', done: true };
+    expect(loadsBackWithSameGoal(proof)).toBe(false);
+    expect(loadedGoal(proof)).toBe('Q');
   });
 
-  test('accepts a proof that ends inside an open subproof', () => {
-    expect(parseProofText('P           Ass\n   Q           Ass')).toEqual(steps.slice(0, 2));
+  test('a last line equal to the goal inside a subproof does not', () => {
+    expect(loadsBackWithSameGoal({ steps: [step('P', 1)], logic: 'classical', goal: 'P', done: true })).toBe(false);
   });
 
-  test.each([
-    ['', 'The proof is empty.'],
-    ['P           Ass\n\nQ           Ass', 'Line 2 is not valid: the line is blank'],
-    ['  P           Ass', 'Line 1 is not valid: the indentation must be groups of 3 spaces'],
-    ['\tP           Ass', 'Line 1 is not valid: the indentation must be groups of 3 spaces'],
-    ['P Ass', 'Line 1 is not valid: expected an expression, 11 spaces and a rule'],
-  ])('rejects %j', (text, message) => {
-    expect(() => parseProofText(text)).toThrow(message);
+  test('an unfinished or empty proof does not', () => {
+    expect(loadsBackWithSameGoal({ steps: [step('P')], logic: 'classical', goal: 'P', done: false })).toBe(false);
+    expect(loadsBackWithSameGoal({ steps: [], logic: 'classical', goal: 'P', done: true })).toBe(false);
+    expect(loadedGoal({ steps: [], logic: 'classical', goal: 'P' })).toBeNull();
   });
 });
