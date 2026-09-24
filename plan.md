@@ -11,11 +11,10 @@ Defaults taken for the open questions (change them and the affected steps move):
 
 PRs 1-6 are merged: 1-3, 4.1, 5.1, 5.2 and 5.4 as #124-#128, #130 and #131; 4.2 and 5.3 folded into #127 and #129;
 5.5 (#122) as #138, 5.6 (#123) as #137, 6.1 (#132) as #135 and 6.2 (#133) as #134.
-PR 7.1-7.3 are pending, tracked as #139 (7.1), #140 (7.2) and #141 (7.3).
-PR 8.1-8.2 and 9.1-9.2 are pending, tracked as #142 (8.1), #143 (8.2), #144 (9.1) and #145 (9.2).
-PR 10.1-10.5 are pending, tracked as #146 (10.1), #147 (10.2), #148 (10.3), #149 (10.4) and #150 (10.5).
-Order: 7.x first (8.2 starts exercises through the 7.1 path), then 8.1, 8.2, 9.1, 9.2, then 10.1-10.5 (10.4 needs 9.2's
-logic selector; 10.5's UI part needs 10.3 and 10.4).
+PRs 7-9 are merged: 7.1 (#139) as #151, 7.2 (#140) as #153, 7.3 (#141) as #156, 8.1 (#142) as #152, 8.2 (#143) as #157,
+9.1 (#144) as #155, 9.2 (#145) as #158. PR 10.1-10.3 are merged: 10.1 (#146) as #154, 10.2 (#147) as #160, 10.3 (#148)
+as #159. Pending: 10.4 (#149) and 10.5 (#150). 10.5 was redesigned as a `modal-next-until` logic (Next and Until); its
+first attempt, PR #161, was closed unmerged.
 
 ## Audit summary
 
@@ -340,29 +339,40 @@ inputs and sends `extraParameters.state`, `renderExpression` shows `[]`/`<>` as 
   exercise list loads; backend: the modal reference solutions replay.
 - Done when: a student can pick modal logic, start a modal exercise and finish it in the UI.
 
-**10.5 A `modal-until` logic: modal logic with `Until` (backend, then UI)** — open, tracked as #150
-- Idea: keep `"modal"` as it is and add a new logic, `ModalWithUntil` (URL key `"modal-until"`), that is modal logic plus
-  `Until`. `Until` (`expressions/modal/Until.java`, printed as `A U B`) already exists in the formula model and is handled
-  generically (`RuleUtils`, `DeductionTheorem`, `NotI`, `ModalBoxI`, `ModalDiaE`), but `ModalLogicParser` has no `U`
-  operator and no rule introduces or eliminates it.
-- Investigate first: how to extend rather than copy the modal modules. Likely a parser subclass of `ModalLogicParser`
-  that adds `U` (check that javaluator does not split variables containing a capital `U`, or pick another symbol), a
-  `ModalWithUntilNaturalDeduction` (or reuse `ModalNaturalDeduction`) and an action enum = `AvailableModalAction` + the
-  Until rules. Decide `Until`'s meaning in the state semantics the modal rules use (states ordered by `<=`, as `□`/`◇`
-  and `Refl`/`Trans` use them) and design its rules, e.g. `UI`: from `B` at `s`, derive `A U B` at `s`; from `A` at `s`
-  and `A U B` at a successor, derive `A U B` at `s`; `UE` by cases. Check whether `automate()` copes with `U`; if not,
-  `POST /logic/modal-until/solve` answers 400 "no solver for this logic".
-- Change (backend): new `implementation.deduction.modal-until` / `modal-until-use-case` modules (or a sub-package, per
-  the investigation) with `Transformer`, `ProofParser`, `LogicalGetActions` (10.1-style descriptions) and a
-  `*Configuration` imported in `ApplicationConfiguration`; `module-info` exports/requires; `docs/API.md`; the
-  `OnMaster.yml` smoke test gets `/logic/modal-until/actions`. `"modal"` does not change: `p U q` is still rejected there.
-- Change (frontend, after 10.3 and 10.4): `"modal-until"` in the logic selector; a `U` connective button and hint entry
-  for that logic only; `checkFormula` accepts `U`; a few exercises in 8.1's catalog.
-- Tests: the parser round-trips `p U q` and its precedence against `->`/`&`; `"modal"` still rejects `p U q`; each Until
-  rule's valid and invalid cases; a small proof using `U` replays through `ProofParser`; `RestServiceIT` for the new
-  logic's endpoints; frontend: the `U` button shows only for `modal-until` and inserts `U`.
-- Done when: `/logic/modal-until/...` proves formulas with `A U B` from the REST API and the UI, and `/logic/modal/...`
-  behaves exactly as before.
+**10.5 A `modal-next-until` logic: modal logic with Next and Until (backend, then UI)** — open, tracked as #150
+- Idea: keep `"modal"` as it is and add a new logic, `ModalNextUntil` (URL key `"modal-next-until"`), that is modal
+  logic over discrete states with two new operators: Next `X` (`s: X P` iff `s+1: P`, where `s+1` is the successor
+  state of `s`) and Until `U`. A first attempt (PR #161, closed) gave `U` a strong-until meaning over `<=` alone; without
+  a next state the natural Until rules are unsound there, so Next is needed. `Until` (`expressions/modal/Until.java`,
+  printed `A U B`) already exists in the formula model; `X` needs a new unary formula class.
+- Semantics (to confirm in the investigation): states form a discrete order, every state `s` has a successor `s+1`,
+  `s <= s+1`, and `<=` is the reflexive-transitive closure of the successor, so `□`/`◇`/`Refl`/`Trans` keep their meaning.
+  `s: A U B` iff for some `k >= 0`, `s+k: B` and `s+j: A` for every `j < k` (strong until).
+- Investigate first:
+  - How a successor state is named and related: state terms such as `s0+1`, or a successor relation formula next to
+    `<=`/`=` (e.g. `s1 = s0+1`), and how that fits `ModalProofParser`'s `sN:` line prefix and `extraParameters.state`.
+  - Rules. Next: `XI` (from `P` at `s+1` derive `X P` at `s`) and `XE` (from `X P` at `s` derive `P` at `s+1`), plus
+    `s <= s+1`. Until by the expansion law `A U B <-> B | (A & X(A U B))`: `UI1` (from `B` at `s`), `UI2` (from `A` and
+    `X(A U B)` at `s`), `UE` by cases into `B` or `A & X(A U B)` at `s`, and `A U B` at `s` gives `◇B` at `s`. Decide
+    whether an induction rule is needed and say which rules are sound and whether the set is complete.
+  - Reuse from closed PR #161: the standalone-word tokenizer for `U` (so `TRUE`, `Up`, `pUq` stay names), the same for
+    `X`; the rule-reader hook on `ModalNaturalDeduction`; the protected hooks on `ModalProofTransformer`/`ModalProofParser`;
+    `ActionInput` for descriptors; operator precedences (`X` with the unary operators, `U` between them and `&`).
+  - Whether `automate()` copes with `X`/`U`; if not, `POST /logic/modal-next-until/solve` answers 400 "no solver".
+- Change (backend): the new logic as an extension of the modal modules (per the investigation) with `Transformer`,
+  `ProofParser`, `LogicalGetActions` (10.1-style descriptions) and a `*Configuration` imported in
+  `ApplicationConfiguration`; `module-info` exports/requires; an exercise catalog with replayed reference solutions;
+  `docs/API.md`; `CLAUDE.md`; the `OnMaster.yml` smoke test gets `/logic/modal-next-until/actions`. `"modal"` behaves
+  exactly as before.
+- Change (frontend, after 10.3 and 10.4): `"modal-next-until"` in `LOGICS` (with states); `X` and `U` connective buttons
+  and hint entries for that logic only; `checkFormula` accepts them; successor states wherever the UI shows or takes a
+  state.
+- Tests: the parser round-trips `X p`, `p U q` and their precedence; `"modal"` still rejects the new rules; each Next and
+  Until rule's valid and invalid cases (including a wrong successor state); a small proof using `X` and `U` replays
+  through `ProofParser`; the exercise solutions replay; `RestServiceIT` for the new logic's endpoints; frontend: the
+  `X`/`U` buttons show only for `modal-next-until`.
+- Done when: `/logic/modal-next-until/...` proves formulas with `X P` and `A U B` from the REST API and the UI, and
+  `/logic/modal/...` behaves exactly as before.
 
 ---
 
