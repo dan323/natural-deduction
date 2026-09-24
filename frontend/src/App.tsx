@@ -244,9 +244,12 @@ function App() {
     newProofButtonRef.current?.focus();
   };
 
-  const handleLoadText = (text: string, goal: string) => new Promise<string | null>((resolve) => {
+  // "Load from text" in the New Proof dialog: the backend reads the text as a finished proof (see `loadProofFromText`),
+  // which is only shown once it is accepted; a refusal keeps the dialog open with the reason. An answer arriving after
+  // the dialog was closed is dropped.
+  const handleLoadText = (text: string) => new Promise<string | null>((resolve) => {
     const session = dialogSessionRef.current;
-    loadProofFromText(LOGIC, text, goal, (result) => {
+    loadProofFromText(LOGIC, text, (result) => {
       if (dialogSessionRef.current !== session) {
         resolve(null);
       } else if (result.success && result.proof) {
@@ -258,7 +261,9 @@ function App() {
     });
   });
 
-  // Copies the proof in the text layout the backend reads back (see `proofToText`), for "Load from text" or a file.
+  // Copies the proof in the text layout the backend reads back (see `proofToText`), for "Load from text" or a file. The
+  // backend only reads back a finished proof (the last line is taken as the goal), which the notice says when this one
+  // is not done yet.
   const handleCopyText = async () => {
     const text = proofToText(proof);
     try {
@@ -343,15 +348,17 @@ function App() {
         )}
         {currentCopy?.copied === true && (
           <p className="copy-status" role="status">
-            Proof copied to the clipboard as text. To load it again, paste it in the New Proof dialog, with the
-            goal <code>{currentCopy.proof.goal}</code>.
+            Proof copied to the clipboard as text.{' '}
+            {currentCopy.proof.done
+              ? 'To load it again, paste it in the New Proof dialog.'
+              : 'It only loads back in the New Proof dialog once the proof is finished.'}
           </p>
         )}
         {currentCopy?.copied === false && (
           <div className="copy-status">
             <p role="status">
-              The clipboard is not available here. Copy the proof text below by hand; its goal
-              is <code>{currentCopy.proof.goal}</code>.
+              The clipboard is not available here. Copy the proof text below by hand.{' '}
+              {!currentCopy.proof.done && 'It only loads back in the New Proof dialog once the proof is finished.'}
             </p>
             <label htmlFor="copied-proof-text" className="visually-hidden">Proof as text</label>
             <textarea

@@ -1,4 +1,4 @@
-import { ProofDto, StepDto } from "../types";
+import { ProofDto } from "../types";
 
 // Renders logical operators in a formula (only symbols, never letters, so a variable named E or I is untouched).
 export function renderExpression(expression: string): string {
@@ -91,35 +91,4 @@ export function proofToText(proof: ProofDto): string {
   return proof.steps
     .map((step) => INDENT.repeat(step.assmsLevel) + step.expression.trim() + RULE_GAP + step.rule.trim())
     .join('\n');
-}
-
-// Reads one line of that layout the way the backend's `ProofParser.ProofLine.split` does (keep the two in step): the
-// indent must be groups of 3 spaces, the expression ends at the first 11-space gap, the rule starts after the last
-// double space.
-function parseProofLine(line: string): StepDto {
-  const body = line.trimStart();
-  if (body === '') throw new Error('the line is blank');
-  const indent = line.length - body.length;
-  if (indent % 3 !== 0 || !line.startsWith(' '.repeat(indent))) throw new Error('the indentation must be groups of 3 spaces');
-  const gap = body.indexOf(RULE_GAP);
-  if (gap < 1) throw new Error(`expected an expression, ${RULE_GAP.length} spaces and a rule`);
-  const rule = body.substring(body.lastIndexOf('  ') + 2);
-  if (rule.trim() === '') throw new Error('the rule is missing');
-  return { expression: body.substring(0, gap), rule, assmsLevel: indent / 3, extraParameters: {} };
-}
-
-// Reads a proof text written by `proofToText` back into its steps, one per line; trailing spaces, and blank lines at the
-// end of a paste, are ignored. Throws an Error naming the first line that cannot be read. Only the layout is checked
-// here: whether the steps follow is for the backend to say when the proof is replayed. Unlike `POST .../proof`, this
-// accepts a proof that ends inside an open subproof, which is how an unfinished proof is often copied.
-export function parseProofText(text: string): StepDto[] {
-  const trimmed = text.trimEnd();
-  if (trimmed === '') throw new Error('The proof is empty.');
-  return trimmed.split(/\r?\n/).map((line, index) => {
-    try {
-      return parseProofLine(line.trimEnd());
-    } catch (err) {
-      throw new Error(`Line ${index + 1} is not valid: ${(err as Error).message}`);
-    }
-  });
 }

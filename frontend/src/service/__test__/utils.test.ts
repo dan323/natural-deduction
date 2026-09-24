@@ -1,4 +1,4 @@
-import { checkFormula, parseProofText, proofToText, renderExpression, renderRule } from '../utils';
+import { checkFormula, proofToText, renderExpression, renderRule } from '../utils';
 
 describe('renderExpression', () => {
   test('renders logical operators', () => {
@@ -124,36 +124,5 @@ describe('proofToText', () => {
     });
 
     expect(text).toBe('P           Ass');
-  });
-});
-
-describe('parseProofText', () => {
-  const steps = [
-    { expression: 'P', rule: 'Ass', assmsLevel: 0, extraParameters: {} },
-    { expression: 'Q', rule: 'Ass', assmsLevel: 1, extraParameters: {} },
-    { expression: 'P', rule: 'Rep [1]', assmsLevel: 1, extraParameters: {} },
-    { expression: 'Q -> P', rule: '->I [2-3]', assmsLevel: 0, extraParameters: {} },
-  ];
-
-  test('reads back what proofToText writes', () => {
-    expect(parseProofText(proofToText({ steps, logic: 'classical', goal: 'Q -> P' }))).toEqual(steps);
-  });
-
-  test('accepts CRLF line ends, trailing spaces and trailing blank lines', () => {
-    expect(parseProofText('P           Ass  \r\n   Q           Ass\r\n\r\n')).toEqual(steps.slice(0, 2));
-  });
-
-  test('accepts a proof that ends inside an open subproof', () => {
-    expect(parseProofText('P           Ass\n   Q           Ass')).toEqual(steps.slice(0, 2));
-  });
-
-  test.each([
-    ['', 'The proof is empty.'],
-    ['P           Ass\n\nQ           Ass', 'Line 2 is not valid: the line is blank'],
-    ['  P           Ass', 'Line 1 is not valid: the indentation must be groups of 3 spaces'],
-    ['\tP           Ass', 'Line 1 is not valid: the indentation must be groups of 3 spaces'],
-    ['P Ass', 'Line 1 is not valid: expected an expression, 11 spaces and a rule'],
-  ])('rejects %j', (text, message) => {
-    expect(() => parseProofText(text)).toThrow(message);
   });
 });
