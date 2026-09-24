@@ -1,13 +1,15 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { ReactNode, useCallback, useEffect, useRef, useState } from 'react';
 import './App.css';
 import Proof from './components/proof/ProofViewer';
 import Header from './components/Header';
 import Menu, { MenuHandle } from './components/menu/Menu';
 import NewProofModal from './components/modal/NewProofModal';
-import { StepDto, ProofDto } from './types';
+import ExerciseList, { ExercisesState } from './components/exercises/ExerciseList';
+import { StepDto, ProofDto, Exercise } from './types';
 import { LOGIC } from './constant';
-import { loadProofFromText, replayProof, undoLastStep } from './service/actions';
-import { proofToText } from './service/utils';
+import { fetchExercises, loadProofFromText, replayProof, undoLastStep } from './service/actions';
+import { markExerciseSolved, readSolvedExercises } from './service/solvedExercises';
+import { loadedGoal, loadsBackWithSameGoal, proofToText } from './service/utils';
 import { clearSavedProof, readSavedProof, writeSavedProof } from './service/savedProof';
 
 // The steps counted as the proof's premises: a leading run of `Ass` steps at assumption level 0, the shape
@@ -26,6 +28,21 @@ function premiseCount(steps: StepDto[]): number {
 // The proof "Try an example" starts: p -> q and p prove q in one Modus Ponens step.
 const EXAMPLE_PREMISES = ['p -> q', 'p'];
 const EXAMPLE_GOAL = 'q';
+
+// What happens to a copied proof text in the New Proof dialog: `POST .../proof` rejects a text whose last line is not
+// at the top level, and otherwise takes that last line as the goal. So `done` alone does not promise that the text loads
+// back as the same proof (a top-level step other than the last may be the goal, e.g. a premise that already is the
+// goal), and an unfinished proof ending at the top level (e.g. only its premises) loads back as a finished proof of its
+// last line, not rejected.
+function copyLoadNote(proof: ProofDto): ReactNode {
+  if (!proof.done) {
+    const last = proof.steps[proof.steps.length - 1] as StepDto | undefined;
+    if (last?.assmsLevel !== 0) return 'It only loads back in the New Proof dialog once the proof is finished.';
+    return <>It is not finished, so it loads back in the New Proof dialog as a proof of its last line <code>{loadedGoal(proof)}</code> instead of the goal <code>{proof.goal}</code>.</>;
+  }
+  if (loadsBackWithSameGoal(proof)) return 'To load it again, paste it in the New Proof dialog.';
+  return <>Its last line is not the goal, so it loads back in the New Proof dialog with the goal <code>{loadedGoal(proof)}</code> instead of <code>{proof.goal}</code>.</>;
+}
 
 function App() {
   const [colorMapping, setColorMapping] = useState(new Map<number, string>());
@@ -51,11 +68,17 @@ function App() {
     logic: LOGIC,
     goal: '',
   });
+  // Mirrors `proof`, for an in-flight exercise start to see whether the proof on screen changed while it waited (a rule
+  // applied in the Menu, or an undo, neither of which bumps `proofIdRef`).
+  const proofRef = useRef(proof);
+  useEffect(() => { proofRef.current = proof; }, [proof]);
 
-  // Shown next to the toolbar's New Proof button instead of opening the dialog right away, whenever the current
-  // proof has more than its premises: an in-page confirmation, not `window.confirm`, so it can be tested and styled
-  // like the rest of the UI, and so the page behind it never needs to go inert.
-  const [confirmingNewProof, setConfirmingNewProof] = useState(false);
+  // Shown next to the toolbar's New Proof button instead of starting a new proof right away (opening the dialog, or
+  // starting an exercise), whenever the current proof has more than its premises: an in-page confirmation, not
+  // `window.confirm`, so it can be tested and styled like the rest of the UI, and so the page behind it never needs to go
+  // inert. It holds what "Discard and start new" goes on to do.
+  const [pendingDiscard, setPendingDiscard] = useState<(() => void) | null>(null);
+  const confirmingNewProof = pendingDiscard !== null;
   const confirmCancelRef = useRef<HTMLButtonElement>(null);
   const [isUndoing, setIsUndoing] = useState(false);
   const [undoError, setUndoError] = useState('');
@@ -73,6 +96,22 @@ function App() {
   // Whether the proof saved before a reload is being replayed by the backend, and why it could not be restored.
   const [isRestoring, setIsRestoring] = useState(false);
   const [restoreError, setRestoreError] = useState('');
+  // The id of the exercise the proof on screen was started from, or null. It is saved with the proof, so that a proof
+  // restored after a reload still counts for its exercise.
+  const [exerciseId, setExerciseId] = useState<string | null>(null);
+  // Whether the list of exercises is shown, and the exercises themselves: null until they are first needed (the list is
+  // opened, or a proof of an exercise is on screen and "Next exercise" needs to know the next one).
+  const [isExercisesOpen, setIsExercisesOpen] = useState(false);
+  const [exercisesState, setExercisesState] = useState<ExercisesState | null>(null);
+  // The ids of the solved exercises of the logic, kept in localStorage (see `solvedExercises`).
+  const [solved, setSolved] = useState(() => readSolvedExercises(LOGIC));
+  // The exercise being checked by the backend before it is shown, and why the last one could not be started.
+  const [startingExerciseId, setStartingExerciseId] = useState<string | null>(null);
+  const [exerciseStartError, setExerciseStartError] = useState('');
+  const exercisesButtonRef = useRef<HTMLButtonElement>(null);
+  // Set when "Browse exercises" opens the list: that button goes away with the list open, so the list's heading takes
+  // the focus once it is shown.
+  const focusExercisesOnOpenRef = useRef(false);
 
   const onColorChange = useCallback((color: string, line: number) => {
     setColorMapping(colorMapping => {
@@ -92,26 +131,35 @@ function App() {
   // A click (or Enter, or Space) on a row of the proof picks that line for the rule being filled in the menu.
   const handleSelectLine = useCallback((line: number) => menuRef.current?.selectLine(line), []);
 
-  // Goes straight to the dialog when there is nothing to lose; otherwise asks first. `opener` is who gets the focus
-  // back, from whichever control (the toolbar button, or the Menu's once a proof is done) asked for a new proof.
-  const requestNewProof = (opener: HTMLElement | null) => {
-    userStartedRef.current += 1;
+  // Does `proceed` straight away when there is nothing to lose; otherwise asks first (see `pendingDiscard`). `opener` is
+  // who gets the focus back when the user cancels, or closes the dialog `proceed` opened.
+  const askBeforeDiscarding = (opener: HTMLElement | null, proceed: () => void) => {
     setModalOpener(opener);
     if (proof.steps.length > premiseCount(proof.steps)) {
-      setConfirmingNewProof(true);
+      setPendingDiscard(() => proceed);
     } else {
-      setIsModalOpen(true);
+      // A confirmation still shown for an earlier request (e.g. an exercise start queued it) is superseded by this one.
+      setPendingDiscard(null);
+      proceed();
     }
+  };
+
+  // Goes to the dialog, from whichever control (the toolbar button, or the Menu's once a proof is done) asked for a new
+  // proof.
+  const requestNewProof = (opener: HTMLElement | null) => {
+    userStartedRef.current += 1;
+    askBeforeDiscarding(opener, () => setIsModalOpen(true));
   };
   const handleOpenModal = () => requestNewProof(document.activeElement instanceof HTMLElement ? document.activeElement : null);
   // The button of a finished proof goes away with the proof, so the toolbar button is the one that gets the focus back.
   const handleOpenModalFromMenu = () => requestNewProof(newProofButtonRef.current);
   const handleConfirmNewProof = () => {
-    setConfirmingNewProof(false);
-    setIsModalOpen(true);
+    const proceed = pendingDiscard;
+    setPendingDiscard(null);
+    proceed?.();
   };
   const handleCancelNewProof = useCallback(() => {
-    setConfirmingNewProof(false);
+    setPendingDiscard(null);
     modalOpener?.focus();
   }, [modalOpener]);
   const handleCloseModal = () => {
@@ -134,15 +182,29 @@ function App() {
     if (confirmingNewProof) confirmCancelRef.current?.focus();
   }, [confirmingNewProof]);
 
-  // Replaces the proof on screen with a new one, and forgets everything about the previous one.
-  const showNewProof = (newProof: ProofDto) => {
+  // Replaces the proof on screen with a new one, and forgets everything about the previous one. `newExerciseId` is the
+  // exercise the new proof was started from, if any.
+  const showNewProof = (newProof: ProofDto, newExerciseId: string | null = null) => {
     setProof(newProof);
+    setExerciseId(newExerciseId);
     setColorMapping(new Map<number, string>())
     setUndoError('');
     setRestoreError('');
+    setExerciseStartError('');
+    // Whatever a confirmation still on screen would go on to do was asked for about the previous proof.
+    setPendingDiscard(null);
     proofIdRef.current += 1;
     setProofId(proofIdRef.current);
   };
+
+  // The Menu's way to replace the proof (a rule applied, or the solver's answer). Its answers can arrive after the Menu
+  // they belong to was replaced by a newer proof (New Proof, an exercise or "Try an example" can be started while a rule
+  // or the solver is pending), and must not replace that newer proof: it would then be shown, saved and possibly marked
+  // solved as the newer proof's exercise. Each Menu is keyed by `proofId`, so it gets the callback bound to its own proof.
+  const setMenuProof = useCallback((updated: ProofDto) => {
+    if (proofIdRef.current !== proofId) return;
+    setProof(updated);
+  }, [proofId]);
 
   // On mount, brings back the proof saved before a reload (see the effect below that saves it). It goes through the
   // backend's replay like any other proof, so that it is checked again and comes back with its `done` verdict; a proof
@@ -177,7 +239,7 @@ function App() {
         return;
       }
       if (result.proof) {
-        showNewProof(result.proof);
+        showNewProof(result.proof, saved.exerciseId);
       } else if (result.status === 400) {
         clearSavedProof();
         setRestoreError(`The proof saved before the page was reloaded could not be restored: ${result.message || 'the backend rejected it.'}`);
@@ -194,8 +256,30 @@ function App() {
   // after a reload. The empty state is never saved, so that it cannot overwrite a saved proof that is still being
   // restored.
   useEffect(() => {
-    if (proof.goal !== '' || proof.steps.length > 0) writeSavedProof(proof);
-  }, [proof]);
+    if (proof.goal !== '' || proof.steps.length > 0) writeSavedProof(proof, exerciseId);
+  }, [proof, exerciseId]);
+
+  // A proof of an exercise that the backend says is done marks the exercise as solved, however it got there (rules, or
+  // the solver). The stored ids are merged into the ones already known, so that when storage cannot be used the
+  // exercises solved earlier in this page session still count.
+  useEffect(() => {
+    if (proof.done === true && exerciseId !== null) {
+      const stored = markExerciseSolved(LOGIC, exerciseId);
+      setSolved((previous) => new Set([...previous, ...stored]));
+    }
+  }, [proof, exerciseId]);
+
+  // Fetches the exercises the first time they are needed: when the list is opened, or when a proof of an exercise is on
+  // screen (also after a reload), since "Next exercise" needs the list. A failed fetch is only tried again when the list
+  // is opened again (see `handleToggleExercises`).
+  useEffect(() => {
+    if (exercisesState !== null || (!isExercisesOpen && exerciseId === null)) return;
+    setExercisesState({ kind: 'loading' });
+    fetchExercises(
+      LOGIC,
+      (exercises) => setExercisesState({ kind: 'loaded', exercises }),
+      (message) => setExercisesState({ kind: 'error', message }));
+  }, [exercisesState, isExercisesOpen, exerciseId]);
 
   // Has the backend check a proof of only its premises and goal (see `replayProof`, the path Undo uses: it parses the
   // goal and every step), since `checkFormula` is only an instant check that can drift from the backend's parser.
@@ -225,17 +309,24 @@ function App() {
 
   // Starts the example exactly as if its premises and goal had been typed in the New Proof dialog, through the same
   // backend check. The button goes away with the empty state, so hand the focus to a control that stays on the page,
-  // as `handleUndo` does. An answer arriving after another proof was started (the dialog can be opened meanwhile) is
-  // dropped.
+  // as `handleUndo` does. An answer arriving after another proof was started, or asked for (the dialog can be opened,
+  // or an exercise started, meanwhile), is dropped.
   const handleTryExample = async () => {
     if (isStartingExample) return;
     userStartedRef.current += 1;
+    const requestedStart = userStartedRef.current;
     setExampleError('');
     setIsStartingExample(true);
     const requestedProofId = proofIdRef.current;
     const checked = await checkNewProof(EXAMPLE_PREMISES, EXAMPLE_GOAL);
     setIsStartingExample(false);
     if (proofIdRef.current !== requestedProofId) return;
+    // That later request wins. It may still be cancelled (the New Proof dialog), and then nothing replaces the empty
+    // state, so say there that the example was not started; a proof that is started replaces the empty state.
+    if (userStartedRef.current !== requestedStart) {
+      setExampleError('The example was not started, since a new proof was asked for meanwhile. Click "Try an example" again to start it.');
+      return;
+    }
     if ('error' in checked) {
       setExampleError(checked.error);
       return;
@@ -244,9 +335,98 @@ function App() {
     newProofButtonRef.current?.focus();
   };
 
-  const handleLoadText = (text: string, goal: string) => new Promise<string | null>((resolve) => {
+  // "Start" in the list of exercises, and "Next exercise": starts the exercise exactly as if its premises and goal had
+  // been typed in the New Proof dialog, through the same backend check, and remembers which exercise it is. A refusal
+  // is shown in the list (opened if it was not). An answer arriving after another proof was started, or asked for, is
+  // dropped. The Menu
+  // stays usable while the backend checks the exercise, so if the proof on screen changed meanwhile (a rule, an undo)
+  // and now has more than its premises, discarding it asks first, again, even if it was confirmed (or needed no
+  // confirmation) when Start was clicked.
+  const startExercise = async (exercise: Exercise) => {
+    userStartedRef.current += 1;
+    const requestedStart = userStartedRef.current;
+    setExerciseStartError('');
+    setStartingExerciseId(exercise.id);
+    const requestedProofId = proofIdRef.current;
+    const requestedProof = proofRef.current;
+    const checked = await checkNewProof(exercise.premises, exercise.goal);
+    setStartingExerciseId(null);
+    if (proofIdRef.current !== requestedProofId) return;
+    // The user asked for another proof meanwhile (e.g. New Proof, which may be waiting for its own discard confirmation
+    // or have its dialog open): that request wins. It may still be cancelled, and then nothing replaces the proof on
+    // screen, so say in the list that the exercise was not started; a proof that is started replaces the notice.
+    if (userStartedRef.current !== requestedStart) {
+      setExerciseStartError(`The exercise "${exercise.title}" was not started, since a new proof was asked for meanwhile. Start it again to try it.`);
+      setIsExercisesOpen(true);
+      return;
+    }
+    if ('error' in checked) {
+      setExerciseStartError(`The exercise "${exercise.title}" could not be started: ${checked.error}`);
+      setIsExercisesOpen(true);
+      return;
+    }
+    // Also run later, from the confirmation below: by then another proof may have been shown, or asked for, and that
+    // one must not be replaced without asking about it.
+    const show = () => {
+      if (proofIdRef.current !== requestedProofId || userStartedRef.current !== requestedStart) return;
+      showNewProof(checked.proof, exercise.id);
+      setIsExercisesOpen(false);
+      // The list, and the Menu button that may have started this, go away: hand the focus to a control that stays.
+      exercisesButtonRef.current?.focus();
+    };
+    const current = proofRef.current;
+    if (current !== requestedProof && current.steps.length > premiseCount(current.steps)) {
+      setModalOpener(exercisesButtonRef.current);
+      setPendingDiscard(() => show);
+      return;
+    }
+    show();
+  };
+
+  const requestExercise = (exercise: Exercise, opener: HTMLElement | null) => {
+    if (startingExerciseId !== null) return;
+    askBeforeDiscarding(opener, () => { void startExercise(exercise); });
+  };
+
+  const handleToggleExercises = () => {
+    if (isExercisesOpen) {
+      setIsExercisesOpen(false);
+      return;
+    }
+    setExerciseStartError('');
+    // Opening the list again tries again to fetch exercises that could not be fetched.
+    if (exercisesState?.kind === 'error') setExercisesState(null);
+    setIsExercisesOpen(true);
+  };
+  const handleBrowseExercises = () => {
+    focusExercisesOnOpenRef.current = true;
+    handleToggleExercises();
+  };
+  // See `focusExercisesOnOpenRef`.
+  useEffect(() => {
+    if (!isExercisesOpen || !focusExercisesOnOpenRef.current) return;
+    focusExercisesOnOpenRef.current = false;
+    document.getElementById('exercises-title')?.focus();
+  }, [isExercisesOpen]);
+  const handleCloseExercises = () => {
+    setIsExercisesOpen(false);
+    exercisesButtonRef.current?.focus();
+  };
+
+  const exercises = exercisesState?.kind === 'loaded' ? exercisesState.exercises : [];
+  const currentExercise = exercises.find((exercise) => exercise.id === exerciseId);
+  // The exercise after the current one in the list (which the backend orders from easy to hard), if any.
+  const nextExercise = currentExercise ? exercises[exercises.indexOf(currentExercise) + 1] : undefined;
+  const handleNextExercise = nextExercise
+    ? () => requestExercise(nextExercise, exercisesButtonRef.current)
+    : undefined;
+
+  // "Load from text" in the New Proof dialog: the backend reads the text as a finished proof (see `loadProofFromText`),
+  // which is only shown once it is accepted; a refusal keeps the dialog open with the reason. An answer arriving after
+  // the dialog was closed is dropped.
+  const handleLoadText = (text: string) => new Promise<string | null>((resolve) => {
     const session = dialogSessionRef.current;
-    loadProofFromText(LOGIC, text, goal, (result) => {
+    loadProofFromText(LOGIC, text, (result) => {
       if (dialogSessionRef.current !== session) {
         resolve(null);
       } else if (result.success && result.proof) {
@@ -258,7 +438,9 @@ function App() {
     });
   });
 
-  // Copies the proof in the text layout the backend reads back (see `proofToText`), for "Load from text" or a file.
+  // Copies the proof in the text layout the backend reads back (see `proofToText`), for "Load from text" or a file. The
+  // backend rejects a text that does not end at the top level and takes its last line as the goal, which the notice
+  // says when this one is not done yet, or when its last line is not the goal (see `copyLoadNote`).
   const handleCopyText = async () => {
     const text = proofToText(proof);
     try {
@@ -322,6 +504,15 @@ function App() {
             Copy proof as text
           </button>
           <button
+            ref={exercisesButtonRef}
+            className="exercises-btn"
+            onClick={handleToggleExercises}
+            aria-expanded={isExercisesOpen}
+            aria-controls={isExercisesOpen ? 'exercises-panel' : undefined}
+          >
+            Exercises
+          </button>
+          <button
             ref={newProofButtonRef}
             className="new-proof-btn"
             onClick={handleOpenModal}
@@ -343,15 +534,14 @@ function App() {
         )}
         {currentCopy?.copied === true && (
           <p className="copy-status" role="status">
-            Proof copied to the clipboard as text. To load it again, paste it in the New Proof dialog, with the
-            goal <code>{currentCopy.proof.goal}</code>.
+            Proof copied to the clipboard as text. {copyLoadNote(currentCopy.proof)}
           </p>
         )}
         {currentCopy?.copied === false && (
           <div className="copy-status">
             <p role="status">
-              The clipboard is not available here. Copy the proof text below by hand; its goal
-              is <code>{currentCopy.proof.goal}</code>.
+              The clipboard is not available here. Copy the proof text below by hand.{' '}
+              {!loadsBackWithSameGoal(currentCopy.proof) && copyLoadNote(currentCopy.proof)}
             </p>
             <label htmlFor="copied-proof-text" className="visually-hidden">Proof as text</label>
             <textarea
@@ -365,8 +555,24 @@ function App() {
             />
           </div>
         )}
+        {isExercisesOpen && (
+          <ExerciseList
+            state={exercisesState ?? { kind: 'loading' }}
+            solved={solved}
+            currentId={exerciseId}
+            startingId={startingExerciseId}
+            startError={exerciseStartError}
+            onStart={(exercise) => requestExercise(exercise, document.activeElement instanceof HTMLElement ? document.activeElement : null)}
+            onClose={handleCloseExercises}
+          />
+        )}
         <main className="app-main">
-          <Menu key={proofId} ref={menuRef} logic={LOGIC} proof={proof} setProof={setProof} onColorChange={onColorChange} onNewProof={handleOpenModalFromMenu} />
+          {currentExercise && (
+            <p className="current-exercise">
+              Exercise: <strong>{currentExercise.title}</strong>{solved.has(currentExercise.id) ? ' (Solved)' : ''}
+            </p>
+          )}
+          <Menu key={proofId} ref={menuRef} logic={LOGIC} proof={proof} setProof={setMenuProof} onColorChange={onColorChange} onNewProof={handleOpenModalFromMenu} onNextExercise={handleNextExercise} />
           {hasProof ? (
             <Proof proof={proof} coloring={colorMapping} onSelectLine={handleSelectLine} />
           ) : (
@@ -390,6 +596,12 @@ function App() {
               <p className="try-example-desc">
                 Premises <code>{EXAMPLE_PREMISES.join(', ')}</code>, goal <code>{EXAMPLE_GOAL}</code>.
               </p>
+              {!isExercisesOpen && (
+                <p className="browse-exercises">
+                  Or practise with a graded exercise:{' '}
+                  <button className="browse-exercises-btn" onClick={handleBrowseExercises}>Browse exercises</button>
+                </p>
+              )}
             </div>
           )}
         </main>

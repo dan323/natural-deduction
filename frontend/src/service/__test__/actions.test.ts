@@ -1,5 +1,5 @@
-import { fetchActions, applyAction, solveProof, clearActionsCache, loadProofFromText } from '../actions';
-import { ProofDto, ActionDto, StepDto } from '../../types';
+import { fetchActions, applyAction, solveProof, clearActionsCache, clearExercisesCache, fetchExercises, loadProofFromText } from '../actions';
+import { ProofDto, ActionDto } from '../../types';
 
 const proof: ProofDto = { steps: [], logic: 'classical', goal: 'P' };
 const action: ActionDto = { name: 'Rep', sources: [1], extraParameters: { expression: '' } };
@@ -23,6 +23,7 @@ describe('service/actions', () => {
   beforeEach(() => {
     fetchMock.mockReset();
     clearActionsCache();
+    clearExercisesCache();
     (global as any).fetch = fetchMock;
     consoleError = jest.spyOn(console, 'error').mockImplementation(() => undefined);
   });
@@ -249,94 +250,168 @@ describe('service/actions', () => {
       ],
       logic: 'classical',
       goal: 'Q -> P',
+      done: true,
     };
 
-    test('reads the text into steps and has the backend replay them, for its done verdict', async () => {
-      fetchMock.mockResolvedValueOnce(jsonResponse(202, { proof: parsed, success: false, done: true, message: 'Line 5 does not exist' }));
+    // The text of the `file` part of the multipart body of a request.
+    const sentFile = async (init: RequestInit) => {
+      const file = (init.body as FormData).get('file');
+      expect(file).toBeInstanceOf(Blob);
+      return new Promise<string>((resolve) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(String(reader.result));
+        reader.readAsText(file as Blob);
+      });
+    };
+
+    test('posts the text as the proof file, and loads the proof the backend answers with', async () => {
+      fetchMock.mockResolvedValueOnce(jsonResponse(201, parsed));
       const consumer = jest.fn();
 
-      await loadProofFromText('classical', text + '\n\n', ' Q -> P ', consumer);
+      await loadProofFromText('classical', text, consumer);
 
       expect(fetchMock).toHaveBeenCalledTimes(1);
-      const [replayUrl, replayInit] = fetchMock.mock.calls[0];
-      expect(replayUrl).toBe('/logic/classical/action');
-      expect(JSON.parse(replayInit.body)).toEqual({
-        actionDto: { name: 'COPY', sources: [5], extraParameters: {} },
-        proofDto: parsed,
-      });
-      expect(consumer).toHaveBeenCalledWith({ success: true, proof: { ...parsed, done: true }, done: true, message: '' });
+      const [url, init] = fetchMock.mock.calls[0];
+      expect(url).toBe('/logic/classical/proof');
+      expect(init.method).toBe('POST');
+      expect(await sentFile(init)).toBe(text);
+      expect(consumer).toHaveBeenCalledWith({ success: true, proof: parsed, done: true, message: '' });
     });
 
-    test('an unfinished proof keeps its goal, even when its last line is at the top level', async () => {
-      const unfinished = { ...parsed, goal: 'R' };
-      fetchMock.mockResolvedValueOnce(jsonResponse(202, { proof: unfinished, success: false, done: false, message: '' }));
-      const consumer = jest.fn();
+    test('drops trailing spaces, CRLF line ends and trailing blank lines of a paste before sending it', async () => {
+      fetchMock.mockResolvedValueOnce(jsonResponse(201, parsed));
 
-      await loadProofFromText('classical', text, 'R', consumer);
+      await loadProofFromText('classical', text.split('\n').join('  \r\n') + '\r\n\r\n', jest.fn());
 
-      expect(JSON.parse(fetchMock.mock.calls[0][1].body).proofDto.goal).toBe('R');
-      expect(consumer).toHaveBeenCalledWith({ success: true, proof: { ...unfinished, done: false }, done: false, message: '' });
+      expect(await sentFile(fetchMock.mock.calls[0][1])).toBe(text);
     });
 
-    test('a proof that ends inside an open subproof loads', async () => {
-      const open = ['P           Ass', '   Q           Ass'].join('\n');
-      const openProof: ProofDto = { steps: parsed.steps.slice(0, 2), logic: 'classical', goal: 'Q -> P' };
-      fetchMock.mockResolvedValueOnce(jsonResponse(202, { proof: openProof, success: false, done: false, message: '' }));
+    test('an empty text is not sent', async () => {
       const consumer = jest.fn();
 
-      await loadProofFromText('classical', open, 'Q -> P', consumer);
-
-      expect(JSON.parse(fetchMock.mock.calls[0][1].body).proofDto).toEqual(openProof);
-      expect(consumer).toHaveBeenCalledWith({ success: true, proof: { ...openProof, done: false }, done: false, message: '' });
-    });
-
-    test('a mis-indented line loads at the level the replay gives it, not the one of the text', async () => {
-      // Line 3 lost its indent: it is inside the subproof of line 2, which only ->I [2-3] closes.
-      const misIndented = ['P           Ass', '   Q           Ass', 'P           Rep [1]', 'Q -> P           ->I [2-3]'].join('\n');
-      fetchMock.mockResolvedValueOnce(jsonResponse(202, { proof: parsed, success: false, done: true, message: 'Line 5 does not exist' }));
-      const consumer = jest.fn();
-
-      await loadProofFromText('classical', misIndented, 'Q -> P', consumer);
-
-      expect(JSON.parse(fetchMock.mock.calls[0][1].body).proofDto.steps[2].assmsLevel).toBe(0);
-      expect(consumer).toHaveBeenCalledWith({ success: true, proof: { ...parsed, done: true }, done: true, message: '' });
-      expect(consumer.mock.calls[0][0].proof.steps.map((step: StepDto) => step.assmsLevel)).toEqual([0, 1, 1, 0]);
-    });
-
-    test('the goal is required', async () => {
-      const consumer = jest.fn();
-
-      await loadProofFromText('classical', text, '  ', consumer);
+      await loadProofFromText('classical', ' \n\n', consumer);
 
       expect(fetchMock).not.toHaveBeenCalled();
-      expect(consumer).toHaveBeenCalledWith({ success: false, message: 'Enter the goal of the proof.' });
+      expect(consumer).toHaveBeenCalledWith({ success: false, message: 'The proof is empty.' });
     });
 
-    test('a text that is not in the layout is reported with its line, and nothing is sent', async () => {
+    test.each([
+      ['an unfinished proof', 'The proof is invalid: it does not end at the top level'],
+      ['a step that does not follow', 'The proof is invalid: step 3 does not follow'],
+      ['a line that cannot be read', 'Line 2 is not valid: the indentation must be groups of 3 spaces'],
+    ])('the reason the backend rejects %s is reported', async (_, message) => {
+      fetchMock.mockResolvedValueOnce(jsonResponse(400, { message }));
       const consumer = jest.fn();
 
-      await loadProofFromText('classical', 'P           Ass\n  Q           Ass', 'P', consumer);
+      await loadProofFromText('classical', text, consumer);
 
-      expect(fetchMock).not.toHaveBeenCalled();
-      expect(consumer).toHaveBeenCalledWith({ success: false, message: 'Line 2 is not valid: the indentation must be groups of 3 spaces' });
+      expect(consumer).toHaveBeenCalledWith({ success: false, message, status: 400 });
     });
 
-    test('steps the replay rejects are reported', async () => {
-      fetchMock.mockResolvedValueOnce(jsonResponse(400, { message: 'Line 3 does not follow' }));
+    test('an error without a message is reported with its status', async () => {
+      fetchMock.mockResolvedValueOnce(textResponse(500));
       const consumer = jest.fn();
 
-      await loadProofFromText('classical', text, 'Q -> P', consumer);
+      await loadProofFromText('classical', text, consumer);
 
-      expect(consumer).toHaveBeenCalledWith({ success: false, message: 'Line 3 does not follow' });
+      expect(consumer).toHaveBeenCalledWith({ success: false, message: 'Request failed with status 500.', status: 500 });
     });
 
     test('a network error is reported', async () => {
       fetchMock.mockRejectedValueOnce(new TypeError('Failed to fetch'));
       const consumer = jest.fn();
 
-      await loadProofFromText('classical', text, 'Q -> P', consumer);
+      await loadProofFromText('classical', text, consumer);
 
       expect(consumer).toHaveBeenCalledWith({ success: false, message: 'Network error. Please try again.' });
+    });
+  });
+
+  describe('fetchExercises', () => {
+    const exercise = { id: 'modus-ponens', title: 'Modus ponens', premises: ['p', 'p -> q'], goal: 'q', difficulty: 'EASY' };
+
+    test('passes the exercises of the logic to the consumer', async () => {
+      fetchMock.mockResolvedValue(jsonResponse(200, [exercise]));
+      const consumer = jest.fn();
+      const onError = jest.fn();
+
+      await fetchExercises('classical', consumer, onError);
+
+      expect(fetchMock).toHaveBeenCalledWith('/logic/classical/exercises');
+      expect(consumer).toHaveBeenCalledWith([exercise]);
+      expect(onError).not.toHaveBeenCalled();
+    });
+
+    test('a logic without a catalog has no exercises', async () => {
+      fetchMock.mockResolvedValue(jsonResponse(200, []));
+      const consumer = jest.fn();
+
+      await fetchExercises('modal', consumer);
+
+      expect(consumer).toHaveBeenCalledWith([]);
+    });
+
+    test('shares one request per logic, and keeps the logics apart', async () => {
+      fetchMock.mockImplementation(async (url: string) => jsonResponse(200, url.includes('/classical/') ? [exercise] : []));
+      const first = jest.fn();
+      const second = jest.fn();
+      const modal = jest.fn();
+
+      await Promise.all([fetchExercises('classical', first), fetchExercises('classical', second)]);
+      await fetchExercises('modal', modal);
+      await fetchExercises('classical', second);
+
+      expect(fetchMock).toHaveBeenCalledTimes(2);
+      expect(first).toHaveBeenCalledWith([exercise]);
+      expect(second).toHaveBeenNthCalledWith(2, [exercise]);
+      expect(modal).toHaveBeenCalledWith([]);
+    });
+
+    test('does not share the cache of the actions', async () => {
+      fetchMock.mockImplementation(async (url: string) => jsonResponse(200, url.endsWith('/actions') ? [{ name: 'Rep', params: ['INT'] }] : [exercise]));
+      const actions = jest.fn();
+      const exercises = jest.fn();
+
+      await fetchActions('classical', actions);
+      await fetchExercises('classical', exercises);
+
+      expect(actions).toHaveBeenCalledWith([{ name: 'Rep', params: ['INT'] }]);
+      expect(exercises).toHaveBeenCalledWith([exercise]);
+    });
+
+    test('a failed request is not cached, so the next call tries again', async () => {
+      fetchMock.mockResolvedValueOnce(jsonResponse(500, { message: 'Something went wrong' }));
+      fetchMock.mockResolvedValueOnce(jsonResponse(200, [exercise]));
+      const consumer = jest.fn();
+      const onError = jest.fn();
+
+      await fetchExercises('classical', consumer, onError);
+      await fetchExercises('classical', consumer, onError);
+
+      expect(onError).toHaveBeenCalledWith('Something went wrong');
+      expect(consumer).toHaveBeenCalledTimes(1);
+      expect(consumer).toHaveBeenCalledWith([exercise]);
+      expect(fetchMock).toHaveBeenCalledTimes(2);
+    });
+
+    test('an answer that is not a list is an error', async () => {
+      fetchMock.mockResolvedValue(jsonResponse(200, { message: 'not a list' }));
+      const consumer = jest.fn();
+      const onError = jest.fn();
+
+      await fetchExercises('classical', consumer, onError);
+
+      expect(consumer).not.toHaveBeenCalled();
+      expect(onError).toHaveBeenCalledWith('The server did not answer with a list of exercises.');
+    });
+
+    test('reports a network failure', async () => {
+      fetchMock.mockRejectedValue(new TypeError('Failed to fetch'));
+      const onError = jest.fn();
+
+      await fetchExercises('classical', jest.fn(), onError);
+
+      expect(onError).toHaveBeenCalledWith('Failed to fetch');
     });
   });
 });

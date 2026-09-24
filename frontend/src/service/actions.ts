@@ -1,5 +1,4 @@
-import { ProofDto, StepDto, ActionDto, ActionDescriptor, ApplyActionResponse } from "../types";
-import { parseProofText } from "./utils";
+import { ProofDto, ActionDto, ActionDescriptor, ApplyActionResponse, Exercise } from "../types";
 
 // Extracts the `message` of an error body ({ "message": "..." }), falling back to the HTTP status.
 async function errorMessage(response: Response): Promise<string> {
@@ -14,37 +13,53 @@ async function errorMessage(response: Response): Promise<string> {
     return `Request failed with status ${response.status}.`;
 }
 
-// The list of actions of a logic never changes while the server runs, so every consumer shares one request per logic
-// (the Menu is remounted for each new proof, and mounted twice in development). A failed request is dropped, so that
-// the next call tries again.
-const actionsCache = new Map<string, Promise<ActionDescriptor[]>>();
+// A list the server answers for `GET /logic/{logic}/{resource}` never changes while it runs, so every consumer shares
+// one request per logic (the Menu is remounted for each new proof, and mounted twice in development). A failed request
+// is dropped, so that the next call tries again.
+function perLogicCache<T>(resource: string) {
+    const cache = new Map<string, Promise<T[]>>();
 
-async function requestActions(logic: string): Promise<ActionDescriptor[]> {
-    const response = await fetch(`/logic/${logic}/actions`);
-    if (!response.ok) {
-        throw new Error(await errorMessage(response));
-    }
-    return response.json();
+    const request = async (logic: string): Promise<T[]> => {
+        const response = await fetch(`/logic/${logic}/${resource}`);
+        if (!response.ok) {
+            throw new Error(await errorMessage(response));
+        }
+        const body: unknown = await response.json();
+        if (!Array.isArray(body)) {
+            throw new Error(`The server did not answer with a list of ${resource}.`);
+        }
+        return body as T[];
+    };
+
+    const load = (logic: string): Promise<T[]> => {
+        let pending = cache.get(logic);
+        if (pending === undefined) {
+            const started: Promise<T[]> = request(logic).catch((err) => {
+                if (cache.get(logic) === started) {
+                    cache.delete(logic);
+                }
+                throw err;
+            });
+            cache.set(logic, started);
+            pending = started;
+        }
+        return pending;
+    };
+
+    return { load, clear: () => cache.clear() };
 }
 
-function loadActions(logic: string): Promise<ActionDescriptor[]> {
-    let pending = actionsCache.get(logic);
-    if (pending === undefined) {
-        const request: Promise<ActionDescriptor[]> = requestActions(logic).catch((err) => {
-            if (actionsCache.get(logic) === request) {
-                actionsCache.delete(logic);
-            }
-            throw err;
-        });
-        actionsCache.set(logic, request);
-        pending = request;
-    }
-    return pending;
-}
+const actionsCache = perLogicCache<ActionDescriptor>('actions');
+const exercisesCache = perLogicCache<Exercise>('exercises');
 
 // Forgets the cached lists of actions. Meant for tests.
 export function clearActionsCache(): void {
     actionsCache.clear();
+}
+
+// Forgets the cached lists of exercises. Meant for tests.
+export function clearExercisesCache(): void {
+    exercisesCache.clear();
 }
 
 export async function fetchActions(
@@ -53,10 +68,25 @@ export async function fetchActions(
     onError?: (message: string) => void
 ): Promise<void> {
     try {
-        consumer(await loadActions(logic));
+        consumer(await actionsCache.load(logic));
     } catch (err) {
         console.error("Error fetching actions:", err);
         onError?.(err instanceof Error ? err.message : 'Could not load the available rules.');
+    }
+}
+
+// The exercises of a logic (`GET /logic/{logic}/exercises`), ordered from easy to hard; a logic without a catalog has
+// none. Cached like the actions.
+export async function fetchExercises(
+    logic: string,
+    consumer: (exercises: Exercise[]) => void,
+    onError?: (message: string) => void
+): Promise<void> {
+    try {
+        consumer(await exercisesCache.load(logic));
+    } catch (err) {
+        console.error("Error fetching exercises:", err);
+        onError?.(err instanceof Error ? err.message : 'Could not load the exercises.');
     }
 }
 
@@ -115,29 +145,35 @@ export async function replayProof(logic: string, proof: ProofDto, consumer: (res
     await applyAction(logic, proof, noOpAction, consumer);
 }
 
-// Loads a proof from text in the layout `proofToText` writes (the one of the backend's `ProofStep.toString()`), for the
-// given goal. The text is split into steps here (see `parseProofText`) and the backend replays them (see `replayProof`),
-// which checks every step and gives the `done` verdict for that goal. The loaded proof is the one the backend answers
-// with, never the parsed steps: the indentation of the text only marks the premises, the subproof structure comes from
-// the rules, so a mis-indented line comes back at the level its rule implies. `POST .../proof`, the endpoint for proof files, is
-// not used: it rejects a proof that ends inside an open subproof, and takes the last line as the goal, so an unfinished
-// proof would come back as a finished proof of its last line. That is also why the goal is required.
-export async function loadProofFromText(logic: string, text: string, goal: string, consumer: (result: ApplyActionResponse) => void): Promise<void> {
-    if (goal.trim() === '') {
-        consumer({ success: false, message: 'Enter the goal of the proof.' });
+// Loads a finished proof from text in the layout `proofToText` writes (the one of the backend's `ProofStep.toString()`),
+// through `POST /logic/{logic}/proof`, the endpoint for proof files: the backend reads the leading top-level `Ass` lines
+// as the premises and the last line as the goal, replays every step, and rejects (a 400 naming the line) a text it
+// cannot read, a step that does not follow, or a proof that does not end at the top level. So only a finished proof
+// loads, with its goal and nothing else to type. The loaded proof is the one the backend answers with, never the text:
+// the subproof structure comes from the rules. Trailing spaces and blank lines at the end of a paste are dropped first,
+// since the backend reads a blank line as an error.
+export async function loadProofFromText(logic: string, text: string, consumer: (result: ApplyActionResponse) => void): Promise<void> {
+    const cleaned = text.split(/\r?\n/).map((line) => line.trimEnd()).join('\n').trimEnd();
+    if (cleaned === '') {
+        consumer({ success: false, message: 'The proof is empty.' });
         return;
     }
-    let steps: StepDto[];
+    let result: ApplyActionResponse;
     try {
-        steps = parseProofText(text);
+        const body = new FormData();
+        body.append('file', new Blob([cleaned], { type: 'text/plain' }), 'proof.txt');
+        const response = await fetch(`/logic/${logic}/proof`, { method: 'POST', body });
+        if (response.ok) {
+            const proof: ProofDto = await response.json();
+            result = { success: true, proof, done: proof.done, message: '' };
+        } else {
+            result = { success: false, message: await errorMessage(response), status: response.status };
+        }
     } catch (err) {
-        consumer({ success: false, message: (err as Error).message });
-        return;
+        console.error("Error loading a proof from text:", err);
+        result = { success: false, message: 'Network error. Please try again.' };
     }
-    const proof: ProofDto = { steps, logic, goal: goal.trim() };
-    await replayProof(logic, proof, (result) => consumer(result.proof
-        ? { success: true, proof: result.proof, done: result.done, message: '' }
-        : { success: false, message: result.message }));
+    consumer(result);
 }
 
 // The server stops a solve after its own limit (10 seconds by default). This is only a safety net, so that a request
