@@ -19,10 +19,13 @@ type StepProps = {
   // How many of the step's assumption levels are still open. A level closes when a later step drops below it, and
   // the step is then discharged. The default is every level open, which is right for the last steps of a proof.
   openLevels?: number,
+  // Whether the row has a State cell, for a proof in a logic with states (see `hasStates`); the table then has a State
+  // column. The cell shows `extraParameters.state`, or says that the step (a relation between states) is in none.
+  showState?: boolean,
 }
 
 export const StepViewer: FC<StepProps> = ({
-  step, stepIndex, className, onMouseEnter, onMouseLeave, onFocus, onBlur, onSelect, color, openLevels
+  step, stepIndex, className, onMouseEnter, onMouseLeave, onFocus, onBlur, onSelect, color, openLevels, showState
 }) => {
   const [validColor, setValidColor] = useState<string | null>(null);
 
@@ -51,6 +54,7 @@ export const StepViewer: FC<StepProps> = ({
   const level = Math.max(step.assmsLevel, 0);
   const open = Math.min(openLevels ?? level, level);
   const discharged = open < level;
+  const state = step.extraParameters?.state?.trim();
 
   return (
     <tr className={clsx('step-viewer', className, { 'glow': validColor, 'discharged': discharged })}
@@ -70,6 +74,13 @@ export const StepViewer: FC<StepProps> = ({
           {validColor && ', cited by current input'}
         </span>
       </th>
+      {showState && (
+        <td className="state">
+          {state
+            ? state
+            : <><span aria-hidden="true">–</span><span className="visually-hidden">none (a relation between states)</span></>}
+        </td>
+      )}
       <td className="step-cell">
         {/* One rule per assumption level, drawn solid while its subproof is open and dashed once it is closed. The
             level is spoken in the row header, so the rules are only decoration. */}

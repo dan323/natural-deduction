@@ -46,3 +46,17 @@ export function logicName(logic: string): string {
 export function hasSolver(logic: string): boolean {
     return logicInfo(logic)?.hasSolver ?? true;
 }
+
+// The logics whose formulas hold in states (Kripke worlds): every step of a proof in one of them has the state it holds
+// in, in `extraParameters.state`, except a relation between states (`s0 <= s1`, `s0 = s1`), which holds in none.
+const LOGICS_WITH_STATES: readonly string[] = ['modal'];
+
+// The state a proof starts in: the backend's `ModalNaturalDeduction` puts its premises there, and rejects a premise
+// (other than a relation) that says it is in any other state.
+export const INITIAL_STATE = 's0';
+
+// Whether the steps of the logic's proofs are in states, so that the premises need `INITIAL_STATE` and the proof table
+// shows each step's state.
+export function hasStates(logic: string): boolean {
+    return LOGICS_WITH_STATES.includes(logic);
+}

@@ -6,10 +6,10 @@ import Menu, { MenuHandle } from './components/menu/Menu';
 import NewProofModal from './components/modal/NewProofModal';
 import ExerciseList, { ExercisesState } from './components/exercises/ExerciseList';
 import { StepDto, ProofDto, Exercise } from './types';
-import { DEFAULT_LOGIC, LOGICS, logicInfo } from './constant';
+import { DEFAULT_LOGIC, INITIAL_STATE, LOGICS, hasStates, logicInfo } from './constant';
 import { fetchExercises, loadProofFromText, replayProof, undoLastStep } from './service/actions';
 import { markExerciseSolved, readSolvedExercises } from './service/solvedExercises';
-import { loadedGoal, loadsBackWithSameGoal, proofToText } from './service/utils';
+import { isRelationFormula, loadedGoal, loadsBackWithSameGoal, proofToText } from './service/utils';
 import { clearSavedProof, readSavedProof, writeSavedProof } from './service/savedProof';
 
 // The steps counted as the proof's premises: a leading run of `Ass` steps at assumption level 0, the shape
@@ -23,6 +23,13 @@ function premiseCount(steps: StepDto[]): number {
     count++;
   }
   return count;
+}
+
+// The `extraParameters` of a premise. In a logic with states the backend (`ModalProofTransformer.initialAssumption`)
+// rejects a premise that is not in the initial state. A relation between states (`s0 <= s1`) is in no state: the
+// backend neither checks nor keeps one for it, and answers it with `{}`, so it gets none here either.
+function premiseParameters(premise: string, proofLogic: string): Record<string, string> {
+  return hasStates(proofLogic) && !isRelationFormula(premise) ? { state: INITIAL_STATE } : {};
 }
 
 // The proof "Try an example" starts: p -> q and p prove q in one Modus Ponens step.
@@ -300,12 +307,13 @@ function App() {
   // Has the backend check a proof of only its premises and goal (see `replayProof`, the path Undo uses: it parses the
   // goal and every step), since `checkFormula` is only an instant check that can drift from the backend's parser.
   // Resolves to the proof as the backend returned it, or to the reason it was refused.
+  // In a logic with states (modal) the premises are in the initial state (see `premiseParameters`).
   const checkNewProof = (premises: string[], goal: string, proofLogic: string) => new Promise<{ proof: ProofDto } | { error: string }>((resolve) => {
     const steps: StepDto[] = premises.map((premise) => ({
       expression: premise.trim(),
       rule: 'Ass',
       assmsLevel: 0,
-      extraParameters: {},
+      extraParameters: premiseParameters(premise, proofLogic),
     }));
     replayProof(proofLogic, { steps: steps, logic: proofLogic, goal: goal }, (result) => resolve(result.proof
       ? { proof: result.proof }

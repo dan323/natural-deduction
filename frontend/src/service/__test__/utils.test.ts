@@ -1,4 +1,4 @@
-import { checkFormula, loadedGoal, loadsBackWithSameGoal, proofToText, renderExpression, renderRule } from '../utils';
+import { checkFormula, isRelationFormula, loadedGoal, loadsBackWithSameGoal, proofToText, renderExpression, renderRule } from '../utils';
 
 describe('renderExpression', () => {
   test('renders logical operators', () => {
@@ -124,6 +124,39 @@ describe('proofToText', () => {
     });
 
     expect(text).toBe('P           Ass');
+  });
+
+  test('a modal step starts with its state, before the indent, as ProofStepModal.toString() prints it; a relation has none', () => {
+    const text = proofToText({
+      steps: [
+        { expression: '[] p', rule: 'Ass', assmsLevel: 0, extraParameters: { state: 's0' } },
+        { expression: 's0 <= s1', rule: 'Ass', assmsLevel: 0, extraParameters: {} },
+        { expression: 'q', rule: 'Ass', assmsLevel: 1, extraParameters: { state: 's2' } },
+        { expression: 'p', rule: '[]E [1, 2]', assmsLevel: 0, extraParameters: { state: 's1' } },
+      ],
+      logic: 'modal',
+      goal: 'p',
+    });
+
+    // The layout `ModalProofParser.parseLine` reads: the state, ": ", then the line of any other logic.
+    expect(text.split('\n')).toEqual([
+      's0: [] p           Ass',
+      's0 <= s1           Ass',
+      's2:    q           Ass',
+      's1: p           []E [1, 2]',
+    ]);
+  });
+});
+
+describe('isRelationFormula', () => {
+  test('a relation between states is one', () => {
+    expect(isRelationFormula('s0 <= s1')).toBe(true);
+    expect(isRelationFormula('s0 = s1')).toBe(true);
+  });
+
+  test('a formula that holds in a state is not', () => {
+    expect(isRelationFormula('[]p -> <>q')).toBe(false);
+    expect(isRelationFormula('-(p & q) | r')).toBe(false);
   });
 });
 

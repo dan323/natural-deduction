@@ -86,11 +86,25 @@ const RULE_GAP = ' '.repeat(11);
 // Renders a proof as the text `POST /logic/{logic}/proof` accepts, one step per line. The expressions and rules are
 // written as the backend sent them (ASCII `->`, `&`, ...), not as the proof table renders them, so that the text parses.
 // They are trimmed: until the backend first answers, the premises are as the user typed them, and a leading space would
-// read back as an indent.
+// read back as an indent. A step in a state (modal logic, see `hasStates`) starts with that state, before the indent, as
+// `ProofStepModal.toString()` prints it and `ModalProofParser.parseLine` reads it: `s1:    p           []E [1, 2]`. A
+// relation between states (`s0 <= s1`) is in no state and has no prefix.
 export function proofToText(proof: ProofDto): string {
   return proof.steps
-    .map((step) => INDENT.repeat(step.assmsLevel) + step.expression.trim() + RULE_GAP + step.rule.trim())
+    .map((step) => statePrefix(step) + INDENT.repeat(step.assmsLevel) + step.expression.trim() + RULE_GAP + step.rule.trim())
     .join('\n');
+}
+
+function statePrefix(step: StepDto): string {
+  const state = step.extraParameters?.state?.trim();
+  return state ? `${state}: ` : '';
+}
+
+// Whether a formula of a logic with states is a relation between states (`s0 <= s1`, `s0 = s1`) rather than a formula
+// that holds in a state. Only the relations contain "=" (no connective does, and "<>" is not "<="), and the backend's
+// parser rejects any other use of it, so this needs no parsing.
+export function isRelationFormula(formula: string): boolean {
+  return formula.includes('=');
 }
 
 // The goal a proof text reads back with: `POST .../proof` takes the last line as the goal. Null for an empty proof.

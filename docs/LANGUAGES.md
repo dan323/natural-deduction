@@ -184,7 +184,12 @@ Formula ::= Classical | □Formula | ◇Formula | (Formula ∧ Formula) | ...
 ```
 
 **States** (worlds): every step of a modal proof carries a state, e.g. `s0`, sent as `extraParameters.state` in the
-API. Formulas relate states with `<=` and `=` (`LessEqual`, `Equals`). The model also has an `Until` operator, but
+API. Formulas relate states with `<=` and `=` (`LessEqual`, `Equals`); a step that is such a relation is in no state and
+has empty `extraParameters`. A proof starts in `s0`: a premise (a leading top-level `Ass`) that is not a relation must
+say `{"state": "s0"}`, or the proof is a `400` ("the assumptions are not in a valid state"); a relation premise such as
+`s0 <= s1` needs no state. In the proof-file layout a step in a state starts with it, before the indent
+(`s1:    p           []E [1, 2]`); a relation line has no prefix. The UI sends its premises this way and shows each
+step's state in a State column. The model also has an `Until` operator, but
 `ModalLogicParser` does not parse it, so it cannot be sent through the proof and action API.
 
 ### Examples
