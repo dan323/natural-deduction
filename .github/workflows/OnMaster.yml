@@ -103,6 +103,7 @@ jobs:
             exit 1
           fi
           curl --connect-timeout 2 --max-time 5 -fsS http://localhost:8080/logic/modal/actions > /dev/null
+          curl --connect-timeout 2 --max-time 5 -fsS http://localhost:8080/logic/modal-next-until/actions > /dev/null
           curl --connect-timeout 2 --max-time 5 -fsS http://localhost:8080/logic/intuitionistic/actions > /dev/null
           curl --connect-timeout 2 --max-time 5 -fsS http://localhost:8080/ | grep -q 'id="root"'
           docker exec nd-smoke id -u | grep -qv '^0$'
