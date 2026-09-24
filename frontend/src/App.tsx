@@ -6,7 +6,7 @@ import Menu, { MenuHandle } from './components/menu/Menu';
 import NewProofModal from './components/modal/NewProofModal';
 import { StepDto, ProofDto } from './types';
 import { LOGIC } from './constant';
-import { loadProofFromText, undoLastStep } from './service/actions';
+import { loadProofFromText, replayProof, undoLastStep } from './service/actions';
 import { proofToText } from './service/utils';
 
 // The steps counted as the proof's premises: a leading run of `Ass` steps at assumption level 0, the shape
@@ -59,9 +59,12 @@ function App() {
   // the one on screen, since it is out of date as soon as the proof changes.
   const [copyResult, setCopyResult] = useState<{ proof: ProofDto, text: string, copied: boolean } | null>(null);
   const currentCopy = copyResult?.proof === proof ? copyResult : null;
-  // Bumped whenever the New Proof dialog closes, so that a "Load from text" answer arriving after the user cancelled
-  // the dialog is dropped instead of replacing the proof on screen.
+  // Bumped whenever the New Proof dialog closes, so that a "Load from text" or Start Proof answer arriving after the
+  // user cancelled the dialog is dropped instead of replacing the proof on screen.
   const dialogSessionRef = useRef(0);
+  // "Try an example": whether its proof is being checked by the backend, and why it could not be started.
+  const [isStartingExample, setIsStartingExample] = useState(false);
+  const [exampleError, setExampleError] = useState('');
 
   const onColorChange = useCallback((color: string, line: number) => {
     setColorMapping(colorMapping => {
@@ -131,20 +134,49 @@ function App() {
     setProofId(proofIdRef.current);
   };
 
-  const handleNewProofSubmit = (premises: string[], goal: string) => {
+  // Has the backend check a proof of only its premises and goal (see `replayProof`, the path Undo uses: it parses the
+  // goal and every step), since `checkFormula` is only an instant check that can drift from the backend's parser.
+  // Resolves to the proof as the backend returned it, or to the reason it was refused.
+  const checkNewProof = (premises: string[], goal: string) => new Promise<{ proof: ProofDto } | { error: string }>((resolve) => {
     const steps: StepDto[] = premises.map((premise) => ({
       expression: premise.trim(),
       rule: 'Ass',
       assmsLevel: 0,
       extraParameters: {},
     }));
-    showNewProof({ steps: steps, logic: LOGIC, goal: goal });
+    replayProof(LOGIC, { steps: steps, logic: LOGIC, goal: goal }, (result) => resolve(result.proof
+      ? { proof: result.proof }
+      : { error: result.message || 'Could not start the proof.' }));
+  });
+
+  // Start Proof in the New Proof dialog: the proof is only shown once the backend accepted it, and a refusal keeps the
+  // dialog open with the reason. An answer arriving after the dialog was closed is dropped.
+  const handleNewProofSubmit = async (premises: string[], goal: string): Promise<string | null> => {
+    const session = dialogSessionRef.current;
+    const checked = await checkNewProof(premises, goal);
+    if (dialogSessionRef.current !== session) return null;
+    if ('error' in checked) return checked.error;
+    showNewProof(checked.proof);
+    return null;
   };
 
-  // Starts the example exactly as if its premises and goal had been typed in the New Proof dialog. The button goes
-  // away with the empty state, so hand the focus to a control that stays on the page, as `handleUndo` does.
-  const handleTryExample = () => {
-    handleNewProofSubmit(EXAMPLE_PREMISES, EXAMPLE_GOAL);
+  // Starts the example exactly as if its premises and goal had been typed in the New Proof dialog, through the same
+  // backend check. The button goes away with the empty state, so hand the focus to a control that stays on the page,
+  // as `handleUndo` does. An answer arriving after another proof was started (the dialog can be opened meanwhile) is
+  // dropped.
+  const handleTryExample = async () => {
+    if (isStartingExample) return;
+    setExampleError('');
+    setIsStartingExample(true);
+    const requestedProofId = proofIdRef.current;
+    const checked = await checkNewProof(EXAMPLE_PREMISES, EXAMPLE_GOAL);
+    setIsStartingExample(false);
+    if (proofIdRef.current !== requestedProofId) return;
+    if ('error' in checked) {
+      setExampleError(checked.error);
+      return;
+    }
+    showNewProof(checked.proof);
     newProofButtonRef.current?.focus();
   };
 
@@ -282,9 +314,10 @@ function App() {
                 <li>Pick an inference rule.</li>
                 <li>Enter the line numbers the rule uses, and apply it.</li>
               </ol>
-              <button className="try-example-btn" onClick={handleTryExample}>
-                Try an example
+              <button className="try-example-btn" onClick={handleTryExample} disabled={isStartingExample}>
+                {isStartingExample ? 'Starting the example…' : 'Try an example'}
               </button>
+              {exampleError && <p className="try-example-error" role="alert">{exampleError}</p>}
               <p className="try-example-desc">
                 Premises <code>{EXAMPLE_PREMISES.join(', ')}</code>, goal <code>{EXAMPLE_GOAL}</code>.
               </p>

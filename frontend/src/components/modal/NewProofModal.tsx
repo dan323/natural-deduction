@@ -10,7 +10,10 @@ type NewProofModalProps = {
   // inert; when it is left out the element that has the focus as the dialog opens is used.
   opener?: HTMLElement | null;
   onClose: () => void;
-  onSubmit: (premises: string[], goal: string) => void;
+  // Starts a proof from the premises and the goal, once they pass `checkFormula`. Resolves to null once the proof is
+  // shown, or to the reason it could not be started (the backend has the last word on what is a formula), which the
+  // dialog shows while it stays open.
+  onSubmit: (premises: string[], goal: string) => Promise<string | null>;
   // Loads a proof from its text (the layout "Copy proof as text" writes) and its goal. Resolves to null once the
   // proof is loaded, or to the reason it could not be. The dialog only offers loading from text when this is given.
   onLoadText?: (text: string, goal: string) => Promise<string | null>;
@@ -61,10 +64,14 @@ const NewProofModal: FC<NewProofModalProps> = ({ isOpen, opener: openerProp, onC
   const [loadError, setLoadError] = useState<string | null>(null);
   const [textGoalError, setTextGoalError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  // Start Proof: why the backend refused the premises and the goal, and whether a request is in flight.
+  const [submitError, setSubmitError] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const submitRef = useRef<HTMLButtonElement>(null);
   const proofTextRef = useRef<HTMLTextAreaElement>(null);
   const textGoalRef = useRef<HTMLInputElement>(null);
-  // Bumped by every load and every close, so that the answer to a load the user walked away from (by closing the
-  // dialog, maybe opening it again since) neither closes the dialog nor touches its state.
+  // Bumped by every load, every Start Proof and every close, so that the answer to a request the user walked away from
+  // (by closing the dialog, maybe opening it again since) neither closes the dialog nor touches its state.
   const loadAttempt = useRef(0);
 
   // A dialog that was closed opens empty the next time.
@@ -79,6 +86,8 @@ const NewProofModal: FC<NewProofModalProps> = ({ isOpen, opener: openerProp, onC
     setLoadError(null);
     setTextGoalError(null);
     setIsLoading(false);
+    setSubmitError(null);
+    setIsSubmitting(false);
   }, [isOpen]);
 
   useEffect(() => {
@@ -119,6 +128,12 @@ const NewProofModal: FC<NewProofModalProps> = ({ isOpen, opener: openerProp, onC
     };
   }, [isOpen]);
 
+  // A refused Start Proof hands the focus to the button its error describes, once the button is enabled again (a
+  // disabled button cannot take the focus).
+  useEffect(() => {
+    if (submitError !== null) submitRef.current?.focus();
+  }, [submitError]);
+
   const handleAddPremise = () => setPremises([...premises, newPremise()]);
   const handleRemovePremise = (index: number) => {
     if (premises.length === 1) return;
@@ -128,10 +143,12 @@ const NewProofModal: FC<NewProofModalProps> = ({ isOpen, opener: openerProp, onC
   };
   const handlePremiseChange = (index: number, text: string) => {
     setPremises(premises.map((premise, i) => (i === index ? { ...premise, text, error: null } : premise)));
+    setSubmitError(null);
   };
   const handleGoalChange = (value: string) => {
     setGoal(value);
     setGoalError(null);
+    setSubmitError(null);
   };
 
   const handleTextGoalChange = (value: string) => {
@@ -140,7 +157,8 @@ const NewProofModal: FC<NewProofModalProps> = ({ isOpen, opener: openerProp, onC
     setTextGoalError(null);
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
+    if (isSubmitting || isLoading) return;
     // A blank premise is just an unused row and is left out; everything else has to look like a formula.
     const checked = premises.map((premise) => (
       { ...premise, error: premise.text.trim() === '' ? null : checkFormula(premise.text) }
@@ -153,11 +171,22 @@ const NewProofModal: FC<NewProofModalProps> = ({ isOpen, opener: openerProp, onC
       (firstInvalid >= 0 ? premiseRefs.current[firstInvalid] : goalRef.current)?.focus();
       return;
     }
-    onSubmit(premises.map((premise) => premise.text.trim()).filter((text) => text !== ''), goal.trim());
-    onClose();
+    // `checkFormula` is only the instant check; the backend parses every formula again and may still refuse one.
+    const attempt = ++loadAttempt.current;
+    setIsSubmitting(true);
+    setSubmitError(null);
+    const error = await onSubmit(premises.map((premise) => premise.text.trim()).filter((text) => text !== ''), goal.trim());
+    if (loadAttempt.current !== attempt) return;
+    setIsSubmitting(false);
+    if (error === null) {
+      onClose();
+    } else {
+      setSubmitError(error);
+    }
   };
 
-  const canLoad = proofText.trim() !== '' && textGoal.trim() !== '' && !isLoading;
+  // Start Proof and Load proof share `loadAttempt`, so only one of them runs at a time.
+  const canLoad = proofText.trim() !== '' && textGoal.trim() !== '' && !isLoading && !isSubmitting;
   const handleLoad = async () => {
     if (!onLoadText || !canLoad) return;
     // A malformed goal would only come back as a generic "could not read the proof" error, so it is caught here.
@@ -307,14 +336,18 @@ const NewProofModal: FC<NewProofModalProps> = ({ isOpen, opener: openerProp, onC
         {goal.trim() === '' && (
           <p id="new-proof-submit-hint" className="modal-hint">Enter the goal to start the proof.</p>
         )}
+        {submitError && (
+          <p id="new-proof-submit-error" className="modal-error" role="alert">{submitError}</p>
+        )}
         <div className="modal-footer">
           <button
+            ref={submitRef}
             className="submit-btn"
             onClick={handleSubmit}
-            disabled={goal.trim() === ''}
-            aria-describedby={goal.trim() === '' ? 'new-proof-submit-hint' : undefined}
+            disabled={goal.trim() === '' || isSubmitting || isLoading}
+            aria-describedby={goal.trim() === '' ? 'new-proof-submit-hint' : submitError ? 'new-proof-submit-error' : undefined}
           >
-            Start Proof
+            {isSubmitting ? 'Starting…' : 'Start Proof'}
           </button>
           <button className="close-btn" onClick={onClose}>
             Cancel

@@ -104,8 +104,10 @@
   background-color: #f0f0f0;
 }
 
-/* Undo failure, e.g. a network error; same treatment as Menu's own inline error. */
-.undo-error {
+/* Undo failure, e.g. a network error; same treatment as Menu's own inline error. "Try an example" refused by the
+   backend looks the same. */
+.undo-error,
+.try-example-error {
   margin: 0 24px 12px;
   padding: 8px 12px;
   color: #c0392b;
@@ -204,8 +206,17 @@
   transition: background-color 0.2s;
 }
 
-.try-example-btn:hover {
+.try-example-btn:hover:not(:disabled) {
   background-color: #e7f1ff;
+}
+
+.try-example-btn:disabled {
+  cursor: wait;
+  opacity: 0.7;
+}
+
+.try-example-error {
+  margin: 12px 0 0;
 }
 
 .try-example-desc {

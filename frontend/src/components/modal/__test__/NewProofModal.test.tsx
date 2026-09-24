@@ -5,7 +5,8 @@ import NewProofModal from '../NewProofModal';
 
 describe('NewProofModal Component', () => {
   const onCloseMock = jest.fn();
-  const onSubmitMock = jest.fn();
+  // The caller accepts every proof.
+  const onSubmitMock = jest.fn().mockResolvedValue(null);
 
   const setup = (isOpen: boolean) => {
     return render(
@@ -54,7 +55,7 @@ describe('NewProofModal Component', () => {
     expect((getByPlaceholderText('Enter the goal expression') as HTMLInputElement).value).toBe('Goal');
   });
 
-  test('submits correct data and closes modal', () => {
+  test('submits correct data and closes modal', async () => {
     const { getByText, getByPlaceholderText } = setup(true);
 
     fireEvent.change(getByPlaceholderText('Premise 1'), { target: { value: 'P -> Q' } });
@@ -63,7 +64,7 @@ describe('NewProofModal Component', () => {
     fireEvent.click(getByText('Start Proof'));
 
     expect(onSubmitMock).toHaveBeenCalledWith(['P -> Q'], 'Q');
-    expect(onCloseMock).toHaveBeenCalled();
+    await waitFor(() => expect(onCloseMock).toHaveBeenCalled());
   });
 
   test('closes modal without submitting when close button is clicked', () => {
@@ -204,7 +205,7 @@ describe('NewProofModal validation', () => {
 
   const setup = async () => {
     const onClose = jest.fn();
-    const onSubmit = jest.fn();
+    const onSubmit = jest.fn().mockResolvedValue(null);
     const user = userEvent.setup();
     render(<NewProofModal isOpen={true} onClose={onClose} onSubmit={onSubmit} />);
     // The modal moves focus to the first premise shortly after opening; let that settle before typing elsewhere.
@@ -289,7 +290,7 @@ describe('NewProofModal validation', () => {
 
     expect(screen.queryByRole('alert')).not.toBeInTheDocument();
     expect(onSubmit).toHaveBeenCalledWith(['P & Q'], 'Q');
-    expect(onClose).toHaveBeenCalled();
+    await waitFor(() => expect(onClose).toHaveBeenCalled());
   });
 
   test('a goal of only spaces is not accepted', async () => {
@@ -313,6 +314,59 @@ describe('NewProofModal validation', () => {
     await user.click(startButton());
 
     expect(onSubmit).toHaveBeenCalledWith([], 'p -> q');
+  });
+
+  test('a proof the caller refuses keeps the modal open with the reason, until a field is edited', async () => {
+    const { onClose, onSubmit, user } = await setup();
+    onSubmit.mockResolvedValue('The proof could not be read, check its expressions and rules');
+    await user.type(screen.getByLabelText('Premise 1'), 'P');
+    await user.type(screen.getByLabelText('Goal:'), 'Q');
+
+    await user.click(startButton());
+
+    expect(await screen.findByRole('alert')).toHaveTextContent('The proof could not be read, check its expressions and rules');
+    expect(onClose).not.toHaveBeenCalled();
+    await waitFor(() => expect(startButton()).toHaveFocus());
+    expect(startButton()).toHaveAccessibleDescription('The proof could not be read, check its expressions and rules');
+
+    await user.type(screen.getByLabelText('Goal:'), ' & P');
+
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+  });
+
+  test('Start Proof is disabled while the caller checks the proof', async () => {
+    const { onClose, onSubmit, user } = await setup();
+    let answer: (error: string | null) => void = () => {};
+    onSubmit.mockReturnValue(new Promise<string | null>((resolve) => { answer = resolve; }));
+    await user.type(screen.getByLabelText('Goal:'), 'Q');
+
+    await user.click(startButton());
+
+    const starting = screen.getByRole('button', { name: 'Starting…' });
+    expect(starting).toBeDisabled();
+    await user.click(starting);
+    expect(onSubmit).toHaveBeenCalledTimes(1);
+
+    await act(async () => answer(null));
+    expect(onClose).toHaveBeenCalledTimes(1);
+  });
+
+  test('an answer arriving after the modal was closed neither closes it again nor shows an error', async () => {
+    let answer: (error: string | null) => void = () => {};
+    const onSubmit = jest.fn().mockReturnValue(new Promise<string | null>((resolve) => { answer = resolve; }));
+    const onClose = jest.fn();
+    const user = userEvent.setup();
+    const { rerender } = render(<NewProofModal isOpen={true} onClose={onClose} onSubmit={onSubmit} />);
+    await user.type(screen.getByLabelText('Goal:'), 'Q');
+    await user.click(startButton());
+
+    rerender(<NewProofModal isOpen={false} onClose={onClose} onSubmit={onSubmit} />);
+    rerender(<NewProofModal isOpen={true} onClose={onClose} onSubmit={onSubmit} />);
+    await act(async () => answer('too late'));
+
+    expect(onClose).not.toHaveBeenCalled();
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+    expect(startButton()).toBeDisabled(); // the reopened dialog is empty again, not "Starting…"
   });
 });
 

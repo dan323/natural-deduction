@@ -107,8 +107,9 @@ export async function undoLastStep(logic: string, proof: ProofDto, consumer: (re
 
 // Has the backend replay a proof without changing it, through the out-of-range `COPY` described above. The answer
 // carries the proof and its `done` verdict when the proof is valid (with `success: false`, as for any action that does
-// not apply), or no proof and the reason when it is not.
-async function replayProof(logic: string, proof: ProofDto, consumer: (result: ApplyActionResponse) => void): Promise<void> {
+// not apply), or no proof and the reason when it is not. The replay parses the goal and every step, so it is also how a
+// new proof's premises and goal are checked before the proof is shown (see `App.handleNewProofSubmit`).
+export async function replayProof(logic: string, proof: ProofDto, consumer: (result: ApplyActionResponse) => void): Promise<void> {
     // One past the end of the proof: always out of range, however many steps it has.
     const noOpAction: ActionDto = { name: 'COPY', sources: [proof.steps.length + 1], extraParameters: {} };
     await applyAction(logic, proof, noOpAction, consumer);

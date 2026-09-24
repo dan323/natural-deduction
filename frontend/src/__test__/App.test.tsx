@@ -21,16 +21,36 @@ describe('App', () => {
 
   const actionRequests = () => fetchMock.mock.calls.filter(([url]) => String(url).endsWith('/actions'));
   const applyRequests = () => fetchMock.mock.calls.filter(([url]) => String(url).endsWith('/action'));
+  // A replay is the out-of-range COPY (see `replayProof`) that New Proof, "Try an example" and Undo send.
+  const isReplay = (init?: RequestInit) => JSON.parse(String(init?.body)).actionDto?.name === 'COPY';
+  const replayRequests = () => applyRequests().filter(([, init]) => isReplay(init));
+  // The requests that apply a rule, leaving out the replays.
+  const ruleRequests = () => applyRequests().filter(([, init]) => !isReplay(init));
 
-  // The backend: the list of actions, and one answer to every other request (apply or solve).
-  const mockBackend = (actions: ActionDescriptor[], status: number, body: unknown) => {
-    fetchMock.mockImplementation(async (url: string) =>
-      url.endsWith('/actions') ? jsonResponse(200, actions) : jsonResponse(status, body));
+  // The backend's answer to a replay: the proof unchanged. With `judgeDone` it is done when a top-level step is its goal,
+  // as the domain's `Proof.isDone()` decides; without it, it is never done, so that a proof like P |- P, which the
+  // domain counts as done from the start, still takes a rule in the tests about applying rules.
+  const replayAnswer = (init?: RequestInit, judgeDone = false) => {
+    const { proofDto } = JSON.parse(String(init!.body));
+    const done = judgeDone && proofDto.steps.some((step: { assmsLevel: number, expression: string }) =>
+      step.assmsLevel === 0 && step.expression === proofDto.goal);
+    return jsonResponse(202, { proof: proofDto, success: false, done, message: 'out of range' });
   };
 
-  // Opens the New Proof dialog and starts a proof with one premise. Confirms discarding the current proof first,
-  // when there is one with more than its premises (the dedicated tests for that confirmation exercise it directly).
-  const startProof = async (user: ReturnType<typeof userEvent.setup>, premise: string, goal: string) => {
+  // The backend: the list of actions, a replay that accepts the proof as it is (see `replayAnswer`), and one answer to
+  // every other request (apply or solve).
+  const mockBackend = (actions: ActionDescriptor[], status: number, body: unknown, judgeDone = false) => {
+    fetchMock.mockImplementation(async (url: string, init?: RequestInit) => {
+      if (url.endsWith('/actions')) return jsonResponse(200, actions);
+      if (url.endsWith('/action') && isReplay(init)) return replayAnswer(init, judgeDone);
+      return jsonResponse(status, body);
+    });
+  };
+
+  // Opens the New Proof dialog, fills in one premise and the goal, and clicks Start Proof. Confirms discarding the
+  // current proof first, when there is one with more than its premises (the dedicated tests for that confirmation
+  // exercise it directly).
+  const submitNewProof = async (user: ReturnType<typeof userEvent.setup>, premise: string, goal: string) => {
     await user.click(screen.getByRole('button', { name: /Start a new proof/i }));
     const confirm = screen.queryByRole('button', { name: 'Discard and start new' });
     if (confirm) await user.click(confirm);
@@ -38,6 +58,15 @@ describe('App', () => {
     await user.type(screen.getByPlaceholderText('Premise 1'), premise);
     await user.type(screen.getByPlaceholderText('Enter the goal expression'), goal);
     await user.click(screen.getByText('Start Proof'));
+  };
+
+  // The dialog closes once the backend has accepted the new proof.
+  const dialogClosed = () => waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
+
+  // Starts a proof with one premise, and waits for the backend to accept it.
+  const startProof = async (user: ReturnType<typeof userEvent.setup>, premise: string, goal: string) => {
+    await submitNewProof(user, premise, goal);
+    await dialogClosed();
   };
 
   // Renders the app, starts the proof P |- P and selects the Rep rule.
@@ -105,7 +134,7 @@ describe('App', () => {
     expect(applyButton()).toBeDisabled();
     await user.click(applyButton());
 
-    expect(applyRequests()).toHaveLength(0);
+    expect(ruleRequests()).toHaveLength(0);
     expect(screen.queryByText(/does not exist/)).not.toBeInTheDocument();
   });
 
@@ -117,7 +146,7 @@ describe('App', () => {
     await user.click(applyButton());
 
     await waitFor(() => expect(screen.getByLabelText(/Line number:/i)).toHaveValue(''));
-    const [, init] = applyRequests()[0];
+    const [, init] = ruleRequests()[0];
     expect(JSON.parse(init.body).actionDto).toEqual({ name: 'Rep', sources: [1], extraParameters: { expression: '' } });
     expect(screen.getByLabelText(/Select Inference Rule:/i)).toHaveValue('Rep');
     expect(applyButton()).toBeDisabled();
@@ -128,12 +157,107 @@ describe('App', () => {
     const user = userEvent.setup();
     render(<App />);
 
-    await startProof(user, 'p ->', 'q &&');
+    await submitNewProof(user, 'p ->', 'q &&');
 
     expect(screen.getByRole('dialog')).toBeInTheDocument();
     expect(screen.getAllByRole('alert')).toHaveLength(2);
     expect(screen.getByText(/No proof loaded/)).toBeInTheDocument();
     expect(screen.queryByText('p ->')).not.toBeInTheDocument();
+    expect(applyRequests()).toHaveLength(0);
+  });
+
+  describe('the backend checks a new proof before it is shown', () => {
+    test('a formula checkFormula accepts but the backend rejects keeps the dialog open with its message', async () => {
+      fetchMock.mockImplementation(async (url: string) => url.endsWith('/actions')
+        ? jsonResponse(200, [])
+        : jsonResponse(400, { message: 'The proof could not be read, check its expressions and rules' }));
+      const user = userEvent.setup();
+      render(<App />);
+
+      await submitNewProof(user, 'P', 'Q');
+
+      expect(await screen.findByRole('alert')).toHaveTextContent('The proof could not be read, check its expressions and rules');
+      expect(screen.getByRole('dialog')).toBeInTheDocument();
+      await waitFor(() => expect(screen.getByRole('button', { name: 'Start Proof' })).toHaveFocus());
+      expect(screen.getByText(/No proof loaded/)).toBeInTheDocument();
+      // The premises-only proof went through the replay, the path Undo uses.
+      const [[, init]] = applyRequests();
+      expect(JSON.parse(init.body)).toEqual({
+        actionDto: { name: 'COPY', sources: [2], extraParameters: {} },
+        proofDto: {
+          steps: [{ expression: 'P', rule: 'Ass', assmsLevel: 0, extraParameters: {} }],
+          logic: 'classical',
+          goal: 'Q',
+        },
+      });
+    });
+
+    test('an accepted proof is the one the backend returned, with its done verdict', async () => {
+      // The backend writes the formulas in its own way, and a premise that is the goal already proves it.
+      fetchMock.mockImplementation(async (url: string) => url.endsWith('/actions')
+        ? jsonResponse(200, [])
+        : jsonResponse(202, {
+          proof: {
+            steps: [{ expression: 'p -> q', rule: 'Ass', assmsLevel: 0, extraParameters: {} }],
+            logic: 'classical',
+            goal: 'p -> q',
+          },
+          success: false,
+          done: true,
+          message: 'Line 2 does not exist, the proof has 1 lines',
+        }));
+      const user = userEvent.setup();
+      render(<App />);
+
+      await startProof(user, 'p->q', 'p->q');
+
+      expect(screen.getByRole('status')).toHaveTextContent('Proof complete.');
+      await user.click(screen.getByRole('button', { name: 'Copy proof as text' }));
+      await screen.findByText(/Proof copied to the clipboard as text/);
+      expect(await navigator.clipboard.readText()).toBe('p -> q           Ass');
+    });
+
+    test('a late answer after Cancel is ignored', async () => {
+      let answer: (response: Response) => void = () => {};
+      fetchMock.mockImplementation(async (url: string) => url.endsWith('/actions')
+        ? jsonResponse(200, [])
+        : new Promise<Response>((resolve) => { answer = resolve; }));
+      const user = userEvent.setup();
+      render(<App />);
+
+      await submitNewProof(user, 'P', 'P');
+      expect(await screen.findByRole('button', { name: 'Starting…' })).toBeDisabled();
+      await user.click(screen.getByRole('button', { name: 'Cancel' }));
+      expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+
+      answer(jsonResponse(202, {
+        proof: { steps: [{ expression: 'P', rule: 'Ass', assmsLevel: 0, extraParameters: {} }], logic: 'classical', goal: 'P' },
+        success: false,
+        done: true,
+        message: 'Line 2 does not exist, the proof has 1 lines',
+      }));
+
+      // Give the answer every chance to land: it must not replace the empty state.
+      await new Promise((resolve) => setTimeout(resolve, 0));
+      await new Promise((resolve) => setTimeout(resolve, 0));
+      expect(screen.getByText(/No proof loaded/)).toBeInTheDocument();
+      expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+      expect(screen.queryByRole('row')).not.toBeInTheDocument();
+    });
+
+    test('"Try an example" the backend cannot check stays on the empty state with the reason', async () => {
+      fetchMock.mockImplementation(async (url: string) => url.endsWith('/actions')
+        ? jsonResponse(200, [])
+        : Promise.reject(new Error('offline')));
+      const user = userEvent.setup();
+      render(<App />);
+
+      await user.click(screen.getByRole('button', { name: 'Try an example' }));
+
+      expect(await screen.findByRole('alert')).toHaveTextContent(/network error/i);
+      expect(screen.getByText(/No proof loaded/)).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Try an example' })).toBeEnabled();
+    });
   });
 
   test('while the New Proof dialog is open the page behind it is inert, and closing it gives the focus back', async () => {
@@ -216,7 +340,7 @@ describe('App', () => {
     screen.getByRole('button', { name: 'Try an example' }).focus();
     await user.keyboard('{Enter}');
 
-    expect(screen.queryByRole('button', { name: 'Try an example' })).not.toBeInTheDocument();
+    await waitFor(() => expect(screen.queryByRole('button', { name: /Try an example/ })).not.toBeInTheDocument());
     expect(screen.getByRole('button', { name: /Start a new proof/i })).toHaveFocus();
   });
 
@@ -229,24 +353,28 @@ describe('App', () => {
     await user.click(screen.getByRole('button', { name: 'Try an example' }));
 
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
-    expect(screen.queryByText(/No proof loaded/)).not.toBeInTheDocument();
-    expect(screen.queryByRole('button', { name: 'Try an example' })).not.toBeInTheDocument();
+    await waitFor(() => expect(screen.queryByText(/No proof loaded/)).not.toBeInTheDocument());
+    expect(screen.queryByRole('button', { name: /Try an example/ })).not.toBeInTheDocument();
     await user.selectOptions(await screen.findByLabelText(/Select Inference Rule:/i), 'MP');
     const [first, second] = screen.getAllByLabelText(/Line number:/i);
     await user.type(first, '1');
     await user.type(second, '2');
     await user.click(applyButton());
 
-    await waitFor(() => expect(applyRequests()).toHaveLength(1));
-    const exampleProof = JSON.parse(applyRequests()[0][1].body).proofDto;
-    expect(exampleProof).toEqual({
+    await waitFor(() => expect(ruleRequests()).toHaveLength(1));
+    const exampleProof = JSON.parse(ruleRequests()[0][1].body).proofDto;
+    const examplePremises = {
       steps: [
         { expression: 'p -> q', rule: 'Ass', assmsLevel: 0, extraParameters: {} },
         { expression: 'p', rule: 'Ass', assmsLevel: 0, extraParameters: {} },
       ],
       logic: 'classical',
       goal: 'q',
-    });
+    };
+    // The backend checked the example before it was shown, through the same replay as a typed proof, and the proof
+    // shown is the one it answered with, its verdict included.
+    expect(JSON.parse(replayRequests()[0][1].body).proofDto).toEqual(examplePremises);
+    expect(exampleProof).toEqual({ ...examplePremises, done: false });
 
     // The same premises and goal typed in the New Proof dialog give the very same proof.
     await user.click(screen.getByRole('button', { name: /Start a new proof/i }));
@@ -256,14 +384,16 @@ describe('App', () => {
     await user.type(screen.getByPlaceholderText('Premise 2'), 'p');
     await user.type(screen.getByPlaceholderText('Enter the goal expression'), 'q');
     await user.click(screen.getByText('Start Proof'));
+    await dialogClosed();
     await user.selectOptions(await screen.findByLabelText(/Select Inference Rule:/i), 'MP');
     const [again1, again2] = screen.getAllByLabelText(/Line number:/i);
     await user.type(again1, '1');
     await user.type(again2, '2');
     await user.click(applyButton());
 
-    await waitFor(() => expect(applyRequests()).toHaveLength(2));
-    expect(JSON.parse(applyRequests()[1][1].body).proofDto).toEqual(exampleProof);
+    await waitFor(() => expect(ruleRequests()).toHaveLength(2));
+    expect(JSON.parse(ruleRequests()[1][1].body).proofDto).toEqual(exampleProof);
+    expect(JSON.parse(replayRequests()[1][1].body).proofDto).toEqual(examplePremises);
   });
 
   test('the Solve button sends the proof to the solver and shows the solved proof', async () => {
@@ -312,6 +442,7 @@ describe('App', () => {
       await user.type(screen.getByPlaceholderText('Premise 2'), 'P -> Q');
       await user.type(screen.getByPlaceholderText('Enter the goal expression'), 'Q');
       await user.click(screen.getByText('Start Proof'));
+      await dialogClosed();
       await user.selectOptions(await screen.findByLabelText(/Select Inference Rule:/i), 'MP');
       return user;
     };
@@ -334,8 +465,8 @@ describe('App', () => {
       expect(stepRow(1)).toHaveClass('glow');
 
       await user.click(applyButton());
-      await waitFor(() => expect(applyRequests()).toHaveLength(1));
-      expect(JSON.parse(applyRequests()[0][1].body).actionDto.sources).toEqual([1, 2]);
+      await waitFor(() => expect(ruleRequests()).toHaveLength(1));
+      expect(JSON.parse(ruleRequests()[0][1].body).actionDto.sources).toEqual([1, 2]);
     });
 
     test('Enter and Space on a focused row fill the inputs too', async () => {
@@ -409,6 +540,7 @@ describe('App', () => {
       await user.type(screen.getByPlaceholderText('Premise 1'), 'Q');
       await user.type(screen.getByPlaceholderText('Enter the goal expression'), 'Q');
       await user.click(screen.getByText('Start Proof'));
+      await dialogClosed();
 
       expect(await screen.findByLabelText(/Select Inference Rule:/i)).toBeEnabled();
       expect(screen.queryByText('Proof complete.')).not.toBeInTheDocument();
@@ -445,7 +577,7 @@ describe('App', () => {
       const user = await startWithRep();
       await user.type(screen.getByLabelText(/Line number:/i), '1');
       await user.click(applyButton());
-      await waitFor(() => expect(applyRequests()).toHaveLength(1));
+      await waitFor(() => expect(ruleRequests()).toHaveLength(1));
 
       const opener = screen.getByRole('button', { name: /Start a new proof/i });
       await user.click(opener);
@@ -468,7 +600,7 @@ describe('App', () => {
       const user = await startWithRep();
       await user.type(screen.getByLabelText(/Line number:/i), '1');
       await user.click(applyButton());
-      await waitFor(() => expect(applyRequests()).toHaveLength(1));
+      await waitFor(() => expect(ruleRequests()).toHaveLength(1));
 
       await user.click(screen.getByRole('button', { name: /Start a new proof/i }));
       expect(screen.getByRole('alertdialog')).toBeInTheDocument();
@@ -484,7 +616,7 @@ describe('App', () => {
       const user = await startWithRep();
       await user.type(screen.getByLabelText(/Line number:/i), '1');
       await user.click(applyButton());
-      await waitFor(() => expect(applyRequests()).toHaveLength(1));
+      await waitFor(() => expect(ruleRequests()).toHaveLength(1));
 
       await user.click(screen.getByRole('button', { name: /Start a new proof/i }));
       await user.click(screen.getByRole('button', { name: 'Discard and start new' }));
@@ -512,16 +644,16 @@ describe('App', () => {
       const user = await startWithRep();
       await user.type(screen.getByLabelText(/Line number:/i), '1');
       await user.click(applyButton());
-      await waitFor(() => expect(applyRequests()).toHaveLength(1));
+      await waitFor(() => expect(ruleRequests()).toHaveLength(1));
       expect(screen.getAllByRole('row')).toHaveLength(3);
 
       // The backend, once it replays only the premise, reports it not done: a fresh mock for the undo request.
-      mockBackend([REP], 202, {
+      fetchMock.mockImplementation(async (url: string) => url.endsWith('/actions') ? jsonResponse(200, [REP]) : jsonResponse(202, {
         proof: { steps: [repProof.steps[0]], logic: 'classical', goal: 'P' },
         success: false,
         done: false,
         message: 'Line 2 does not exist, the proof has 1 lines',
-      });
+      }));
 
       await user.click(screen.getByRole('button', { name: 'Undo last step' }));
 
@@ -541,7 +673,7 @@ describe('App', () => {
       const user = await startWithRep();
       await user.type(screen.getByLabelText(/Line number:/i), '1');
       await user.click(applyButton());
-      await waitFor(() => expect(applyRequests()).toHaveLength(1));
+      await waitFor(() => expect(ruleRequests()).toHaveLength(1));
 
       fetchMock.mockImplementation(async (url: string) =>
         url.endsWith('/actions') ? jsonResponse(200, [REP]) : Promise.reject(new Error('offline')));
@@ -557,24 +689,25 @@ describe('App', () => {
       const user = await startWithRep();
       await user.type(screen.getByLabelText(/Line number:/i), '1');
       await user.click(applyButton());
-      await waitFor(() => expect(applyRequests()).toHaveLength(1));
+      await waitFor(() => expect(ruleRequests()).toHaveLength(1));
 
       // The undo request never resolves on its own; it is resolved by hand below, after New Proof has already
-      // replaced the proof on screen.
-      let resolveUndo: (response: Response) => void = () => {};
-      fetchMock.mockImplementation(async (url: string) =>
-        url.endsWith('/actions')
-          ? jsonResponse(200, [REP])
-          : new Promise<Response>((resolve) => { resolveUndo = resolve; }));
+      // replaced the proof on screen. The replay that checks that new proof answers right away.
+      let resolveUndo: ((response: Response) => void) | null = null;
+      fetchMock.mockImplementation(async (url: string, init?: RequestInit) => {
+        if (url.endsWith('/actions')) return jsonResponse(200, [REP]);
+        if (resolveUndo === null) return new Promise<Response>((resolve) => { resolveUndo = resolve; });
+        return replayAnswer(init);
+      });
 
       await user.click(screen.getByRole('button', { name: 'Undo last step' }));
-      await waitFor(() => expect(applyRequests()).toHaveLength(2));
+      await waitFor(() => expect(resolveUndo).not.toBeNull());
 
       await startProof(user, 'Q', 'Q');
       await waitFor(() => expect(screen.getAllByRole('row')).toHaveLength(2)); // header row + the new premise, Q
 
       // The stale undo response now arrives, for the discarded P |- P proof.
-      resolveUndo(jsonResponse(202, {
+      resolveUndo!(jsonResponse(202, {
         proof: { steps: [repProof.steps[0]], logic: 'classical', goal: 'P' },
         success: false,
         done: false,
@@ -601,16 +734,7 @@ describe('App', () => {
     };
     // A backend that solves to `solved` and replays a proof (the out-of-range COPY) unchanged; the proof is done when
     // a top-level step is its goal, as the domain's `Proof.isDone()` decides.
-    const mockRoundTripBackend = () => {
-      fetchMock.mockImplementation(async (url: string, init?: RequestInit) => {
-        if (url.endsWith('/actions')) return jsonResponse(200, []);
-        if (url.endsWith('/solve')) return jsonResponse(200, solved);
-        const { proofDto } = JSON.parse(String(init!.body));
-        const done = proofDto.steps.some((step: { assmsLevel: number, expression: string }) =>
-          step.assmsLevel === 0 && step.expression === proofDto.goal);
-        return jsonResponse(202, { proof: proofDto, success: false, done, message: 'out of range' });
-      });
-    };
+    const mockRoundTripBackend = () => mockBackend([], 200, solved, true);
 
     const proofTextInput = () => screen.getByLabelText(/Proof text/i);
 
