@@ -111,4 +111,12 @@ public class ModalTransformerTest {
         var exception = assertThrows(InvalidProofException.class, () -> transformer.from(dto));
         assertTrue(exception.getMessage().startsWith("Line 2 "), exception.getMessage());
     }
+
+    @Test
+    public void classicalNamesAreAccepted() {
+        assertInstanceOf(ModalCopy.class, transformer.from(new ActionDto("COPY", List.of(1), Map.of())));
+        assertInstanceOf(ModalModusPonens.class, transformer.from(new ActionDto("MP", List.of(1, 2), Map.of())));
+        var missingExpression = new ActionDto("ASSUME", List.of(), Map.of("state", "s0"));
+        assertThrows(com.dan323.uses.InvalidActionException.class, () -> transformer.from(missingExpression));
+    }
 }

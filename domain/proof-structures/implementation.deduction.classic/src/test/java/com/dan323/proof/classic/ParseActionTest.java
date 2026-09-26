@@ -74,4 +74,16 @@ public class ParseActionTest {
         List<Integer> lst = List.of();
         assertThrows(IllegalArgumentException.class, () -> ParseClassicalAction.parseAction("BLA", lst, null));
     }
+
+    @Test
+    public void parseRuleNamesTest() {
+        // The rule names modal logic uses are also accepted, so a client can send the same name to every logic
+        for (AvailableAction action : AvailableAction.values()) {
+            assertEquals(action, AvailableAction.fromName(action.getRuleName()));
+            assertEquals(action, AvailableAction.fromName(action.name()));
+        }
+        assertEquals(new ClassicCopy(1), ParseClassicalAction.parseAction("Rep", List.of(1), null));
+        assertEquals(new ClassicModusPonens(1, 2), ParseClassicalAction.parseAction("->E", List.of(1, 2), null));
+        assertEquals(new ClassicAssume(new VariableClassic("P")), ParseClassicalAction.parseAction("Ass", List.of(), new VariableClassic("P")));
+    }
 }

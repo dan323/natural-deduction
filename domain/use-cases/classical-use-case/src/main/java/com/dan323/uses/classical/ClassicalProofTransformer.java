@@ -1,6 +1,7 @@
 package com.dan323.uses.classical;
 
 import com.dan323.classical.ClassicalAction;
+import com.dan323.classical.proof.AvailableAction;
 import com.dan323.classical.proof.NaturalDeduction;
 import com.dan323.classical.proof.ParseClassicalAction;
 import com.dan323.expressions.classical.ClassicalLogicOperation;
@@ -77,8 +78,21 @@ public class ClassicalProofTransformer implements Transformer<ClassicalLogicOper
     }
 
     public ClassicalAction from(ActionDto action) {
-        return ParseClassicalAction.parseAction(action.name(), action.sources(), ActionExpression.of(action, ACTIONS)
+        var named = withConstantName(action);
+        return ParseClassicalAction.parseAction(named.name(), named.sources(), ActionExpression.of(named, ACTIONS)
                 .map(ParseClassicalAction::parseExpression).orElse(null));
+    }
+
+    /**
+     * The action under its {@link AvailableAction} constant name (the descriptor name), also when it was sent under its
+     * rule name ({@code Rep} for {@code COPY}), so that the descriptor checks see it. Unknown names are left as they are.
+     */
+    protected static ActionDto withConstantName(ActionDto action) {
+        try {
+            return new ActionDto(AvailableAction.fromName(action.name()).name(), action.sources(), action.extraParameters());
+        } catch (IllegalArgumentException e) {
+            return action;
+        }
     }
 
     @Override

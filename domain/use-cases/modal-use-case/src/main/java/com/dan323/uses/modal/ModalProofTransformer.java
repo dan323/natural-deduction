@@ -132,6 +132,8 @@ public class ModalProofTransformer implements Transformer<ModalOperation, ProofS
     }
 
     public AbstractModalAction from(ActionDto action) {
+        // Under its modal rule name (the descriptor name), also when it was sent under its classical one (COPY for Rep).
+        action = new ActionDto(ParseModalAction.ruleName(action.name()), action.sources(), action.extraParameters());
         var expression = ActionExpression.of(action, actions());
         return parseAction(action.name(), action.sources(), expression.map(this::parseExpression).orElse(null), parseState(action.extraParameters().get(STATE)));
     }

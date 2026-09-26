@@ -209,4 +209,15 @@ public class ParseModalActionTest {
         action = ParseModalAction.parseAction("-E", List.of(3), null, null);
         assertInstanceOf(ModalNotE.class, action);
     }
+
+    @Test
+    public void parseClassicalNamesTest() {
+        // The names classical logic uses for the shared rules are also accepted
+        assertEquals(new ModalCopy(1), ParseModalAction.parseAction("COPY", List.of(1), null, null));
+        assertEquals(new ModalModusPonens(1, 2), ParseModalAction.parseAction("MP", List.of(1, 2), null, null));
+        assertEquals(new ModalAndE1(1), ParseModalAction.parseAction("ANDE1", List.of(1), null, null));
+        assertEquals(new ModalAssume(new VariableModal("P"), "s0"), ParseModalAction.parseAction("ASSUME", List.of(), new VariableModal("P"), "s0"));
+        assertEquals("Rep", ParseModalAction.ruleName("COPY"));
+        assertEquals("[]I", ParseModalAction.ruleName("[]I"));
+    }
 }

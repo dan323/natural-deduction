@@ -129,8 +129,12 @@ public final class ParseClassicalAction {
         return ProofReason.parseReason(ruleString, new HashMap<>());
     }
 
+    /**
+     * @param name either the {@link AvailableAction} constant ({@code COPY}) or the rule name shared with modal logic
+     *             ({@code Rep}), see {@link AvailableAction#fromName}
+     */
     public static ClassicalAction parseAction(String name, List<Integer> sources, ClassicalLogicOperation extraInfo){
-        return switch (AvailableAction.valueOf(AvailableAction.class, name)) {
+        return switch (AvailableAction.fromName(name)) {
             case ASSUME -> new ClassicAssume(extraInfo);
             case ORI1 -> new ClassicOrI1(sources.get(0), extraInfo);
             case ORI2 -> new ClassicOrI2(sources.get(0), extraInfo);
