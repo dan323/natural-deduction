@@ -31,3 +31,18 @@ code {
   white-space: nowrap;
   border: 0;
 }
+
+/* An <output> where a paragraph would stand: a status message (its implicit role is status). :where() keeps these
+   defaults below any rule of a component. */
+:where(output.paragraph) {
+  display: block;
+  margin: 1em 0;
+}
+
+/* A <fieldset> that only groups controls (its implicit role is group), laid out like a plain <div>. */
+:where(fieldset.plain-group) {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  min-width: 0;
+}

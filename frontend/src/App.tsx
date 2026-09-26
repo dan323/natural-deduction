@@ -51,6 +51,38 @@ function copyLoadNote(proof: ProofDto): ReactNode {
   return <>Its last line is not the goal, so it loads back in the New Proof dialog with the goal <code>{loadedGoal(proof)}</code> instead of <code>{proof.goal}</code>.</>;
 }
 
+// What "Copy proof as text" did with `proof`: its text, and whether the clipboard took it.
+type CopyResult = { proof: ProofDto, text: string, copied: boolean };
+
+// Says what "Copy proof as text" did. When the clipboard is not available, it shows the text to copy by hand.
+function CopyStatus({ copy }: { copy: CopyResult }) {
+  if (copy.copied) {
+    return (
+      <output className="copy-status" aria-live="polite">
+        Proof copied to the clipboard as text. {copyLoadNote(copy.proof)}
+      </output>
+    );
+  }
+  return (
+    <div className="copy-status">
+      <output aria-live="polite">
+        The clipboard is not available here. Copy the proof text below by hand.{' '}
+        {!loadsBackWithSameGoal(copy.proof) && copyLoadNote(copy.proof)}
+      </output>
+      <label htmlFor="copied-proof-text" className="visually-hidden">Proof as text</label>
+      <textarea
+        id="copied-proof-text"
+        className="copy-fallback"
+        value={copy.text}
+        readOnly
+        rows={Math.min(copy.proof.steps.length, 10)}
+        wrap="off"
+        onFocus={(e) => e.target.select()}
+      />
+    </div>
+  );
+}
+
 function App() {
   const [colorMapping, setColorMapping] = useState(new Map<number, string>());
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -95,7 +127,7 @@ function App() {
   // What "Copy proof as text" did, and for which proof: copied to the clipboard, or (when the clipboard cannot be used,
   // e.g. outside a secure context) the text, shown for the user to copy by hand. It is only shown while that proof is
   // the one on screen, since it is out of date as soon as the proof changes.
-  const [copyResult, setCopyResult] = useState<{ proof: ProofDto, text: string, copied: boolean } | null>(null);
+  const [copyResult, setCopyResult] = useState<CopyResult | null>(null);
   const currentCopy = copyResult?.proof === proof ? copyResult : null;
   // Bumped whenever the New Proof dialog closes, so that a "Load from text" or Start Proof answer arriving after the
   // user cancelled the dialog is dropped instead of replacing the proof on screen.
@@ -565,29 +597,7 @@ function App() {
         {undoError && (
           <p className="undo-error" role="alert" aria-live="assertive">{undoError}</p>
         )}
-        {currentCopy?.copied === true && (
-          <p className="copy-status" role="status">
-            Proof copied to the clipboard as text. {copyLoadNote(currentCopy.proof)}
-          </p>
-        )}
-        {currentCopy?.copied === false && (
-          <div className="copy-status">
-            <p role="status">
-              The clipboard is not available here. Copy the proof text below by hand.{' '}
-              {!loadsBackWithSameGoal(currentCopy.proof) && copyLoadNote(currentCopy.proof)}
-            </p>
-            <label htmlFor="copied-proof-text" className="visually-hidden">Proof as text</label>
-            <textarea
-              id="copied-proof-text"
-              className="copy-fallback"
-              value={currentCopy.text}
-              readOnly
-              rows={Math.min(proof.steps.length, 10)}
-              wrap="off"
-              onFocus={(e) => e.target.select()}
-            />
-          </div>
-        )}
+        {currentCopy && <CopyStatus copy={currentCopy} />}
         {isExercisesOpen && (
           <ExerciseList
             logic={logic}
@@ -611,11 +621,11 @@ function App() {
             <Proof proof={proof} coloring={colorMapping} onSelectLine={handleSelectLine} />
           ) : (
             <div className="empty-proof-state">
-              <p role="status">
+              <output className="paragraph" aria-live="polite">
                 {isRestoring
                   ? 'Restoring the proof from before the page was reloaded…'
                   : <>No proof loaded. Click <strong>New Proof</strong> to begin.</>}
-              </p>
+              </output>
               {restoreError && <p className="restore-error" role="alert">{restoreError}</p>}
               <div className="empty-logic">
                 <label htmlFor="empty-logic-select" className="empty-logic-label">Logic:</label>

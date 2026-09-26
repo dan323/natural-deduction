@@ -1,4 +1,5 @@
 import { ProofDto, ActionDto, ActionDescriptor, ApplyActionResponse, Exercise } from "../types";
+import { LOGICS } from "../constant";
 
 // Extracts the `message` of an error body ({ "message": "..." }), falling back to the HTTP status.
 async function errorMessage(response: Response): Promise<string> {
@@ -13,10 +14,24 @@ async function errorMessage(response: Response): Promise<string> {
     return `Request failed with status ${response.status}.`;
 }
 
-// The URL of an endpoint of a logic. The logic ids (`LOGICS`) are plain words, which encoding leaves as they are; it
-// keeps any other value inside its path segment.
+// A request for a logic the UI does not offer (see `logicUrl`).
+class UnknownLogicError extends Error {}
+
+// What a request answers when it failed before any answer: why, if it is an unknown logic, or a network error.
+function failureMessage(err: unknown): string {
+    return err instanceof UnknownLogicError ? err.message : 'Network error. Please try again.';
+}
+
+// The URL of an endpoint of a logic. It is built from the id of the logic in `LOGICS`, never from the value passed in,
+// so that no other value ends up in a request path. The UI only has proofs of the logics in `LOGICS` (a saved proof of
+// another logic is discarded), so an unknown logic is refused here, with the message the backend gives for it (a 404),
+// without asking the backend.
 function logicUrl(logic: string, endpoint: string): string {
-    return `/logic/${encodeURIComponent(logic)}/${endpoint}`;
+    const known = LOGICS.find((info) => info.id === logic);
+    if (known === undefined) {
+        throw new UnknownLogicError(`Unknown logic '${logic}'`);
+    }
+    return `/logic/${known.id}/${endpoint}`;
 }
 
 // A list the server answers for `GET /logic/{logic}/{resource}` never changes while it runs, so every consumer shares
@@ -120,7 +135,7 @@ export async function applyAction(logic: string, proof: ProofDto, action: Action
             : { success: false, message: await errorMessage(response), status: response.status };
     } catch (err) {
         console.error("Error applying an action:", err);
-        result = { success: false, message: 'Network error. Please try again.' };
+        result = { success: false, message: failureMessage(err) };
     }
     consumer(result);
 }
@@ -177,7 +192,7 @@ export async function loadProofFromText(logic: string, text: string, consumer: (
         }
     } catch (err) {
         console.error("Error loading a proof from text:", err);
-        result = { success: false, message: 'Network error. Please try again.' };
+        result = { success: false, message: failureMessage(err) };
     }
     consumer(result);
 }
@@ -208,7 +223,7 @@ export async function solveProof(logic: string, proof: ProofDto, consumer: (resp
         console.error("Error solving the proof:", err);
         result = {
             success: false,
-            message: controller.signal.aborted ? 'The solver took too long to answer. Please try again.' : 'Network error. Please try again.',
+            message: controller.signal.aborted ? 'The solver took too long to answer. Please try again.' : failureMessage(err),
         };
     } finally {
         clearTimeout(deadline);

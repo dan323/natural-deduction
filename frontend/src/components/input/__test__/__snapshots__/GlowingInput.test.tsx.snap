@@ -25,10 +25,9 @@ exports[`Glowing input matches snapshot when shouldGlow is false 1`] = `
     >
       Syntax: -&gt; implies, & and, | or, - not
     </p>
-    <div
+    <fieldset
       aria-label="Connectives"
-      class="connective-buttons"
-      role="group"
+      class="connective-buttons plain-group"
     >
       <button
         aria-label="Insert implies (->)"
@@ -62,7 +61,7 @@ exports[`Glowing input matches snapshot when shouldGlow is false 1`] = `
       >
         ¬
       </button>
-    </div>
+    </fieldset>
   </div>
 </DocumentFragment>
 `;
