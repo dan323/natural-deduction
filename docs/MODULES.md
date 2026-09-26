@@ -216,7 +216,7 @@ The Spring Boot application that ties everything together.
 React-based user interface.
 
 - **Purpose**: Web UI for interactive proof building
-- **Technology**: React 19, TypeScript 5, Vite, Jest
+- **Technology**: React 19, TypeScript 6, Vite, Jest
 - **Key Components**:
   - `Menu` - the rule menu, built from the action descriptors, with the Apply Rule and Solve buttons
   - `ProofViewer` / `StepViewer` - the proof, with hover highlighting of the lines a rule uses

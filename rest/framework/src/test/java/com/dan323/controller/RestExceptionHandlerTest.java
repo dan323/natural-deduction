@@ -41,7 +41,7 @@ public class RestExceptionHandlerTest {
     @Test
     void solverTimeoutIsUnprocessableWithItsMessage() {
         var response = handler.handleSolveTimeout(new SolveTimeoutException(Duration.ofSeconds(10)));
-        assertEquals(HttpStatus.UNPROCESSABLE_ENTITY, response.getStatusCode());
+        assertEquals(HttpStatus.UNPROCESSABLE_CONTENT, response.getStatusCode());
         assertEquals("The solver did not finish within 10 seconds, try solving part of the proof by hand first", response.getBody().message());
     }
 

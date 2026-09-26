@@ -53,7 +53,7 @@ The Natural Deduction project follows a **plugin-based architecture** with clear
   - Browser storage: the proof on screen is kept in `sessionStorage` under `natural-deduction.proof` (goal, steps, logic and the `exerciseId` it was started from, if any) so it survives a reload; the solved exercises are kept in `localStorage` under `natural-deduction.solved-exercises`, as a list of exercise ids per logic. Storage that cannot be used is ignored
 
 ### 2. REST API Layer
-- **Technology**: Spring Boot 3.5.16
+- **Technology**: Spring Boot 4.1.1
 - **Responsibility**: HTTP interface to business logic
 - **Location**: `executable/`, `rest/`
 - **Endpoints** (all under `/logic/{logic}`, see [API.md](./API.md)):
