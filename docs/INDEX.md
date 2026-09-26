@@ -15,7 +15,7 @@ Learn about the architecture and design:
 
 1. **[docs/ARCHITECTURE.md](./ARCHITECTURE.md)** - System design, layered architecture, and plugin structure
 2. **[docs/MODULES.md](./MODULES.md)** - Detailed descriptions of each module and their dependencies
-3. **[docs/LANGUAGES.md](./LANGUAGES.md)** - Specifications for classical and modal propositional logic
+3. **[docs/LANGUAGES.md](./LANGUAGES.md)** - The classical, intuitionistic and modal logics and their rules
 
 ## Development
 
@@ -79,8 +79,8 @@ docs/README.md
   │   └─→ Component interaction flow
   │
   ├─→ LANGUAGES.md [What logic systems are supported]
-  │   ├─→ Classical propositional logic rules
-  │   └─→ Modal propositional logic rules
+  │   ├─→ Classical and intuitionistic propositional logic rules
+  │   └─→ Modal logic rules, and Next and Until
   │
   └─→ DEVELOPMENT.md [How to extend it]
       ├─→ Adding new logical systems
@@ -89,7 +89,7 @@ docs/README.md
       └─→ Testing best practices
   
   └─→ API.md [How to use the REST API]
-      ├─→ actions / action / solve / proof (per logic)
+      ├─→ actions / exercises / action / solve / proof (per logic)
       ├─→ Error responses
       └─→ Health check
 ```
@@ -111,7 +111,9 @@ docs/README.md
 
 ### Multiple Logic Systems
 - **Classical Logic**: Standard propositional calculus
+- **Intuitionistic Logic**: Classical logic without double negation elimination
 - **Modal Logic**: Extends classical with □ (necessity) and ◇ (possibility)
+- **Modal Logic with Next and Until**: Modal logic over discrete time
 - See: [LANGUAGES.md](./LANGUAGES.md)
 
 ### Natural Deduction Rules
@@ -125,7 +127,7 @@ docs/README.md
 | Layer    | Technology                  | Documentation                      |
 |----------|-----------------------------|------------------------------------|
 | Backend  | Java 21, Spring Boot 3.5.16 | [SETUP.md](./SETUP.md)             |
-| Frontend | React 19, TypeScript        | [SETUP.md](./SETUP.md)             |
+| Frontend | React 19, TypeScript, Vite  | [SETUP.md](./SETUP.md)             |
 | Build    | Maven                       | [SETUP.md](./SETUP.md)             |
 | Testing  | JUnit 6, Jest, PIT          | [SETUP.md](./SETUP.md)             |
 | Quality  | SonarCloud, JaCoCo          | [DEVELOPMENT.md](./DEVELOPMENT.md) |
@@ -135,8 +137,8 @@ docs/README.md
 **Q: How do I get started with development?**
 A: See [SETUP.md](./SETUP.md) for installation, then [DEVELOPMENT.md](./DEVELOPMENT.md) for contribution guidelines.
 
-**Q: What's the difference between classical and modal logic?**
-A: See [LANGUAGES.md](./LANGUAGES.md) for detailed specifications of both systems.
+**Q: What's the difference between the logics?**
+A: See [LANGUAGES.md](./LANGUAGES.md) for their rules and a comparison table.
 
 **Q: How do I add support for a new logic system?**
 A: See [DEVELOPMENT.md](./DEVELOPMENT.md) section "Adding a New Logical System".

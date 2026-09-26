@@ -9,8 +9,27 @@ The project has never been versioned or tagged, since it was not meant for publi
 ## sep-26
 
 ### Added
+- `modal-next-until`: modal logic over discrete time with Next (`X`) and strong Until (`U`), successor states (`s0+1`),
+  the rules `XI`, `XE`, `Succ`, `UI`, `UE`, `U<>` and `Ind`, and 9 exercises (#163); offered in the UI with X and U
+  buttons and help (#164)
+- Every logic accepts both the classical and the modal name of the 14 rules they share (`COPY` and `Rep`, `MP` and
+  `->E`, ...), so the UI's replay (`COPY`) works on modal proofs (#165)
+- Modal logic in the logic selector, with modal exercises (#162), the state of each step in modal proofs (#160) and
+  modal formula help (□ and ◇ buttons, relations) (#159); descriptions of the modal rules (#154)
+- Intuitionistic propositional logic (`intuitionistic`): classical logic without double negation elimination, with no
+  solver (#155); a logic selector in the UI (#158)
+- An exercise catalog per logic (`GET /logic/{logic}/exercises`, each with a reference solution replayed by a test)
+  (#152), and an exercise list in the UI, with solved exercises remembered in the browser (#157)
+- The proof on screen survives a page reload (#153); a new proof's formulas are checked by the backend before it is
+  shown (#151); "Load from text" accepts only finished proofs, through `POST .../proof` (#156)
+- Formula syntax help and connective buttons (#138); a single empty state with how-it-works and an example proof (#137)
+- "Copy proof as text", in the proof-text layout of the backend (#135); a text equivalent of the cited-line
+  highlighting (#134)
+- The subproof structure in the proof table (#130); a clear "proof complete" state (#129); clicking a proof row fills a
+  line input, and cited lines are keyboard-accessible (#128)
+- Rule labels, groups and parameter labels taken from the action descriptors (#127)
 - "Undo last step" in the toolbar, which resends the proof without its last step for the backend to revalidate; an
-  in-page confirmation (not `window.confirm`) before "New Proof" discards a proof with more than its premises (#121)
+  in-page confirmation (not `window.confirm`) before "New Proof" discards a proof with more than its premises (#131)
 - This changelog, with one release per month
 - Copyright notice and GPL-3.0-only license metadata in the poms and `frontend/package.json`
 - `done` flag in `ProofResponse`, taken from the domain's `Proof.isDone()`; the UI now uses it instead of computing success itself (#108)
@@ -22,6 +41,9 @@ The project has never been versioned or tagged, since it was not meant for publi
 - Non-root user and `HEALTHCHECK` in the Dockerfile (#107)
 
 ### Changed
+- UI accessibility: visible focus, 4.5:1 contrast, a focus trap in the modal dialog and quieter confetti (#126); the
+  rule form and the New Proof dialog are reset and validated (#124)
+- The prose docs brought up to date with the four logics, the exercises and the rules as the tool implements them
 - `CLAUDE.md` and the prose docs rewritten to match the code (endpoints, modules, setup, languages); the fictional "earlier design" API section is removed
 - Docker image is built from the jar that passed `mvn -B verify` and is only pushed once the smoke test passes; the workflow is renamed "Publish Docker image" (#107)
 - Backend CI workflow collapsed into a single `mvn -B verify`, with concurrency cancellation for superseded PR runs (#107)
@@ -35,6 +57,7 @@ The project has never been versioned or tagged, since it was not meant for publi
 - Dependencies updated: Spring Boot 3.5.3 to 3.5.16 (Spring Framework 6.2.19), springdoc 2.8.6 to 2.9.1, JUnit 5.12.2 to 6.1.3, Mockito 5.18.0 to 5.23.0, SLF4J 2.0.17 to 2.0.19, javaluator 3.0.5 to 3.0.6, PIT 1.19.1 to 1.30.0, JaCoCo 0.8.12 to 0.8.15, plus the compiler, surefire and versions Maven plugins; React 19.3, Vite 8, Jest 30, jsdom 29 and the other frontend packages; `actions/checkout` v7, `actions/setup-java` v6, `actions/setup-node` v7 and `peaceiris/actions-gh-pages` v4.1.0. The docs now state Spring Boot 3.5.16, JUnit 6, Maven 3.6.3+ and Node 20.19+.
 
 ### Fixed
+- Blank expressions are a 400 instead of a 500, and action errors no longer show `null` (#125)
 - REST API returns proper errors instead of 500s (#102)
 - Frontend bugs from the project review (#104)
 - `OnMerge.yml` no longer fails when there are no PR reports to clean, and `ad-m/github-push-action` is pinned to a commit SHA (#107)

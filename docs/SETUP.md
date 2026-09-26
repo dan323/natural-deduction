@@ -91,11 +91,13 @@ publishing the Docker image:
 ```powershell
 cd ..   # back to the repository root (the build above ran in frontend/)
 New-Item -ItemType Directory -Force executable/src/main/resources/public | Out-Null
+Remove-Item -Recurse -Force executable/src/main/resources/public/*   # drop the files of an earlier build
 cp -r frontend/build/* executable/src/main/resources/public/
 mvn clean install
 ```
 
-Without this, the jar serves only the REST API.
+Without this, the jar serves only the REST API. Always package with `clean` (`executable/target/classes` keeps the old
+`public/` files otherwise), and stop a running jar first, since the build cannot replace it while it runs.
 
 ## Running the Application
 
@@ -177,6 +179,7 @@ export const LOGICS: readonly LogicInfo[] = [
     { id: 'classical', name: 'Classical', description: '...', hasSolver: true },
     { id: 'intuitionistic', name: 'Intuitionistic', description: '...', hasSolver: false },
     { id: 'modal', name: 'Modal', description: '...', hasSolver: true },
+    { id: 'modal-next-until', name: 'Modal with Next and Until', description: '...', hasSolver: false },
 ];
 ```
 
@@ -216,9 +219,9 @@ npm test
 
 Coverage report: `frontend/coverage/lcov-report/index.html`
 
-**Run specific test file**:
+**Run specific test file or folder**:
 ```powershell
-npm test -- --testPathPattern=Expressions
+npx jest src/components/menu
 ```
 
 ## Docker Deployment
@@ -244,7 +247,7 @@ The image runs as an unprivileged user and has a `HEALTHCHECK` on `/actuator/hea
 ### Published image
 
 On every push to `master`, the "Publish Docker image" workflow (`OnMaster.yml`) type-checks and tests the frontend,
-embeds it, runs `mvn verify`, builds the image from that jar, smoke-tests it (actions endpoints, UI, non-root user)
+embeds it, runs `mvn verify`, builds the image from that jar, smoke-tests it (the actions endpoint of every logic, the UI, the non-root user)
 and only then pushes it to Docker Hub as `dan323/natural-deduction`.
 
 ## Code Quality Analysis

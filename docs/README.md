@@ -1,6 +1,6 @@
 # Natural Deduction - Documentation
 
-Welcome to the Natural Deduction project documentation. This project implements a system for [natural deduction](https://en.wikipedia.org/wiki/Natural_deduction) with support for classical and modal propositional logic.
+Welcome to the Natural Deduction project documentation. This project implements a system for [natural deduction](https://en.wikipedia.org/wiki/Natural_deduction) with support for classical, intuitionistic and modal propositional logic.
 
 ## Quick Navigation
 
@@ -9,7 +9,7 @@ Welcome to the Natural Deduction project documentation. This project implements 
 - [Setup & Installation](./SETUP.md) - How to build and run the project
 - [Development Guide](./DEVELOPMENT.md) - Contributing and extending the system
 - [API Reference](./API.md) - REST API documentation
-- [Logical Languages](./LANGUAGES.md) - Classical and modal logic specifications
+- [Logical Languages](./LANGUAGES.md) - The logics and their rules
 
 ## Project Status
 
@@ -23,10 +23,12 @@ Natural deduction is a type of proof system that uses rules of inference to esta
 
 ### Supported Logical Systems
 
-This project supports two main logical systems:
+This project supports four logics, each served under its own name (`/logic/{logic}/...`):
 
-1. **Classical Propositional Logic** - Standard propositional calculus with classical rules
-2. **Modal Propositional Logic** - Extends classical logic with modal operators (necessity, possibility) using labeled states
+1. **Classical Propositional Logic** (`classical`) - Standard propositional calculus with classical rules
+2. **Intuitionistic Propositional Logic** (`intuitionistic`) - Classical logic without double negation elimination
+3. **Modal Propositional Logic** (`modal`) - Extends classical logic with modal operators (necessity, possibility) using labeled states
+4. **Modal Logic with Next and Until** (`modal-next-until`) - Modal logic over discrete time, with Next and Until
 
 ## Getting Started
 
@@ -65,15 +67,16 @@ See [Project Modules](./MODULES.md) for more details.
 
 - 🧠 **Pluggable Logic Systems** - Easily add support for new logical systems
 - 🏗️ **Framework-based Architecture** - Separation between framework and implementations
-- 📊 **Natural Deduction Rules** - Comprehensive rule implementations for both logics
-- 🌐 **REST API** - HTTP API to list the rules, apply a rule, upload a proof and run the automatic solver
+- 📊 **Natural Deduction Rules** - Comprehensive rule implementations for every logic
+- 🌐 **REST API** - HTTP API to list the rules and the exercises, apply a rule, upload a proof and run the automatic solver
+- 🎓 **Exercises** - A catalog of exercises per logic, from easy to hard, with the solved ones remembered in the browser
 - 💻 **Web UI** - Interactive interface for building and verifying proofs
 - ✅ **Comprehensive Tests** - High code coverage with unit and integration tests
 
 ## Technology Stack
 
 - **Backend**: Java 21, Spring Boot 3.5.16, Maven
-- **Frontend**: React 19, TypeScript, Jest
+- **Frontend**: React 19, TypeScript, Vite, Jest
 - **Testing**: JUnit 6, Mockito, PIT mutation testing
 - **Quality**: SonarCloud, JaCoCo coverage
 - **Deployment**: Docker (non-root image with a health check, published to Docker Hub by CI after the tests and a smoke test pass)
