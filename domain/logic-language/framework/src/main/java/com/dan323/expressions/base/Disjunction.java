@@ -7,7 +7,7 @@ public abstract class Disjunction<T extends LogicOperation> extends BinaryOperat
 
     private static final String OPERATOR = "|";
 
-    public Disjunction(T left, T right) {
+    protected Disjunction(T left, T right) {
         super(left, right);
     }
 

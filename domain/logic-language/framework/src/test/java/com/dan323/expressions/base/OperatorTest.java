@@ -13,7 +13,7 @@ import org.junit.jupiter.api.Test;
 public class OperatorTest {
 
     @Test
-    public void operatorTest() {
+    void operatorTest() {
         Assertions.assertEquals("&", new ConjuntionStub(null, null).getOperator());
         Assertions.assertEquals("|", new DisjunctionStub(null, null).getOperator());
         Assertions.assertEquals("->", new ImplicationStub(null, null).getOperator());

@@ -17,13 +17,11 @@ import com.dan323.rest.model.ErrorResponse;
 import com.dan323.rest.model.ProofActionRequest;
 import com.dan323.rest.model.ProofResponse;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.*;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
@@ -37,7 +35,6 @@ import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@ExtendWith(SpringExtension.class)
 @SpringBootTest(classes = {Application.class, ApplicationConfiguration.class},
         webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class RestServiceIT {
@@ -49,7 +46,7 @@ public class RestServiceIT {
     HttpHeaders headers = new HttpHeaders();
 
     @Test
-    public void getActions() {
+    void getActions() {
         var expectedNames = Arrays.stream(AvailableAction.values()).map(AvailableAction::name).collect(Collectors.toSet());
         var response = restTemplate
                 .exchange(createURLWithPort("/logic/classical/actions"),
@@ -68,14 +65,14 @@ public class RestServiceIT {
     }
 
     @Test
-    public void getActionsIsJsonWithParamKindNames() {
+    void getActionsIsJsonWithParamKindNames() {
         var response = restTemplate.getForEntity(createURLWithPort("/logic/classical/actions"), String.class);
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertTrue(Objects.requireNonNull(response.getBody()).contains("{\"name\":\"ORI1\",\"params\":[\"INT\",\"EXPRESSION\"],"));
     }
 
     @Test
-    public void classicalActionsCarryTheirPresentationFields() {
+    void classicalActionsCarryTheirPresentationFields() {
         var response = restTemplate.getForEntity(createURLWithPort("/logic/classical/actions"), String.class);
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertTrue(Objects.requireNonNull(response.getBody()).contains("{\"name\":\"MP\",\"params\":[\"INT\",\"INT\"],\"label\":\"Modus ponens\","
@@ -92,7 +89,7 @@ public class RestServiceIT {
     }
 
     @Test
-    public void getModalActions() {
+    void getModalActions() {
         var response = restTemplate.getForEntity(createURLWithPort("/logic/modal/actions"), ActionDescriptorDto[].class);
         assertEquals(HttpStatus.OK, response.getStatusCode());
         var byName = Arrays.stream(Objects.requireNonNull(response.getBody()))
@@ -114,7 +111,7 @@ public class RestServiceIT {
     }
 
     @Test
-    public void modalActionNamesCanBeApplied() {
+    void modalActionNamesCanBeApplied() {
         var proof = new ProofDto(List.of(new StepDto("P", "Ass", 0, Map.of("state", "s0"))), "modal", "P");
         var response = restTemplate.exchange(createURLWithPort("/logic/modal/action"), HttpMethod.POST,
                 new HttpEntity<>(new ProofActionRequest(new ActionDto("Rep", List.of(1), Map.of()), proof), headers), ProofResponse.class);
@@ -123,7 +120,7 @@ public class RestServiceIT {
     }
 
     @Test
-    public void everyLogicAcceptsBothNamesOfASharedRule() {
+    void everyLogicAcceptsBothNamesOfASharedRule() {
         var classical = new ProofDto(List.of(new StepDto("P", "Ass", 0, Map.of())), "classical", "P");
         var modalStep = new StepDto("P", "Ass", 0, Map.of("state", "s0"));
         for (var name : List.of("COPY", "Rep")) {
@@ -144,7 +141,7 @@ public class RestServiceIT {
     }
 
     @Test
-    public void intuitionisticRejectsDoubleNegationEliminationUnderBothNames() {
+    void intuitionisticRejectsDoubleNegationEliminationUnderBothNames() {
         var proof = new ProofDto(List.of(new StepDto("- (- P)", "Ass", 0, Map.of())), "intuitionistic", "P");
         for (var name : List.of("NOTE", "-E")) {
             var response = restTemplate.exchange(createURLWithPort("/logic/intuitionistic/action"), HttpMethod.POST,
@@ -166,7 +163,7 @@ public class RestServiceIT {
     }
 
     @Test
-    public void modalNextUntilActionsAreTheModalOnesThenNextAndUntil() {
+    void modalNextUntilActionsAreTheModalOnesThenNextAndUntil() {
         var modal = Objects.requireNonNull(restTemplate.getForObject(createURLWithPort("/logic/modal/actions"), ActionDescriptorDto[].class));
         var response = restTemplate.getForEntity(createURLWithPort("/logic/" + NEXT_UNTIL + "/actions"), ActionDescriptorDto[].class);
         assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -183,7 +180,7 @@ public class RestServiceIT {
     }
 
     @Test
-    public void modalNextUntilProvesWithNextAndUntil() {
+    void modalNextUntilProvesWithNextAndUntil() {
         var proof = new ProofDto(List.of(new StepDto("p", "Ass", 0, Map.of("state", "s0")),
                 new StepDto("X q", "Ass", 0, Map.of("state", "s0"))), NEXT_UNTIL, "p U q");
 
@@ -205,7 +202,7 @@ public class RestServiceIT {
     }
 
     @Test
-    public void modalNextUntilRejectsARuleInTheWrongState() {
+    void modalNextUntilRejectsARuleInTheWrongState() {
         var proof = new ProofDto(List.of(new StepDto("p", "Ass", 0, Map.of("state", "s0"))), NEXT_UNTIL, "X p");
 
         var response = applyNextUntil(new ActionDto("XI", List.of(1), Map.of()), proof);
@@ -220,7 +217,7 @@ public class RestServiceIT {
     }
 
     @Test
-    public void modalNextUntilHasNoSolver() {
+    void modalNextUntilHasNoSolver() {
         var response = restTemplate.exchange(createURLWithPort("/logic/" + NEXT_UNTIL + "/solve"), HttpMethod.POST,
                 new HttpEntity<>(new ProofDto(List.of(), NEXT_UNTIL, "p -> p"), headers), ErrorResponse.class);
         assertError(HttpStatus.BAD_REQUEST, response);
@@ -228,7 +225,7 @@ public class RestServiceIT {
     }
 
     @Test
-    public void modalNextUntilLoadsAProofText() {
+    void modalNextUntilLoadsAProofText() {
         var gap = " ".repeat(11);
         var text = "s0: [] p" + gap + "Ass\n"
                 + "s0 <= s0+1" + gap + "Succ [1]\n"
@@ -264,7 +261,7 @@ public class RestServiceIT {
     }
 
     @Test
-    public void modalNextUntilExercisesAreListedWithoutSolutions() {
+    void modalNextUntilExercisesAreListedWithoutSolutions() {
         var response = restTemplate.getForEntity(createURLWithPort("/logic/" + NEXT_UNTIL + "/exercises"), ExerciseDto[].class);
         assertEquals(HttpStatus.OK, response.getStatusCode());
         var exercises = Objects.requireNonNull(response.getBody());
@@ -275,7 +272,7 @@ public class RestServiceIT {
     }
 
     @Test
-    public void modalDoesNotHaveTheNextAndUntilRules() {
+    void modalDoesNotHaveTheNextAndUntilRules() {
         var proof = new ProofDto(List.of(new StepDto("P", "Ass", 0, Map.of("state", "s0"))), "modal", "P");
         var response = restTemplate.exchange(createURLWithPort("/logic/modal/action"), HttpMethod.POST,
                 new HttpEntity<>(new ProofActionRequest(new ActionDto("Succ", List.of(1), Map.of()), proof), headers), ErrorResponse.class);
@@ -288,7 +285,7 @@ public class RestServiceIT {
     }
 
     @Test
-    public void solveClassicalProof() {
+    void solveClassicalProof() {
         var response = solve("classical", new ProofDto(List.of(), "classical", "P -> P"));
         assertEquals(HttpStatus.OK, response.getStatusCode());
         var solved = Objects.requireNonNull(response.getBody());
@@ -298,14 +295,14 @@ public class RestServiceIT {
     }
 
     @Test
-    public void solveModalProof() {
+    void solveModalProof() {
         var response = solve("modal", new ProofDto(List.of(new StepDto("[]P", "Ass", 0, Map.of("state", "s0"))), "modal", "<>P"));
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertTrue(Objects.requireNonNull(response.getBody()).isDone());
     }
 
     @Test
-    public void solveKeepsTheAssumptionsOfAnUnprovableProof() {
+    void solveKeepsTheAssumptionsOfAnUnprovableProof() {
         var proof = new ProofDto(List.of(new StepDto("P", "Ass", 0, Map.of())), "classical", "Q");
         var response = solve("classical", proof);
         assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -314,7 +311,7 @@ public class RestServiceIT {
     }
 
     @Test
-    public void solveErrorsUseTheErrorBody() {
+    void solveErrorsUseTheErrorBody() {
         var unknown = restTemplate.exchange(createURLWithPort("/logic/nope/solve"), HttpMethod.POST,
                 new HttpEntity<>(new ProofDto(List.of(), "nope", "P"), headers), ErrorResponse.class);
         assertError(HttpStatus.NOT_FOUND, unknown);
@@ -335,7 +332,7 @@ public class RestServiceIT {
     }
 
     @Test
-    public void doAction() {
+    void doAction() {
         ProofDto proofDto = new ProofDto(List.of(new StepDto("P", "Ass", 0, Map.of()),
                 new StepDto("Q", "Ass", 1, Map.of())), "classical", "Q->P");
         ActionDto actionDto = new ActionDto("COPY", List.of(1), Map.of());
@@ -346,7 +343,7 @@ public class RestServiceIT {
     }
 
     @Test
-    public void doActionReportsWhetherTheProofIsDone() {
+    void doActionReportsWhetherTheProofIsDone() {
         // The goal P is a top level step, though not the last one: the domain considers this proof done.
         var goalNotLast = new ProofDto(List.of(new StepDto("P", "Ass", 0, Map.of()), new StepDto("Q", "Ass", 0, Map.of())), "classical", "P");
         var done = restTemplate.exchange(createURLWithPort("/logic/classical/action"), HttpMethod.POST,
@@ -366,7 +363,7 @@ public class RestServiceIT {
     }
 
     @Test
-    public void postProof() {
+    void postProof() {
         headers.setContentType(MediaType.MULTIPART_FORM_DATA);
 
         NaturalDeduction nd = new NaturalDeduction();
@@ -428,7 +425,7 @@ public class RestServiceIT {
     }
 
     @Test
-    public void exercisesAreListedWithoutSolutions() {
+    void exercisesAreListedWithoutSolutions() {
         var response = restTemplate.getForEntity(createURLWithPort("/logic/classical/exercises"), ExerciseDto[].class);
         assertEquals(HttpStatus.OK, response.getStatusCode());
         var exercises = Objects.requireNonNull(response.getBody());
@@ -458,7 +455,7 @@ public class RestServiceIT {
             + "p" + " ".repeat(11) + "-E [1]\n";
 
     @Test
-    public void intuitionisticActionsAreTheClassicalOnesWithoutDoubleNegationElimination() {
+    void intuitionisticActionsAreTheClassicalOnesWithoutDoubleNegationElimination() {
         var classical = Objects.requireNonNull(restTemplate.getForObject(createURLWithPort("/logic/classical/actions"), ActionDescriptorDto[].class));
         var response = restTemplate.getForEntity(createURLWithPort("/logic/intuitionistic/actions"), ActionDescriptorDto[].class);
         assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -468,7 +465,7 @@ public class RestServiceIT {
     }
 
     @Test
-    public void intuitionisticRejectsDoubleNegationElimination() {
+    void intuitionisticRejectsDoubleNegationElimination() {
         var premise = new ProofDto(List.of(new StepDto("- (- p)", "Ass", 0, Map.of())), "intuitionistic", "p");
         var note = new ProofActionRequest(new ActionDto("NOTE", List.of(1), Map.of()), premise);
         var rejected = restTemplate.exchange(createURLWithPort("/logic/intuitionistic/action"), HttpMethod.POST,
@@ -490,7 +487,7 @@ public class RestServiceIT {
     }
 
     @Test
-    public void intuitionisticActionsApply() {
+    void intuitionisticActionsApply() {
         var proof = new ProofDto(List.of(new StepDto("p & q", "Ass", 0, Map.of())), "intuitionistic", "q");
         var response = restTemplate.exchange(createURLWithPort("/logic/intuitionistic/action"), HttpMethod.POST,
                 new HttpEntity<>(new ProofActionRequest(new ActionDto("ANDE2", List.of(1), Map.of()), proof), headers), ProofResponse.class);
@@ -502,7 +499,7 @@ public class RestServiceIT {
     }
 
     @Test
-    public void intuitionisticUploadRejectsAClassicalOnlyProof() {
+    void intuitionisticUploadRejectsAClassicalOnlyProof() {
         var rejected = postUpload("intuitionistic", DOUBLE_NEGATION_ELIMINATION);
         assertError(HttpStatus.BAD_REQUEST, rejected);
         assertTrue(rejected.getBody().message().startsWith("Line 2 "), rejected.getBody().message());
@@ -525,7 +522,7 @@ public class RestServiceIT {
     }
 
     @Test
-    public void intuitionisticHasNoSolver() {
+    void intuitionisticHasNoSolver() {
         var response = restTemplate.exchange(createURLWithPort("/logic/intuitionistic/solve"), HttpMethod.POST,
                 new HttpEntity<>(new ProofDto(List.of(), "intuitionistic", "p -> p"), headers), ErrorResponse.class);
         assertError(HttpStatus.BAD_REQUEST, response);
@@ -533,7 +530,7 @@ public class RestServiceIT {
     }
 
     @Test
-    public void intuitionisticExercisesAreListed() {
+    void intuitionisticExercisesAreListed() {
         var response = restTemplate.getForEntity(createURLWithPort("/logic/intuitionistic/exercises"), ExerciseDto[].class);
         assertEquals(HttpStatus.OK, response.getStatusCode());
         var ids = Arrays.stream(Objects.requireNonNull(response.getBody())).map(ExerciseDto::id).toList();
@@ -545,7 +542,7 @@ public class RestServiceIT {
     }
 
     @Test
-    public void unknownLogicIsNotFound() {
+    void unknownLogicIsNotFound() {
         var actions = restTemplate.exchange(createURLWithPort("/logic/nope/actions"), HttpMethod.GET,
                 new HttpEntity<>(null, headers), ErrorResponse.class);
         assertError(HttpStatus.NOT_FOUND, actions);
@@ -560,7 +557,7 @@ public class RestServiceIT {
     }
 
     @Test
-    public void unknownActionIsBadRequest() {
+    void unknownActionIsBadRequest() {
         var proof = new ProofDto(List.of(new StepDto("P", "Ass", 0, Map.of())), "classical", "P");
         var response = restTemplate.exchange(createURLWithPort("/logic/classical/action"), HttpMethod.POST,
                 new HttpEntity<>(new ProofActionRequest(new ActionDto("NOPE", List.of(1), Map.of()), proof), headers), ErrorResponse.class);
@@ -569,7 +566,7 @@ public class RestServiceIT {
     }
 
     @Test
-    public void malformedExpressionIsBadRequest() {
+    void malformedExpressionIsBadRequest() {
         var proof = new ProofDto(List.of(new StepDto("P", "Ass", 0, Map.of())), "classical", "P");
         var response = restTemplate.exchange(createURLWithPort("/logic/classical/action"), HttpMethod.POST,
                 new HttpEntity<>(new ProofActionRequest(new ActionDto("ASSUME", List.of(), Map.of("expression", "P Q")), proof), headers), ErrorResponse.class);
@@ -577,7 +574,7 @@ public class RestServiceIT {
     }
 
     @Test
-    public void blankAssumeExpressionIsBadRequest() {
+    void blankAssumeExpressionIsBadRequest() {
         var proof = new ProofDto(List.of(new StepDto("P -> Q", "Ass", 0, Map.of()), new StepDto("P", "Ass", 0, Map.of())), "classical", "Q");
         for (var extra : List.of(Map.<String, String>of(), Map.of("expression", ""), Map.of("expression", "   "))) {
             var response = restTemplate.exchange(createURLWithPort("/logic/classical/action"), HttpMethod.POST,
@@ -588,7 +585,7 @@ public class RestServiceIT {
     }
 
     @Test
-    public void unparsableExpressionMessageDoesNotMentionNull() {
+    void unparsableExpressionMessageDoesNotMentionNull() {
         var proof = new ProofDto(List.of(new StepDto("P", "Ass", 0, Map.of())), "classical", "P");
         var response = restTemplate.exchange(createURLWithPort("/logic/classical/action"), HttpMethod.POST,
                 new HttpEntity<>(new ProofActionRequest(new ActionDto("ASSUME", List.of(), Map.of("expression", "P ->")), proof), headers), ErrorResponse.class);
@@ -598,7 +595,7 @@ public class RestServiceIT {
     }
 
     @Test
-    public void everyClassicalActionWithBlankInputsIsBadRequestOrRejectedButNeverAServerError() {
+    void everyClassicalActionWithBlankInputsIsBadRequestOrRejectedButNeverAServerError() {
         var proof = new ProofDto(List.of(new StepDto("P -> Q", "Ass", 0, Map.of()), new StepDto("P", "Ass", 0, Map.of())), "classical", "Q");
         var descriptors = restTemplate.getForObject(createURLWithPort("/logic/classical/actions"), ActionDescriptorDto[].class);
         for (var descriptor : Objects.requireNonNull(descriptors)) {
@@ -614,7 +611,7 @@ public class RestServiceIT {
     }
 
     @Test
-    public void blankModalExpressionIsBadRequest() {
+    void blankModalExpressionIsBadRequest() {
         var proof = new ProofDto(List.of(new StepDto("P", "Ass", 0, Map.of("state", "s0"))), "modal", "P");
         for (var extra : List.of(Map.of("state", "s0"), Map.of("expression", "", "state", "s0"), Map.of("expression", " ", "state", "s0"))) {
             var response = restTemplate.exchange(createURLWithPort("/logic/modal/action"), HttpMethod.POST,
@@ -629,7 +626,7 @@ public class RestServiceIT {
     }
 
     @Test
-    public void tamperedProofIsBadRequest() {
+    void tamperedProofIsBadRequest() {
         var proof = new ProofDto(List.of(new StepDto("P", "Ass", 0, Map.of()), new StepDto("P", "->E [1, 1]", 0, Map.of())), "classical", "P");
         var response = restTemplate.exchange(createURLWithPort("/logic/classical/action"), HttpMethod.POST,
                 new HttpEntity<>(new ProofActionRequest(new ActionDto("COPY", List.of(1), Map.of()), proof), headers), ErrorResponse.class);
@@ -638,7 +635,7 @@ public class RestServiceIT {
     }
 
     @Test
-    public void missingActionOrProofIsBadRequest() {
+    void missingActionOrProofIsBadRequest() {
         var noAction = postAction("classical", """
                 {"proofDto": {"logic": "classical", "goal": "P"}}""");
         assertEquals(HttpStatus.BAD_REQUEST, noAction.getStatusCode());
@@ -652,14 +649,14 @@ public class RestServiceIT {
     }
 
     @Test
-    public void malformedBodyIsBadRequest() {
+    void malformedBodyIsBadRequest() {
         var response = postAction("classical", "{not json");
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
         assertTrue(Objects.requireNonNull(response.getBody()).contains("message"));
     }
 
     @Test
-    public void outOfRangeSourceIsRejectedWithAMessage() {
+    void outOfRangeSourceIsRejectedWithAMessage() {
         var proof = new ProofDto(List.of(new StepDto("P", "Ass", 0, Map.of())), "classical", "P");
         var response = restTemplate.exchange(createURLWithPort("/logic/classical/action"), HttpMethod.POST,
                 new HttpEntity<>(new ProofActionRequest(new ActionDto("COPY", List.of(9), Map.of()), proof), headers), ProofResponse.class);
@@ -672,7 +669,7 @@ public class RestServiceIT {
     // A proof loaded from text (frontend loadProofFromText) is replayed through the same out-of-range COPY; the levels
     // a client sends do not shape the replay, so the 202 answers with the levels the rules imply, not the request's.
     @Test
-    public void rejectedActionAnswersWithTheReplayedLevels() {
+    void rejectedActionAnswersWithTheReplayedLevels() {
         var misIndented = new ProofDto(List.of(new StepDto("P", "Ass", 0, Map.of()), new StepDto("Q", "Ass", 1, Map.of()),
                 new StepDto("P", "Rep [1]", 0, Map.of()), new StepDto("Q -> P", "->I [2-3]", 1, Map.of())), "classical", "Q -> P");
         var response = restTemplate.exchange(createURLWithPort("/logic/classical/action"), HttpMethod.POST,
@@ -691,7 +688,7 @@ public class RestServiceIT {
     // steps that follow it (ProofStep.disable() is never serialized, see StepDto), so once the discharging step
     // itself is undone, replaying what remains proves the assumption is open again, and `done` correctly flips back.
     @Test
-    public void undoDropsTheLastStepAndRevalidatesTheDischarge() {
+    void undoDropsTheLastStepAndRevalidatesTheDischarge() {
         // "P" is assumed at level 1, then discharged by ->I into "P -> P" at level 0: the goal is reached.
         var assumption = new StepDto("P", "Ass", 1, Map.of());
         var discharging = new StepDto("P -> P", "->I [1-1]", 0, Map.of());
@@ -717,7 +714,7 @@ public class RestServiceIT {
     }
 
     @Test
-    public void notApplicableActionIsRejectedWithAMessage() {
+    void notApplicableActionIsRejectedWithAMessage() {
         var proof = new ProofDto(List.of(new StepDto("P", "Ass", 0, Map.of())), "classical", "P");
         var response = restTemplate.exchange(createURLWithPort("/logic/classical/action"), HttpMethod.POST,
                 new HttpEntity<>(new ProofActionRequest(new ActionDto("ANDE1", List.of(1), Map.of()), proof), headers), ProofResponse.class);
@@ -727,7 +724,7 @@ public class RestServiceIT {
     }
 
     @Test
-    public void garbledUploadIsBadRequest() {
+    void garbledUploadIsBadRequest() {
         var goodLine = "P" + " ".repeat(11) + "Ass";
         var blankLine = postUpload("classical", goodLine + "\n\n" + goodLine);
         assertError(HttpStatus.BAD_REQUEST, blankLine);
@@ -740,7 +737,7 @@ public class RestServiceIT {
     }
 
     @Test
-    public void modalActionWithOmittedParametersIsAccepted() {
+    void modalActionWithOmittedParametersIsAccepted() {
         var response = postAction("modal", """
                 {"actionDto": {"name": "Ass", "extraParameters": {"expression": "P", "state": "s0"}},
                  "proofDto": {"logic": "modal", "goal": "P"}}""");

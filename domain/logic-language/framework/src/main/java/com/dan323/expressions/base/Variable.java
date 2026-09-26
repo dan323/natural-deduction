@@ -5,15 +5,15 @@ package com.dan323.expressions.base;
  */
 public abstract class Variable implements LogicOperation {
 
-    private final String var;
+    private final String name;
 
-    public Variable(String var) {
-        this.var = var;
+    protected Variable(String name) {
+        this.name = name;
     }
 
     @Override
     public String toString() {
-        return var;
+        return name;
     }
 
 }

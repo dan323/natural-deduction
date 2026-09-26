@@ -3,8 +3,8 @@ package com.dan323.expressions.modal;
 import com.dan323.expressions.base.Variable;
 
 public final class VariableModal extends Variable implements ModalLogicalOperation {
-    public VariableModal(String var) {
-        super(var);
+    public VariableModal(String name) {
+        super(name);
     }
 
     @Override

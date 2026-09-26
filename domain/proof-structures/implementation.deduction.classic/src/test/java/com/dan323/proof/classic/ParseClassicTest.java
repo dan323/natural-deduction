@@ -16,7 +16,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class ParseClassicTest {
 
     @Test
-    public void parseProofPImpP() {
+    void parseProofPImpP() {
         var p = new VariableClassic("P");
         var naturalDeduction = new NaturalDeduction();
         naturalDeduction.initializeProof(List.of(), new ImplicationClassic(p, p));
@@ -32,7 +32,7 @@ public class ParseClassicTest {
     }
 
     @Test
-    public void parseProofPorP() {
+    void parseProofPorP() {
         var p = new VariableClassic("P");
         var naturalDeduction = new NaturalDeduction();
         var goal = new DisjunctionClassic(p, p);
@@ -54,7 +54,7 @@ public class ParseClassicTest {
     }
 
     @Test
-    public void parseProofFE() {
+    void parseProofFE() {
         var p = new VariableClassic("P");
         var naturalDeduction = new NaturalDeduction();
         naturalDeduction.initializeProof(List.of(ConstantClassic.FALSE), p);
@@ -75,7 +75,7 @@ public class ParseClassicTest {
     }
 
     @Test
-    public void parseDeMorgan() {
+    void parseDeMorgan() {
         var p = new VariableClassic("P");
         var q = new VariableClassic("Q");
         var naturalDeduction = new NaturalDeduction();
@@ -96,7 +96,7 @@ public class ParseClassicTest {
     }
 
     @Test
-    public void parseProofCopy() {
+    void parseProofCopy() {
         var p = new VariableClassic("P");
         var naturalDeduction = new NaturalDeduction();
         naturalDeduction.initializeProof(List.of(p), p);
@@ -118,7 +118,7 @@ public class ParseClassicTest {
 
 
     @Test
-    public void parseProofAndE() {
+    void parseProofAndE() {
         var p = new VariableClassic("P");
         var q = new VariableClassic("Q");
         var naturalDeduction = new NaturalDeduction();
@@ -140,7 +140,7 @@ public class ParseClassicTest {
     }
 
     @Test
-    public void parseProofPAndP() {
+    void parseProofPAndP() {
         var p = new VariableClassic("P");
         var naturalDeduction = new NaturalDeduction();
         naturalDeduction.initializeProof(List.of(p), new ConjunctionClassic(p, p));
@@ -161,7 +161,7 @@ public class ParseClassicTest {
     }
 
     @Test
-    public void parseProofOrE() {
+    void parseProofOrE() {
         var p = new VariableClassic("P");
         var q = new VariableClassic("Q");
         var r = new VariableClassic("R");
@@ -185,7 +185,7 @@ public class ParseClassicTest {
     }
 
     @Test
-    public void parseProofOrE2() {
+    void parseProofOrE2() {
         var p = new VariableClassic("P");
         var q = new VariableClassic("Q");
         var naturalDeduction = new NaturalDeduction();

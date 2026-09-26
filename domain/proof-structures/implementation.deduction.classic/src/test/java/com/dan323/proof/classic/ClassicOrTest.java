@@ -19,7 +19,7 @@ import static org.mockito.Mockito.mock;
 public class ClassicOrTest {
 
     @Test
-    public void classicOrIApply() {
+    void classicOrIApply() {
         VariableClassic variableQ = new VariableClassic("Q");
         ProofStep<ClassicalLogicOperation> pStep = mock(ProofStep.class);
         ClassicOrI1 orI1 = new ClassicOrI1(1, variableQ);
@@ -46,7 +46,7 @@ public class ClassicOrTest {
     }
 
     @Test
-    public void classicOrEApply() {
+    void classicOrEApply() {
         ClassicOrE andI = new ClassicOrE(1, 2, 3);
         VariableClassic p = new VariableClassic("P");
         VariableClassic q = new VariableClassic("Q");

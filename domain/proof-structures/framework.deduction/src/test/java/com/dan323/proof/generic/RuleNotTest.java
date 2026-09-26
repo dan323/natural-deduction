@@ -48,7 +48,7 @@ public class RuleNotTest {
     }
 
     @Test
-    public void notIIsValidTest() {
+    void notIIsValidTest() {
         NotIStub notI = new NotIStub();
 
         Assertions.assertEquals(new NotIStub(), notI);
@@ -88,7 +88,7 @@ public class RuleNotTest {
     }
 
     @Test
-    public void notEIsValidTest() {
+    void notEIsValidTest() {
         NotEStub notE = new NotEStub(1);
 
         Assertions.assertEquals(1, notE.getNeg());
@@ -114,8 +114,8 @@ public class RuleNotTest {
     }
 
     @Test
-    public void notEApplyTest() {
-        List<ProofStep<LogicOperation>> record = new ArrayList<>();
+    void notEApplyTest() {
+        List<ProofStep<LogicOperation>> added = new ArrayList<>();
         doReturn(list).when(pf).getSteps();
         doReturn(pStep0).when(list).get(eq(0));
         doReturn(pStep0).when(list).getLast();
@@ -124,20 +124,20 @@ public class RuleNotTest {
         doReturn("P").when(variable).toString();
         Negation<LogicOperation> negation = mockNot(mockNot(variable));
         doReturn(negation).when(pStep0).getStep();
-        doAnswer(invocationOnMock -> record.add(invocationOnMock.getArgument(0))).when(list).add(any(ProofStep.class));
+        doAnswer(invocationOnMock -> added.add(invocationOnMock.getArgument(0))).when(list).add(any(ProofStep.class));
 
         NotEStub notE = new NotEStub(1);
         notE.applyStepSupplier(pf, ProofStep::new);
 
-        Assertions.assertEquals(new ProofReason("-E", List.of(), List.of(1)), record.getFirst().getProof());
-        Assertions.assertEquals(0, record.getFirst().getAssumptionLevel());
-        Assertions.assertEquals("P", record.getFirst().getStep().toString());
-        Assertions.assertTrue(record.getFirst().isValid());
+        Assertions.assertEquals(new ProofReason("-E", List.of(), List.of(1)), added.getFirst().getProof());
+        Assertions.assertEquals(0, added.getFirst().getAssumptionLevel());
+        Assertions.assertEquals("P", added.getFirst().getStep().toString());
+        Assertions.assertTrue(added.getFirst().isValid());
     }
 
     @Test
-    public void notIApplyTest() {
-        List<ProofStep<LogicOperation>> record = new ArrayList<>();
+    void notIApplyTest() {
+        List<ProofStep<LogicOperation>> added = new ArrayList<>();
         doReturn(list).when(pf).getSteps();
         doReturn(2).when(list).size();
         doReturn(pStep0).when(list).get(eq(0));
@@ -148,15 +148,15 @@ public class RuleNotTest {
         Variable variable = mock(Variable.class, Answers.CALLS_REAL_METHODS);
         doReturn("P").when(variable).toString();
         doReturn(variable).when(pStep0).getStep();
-        doAnswer(invocationOnMock -> record.add(invocationOnMock.getArgument(0))).when(list).add(any(ProofStep.class));
+        doAnswer(invocationOnMock -> added.add(invocationOnMock.getArgument(0))).when(list).add(any(ProofStep.class));
 
         NotIStub notI = new NotIStub();
         notI.applyStepSupplier(pf, ProofStep::new);
 
-        Assertions.assertEquals(new ProofReason("-I", List.of(new ProofReason.Range(1, 2)), List.of()), record.getFirst().getProof());
-        Assertions.assertEquals(0, record.getFirst().getAssumptionLevel());
-        Assertions.assertEquals("- P", record.getFirst().getStep().toString());
-        Assertions.assertTrue(record.getFirst().isValid());
+        Assertions.assertEquals(new ProofReason("-I", List.of(new ProofReason.Range(1, 2)), List.of()), added.getFirst().getProof());
+        Assertions.assertEquals(0, added.getFirst().getAssumptionLevel());
+        Assertions.assertEquals("- P", added.getFirst().getStep().toString());
+        Assertions.assertTrue(added.getFirst().isValid());
     }
 
     public static class NotIStub extends NotI<LogicOperation, ProofStep<LogicOperation>, ProofTest.ProofStub> {
@@ -166,7 +166,7 @@ public class RuleNotTest {
 
         @Override
         public void apply(ProofTest.ProofStub pf) {
-
+            // A test stub: applying it does nothing
         }
     }
 
@@ -177,7 +177,7 @@ public class RuleNotTest {
 
         @Override
         public void apply(ProofTest.ProofStub pf) {
-
+            // A test stub: applying it does nothing
         }
     }
 

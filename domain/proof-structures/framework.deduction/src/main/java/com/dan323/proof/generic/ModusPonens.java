@@ -17,7 +17,7 @@ public abstract class ModusPonens<T extends LogicOperation, Q extends ProofStep<
     private final int applyAt1;
     private final int applyAt2;
 
-    public ModusPonens(int i1, int i2) {
+    protected ModusPonens(int i1, int i2) {
         applyAt1 = i1;
         applyAt2 = i2;
     }

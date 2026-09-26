@@ -16,7 +16,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 public class ModalAutomateDiaTest {
 
     @Test
-    public void alwaysImpSometime() {
+    void alwaysImpSometime() {
         var p = new VariableModal("P");
         var naturalDeduction = new ModalNaturalDeduction();
         naturalDeduction.initializeProof(List.of(new Always(p)), new Sometime(p));
@@ -26,7 +26,7 @@ public class ModalAutomateDiaTest {
 
 
     @Test
-    public void sometimesAlwImpAlwSometime() {
+    void sometimesAlwImpAlwSometime() {
         var p = new VariableModal("P");
         var q = new VariableModal("Q");
         var naturalDeduction = new ModalNaturalDeduction();

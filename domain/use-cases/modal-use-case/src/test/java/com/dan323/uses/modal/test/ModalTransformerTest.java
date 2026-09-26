@@ -30,7 +30,7 @@ public class ModalTransformerTest {
 
 
     @Test
-    public void transformSuccessful() {
+    void transformSuccessful() {
         var nd = new ModalNaturalDeduction();
         nd.initializeProof(List.of(new Always(P)), new Always(new ImplicationModal(Q, P)));
         new ModalAssume(s0LessThans1).apply(nd);
@@ -46,18 +46,18 @@ public class ModalTransformerTest {
     }
 
     @Test
-    public void transformFailed() {
+    void transformFailed() {
         var nd = new ProofDto(List.of(new StepDto("->P", "Ass", 0, Map.of())), "modal", "P->P");
-        var ex = assertThrows(IllegalArgumentException.class, () -> transformer.from(nd));
+        assertThrows(IllegalArgumentException.class, () -> transformer.from(nd));
         var nd2 = new ProofDto(List.of(new StepDto("P", "Ass", 0, Map.of())), "modal", "P -> P");
-        ex = assertThrows(IllegalArgumentException.class, () -> transformer.from(nd2));
+        var ex = assertThrows(IllegalArgumentException.class, () -> transformer.from(nd2));
         assertTrue(ex.getMessage().contains("not in a valid state"));
         var nd3 = new ProofDto(List.of(new StepDto("P", "Ass", 0, Map.of("state", "s0")), new StepDto("P", "Rep", 0, Map.of())), "modal", "P -> P");
         assertThrows(InvalidProofException.class, () -> transformer.from(nd3));
     }
 
     @Test
-    public void transformAction() {
+    void transformAction() {
         var actionDto = new ActionDto("Ass", List.of(), Map.of("expression", "P", "state", "s0"));
         var action = transformer.from(actionDto);
         assertInstanceOf(ModalAssume.class, action);
@@ -78,7 +78,7 @@ public class ModalTransformerTest {
     }
 
     @Test
-    public void actionsWithAnExpressionKeepTheParsedExpression() {
+    void actionsWithAnExpressionKeepTheParsedExpression() {
         var nd = new ModalNaturalDeduction();
         nd.initializeProof(List.of(), P);
         var assume = transformer.from(new ActionDto("Ass", List.of(), Map.of("expression", " P -> Q ", "state", "s0")));
@@ -96,7 +96,7 @@ public class ModalTransformerTest {
     }
 
     @Test
-    public void omittedExtraParametersAreAccepted() {
+    void omittedExtraParametersAreAccepted() {
         var relation = new ProofDto(List.of(new StepDto("s0 <= s1", "Ass", 0, null)), "modal", "P");
         assertEquals(1, transformer.from(relation).getSteps().size());
         var noState = new ProofDto(List.of(new StepDto("P", "Ass", 0, null)), "modal", "P");
@@ -106,14 +106,14 @@ public class ModalTransformerTest {
     }
 
     @Test
-    public void replayRejectsAStepThatDoesNotFollow() {
+    void replayRejectsAStepThatDoesNotFollow() {
         var dto = new ProofDto(List.of(new StepDto("P", "Ass", 0, Map.of("state", "s0")), new StepDto("P", "->E [1, 1]", 0, Map.of("state", "s0"))), "modal", "P");
         var exception = assertThrows(InvalidProofException.class, () -> transformer.from(dto));
         assertTrue(exception.getMessage().startsWith("Line 2 "), exception.getMessage());
     }
 
     @Test
-    public void classicalNamesAreAccepted() {
+    void classicalNamesAreAccepted() {
         assertInstanceOf(ModalCopy.class, transformer.from(new ActionDto("COPY", List.of(1), Map.of())));
         assertInstanceOf(ModalModusPonens.class, transformer.from(new ActionDto("MP", List.of(1, 2), Map.of())));
         var missingExpression = new ActionDto("ASSUME", List.of(), Map.of("state", "s0"));

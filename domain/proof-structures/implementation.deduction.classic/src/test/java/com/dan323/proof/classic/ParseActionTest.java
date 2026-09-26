@@ -14,13 +14,13 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 public class ParseActionTest {
 
     @Test
-    public void parseAssTest() {
+    void parseAssTest() {
         ClassicalAction action = ParseClassicalAction.parseAction(AvailableAction.ASSUME.name(), List.of(), new VariableClassic("P"));
         assertEquals(new ClassicAssume(new VariableClassic("P")), action);
     }
 
     @Test
-    public void parseOrTest() {
+    void parseOrTest() {
         ClassicalAction action1 = ParseClassicalAction.parseAction(AvailableAction.ORI1.name(), List.of(1), new VariableClassic("P"));
         ClassicalAction action2 = ParseClassicalAction.parseAction(AvailableAction.ORI2.name(), List.of(1), new VariableClassic("P"));
         ClassicalAction action3 = ParseClassicalAction.parseAction(AvailableAction.ORE.name(), List.of(1, 2, 3), null);
@@ -30,7 +30,7 @@ public class ParseActionTest {
     }
 
     @Test
-    public void parseAndTest() {
+    void parseAndTest() {
         ClassicalAction action1 = ParseClassicalAction.parseAction(AvailableAction.ANDE1.name(), List.of(1), null);
         ClassicalAction action2 = ParseClassicalAction.parseAction(AvailableAction.ANDE2.name(), List.of(1), null);
         ClassicalAction action3 = ParseClassicalAction.parseAction(AvailableAction.ANDI.name(), List.of(1, 2), null);
@@ -40,13 +40,13 @@ public class ParseActionTest {
     }
 
     @Test
-    public void parseCopyTest() {
+    void parseCopyTest() {
         ClassicalAction action = ParseClassicalAction.parseAction(AvailableAction.COPY.name(), List.of(1), null);
         assertEquals(new ClassicCopy(1), action);
     }
 
     @Test
-    public void parseNegTest() {
+    void parseNegTest() {
         ClassicalAction action = ParseClassicalAction.parseAction(AvailableAction.NOTE.name(), List.of(1), null);
         assertEquals(new ClassicNotE(1), action);
         ClassicalAction action1 = ParseClassicalAction.parseAction(AvailableAction.NOTI.name(), List.of(), null);
@@ -54,7 +54,7 @@ public class ParseActionTest {
     }
 
     @Test
-    public void parseImpTest() {
+    void parseImpTest() {
         ClassicalAction action = ParseClassicalAction.parseAction(AvailableAction.DT.name(), List.of(), null);
         assertEquals(new ClassicDeductionTheorem(), action);
         ClassicalAction action1 = ParseClassicalAction.parseAction(AvailableAction.MP.name(), List.of(1, 2), null);
@@ -62,7 +62,7 @@ public class ParseActionTest {
     }
 
     @Test
-    public void parseFalseTest() {
+    void parseFalseTest() {
         ClassicalAction action = ParseClassicalAction.parseAction(AvailableAction.FI.name(), List.of(1, 2), null);
         assertEquals(new ClassicFI(1, 2), action);
         ClassicalAction action1 = ParseClassicalAction.parseAction(AvailableAction.FE.name(), List.of(2), new VariableClassic("P"));
@@ -70,13 +70,13 @@ public class ParseActionTest {
     }
 
     @Test
-    public void parseExcepTest() {
+    void parseExcepTest() {
         List<Integer> lst = List.of();
         assertThrows(IllegalArgumentException.class, () -> ParseClassicalAction.parseAction("BLA", lst, null));
     }
 
     @Test
-    public void parseRuleNamesTest() {
+    void parseRuleNamesTest() {
         // The rule names modal logic uses are also accepted, so a client can send the same name to every logic
         for (AvailableAction action : AvailableAction.values()) {
             assertEquals(action, AvailableAction.fromName(action.getRuleName()));

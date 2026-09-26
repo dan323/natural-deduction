@@ -20,7 +20,7 @@ import static org.junit.jupiter.api.Assertions.*;
 public class ClassicalComplexTest {
 
     @Test
-    public void equalsTest() {
+    void equalsTest() {
         var deMorgan = new DeMorgan(1);
         var deMorgan2 = new DeMorgan(2);
         var deMorgan3 = new DeMorgan(2);
@@ -57,7 +57,7 @@ public class ClassicalComplexTest {
     }
 
     @Test
-    public void sequenceTest() {
+    void sequenceTest() {
         var pf = new NaturalDeduction();
         var p = new VariableClassic("P");
         pf.initializeProof(List.of(),new ImplicationClassic(p,p));

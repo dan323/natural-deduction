@@ -14,7 +14,7 @@ import static org.junit.jupiter.api.Assertions.*;
 public class PatternMapperTest {
 
     @Test
-    public void constantPatternTest() {
+    void constantPatternTest() {
         var f = ConstantStub.FALSE;
         var v = ConstantStub.TRUE;
         PatternMapper<LogicOperation> patternMapper = new PatternMapperUnaryBinaryOps();
@@ -23,7 +23,7 @@ public class PatternMapperTest {
     }
 
     @Test
-    public void variablePatternTest() {
+    void variablePatternTest() {
         var p = new Variable("P") {
         };
         var f = ConstantStub.FALSE;
@@ -33,7 +33,7 @@ public class PatternMapperTest {
     }
 
     @Test
-    public void example1Test() {
+    void example1Test() {
         var p = new Variable("P") {
         };
         var q = new Variable("Q") {
@@ -47,7 +47,7 @@ public class PatternMapperTest {
     }
 
     @Test
-    public void example2Test() {
+    void example2Test() {
         var p = new Variable("P") {
         };
         var q = new Variable("Q") {
@@ -61,7 +61,7 @@ public class PatternMapperTest {
     }
 
     @Test
-    public void exampl3Test() {
+    void exampl3Test() {
         var p = new Variable("P") {
         };
         var q = new Variable("Q") {

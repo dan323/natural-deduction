@@ -15,7 +15,7 @@ import static org.mockito.Mockito.mock;
 public class ClassicBasicTest {
 
     @Test
-    public void copyTest() {
+    void copyTest() {
         ProofStep<ClassicalLogicOperation> pStep = mock(ProofStep.class);
         ClassicCopy copy = new ClassicCopy(1);
         NaturalDeduction pf = new NaturalDeduction();
@@ -33,7 +33,7 @@ public class ClassicBasicTest {
     }
 
     @Test
-    public void assmsTest() {
+    void assmsTest() {
         VariableClassic variable = new VariableClassic("P");
         ClassicAssume assms = new ClassicAssume(variable);
         NaturalDeduction pf = new NaturalDeduction();

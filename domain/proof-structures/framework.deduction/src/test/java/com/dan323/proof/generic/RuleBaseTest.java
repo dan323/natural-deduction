@@ -36,13 +36,13 @@ public class RuleBaseTest {
     public ProofReason proof;
 
     @Test
-    public void assmsIsValid() {
+    void assmsIsValid() {
         AssumeStub assms = new AssumeStub(mock(LogicOperation.class));
         assertTrue(assms.isValid(pf));
     }
 
     @Test
-    public void copyIsValid() {
+    void copyIsValid() {
         CopyStub copy = new CopyStub(1);
 
         assertEquals(1, copy.getAppliedAt());
@@ -60,34 +60,34 @@ public class RuleBaseTest {
     }
 
     @Test
-    public void assmsApplyTest() {
-        List<ProofStep<LogicOperation>> record = new ArrayList<>();
+    void assmsApplyTest() {
+        List<ProofStep<LogicOperation>> added = new ArrayList<>();
         LogicOperation log = mock(LogicOperation.class);
         AssumeStub assms = new AssumeStub(log);
-        doAnswer(invocationOnMock -> record.add(invocationOnMock.getArgument(0))).when(list).add(any(ProofStep.class));
+        doAnswer(invocationOnMock -> added.add(invocationOnMock.getArgument(0))).when(list).add(any(ProofStep.class));
         doReturn(list).when(pf).getSteps();
         doReturn(true).when(list).isEmpty();
         assms.applyStepSupplier(pf, ProofStep::new);
 
-        assertEquals(1, record.getFirst().getAssumptionLevel());
-        assertEquals("Ass", record.getFirst().getProof().toString());
-        assertEquals(log, record.getFirst().getStep());
+        assertEquals(1, added.getFirst().getAssumptionLevel());
+        assertEquals("Ass", added.getFirst().getProof().toString());
+        assertEquals(log, added.getFirst().getStep());
 
-        record.clear();
+        added.clear();
         doReturn(false).when(list).isEmpty();
         doReturn(pStep0).when(list).getLast();
         doReturn(2).when(pStep0).getAssumptionLevel();
         assms.applyStepSupplier(pf, ProofStep::new);
 
-        assertEquals(3, record.getFirst().getAssumptionLevel());
-        assertEquals("Ass", record.getFirst().getProof().toString());
-        assertEquals(log, record.getFirst().getStep());
+        assertEquals(3, added.getFirst().getAssumptionLevel());
+        assertEquals("Ass", added.getFirst().getProof().toString());
+        assertEquals(log, added.getFirst().getStep());
     }
 
     @Test
-    public void copyApplyTest() {
-        List<ProofStep<LogicOperation>> record = new ArrayList<>();
-        doAnswer(invocationOnMock -> record.add(invocationOnMock.getArgument(0))).when(list).add(any(ProofStep.class));
+    void copyApplyTest() {
+        List<ProofStep<LogicOperation>> added = new ArrayList<>();
+        doAnswer(invocationOnMock -> added.add(invocationOnMock.getArgument(0))).when(list).add(any(ProofStep.class));
         CopyStub copy = new CopyStub(1);
         doReturn(list).when(pf).getSteps();
         doReturn(pStep0).when(list).get(0);
@@ -96,9 +96,9 @@ public class RuleBaseTest {
         doReturn(3).when(pStep1).getAssumptionLevel();
         copy.applyStepSupplier(pf, ProofStep::new);
 
-        assertEquals(3, record.getFirst().getAssumptionLevel());
-        assertEquals(pStep0.getStep(), record.getFirst().getStep());
-        assertEquals("Rep [1]", record.getFirst().getProof().toString());
+        assertEquals(3, added.getFirst().getAssumptionLevel());
+        assertEquals(pStep0.getStep(), added.getFirst().getStep());
+        assertEquals("Rep [1]", added.getFirst().getProof().toString());
     }
 
     public static class AssumeStub extends Assume<LogicOperation, ProofStep<LogicOperation>, ProofTest.ProofStub> {

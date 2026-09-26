@@ -13,7 +13,7 @@ import java.util.Map;
 public class ClassicalTest {
 
     @Test
-    public void classicalToStringTest() {
+    void classicalToStringTest() {
         ConstantClassic c = ConstantClassic.TRUE;
         VariableClassic v = new VariableClassic("P");
         ClassicalLogicOperation clo = new NegationClassic(new ConjunctionClassic(v, c));
@@ -24,7 +24,7 @@ public class ClassicalTest {
     }
 
     @Test
-    public void classicalEvaluationTest() {
+    void classicalEvaluationTest() {
         ConstantClassic c = ConstantClassic.FALSE;
         VariableClassic v = new VariableClassic("P");
         VariableClassic w = new VariableClassic("Q");
@@ -39,7 +39,7 @@ public class ClassicalTest {
     }
 
     @Test
-    public void insufficientValuesMap() {
+    void insufficientValuesMap() {
         ConstantClassic c = ConstantClassic.TRUE;
         VariableClassic v = new VariableClassic("P");
         VariableClassic w = new VariableClassic("Q");
@@ -51,27 +51,27 @@ public class ClassicalTest {
     }
 
     @Test
-    public void constantHashCodeTest() {
+    void constantHashCodeTest() {
         Assertions.assertTrue(ConstantClassic.FALSE.isFalsehood());
         Assertions.assertFalse(ConstantClassic.TRUE.isFalsehood());
         Assertions.assertNotEquals(ConstantClassic.TRUE.hashCode(), ConstantClassic.FALSE.hashCode());
     }
 
     @Test
-    public void constantEvaluate() {
+    void constantEvaluate() {
         Assertions.assertTrue(ConstantClassic.TRUE.evaluate(null));
         Assertions.assertFalse(ConstantClassic.FALSE.evaluate(null));
     }
 
     @Test
-    public void disjunctionTest() {
+    void disjunctionTest() {
         VariableClassic p = new VariableClassic("P");
         DisjunctionClassic d = new DisjunctionClassic(p, p);
         Assertions.assertEquals("P | P", d.toString());
     }
 
     @Test
-    public void disjunctionEvaluate() {
+    void disjunctionEvaluate() {
         VariableClassic p = new VariableClassic("P");
         VariableClassic q = new VariableClassic("Q");
         DisjunctionClassic d = new DisjunctionClassic(p, q);
@@ -80,14 +80,14 @@ public class ClassicalTest {
     }
 
     @Test
-    public void implicationToString() {
+    void implicationToString() {
         VariableClassic p = new VariableClassic("P");
         ImplicationClassic d = new ImplicationClassic(p, p);
         Assertions.assertEquals("P -> P", d.toString());
     }
 
     @Test
-    public void toStringComplex() {
+    void toStringComplex() {
         VariableClassic p = new VariableClassic("P");
         NegationClassic d = new NegationClassic(p);
         ImplicationClassic n = new ImplicationClassic(d, d);

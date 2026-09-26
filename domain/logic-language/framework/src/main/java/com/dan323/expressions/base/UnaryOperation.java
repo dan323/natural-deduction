@@ -7,7 +7,7 @@ public abstract class UnaryOperation<T extends LogicOperation> implements LogicO
 
     private final T element;
 
-    public UnaryOperation(T element) {
+    protected UnaryOperation(T element) {
         this.element = element;
     }
 

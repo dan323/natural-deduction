@@ -16,7 +16,7 @@ public abstract class NotE<T extends LogicOperation, Q extends ProofStep<T>, P e
 
     private final int neg;
 
-    public NotE(int i) {
+    protected NotE(int i) {
         neg = i;
     }
 

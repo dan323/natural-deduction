@@ -23,35 +23,37 @@ public class ActionExpressionTest {
             ActionDescriptorDto.of("DT"));
 
     @Test
-    public void missingExpressionIsRejectedWhenTheActionNeedsOneTest() {
-        var exception = assertThrows(InvalidActionException.class, () -> ActionExpression.of(new ActionDto("ASSUME", List.of(), Map.of()), DESCRIPTORS));
+    void missingExpressionIsRejectedWhenTheActionNeedsOneTest() {
+        var assume = new ActionDto("ASSUME", List.of(), Map.of());
+        var exception = assertThrows(InvalidActionException.class, () -> ActionExpression.of(assume, DESCRIPTORS));
         assertEquals("ASSUME needs an expression", exception.getMessage());
-        var withLine = assertThrows(InvalidActionException.class, () -> ActionExpression.of(new ActionDto("ORI1", List.of(1), Map.of("state", "s0")), DESCRIPTORS));
+        var orI = new ActionDto("ORI1", List.of(1), Map.of("state", "s0"));
+        var withLine = assertThrows(InvalidActionException.class, () -> ActionExpression.of(orI, DESCRIPTORS));
         assertEquals("ORI1 needs an expression", withLine.getMessage());
     }
 
     @Test
-    public void emptyExpressionIsRejectedWhenTheActionNeedsOneTest() {
+    void emptyExpressionIsRejectedWhenTheActionNeedsOneTest() {
         var action = new ActionDto("ASSUME", List.of(), Map.of("expression", ""));
         var exception = assertThrows(InvalidActionException.class, () -> ActionExpression.of(action, DESCRIPTORS));
         assertEquals("ASSUME needs an expression", exception.getMessage());
     }
 
     @Test
-    public void whitespaceOnlyExpressionIsRejectedWhenTheActionNeedsOneTest() {
+    void whitespaceOnlyExpressionIsRejectedWhenTheActionNeedsOneTest() {
         var action = new ActionDto("ORI1", List.of(1), Map.of("expression", "   "));
         var exception = assertThrows(InvalidActionException.class, () -> ActionExpression.of(action, DESCRIPTORS));
         assertEquals("ORI1 needs an expression", exception.getMessage());
     }
 
     @Test
-    public void presentExpressionIsReturnedTest() {
+    void presentExpressionIsReturnedTest() {
         assertEquals(Optional.of("P -> Q"), ActionExpression.of(new ActionDto("ASSUME", List.of(), Map.of("expression", "P -> Q")), DESCRIPTORS));
         assertEquals(Optional.of(" P "), ActionExpression.of(new ActionDto("ORI1", List.of(1), Map.of("expression", " P ")), DESCRIPTORS));
     }
 
     @Test
-    public void expressionIsOptionalWhenTheActionDoesNotTakeOneTest() {
+    void expressionIsOptionalWhenTheActionDoesNotTakeOneTest() {
         for (var name : List.of("COPY", "DT")) {
             assertEquals(Optional.empty(), ActionExpression.of(new ActionDto(name, List.of(1), Map.of()), DESCRIPTORS));
             assertEquals(Optional.empty(), ActionExpression.of(new ActionDto(name, List.of(1), Map.of("expression", "")), DESCRIPTORS));
@@ -61,7 +63,7 @@ public class ActionExpressionTest {
     }
 
     @Test
-    public void unknownActionDoesNotNeedAnExpressionTest() {
+    void unknownActionDoesNotNeedAnExpressionTest() {
         assertEquals(Optional.empty(), ActionExpression.of(new ActionDto("NOPE", List.of(), Map.of()), DESCRIPTORS));
         assertEquals(Optional.empty(), ActionExpression.of(new ActionDto("ASSUME", List.of(), Map.of("expression", "")), List.of()));
     }

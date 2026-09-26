@@ -10,7 +10,7 @@ public abstract class BinaryOperation<T extends LogicOperation> implements Logic
     private final T left;
     private final T right;
 
-    public BinaryOperation(T left, T right) {
+    protected BinaryOperation(T left, T right) {
         this.left = left;
         this.right = right;
     }

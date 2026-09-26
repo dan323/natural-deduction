@@ -21,7 +21,7 @@ public abstract class OrE<T extends LogicOperation, Q extends ProofStep<T>, P ex
     private final int rule1;
     private final int rule2;
 
-    public OrE(int dis, int r1, int r2) {
+    protected OrE(int dis, int r1, int r2) {
         disj = dis;
         rule1 = r1;
         rule2 = r2;

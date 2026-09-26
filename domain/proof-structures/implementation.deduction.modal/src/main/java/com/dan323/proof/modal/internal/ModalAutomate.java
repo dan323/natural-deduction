@@ -173,16 +173,9 @@ public final class ModalAutomate {
         }
         ModalOperation goal = goals.getLast().getValue();
         String state = goals.getLast().getKey();
-        for (int i = 0; i < proof.getSteps().size()-1; i++) {
-            if (proof.getSteps().get(i).isValid() &&
-                    goal.equals(proof.getSteps().get(i).getStep()) &&
-                    state.equals(proof.getSteps().get(i).getState())) {
-                if (!goal.equals(proof.getSteps().getLast().getStep()) ||
-                    !(goal.equals(ConstantModal.FALSE) ||
-                            state.equals(proof.getSteps().getLast().getState()))) {
-                    return Optional.of(new ModalCopy(i + 1));
-                }
-            }
+        Optional<AbstractModalAction> copy = copyOfGoal(goal, state);
+        if (copy.isPresent()) {
+            return copy;
         }
         Optional<AbstractModalAction> sol = Optional.empty();
         if (goal instanceof ConjunctionModal conj) {
@@ -203,23 +196,38 @@ public final class ModalAutomate {
         return sol;
     }
 
+    /**
+     * A repetition of an earlier line that already is the goal in its state, unless that would only repeat the last
+     * line.
+     */
+    private Optional<AbstractModalAction> copyOfGoal(ModalOperation goal, String state) {
+        for (int i = 0; i < proof.getSteps().size()-1; i++) {
+            if (proof.getSteps().get(i).isValid() &&
+                    goal.equals(proof.getSteps().get(i).getStep()) &&
+                    state.equals(proof.getSteps().get(i).getState()) &&
+                    (!goal.equals(proof.getSteps().getLast().getStep()) ||
+                    !(goal.equals(ConstantModal.FALSE) ||
+                            state.equals(proof.getSteps().getLast().getState())))) {
+                return Optional.of(new ModalCopy(i + 1));
+            }
+        }
+        return Optional.empty();
+    }
+
     private Optional<AbstractModalAction> introRuleForGoalSometime(Sometime sometime, String state) {
         ModalLogicalOperation element = sometime.getElement();
         Map<String, Integer> states = new HashMap<>();
         for (int k = 0; k < proof.getSteps().size(); k++) {
-            if (proof.getSteps().get(k).isValid()) {
-                if (proof.getSteps().get(k).getStep().equals(element)) {
-                    states.put(proof.getSteps().get(k).getState(), k+1);
-                }
+            if (proof.getSteps().get(k).isValid() && proof.getSteps().get(k).getStep().equals(element)) {
+                states.put(proof.getSteps().get(k).getState(), k+1);
             }
         }
         for (int k = 0; k < proof.getSteps().size(); k++) {
-            if (proof.getSteps().get(k).isValid()) {
-                if (proof.getSteps().get(k).getStep() instanceof LessEqual lessEqual && lessEqual.getLeft().equals(state)) {
-                    Integer finalState = states.get(lessEqual.getRight());
-                    if (finalState != null) {
-                        return Optional.of(new ModalDiaI(finalState, k+1));
-                    }
+            if (proof.getSteps().get(k).isValid() && proof.getSteps().get(k).getStep() instanceof LessEqual lessEqual
+                    && lessEqual.getLeft().equals(state)) {
+                Integer finalState = states.get(lessEqual.getRight());
+                if (finalState != null) {
+                    return Optional.of(new ModalDiaI(finalState, k+1));
                 }
             }
         }

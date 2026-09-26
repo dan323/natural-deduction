@@ -7,8 +7,8 @@ import java.util.Map;
 
 public final class VariableClassic extends Variable implements ClassicalLogicOperation {
 
-    public VariableClassic(String var) {
-        super(var);
+    public VariableClassic(String name) {
+        super(name);
     }
 
     public boolean evaluate(Map<String, Boolean> values) {

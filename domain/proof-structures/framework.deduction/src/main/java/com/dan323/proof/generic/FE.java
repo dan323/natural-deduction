@@ -18,7 +18,7 @@ public abstract class FE<T extends LogicOperation, Q extends ProofStep<T>, P ext
     private final T intro;
     private final int falseIndex;
 
-    public FE(T intro, int falseIndex) {
+    protected FE(T intro, int falseIndex) {
         this.intro = intro;
         this.falseIndex = falseIndex;
     }

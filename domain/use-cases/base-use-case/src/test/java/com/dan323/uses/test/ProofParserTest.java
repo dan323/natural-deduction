@@ -18,27 +18,28 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 public class ProofParserTest {
 
     @Test
-    public void emptyProofIsRejectedTest() {
+    void emptyProofIsRejectedTest() {
         var proofParser = new ProofParserStub();
         assertThrows(InvalidProofException.class, () -> proofParser.parseProof(""));
     }
 
     @Test
-    public void badLineIsReportedWithItsNumberTest() {
+    void badLineIsReportedWithItsNumberTest() {
         var proofParser = new ProofParserStub();
         var exception = assertThrows(InvalidProofException.class, () -> proofParser.parseProof("ok\nok\nbad"));
         assertTrue(exception.getMessage().startsWith("Line 3 is not valid"), exception.getMessage());
     }
 
     @Test
-    public void lineFailureWithAMessageIsReportedTest() {
+    void lineFailureWithAMessageIsReportedTest() {
         var proofParser = new ProofParserStub();
-        var exception = assertThrows(InvalidProofException.class, () -> proofParser.parseProof(String.join(System.lineSeparator(), "ok", "illegal")));
+        var text = String.join(System.lineSeparator(), "ok", "illegal");
+        var exception = assertThrows(InvalidProofException.class, () -> proofParser.parseProof(text));
         assertEquals("Line 2 is not valid: nonsense in the line", exception.getMessage());
     }
 
     @Test
-    public void lineFailureWithoutAUsableMessageIsUnrecognizedFormatTest() {
+    void lineFailureWithoutAUsableMessageIsUnrecognizedFormatTest() {
         var proofParser = new ProofParserStub();
         for (var line : List.of("blank", "noMessage", "notIllegalArgument")) {
             var exception = assertThrows(InvalidProofException.class, () -> proofParser.parseProof(line));
@@ -47,13 +48,13 @@ public class ProofParserTest {
     }
 
     @Test
-    public void proofLineSplitTest() {
+    void proofLineSplitTest() {
         var line = ProofParser.ProofLine.split("      P -> Q           ->E [1, 2]");
         assertEquals(new ProofParser.ProofLine(2, "P -> Q", "->E [1, 2]"), line);
     }
 
     @Test
-    public void malformedProofLinesTest() {
+    void malformedProofLinesTest() {
         assertThrows(InvalidProofException.class, () -> ProofParser.ProofLine.split(""));
         assertThrows(InvalidProofException.class, () -> ProofParser.ProofLine.split("     "));
         assertThrows(InvalidProofException.class, () -> ProofParser.ProofLine.split("P Ass"));
@@ -66,7 +67,7 @@ public class ProofParserTest {
     }
 
     @Test
-    public void proofParserTest() {
+    void proofParserTest() {
         var proofParser = new ProofParserStub();
         var proof = proofParser.parseProof("\n".repeat(5));
         assertEquals(5, proof.getSteps().size());

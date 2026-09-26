@@ -15,7 +15,7 @@ public abstract class Copy<T extends LogicOperation, Q extends ProofStep<T>, P e
 
     private final int source;
 
-    public Copy(int i) {
+    protected Copy(int i) {
         source = i;
     }
 

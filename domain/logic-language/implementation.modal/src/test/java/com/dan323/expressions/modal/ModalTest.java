@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test;
 public class ModalTest {
 
     @Test
-    public void modalToStringTest() {
+    void modalToStringTest() {
         ConstantModal c = ConstantModal.TRUE;
         VariableModal v = new VariableModal("P");
         ModalLogicalOperation clo = new NegationModal(new ConjunctionModal(v, c));
@@ -23,26 +23,26 @@ public class ModalTest {
     }
 
     @Test
-    public void constantConstructTest() {
+    void constantConstructTest() {
         Assertions.assertNotEquals(ConstantModal.TRUE.hashCode(), ConstantModal.FALSE.hashCode());
     }
 
     @Test
-    public void disjunctionTest() {
+    void disjunctionTest() {
         VariableModal p = new VariableModal("P");
         DisjunctionModal d = new DisjunctionModal(p, p);
         Assertions.assertEquals("P | P", d.toString());
     }
 
     @Test
-    public void implicationToString() {
+    void implicationToString() {
         VariableModal p = new VariableModal("P");
         ImplicationModal d = new ImplicationModal(p, p);
         Assertions.assertEquals("P -> P", d.toString());
     }
 
     @Test
-    public void constantValue() {
+    void constantValue() {
         Assertions.assertTrue(ConstantModal.TRUE.getValue());
         Assertions.assertTrue(ConstantModal.FALSE.isFalsehood());
         Assertions.assertFalse(ConstantModal.FALSE.getValue());
@@ -50,7 +50,7 @@ public class ModalTest {
     }
 
     @Test
-    public void toStringComplex() {
+    void toStringComplex() {
         VariableModal p = new VariableModal("P");
         NegationModal d = new NegationModal(p);
         ImplicationModal n = new ImplicationModal(d, d);

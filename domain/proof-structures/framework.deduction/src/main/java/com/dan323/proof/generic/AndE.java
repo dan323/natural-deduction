@@ -18,7 +18,7 @@ public abstract class AndE<T extends LogicOperation, Q extends ProofStep<T>, P e
     private final int applyAt;
     private final Function<Conjunction<T>, T> side;
 
-    public AndE(int app, Function<Conjunction<T>, T> fun) {
+    protected AndE(int app, Function<Conjunction<T>, T> fun) {
         applyAt = app;
         side = fun;
     }

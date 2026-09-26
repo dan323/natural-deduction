@@ -16,7 +16,7 @@ import static org.mockito.Mockito.mock;
 public class ProofTest {
 
     @Test
-    public void setterGetterTest() {
+    void setterGetterTest() {
         ProofStub proof = new ProofStub();
         List<LogicOperation> assms = List.of(mock(LogicOperation.class));
         LogicOperation goal = mock(LogicOperation.class);
@@ -27,7 +27,7 @@ public class ProofTest {
     }
 
     @Test
-    public void removeStepsTest() {
+    void removeStepsTest() {
         ProofStub proof = new ProofStub();
 
         ProofStep<LogicOperation> p1 = mock(ProofStep.class);
@@ -48,7 +48,7 @@ public class ProofTest {
     }
 
     @Test
-    public void isDoneTest() {
+    void isDoneTest() {
         ProofStub pr = new ProofStub();
 
         assertFalse(pr.isDone());
@@ -103,6 +103,7 @@ public class ProofTest {
 
         @Override
         public void apply(ProofStub pf) {
+            // A test stub: applying it does nothing
         }
 
         @Override

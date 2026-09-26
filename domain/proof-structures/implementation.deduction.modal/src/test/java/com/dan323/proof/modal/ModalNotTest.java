@@ -14,7 +14,7 @@ import java.util.List;
 public class ModalNotTest {
 
     @Test
-    public void modalNotIApply() {
+    void modalNotIApply() {
         var modalnoti = new ModalNotI();
         String state = "i";
         var variable = new VariableModal("P");
@@ -48,7 +48,7 @@ public class ModalNotTest {
     }
 
     @Test
-    public void ModalNotEApply() {
+    void ModalNotEApply() {
         var state = "i";
         var notE = new ModalNotE(1);
         var negneg = new NegationModal(new NegationModal(new VariableModal("P")));

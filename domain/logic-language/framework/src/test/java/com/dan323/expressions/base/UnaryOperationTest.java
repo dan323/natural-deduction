@@ -18,24 +18,24 @@ public class UnaryOperationTest {
 
 
     @Test
-    public void castTest() {
+    void castTest() {
         assertNotNull(unaryOperation1.castToLanguage());
         assertEquals(unaryOperation1, unaryOperation1.castToLanguage());
     }
 
     @BeforeEach
-    public void init() {
+    void init() {
         unaryOperation1 = new UnaryOperationStub(new LogicOperationStub(1));
         unaryOperation2 = new UnaryOperationStub(unaryOperation1);
     }
 
     @Test
-    public void gettersTest() {
+    void gettersTest() {
         Assertions.assertEquals(new LogicOperationStub(1), unaryOperation1.getElement());
     }
 
     @Test
-    public void toStringTest() {
+    void toStringTest() {
         Assertions.assertEquals("unop " + unaryOperation1.getElement().toString(), unaryOperation1.toString());
         Assertions.assertEquals("unop (" + unaryOperation1.toString() + ")", unaryOperation2.toString());
     }

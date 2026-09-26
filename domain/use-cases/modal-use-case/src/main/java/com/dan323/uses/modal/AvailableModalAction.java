@@ -26,14 +26,14 @@ public enum AvailableModalAction {
             "Assume A in state s, or a relation such as s0 <= s1 (which takes no state), opening a new subproof",
             formula("Assumption (A or s0 <= s1)"), state("State of A (e.g. s1)")),
     OR_I1("|I1", "Or introduction (left)", "∨I", INTRODUCTION,
-            "From A, derive A ∨ B for any B, in the same state", line("Line with A"), formula("Right side (B)")),
+            "From A, derive A ∨ B for any B, in the same state", line(Labels.LINE_WITH_A), formula("Right side (B)")),
     OR_I2("|I2", "Or introduction (right)", "∨I", INTRODUCTION,
             "From B, derive A ∨ B for any A, in the same state", line("Line with B"), formula("Left side (A)")),
     OR_E("|E", "Or elimination", "∨E", ELIMINATION,
             "From A ∨ B, A → C and B → C, all in the same state, derive C",
             line("Disjunction (A ∨ B)"), line("Implication (A → C)"), line("Implication (B → C)")),
     AND_I("&I", "And introduction", "∧I", INTRODUCTION,
-            "From A and B in the same state, derive A ∧ B", line("Line with A"), line("Line with B")),
+            "From A and B in the same state, derive A ∧ B", line(Labels.LINE_WITH_A), line("Line with B")),
     AND_E1("&E1", "And elimination (left)", "∧E", ELIMINATION,
             "From A ∧ B, derive A", line("Conjunction (A ∧ B)")),
     AND_E2("&E2", "And elimination (right)", "∧E", ELIMINATION,
@@ -52,24 +52,33 @@ public enum AvailableModalAction {
             "From ⊥, derive any A in any state s",
             line("Falsum (⊥)"), formula("Formula to derive (A)"), state("State of A (e.g. s1)")),
     FALSE_I("FI", "Falsum introduction", "⊥I", INTRODUCTION,
-            "From A and ¬A in the same state, derive ⊥", line("Line with A"), line("Negation (¬A)")),
+            "From A and ¬A in the same state, derive ⊥", line(Labels.LINE_WITH_A), line("Negation (¬A)")),
     BOX_I("[]I", "Box introduction", "□I", INTRODUCTION,
             "Close the last assumption s <= t, with t a fresh state and A in state t the last line, and derive □A in state s"),
     BOX_E("[]E", "Box elimination", "□E", ELIMINATION,
             "From □A in state s and s <= t, derive A in state t",
-            line("Necessity (□A in state s)"), line("Relation (s <= t)")),
+            line("Necessity (□A in state s)"), line(Labels.RELATION_S_T)),
     DIA_I("<>I", "Diamond introduction", "◇I", INTRODUCTION,
             "From A in state t and s <= t, derive ◇A in state s",
-            line("Line with A (in state t)"), line("Relation (s <= t)")),
+            line("Line with A (in state t)"), line(Labels.RELATION_S_T)),
     DIA_E("<>E", "Diamond elimination", "◇E", ELIMINATION,
             "From ◇A in state s, close the last two assumptions s <= t and A in state t, with t a fresh state, and derive the last line C",
             line("Possibility (◇A in state s)")),
     REFLEXIVE("Refl", "Reflexivity", "Refl", OTHER,
             "From any line in state s, derive s <= s", line("Line in state s")),
     TRANSITIVE("Trans", "Transitivity", "Trans", OTHER,
-            "From s <= t and t <= u, derive s <= u", line("Relation (s <= t)"), line("Relation (t <= u)"));
+            "From s <= t and t <= u, derive s <= u", line(Labels.RELATION_S_T), line("Relation (t <= u)"));
 
     private final ActionDescriptorDto descriptor;
+
+    /** Input labels that several actions share. */
+    private static final class Labels {
+        static final String LINE_WITH_A = "Line with A";
+        static final String RELATION_S_T = "Relation (s <= t)";
+
+        private Labels() {
+        }
+    }
 
     AvailableModalAction(String ruleName, String label, String symbol, ActionCategory category, String description,
                          ActionInput... inputs) {

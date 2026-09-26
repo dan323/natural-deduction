@@ -12,7 +12,7 @@ import org.junit.jupiter.api.Test;
 public class ClassicImpTest {
 
     @Test
-    public void classicDTApply() {
+    void classicDTApply() {
         ClassicDeductionTheorem deductionTheorem = new ClassicDeductionTheorem();
         VariableClassic variable = new VariableClassic("P");
         ClassicAssume assume = new ClassicAssume(variable);
@@ -28,7 +28,7 @@ public class ClassicImpTest {
     }
 
     @Test
-    public void classicMPApply() {
+    void classicMPApply() {
         ClassicModusPonens modusPonens = new ClassicModusPonens(1, 2);
         VariableClassic variable = new VariableClassic("P");
         ImplicationClassic varImpVar = new ImplicationClassic(variable, variable);

@@ -33,14 +33,14 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 public class ModalUseTest {
 
     @Test
-    public void modalSolver() {
+    void modalSolver() {
         var solver = new LogicalSolver<>(new ModalProofTransformer(), Duration.ofSeconds(30));
         var e = solver.perform(new ModalProofTransformer().fromProof(ModalProof.naturalDeductionNoAssms()));
         assertTrue(e.isDone());
     }
 
     @Test
-    public void modalActions() {
+    void modalActions() {
         LogicalGetActions actions = (new ModalConfiguration()).modalActions();
         assertEquals(20, actions.perform().size());
     }

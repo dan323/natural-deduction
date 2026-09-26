@@ -8,7 +8,7 @@ public abstract class RelationOperation implements ModalOperation {
     private final String right;
     private final String operation;
 
-    public RelationOperation(String left, String right, String operation) {
+    protected RelationOperation(String left, String right, String operation) {
         this.left = left;
         this.right = right;
         this.operation = operation;

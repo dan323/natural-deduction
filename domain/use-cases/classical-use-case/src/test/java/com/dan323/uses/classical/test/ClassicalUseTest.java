@@ -28,7 +28,7 @@ import static org.junit.jupiter.api.Assertions.*;
 public class ClassicalUseTest {
 
     @Test
-    public void classicSolver() {
+    void classicSolver() {
         var solver = new LogicalSolver<>(new ClassicalProofTransformer(), Duration.ofSeconds(30));
         var proof = solver.perform(new ClassicalProofTransformer().fromProof(ClassicalProof.naturalDeductionNoAssms()));
         assertTrue(proof.isDone());
@@ -39,7 +39,7 @@ public class ClassicalUseTest {
     }
 
     @Test
-    public void classicActions() {
+    void classicActions() {
         LogicalGetActions actions = (new ClassicalConfiguration()).classicalActions();
         assertEquals(14, actions.perform().size());
     }
