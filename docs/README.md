@@ -75,7 +75,7 @@ See [Project Modules](./MODULES.md) for more details.
 
 ## Technology Stack
 
-- **Backend**: Java 21, Spring Boot 3.5.16, Maven
+- **Backend**: Java 21, Spring Boot 4.1.1, Maven
 - **Frontend**: React 19, TypeScript, Vite, Jest
 - **Testing**: JUnit 6, Mockito, PIT mutation testing
 - **Quality**: SonarCloud, JaCoCo coverage
