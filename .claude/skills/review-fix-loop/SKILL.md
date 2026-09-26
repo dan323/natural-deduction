@@ -100,18 +100,16 @@ continue to 2b.
 
 ### 2b. Spawn the reviewer (fresh agent, no memory of prior rounds)
 
+The role instructions live in `.claude/agents/pr-reviewer.md`. That agent has no
+Edit/Write tools, so it cannot fix anything even if it tries. Pass only the
+context:
+
 ```
 Agent(
-  subagent_type: "general-purpose",
+  subagent_type: "pr-reviewer",
   description: "Independent PR review, round <round>",
-  prompt: """
-    Repository: OWNER/REPO_NAME, PR #PR_NUMBER (branch BRANCH), local clone at LOCAL_PATH.
-
-    Invoke the Skill tool with skill="code-review" and args="<level> <PR_NUMBER> --comment"
-    against this PR. Do not read or fix code yourself beyond what the skill does —
-    you are the reviewer, not the fixer. Report back only: how many findings were
-    posted, and their one-line summaries.
-  """
+  prompt: "Repository: OWNER/REPO_NAME, PR_NUMBER: <n>, BRANCH: <branch>,
+           LOCAL_PATH: <path>, LEVEL: <level>, round: <round>."
 )
 ```
 
@@ -129,37 +127,23 @@ the two is true — a green review with red CI (or vice versa) is not done.
 
 ### 2d. Spawn the fixer (fresh agent, independent of the reviewer)
 
+The role instructions live in `.claude/agents/pr-fixer.md`. That agent has no
+Skill or Agent tool, so it cannot run `/code-review` on its own work. It reads the
+clone's CLAUDE.md and runs the local checks (`mvn -B verify` and/or the frontend
+typecheck + tests) before pushing. Pass only the context:
+
 ```
 Agent(
-  subagent_type: "general-purpose",
+  subagent_type: "pr-fixer",
   description: "Independent PR fix, round <round>",
-  prompt: """
-    Repository: OWNER/REPO_NAME, PR #PR_NUMBER, branch BRANCH, local clone LOCAL_PATH.
-
-    Read the PR's unresolved review comments (gh api repos/OWNER/REPO_NAME/pulls/PR_NUMBER/comments,
-    or gh pr view PR_NUMBER --comments) that were posted by the review step just run,
-    plus any "CI failure — <check>" issue comment posted this round (gh pr view
-    PR_NUMBER --comments) — that's the only feedback in scope. Treat a CI failure as
-    highest priority: read its log excerpt, find the root cause (it may be in a file
-    the PR didn't touch, e.g. a pre-existing test whose fixture the PR's change now
-    affects), and fix it first. For each actionable item: read the referenced file
-    from LOCAL_PATH first, then apply the fix. Skip comments that are informational
-    only or out of the PR's scope, and say why.
-
-    Then:
-      git -C LOCAL_PATH add -A
-      git -C LOCAL_PATH diff --cached --stat   # confirm there is something to commit
-      git -C LOCAL_PATH commit -m "Address review findings (round <round>)"
-      git -C LOCAL_PATH push origin BRANCH --force-with-lease
-
-    If nothing was fixable, say so explicitly instead of committing an empty change.
-    Report a short summary: fixed (file:line — what), skipped (file:line — why).
-  """
+  prompt: "Repository: OWNER/REPO_NAME, PR_NUMBER: <n>, BRANCH: <branch>,
+           LOCAL_PATH: <path>, round: <round>."
 )
 ```
 
 If the fixer made no commit (nothing actionable), stop the loop — further rounds
-would just re-review the same unaddressed comments.
+would just re-review the same unaddressed comments. If it made fixes but did not
+push because local checks stayed red, stop too and report `local checks failing`.
 
 ## Step 3 — Report
 
@@ -168,7 +152,7 @@ would just re-review the same unaddressed comments.
 
 PR: <pr_url>
 Rounds run: <n> / <max_rounds>
-Outcome: <clean pass | fixer made no changes | round cap reached>
+Outcome: <clean pass | fixer made no changes | local checks failing | round cap reached>
 ```
 
 ## Step 4 — Emit workflow output

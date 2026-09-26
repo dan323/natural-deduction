@@ -1,26 +1,135 @@
 projects:
-  - repo: dan323/natural-deduction
-    tasks:
-      - id: e09874
-        description: "#133: PR 6.2: Text equivalent for cited-line highlighting"
-        status: done
-        issue_number: 133
-        issue_url: https://github.com/dan323/natural-deduction/issues/133
-        branch: task/pr-6-2-text-equivalent-for-cited-line-highlig-0b3761
-        pr_url: https://github.com/dan323/natural-deduction/pull/134
-        date: "2026-09-22"
-      - id: a374d7
-        description: "#132: PR 6.1: Expose the proof text protocol in the UI"
-        status: pending
-        issue_number: 132
-        issue_url: https://github.com/dan323/natural-deduction/issues/132
-      - id: bc6d83
-        description: "#123: UI: single empty state with how-it-works and an example proof"
-        status: pending
-        issue_number: 123
-        issue_url: https://github.com/dan323/natural-deduction/issues/123
-      - id: 6baf73
-        description: "#122: UI: formula syntax help and connective buttons"
-        status: pending
-        issue_number: 122
-        issue_url: https://github.com/dan323/natural-deduction/issues/122
+- repo: dan323/natural-deduction
+  tasks:
+  - id: e09874
+    description: '#133: PR 6.2: Text equivalent for cited-line highlighting'
+    status: done
+    issue_number: 133
+    issue_url: https://github.com/dan323/natural-deduction/issues/133
+    branch: task/pr-6-2-text-equivalent-for-cited-line-highlig-0b3761
+    pr_url: https://github.com/dan323/natural-deduction/pull/134
+    date: '2026-09-22'
+    pr_announced: true
+  - id: a374d7
+    description: '#132: PR 6.1: Expose the proof text protocol in the UI'
+    status: done
+    issue_number: 132
+    issue_url: https://github.com/dan323/natural-deduction/issues/132
+    branch: task/pr-6-1-expose-the-proof-text-protocol-in-the-ui-a374d7
+    pr_url: https://github.com/dan323/natural-deduction/pull/135
+    date: '2026-09-24'
+    pr_announced: true
+  - id: bc6d83
+    description: '#123: UI: single empty state with how-it-works and an example proof'
+    status: done
+    issue_number: 123
+    issue_url: https://github.com/dan323/natural-deduction/issues/123
+    branch: task/123-ui-single-empty-state-with-how-it-works-a-1db71b
+    pr_url: https://github.com/dan323/natural-deduction/pull/137
+    date: '2026-09-24'
+    pr_announced: true
+  - id: 6baf73
+    description: '#122: UI: formula syntax help and connective buttons'
+    status: done
+    issue_number: 122
+    issue_url: https://github.com/dan323/natural-deduction/issues/122
+    branch: task/122-ui-formula-syntax-help-and-connective-but-b735ce
+    pr_url: https://github.com/dan323/natural-deduction/pull/138
+    date: '2026-09-24'
+    pr_announced: true
+  - id: ce99d1
+    description: '#139: PR 7.1: Check a new proof''s formulas with the backend before
+      showing it'
+    status: done
+    issue_number: 139
+    issue_url: https://github.com/dan323/natural-deduction/issues/139
+    branch: task/139-pr-7-1-check-a-new-proof-s-formulas-with-ce99d1
+    pr_url: https://github.com/dan323/natural-deduction/pull/151
+    date: '2026-09-24'
+  - id: 3b1123
+    description: '#140: PR 7.2: Keep the proof across a page reload'
+    status: done
+    issue_number: 140
+    issue_url: https://github.com/dan323/natural-deduction/issues/140
+    branch: task/140-pr-7-2-keep-the-proof-across-a-page-reloa-8a2ccf
+    pr_url: https://github.com/dan323/natural-deduction/pull/153
+    date: '2026-09-24'
+  - id: b835fb
+    description: '#141: PR 7.3: "Load from text" accepts only finished proofs, through
+      POST .../proof'
+    status: done
+    issue_number: 141
+    issue_url: https://github.com/dan323/natural-deduction/issues/141
+    branch: task/141-pr-7-3-load-from-text-accepts-only-finish-71060a
+    pr_url: https://github.com/dan323/natural-deduction/pull/156
+    date: '2026-09-24'
+  - id: eea0cd
+    description: '#142: PR 8.1: An exercise catalog per logic (backend)'
+    status: done
+    issue_number: 142
+    issue_url: https://github.com/dan323/natural-deduction/issues/142
+    branch: task/142-exercise-catalog-backend-eea0cd
+    pr_url: https://github.com/dan323/natural-deduction/pull/152
+    date: '2026-09-24'
+  - id: 764c99
+    description: '#143: PR 8.2: Exercises in the UI (frontend)'
+    status: done
+    issue_number: 143
+    issue_url: https://github.com/dan323/natural-deduction/issues/143
+    branch: task/143-exercises-in-the-ui-764c99
+    pr_url: https://github.com/dan323/natural-deduction/pull/157
+    date: '2026-09-24'
+  - id: e8d1b8
+    description: '#144: PR 9.1: Intuitionistic propositional logic (backend)'
+    status: done
+    issue_number: 144
+    issue_url: https://github.com/dan323/natural-deduction/issues/144
+    branch: task/144-intuitionistic-logic-e8d1b8
+    pr_url: https://github.com/dan323/natural-deduction/pull/155
+    date: '2026-09-24'
+  - id: 53ef60
+    description: '#145: PR 9.2: Pick the logic in the UI (frontend)'
+    status: done
+    issue_number: 145
+    issue_url: https://github.com/dan323/natural-deduction/issues/145
+    branch: task/145-pr-9-2-pick-the-logic-in-the-ui-frontend-de8f5f
+    pr_url: https://github.com/dan323/natural-deduction/pull/158
+    date: '2026-09-24'
+  - id: 735145
+    description: '#146: PR 10.1: Describe the modal rules (backend)'
+    status: done
+    issue_number: 146
+    issue_url: https://github.com/dan323/natural-deduction/issues/146
+    branch: task/146-describe-modal-rules-735145
+    pr_url: https://github.com/dan323/natural-deduction/pull/154
+    date: '2026-09-24'
+  - id: fddbd9
+    description: '#147: PR 10.2: States in modal proofs (frontend)'
+    status: done
+    issue_number: 147
+    issue_url: https://github.com/dan323/natural-deduction/issues/147
+    branch: task/147-pr-10-2-states-in-modal-proofs-frontend-e2f1f7
+    pr_url: https://github.com/dan323/natural-deduction/pull/160
+    date: '2026-09-24'
+  - id: bf66ae
+    description: '#148: PR 10.3: Modal formula help (frontend)'
+    status: done
+    issue_number: 148
+    issue_url: https://github.com/dan323/natural-deduction/issues/148
+    branch: task/148-modal-formula-help
+    pr_url: https://github.com/dan323/natural-deduction/pull/159
+    date: '2026-09-24'
+  - id: c24093
+    description: '#149: PR 10.4: Offer modal logic in the selector (frontend + exercises)'
+    status: done
+    issue_number: 149
+    issue_url: https://github.com/dan323/natural-deduction/issues/149
+    branch: task/149-pr-10-4-offer-modal-logic-in-the-selector-c24093
+    pr_url: https://github.com/dan323/natural-deduction/pull/162
+    date: '2026-09-24'
+  - id: a9ec7a
+    description: '#150: PR 10.5: A modal-next-until logic (modal logic with Next and
+      Until)'
+    status: done
+    issue_number: 150
+    issue_url: https://github.com/dan323/natural-deduction/issues/150

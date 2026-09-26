@@ -35,6 +35,7 @@ steps:
   - id: sync-in
     skill: sync-issues
     description: Reconcile open GitHub issues into tasks.yml.
+    inline: true          # one gh call + a YAML rewrite; no fresh agent needed (workflow >= 1.2.0)
     args:
       tasks: ${{ inputs.tasks }}
       repo: ${{ inputs.repo }}
