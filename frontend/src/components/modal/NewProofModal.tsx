@@ -166,6 +166,9 @@ const NewProofModal: FC<NewProofModalProps> = ({ isOpen, opener: openerProp, onC
     setLogic(value);
     setSubmitError(null);
     setLoadError(null);
+    // The instant check depends on the logic too (X and U, successor states), so its errors were about the other one.
+    setPremises((current) => current.map((premise) => ({ ...premise, error: null })));
+    setGoalError(null);
   };
 
   const handleSubmit = async () => {

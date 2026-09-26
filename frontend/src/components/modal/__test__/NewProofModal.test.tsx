@@ -808,4 +808,24 @@ describe('NewProofModal modal-next-until formula help', () => {
     expect(onSubmit).not.toHaveBeenCalled();
     expect(screen.getByText(/Missing operator before "p"/)).toBeInTheDocument();
   });
+
+  test('the errors of the instant check go away when the logic changes, since they were about the other one', async () => {
+    const user = userEvent.setup();
+    const onSubmit = jest.fn().mockResolvedValue(null);
+    render(<NewProofModal isOpen onClose={jest.fn()} logic="modal" onSubmit={onSubmit} />);
+
+    await user.type(screen.getByLabelText('Premise 1'), 'X q');
+    await user.type(screen.getByLabelText('Goal:'), 'X p');
+    await user.click(screen.getByRole('button', { name: 'Start Proof' }));
+    expect(screen.getByLabelText('Premise 1')).toHaveAttribute('aria-invalid', 'true');
+    expect(screen.getByLabelText('Goal:')).toHaveAttribute('aria-invalid', 'true');
+
+    await user.selectOptions(screen.getByLabelText('Logic:'), 'modal-next-until');
+
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+    expect(screen.getByLabelText('Premise 1')).not.toHaveAttribute('aria-invalid');
+    expect(screen.getByLabelText('Goal:')).not.toHaveAttribute('aria-invalid');
+    await user.click(screen.getByRole('button', { name: 'Start Proof' }));
+    expect(onSubmit).toHaveBeenCalled();
+  });
 });
