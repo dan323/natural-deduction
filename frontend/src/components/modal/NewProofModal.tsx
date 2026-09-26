@@ -108,15 +108,24 @@ const NewProofModal: FC<NewProofModalProps> = ({ isOpen, opener: openerProp, onC
     pendingFocus.current = null;
   }, [premises]);
 
-  // Close on Escape key, and keep Tab inside the dialog
+  // Close on Escape key or on a click on the backdrop (the dialog itself, outside its content), and keep Tab inside the
+  // dialog
   useEffect(() => {
     if (!isOpen) return;
+    const dialog = dialogRef.current;
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') onClose();
-      else if (e.key === 'Tab' && dialogRef.current) trapTab(e, dialogRef.current);
+      else if (e.key === 'Tab' && dialog) trapTab(e, dialog);
+    };
+    const handleBackdropClick = (e: MouseEvent) => {
+      if (e.target === dialog) onClose();
     };
     document.addEventListener('keydown', handleKeyDown);
-    return () => document.removeEventListener('keydown', handleKeyDown);
+    dialog?.addEventListener('click', handleBackdropClick);
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+      dialog?.removeEventListener('click', handleBackdropClick);
+    };
   }, [isOpen, onClose]);
 
   // Note who gets the focus back on close. The rest of the page goes inert when the dialog opens, which in a browser
@@ -235,7 +244,6 @@ const NewProofModal: FC<NewProofModalProps> = ({ isOpen, opener: openerProp, onC
       className="modal"
       aria-modal="true"
       aria-labelledby="new-proof-modal-title"
-      onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
     >
       <div className="modal-content">
         <h2 id="new-proof-modal-title">New Proof</h2>

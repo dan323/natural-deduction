@@ -38,9 +38,11 @@ public class ModalFalseTest {
         assertNotEquals(modalFE, modalFE3);
         assertEquals(modalFE.hashCode(), modalFE4.hashCode());
 
-        assertEquals(new StubFI(1,2), modalFI);
-        assertNotEquals(modalFI, new StubFI(1,2));
-        assertNotEquals(new StubFI(1,3), modalFI);
+        // FI.equals compares an FI of any logic by its lines, so the stub equals modalFI, but not the other way round.
+        FI<?, ?, ?> modalFIAsFI = modalFI;
+        assertEquals(new StubFI(1,2), modalFIAsFI);
+        assertNotEquals(modalFIAsFI, new StubFI(1,2));
+        assertNotEquals(new StubFI(1,3), modalFIAsFI);
         assertNotEquals("fail", new StubFI(1,3));
     }
 

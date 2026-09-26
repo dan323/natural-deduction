@@ -53,7 +53,7 @@ jobs:
         env:
           PR: ${{ github.event.pull_request.number }}
       - name: publish jacoco report
-        uses: peaceiris/actions-gh-pages@v4.1.0
+        uses: peaceiris/actions-gh-pages@84c30a85c19949d7eee79c4ff27748b70285e453 # v4.1.0
         if: github.event_name == 'pull_request' && github.actor != 'dependabot[bot]'
         env:
           PR: ${{ github.event.pull_request.number }}
@@ -65,7 +65,7 @@ jobs:
           commit_message: "jacoco-report for PR ${PR}"
           keep_files: true
       - name: publish jacoco report
-        uses: peaceiris/actions-gh-pages@v4.1.0
+        uses: peaceiris/actions-gh-pages@84c30a85c19949d7eee79c4ff27748b70285e453 # v4.1.0
         if: github.event_name != 'pull_request' && github.actor != 'dependabot[bot]'
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
@@ -104,7 +104,7 @@ jobs:
         env:
           PR: ${{ github.event.pull_request.number }}
       - name: publish pitest report
-        uses: peaceiris/actions-gh-pages@v4.1.0
+        uses: peaceiris/actions-gh-pages@84c30a85c19949d7eee79c4ff27748b70285e453 # v4.1.0
         if: github.event_name == 'pull_request' && github.actor != 'dependabot[bot]'
         env:
           PR: ${{ github.event.pull_request.number }}
@@ -116,7 +116,7 @@ jobs:
           commit_message: "pitest-report for PR $PR"
           keep_files: true
       - name: publish pitest report
-        uses: peaceiris/actions-gh-pages@v4.1.0
+        uses: peaceiris/actions-gh-pages@84c30a85c19949d7eee79c4ff27748b70285e453 # v4.1.0
         if: github.event_name != 'pull_request' && github.actor != 'dependabot[bot]'
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
