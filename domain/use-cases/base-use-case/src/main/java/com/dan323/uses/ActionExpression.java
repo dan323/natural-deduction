@@ -22,8 +22,18 @@ public final class ActionExpression {
      * @throws InvalidActionException when the action needs an expression and there is none, or it is blank
      */
     public static Optional<String> of(ActionDto action, List<ActionDescriptorDto> descriptors) {
+        return of(action, action.name(), descriptors);
+    }
+
+    /**
+     * Like {@link #of(ActionDto, List)}, for an action sent under another spelling of its descriptor name (e.g.
+     * {@code Rep} for {@code COPY}): the error still names the action as it was sent.
+     *
+     * @param descriptorName the name of {@code action} among {@code descriptors}
+     */
+    public static Optional<String> of(ActionDto action, String descriptorName, List<ActionDescriptorDto> descriptors) {
         var expression = Optional.ofNullable(action.extraParameters().get("expression")).filter(text -> !text.isBlank());
-        if (expression.isEmpty() && needsExpression(action.name(), descriptors)) {
+        if (expression.isEmpty() && needsExpression(descriptorName, descriptors)) {
             throw new InvalidActionException(action.name() + " needs an expression");
         }
         return expression;

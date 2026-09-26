@@ -55,6 +55,12 @@ relation rules (category `OTHER`). Modal descriptions write the reachability of 
 the `STATE` params of `Ass` and `FE` are labelled `State of A (e.g. s1)`; an `Ass` of a relation formula such as
 `s0 <= s1` ignores its state. The list is built once at startup.
 
+The 14 rules the two share can be sent under either name to every logic that has the rule: classical, intuitionistic,
+modal and `modal-next-until` logic all accept both `COPY` and `Rep`, `MP` and `->E`, `ASSUME` and `Ass`, and so on (the
+classical `AvailableAction` names and the modal rule names). Intuitionistic logic has no double negation elimination,
+so it rejects both `NOTE` and `-E`. Errors name the action as it was sent, e.g.
+`Rule -E is not a rule of intuitionistic logic`.
+
 > **Breaking change:** this endpoint used to return strings such as `"ANDI([int, int])"`.
 
 ### Apply an action: `POST /logic/{logic}/action`

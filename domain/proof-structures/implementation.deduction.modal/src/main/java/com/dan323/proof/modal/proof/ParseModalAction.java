@@ -203,8 +203,25 @@ public final class ParseModalAction {
         return modalParser.evaluate(expression);
     }
 
+    /**
+     * The names classical logic gives to the rules it shares with modal logic ({@code AvailableAction}), mapped to the
+     * modal rule names, so that a client can send the same name to every logic.
+     */
+    private static final Map<String, String> CLASSICAL_NAMES = Map.ofEntries(
+            Map.entry("ASSUME", "Ass"), Map.entry("ORI1", "|I1"), Map.entry("ORI2", "|I2"), Map.entry("ORE", "|E"),
+            Map.entry("ANDI", "&I"), Map.entry("ANDE1", "&E1"), Map.entry("ANDE2", "&E2"), Map.entry("COPY", "Rep"),
+            Map.entry("NOTE", "-E"), Map.entry("NOTI", "-I"), Map.entry("DT", "->I"), Map.entry("MP", "->E"));
+
+    /**
+     * @return the modal rule name for {@code name}: {@code name} itself, unless it is the classical name of a shared
+     * rule (e.g. {@code COPY} gives {@code Rep})
+     */
+    public static String ruleName(String name) {
+        return CLASSICAL_NAMES.getOrDefault(name, name);
+    }
+
     public static AbstractModalAction parseAction(String name, List<Integer> sources, ModalOperation extraInfo, String state) {
-        return switch (name) {
+        return switch (ruleName(name)) {
             case "Ass" ->
                     extraInfo instanceof RelationOperation relationOperation ? new ModalAssume(relationOperation) : new ModalAssume((ModalLogicalOperation) extraInfo, state);
             case "|I1" -> new ModalOrI1(sources.getFirst(), (ModalLogicalOperation) extraInfo);
