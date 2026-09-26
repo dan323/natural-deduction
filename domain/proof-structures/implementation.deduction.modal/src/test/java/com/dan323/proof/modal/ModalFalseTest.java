@@ -16,7 +16,7 @@ import static org.junit.jupiter.api.Assertions.*;
 public class ModalFalseTest {
 
     @Test
-    public void equalsTest() {
+    void equalsTest() {
         ModalFI modalFI = new ModalFI(1, 2);
         ModalFI modalFI2 = new ModalFI(1, 4);
         ModalFI modalFI3 = new ModalFI(1, 3);
@@ -45,7 +45,7 @@ public class ModalFalseTest {
     }
 
     @Test
-    public void modalFIApply() {
+    void modalFIApply() {
         ModalFI modalFI = new ModalFI(1, 2);
         VariableModal variable = new VariableModal("P");
         ModalAssume assume = new ModalAssume(variable, "i");
@@ -63,7 +63,7 @@ public class ModalFalseTest {
     }
 
     @Test
-    public void modalFIValid() {
+    void modalFIValid() {
         var modalFI = new ModalFI(1, 2);
         var p = new VariableModal("P");
         var assume = new ModalAssume(p, "i");
@@ -90,7 +90,7 @@ public class ModalFalseTest {
     }
 
     @Test
-    public void modalFEApply() {
+    void modalFEApply() {
         var modalFI = new ModalFI(1, 2);
         var variable = new VariableModal("P");
         var assume = new ModalAssume(variable, "i");

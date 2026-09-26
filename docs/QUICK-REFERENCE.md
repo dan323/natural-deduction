@@ -127,7 +127,14 @@ docker run -p 8080:8080 natural-deduction:latest
 ### Get the Available Actions
 ```powershell
 curl http://localhost:8080/logic/classical/actions
+curl http://localhost:8080/logic/intuitionistic/actions
 curl http://localhost:8080/logic/modal/actions
+curl http://localhost:8080/logic/modal-next-until/actions
+```
+
+### List the Exercises
+```powershell
+curl http://localhost:8080/logic/classical/exercises
 ```
 
 ### Solve a Proof Automatically
@@ -137,7 +144,8 @@ curl -X POST -H "Content-Type: application/json" `
   http://localhost:8080/logic/classical/solve
 ```
 
-See [API.md](./API.md) for `POST /logic/{logic}/action` and `POST /logic/{logic}/proof`.
+The body is a `ProofDto` (`logic`, `goal`, `steps`). See [API.md](./API.md) for `POST /logic/{logic}/action` and
+`POST /logic/{logic}/proof`.
 
 ### Health Check
 ```powershell
@@ -193,7 +201,7 @@ rm -r node_modules
 npm ci
 ```
 
-### Clear Maven Cache
+### Clean Rebuild Without Tests
 ```powershell
 mvn clean -DskipTests install
 ```
@@ -203,6 +211,7 @@ mvn clean -DskipTests install
 cd frontend
 npm run build
 New-Item -ItemType Directory -Force ../executable/src/main/resources/public | Out-Null
+Remove-Item -Recurse -Force ../executable/src/main/resources/public/*   # drop the files of an earlier build
 cp -r build/* ../executable/src/main/resources/public/
 cd ..
 mvn clean install
@@ -215,8 +224,8 @@ mvn clean install
 | `domain/logic-language/` | Formula and operator definitions |
 | `domain/proof-structures/` | Deduction rules and proof checking |
 | `domain/use-cases/` | Application orchestration |
-| `executable/` | Spring Boot application and REST controllers |
-| `rest/` | REST API layer and models |
+| `executable/` | Spring Boot application (serves the API and the embedded UI) |
+| `rest/` | REST controller (`ControllerInterface`), error handling and models |
 | `frontend/` | React UI |
 | `docs/` | Complete documentation |
 
@@ -238,10 +247,11 @@ mvn clean install
 | Link | Purpose |
 |------|---------|
 | http://localhost:8080 | Application (when running) |
-| http://localhost:5173 | Frontend dev server (when running; it cannot reach the API by itself) |
+| http://localhost:5173 | Frontend dev server (when running; it proxies `/logic` to the backend on 8080) |
 | http://localhost:8080/actuator/health | Health check |
 | http://localhost:8080/logic/classical/actions | Classical logic actions |
 | http://localhost:8080/logic/modal/actions | Modal logic actions |
+| http://localhost:8080/logic/classical/exercises | Classical logic exercises |
 | [GitHub](https://github.com/dan323/natural-deduction) | Repository |
 | [SonarCloud](https://sonarcloud.io/project/overview?id=natural-deduction) | Code quality |
 

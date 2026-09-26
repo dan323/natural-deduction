@@ -12,7 +12,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 public class ModalAutomateClassicTest {
 
     @Test
-    public void automatePimpP() {
+    void automatePimpP() {
         var p = new VariableModal("P");
         var naturalDeduction = new ModalNaturalDeduction();
         naturalDeduction.initializeProof(List.of(), new ImplicationModal(p, p));
@@ -21,7 +21,7 @@ public class ModalAutomateClassicTest {
     }
 
     @Test
-    public void automateNotNotPimpP() {
+    void automateNotNotPimpP() {
         var p = new VariableModal("P");
         var naturalDeduction = new ModalNaturalDeduction();
         naturalDeduction.initializeProof(List.of(), new ImplicationModal(new NegationModal(new NegationModal(p)), p));
@@ -30,7 +30,7 @@ public class ModalAutomateClassicTest {
     }
 
     @Test
-    public void automatePimpNotNotP() {
+    void automatePimpNotNotP() {
         var p = new VariableModal("P");
         var naturalDeduction = new ModalNaturalDeduction();
         naturalDeduction.initializeProof(List.of(), new ImplicationModal(p, new NegationModal(new NegationModal(p))));
@@ -39,7 +39,7 @@ public class ModalAutomateClassicTest {
     }
 
     @Test
-    public void automateExcludedMiddle() {
+    void automateExcludedMiddle() {
         var p = new VariableModal("P");
         var naturalDeduction = new ModalNaturalDeduction();
         naturalDeduction.initializeProof(List.of(), new DisjunctionModal(p, new NegationModal(p)));
@@ -48,7 +48,7 @@ public class ModalAutomateClassicTest {
     }
 
     @Test
-    public void setAssmsTest() {
+    void setAssmsTest() {
         var p = new VariableModal("P");
         var q = new VariableModal("Q");
         var naturalDeduction = new ModalNaturalDeduction();
@@ -58,7 +58,7 @@ public class ModalAutomateClassicTest {
     }
 
     @Test
-    public void automateBasicFact() {
+    void automateBasicFact() {
         var p = new VariableModal("P");
         var q = new VariableModal("Q");
         var naturalDeduction = new ModalNaturalDeduction();
@@ -68,7 +68,7 @@ public class ModalAutomateClassicTest {
     }
 
     @Test
-    public void automateFalseImpAnything() {
+    void automateFalseImpAnything() {
         var p = new VariableModal("P");
         var q = new VariableModal("Q");
         var naturalDeduction = new ModalNaturalDeduction();
@@ -78,7 +78,7 @@ public class ModalAutomateClassicTest {
     }
 
     @Test
-    public void automateAND() {
+    void automateAND() {
         var p = new VariableModal("P");
         var q = new VariableModal("Q");
         var naturalDeduction = new ModalNaturalDeduction();
@@ -88,7 +88,7 @@ public class ModalAutomateClassicTest {
     }
 
     @Test
-    public void automateORE() {
+    void automateORE() {
         var p = new VariableModal("P");
         var q = new VariableModal("Q");
         var r = new VariableModal("R");
@@ -99,7 +99,7 @@ public class ModalAutomateClassicTest {
     }
 
     @Test
-    public void automateImpossible() {
+    void automateImpossible() {
         var p = new VariableModal("P");
         var q = new VariableModal("Q");
         var naturalDeduction = new ModalNaturalDeduction();

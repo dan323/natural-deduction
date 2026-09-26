@@ -7,7 +7,7 @@ import static org.junit.jupiter.api.Assertions.*;
 public class RelationOperationTest {
 
     @Test
-    public void equalsTest() {
+    void equalsTest() {
         Equals equals = new Equals("s0", "s1");
         assertEquals("s0", equals.getLeft());
         assertEquals("s1", equals.getRight());
@@ -21,7 +21,7 @@ public class RelationOperationTest {
     }
 
     @Test
-    public void lessEqualTest() {
+    void lessEqualTest() {
         LessEqual lessEqual = new LessEqual("s0", "s1");
         assertEquals("s0", lessEqual.getLeft());
         assertEquals("s1", lessEqual.getRight());

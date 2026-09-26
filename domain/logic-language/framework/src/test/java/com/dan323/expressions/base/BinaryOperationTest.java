@@ -16,20 +16,20 @@ public class BinaryOperationTest {
     private BinaryOperation<LogicOperation> binaryOperation3;
 
     @BeforeEach
-    public void init() {
+    void init() {
         binaryOperation1 = new BinaryOperationStub(new LogicOperationStub(1), new LogicOperationStub(2));
         binaryOperation2 = new BinaryOperationStub(new LogicOperationStub(1), new LogicOperationStub(2));
         binaryOperation3 = new BinaryOperationStub(binaryOperation2, binaryOperation1);
     }
 
     @Test
-    public void gettersTest() {
+    void gettersTest() {
         Assertions.assertEquals(new LogicOperationStub(1), binaryOperation1.getLeft());
         Assertions.assertEquals(new LogicOperationStub(2), binaryOperation1.getRight());
     }
 
     @Test
-    public void toStringTest() {
+    void toStringTest() {
         Assertions.assertEquals(binaryOperation1.getLeft().toString() + " op " + binaryOperation1.getRight().toString(), binaryOperation1.toString());
         Assertions.assertEquals("(" + binaryOperation2.toString() + ") op (" + binaryOperation1.toString() + ")", binaryOperation3.toString());
     }

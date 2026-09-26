@@ -21,7 +21,7 @@ public class ClassicalParserTest {
     private static final ClassicalLogicOperation QimpP = new ImplicationClassic(Q, P);
 
     @Test
-    public void parseProofSuccessfully() {
+    void parseProofSuccessfully() {
         ParseClassicalProof parser = new ParseClassicalProof();
         NaturalDeduction nd = new NaturalDeduction();
         nd.initializeProof(List.of(P), QimpP);
@@ -32,7 +32,7 @@ public class ClassicalParserTest {
     }
 
     @Test
-    public void parseProofSuccessfulFailed() {
+    void parseProofSuccessfulFailed() {
         ParseClassicalProof parser = new ParseClassicalProof();
         NaturalDeduction nd = new NaturalDeduction();
         nd.initializeProof(List.of(P), QimpP);
@@ -43,7 +43,7 @@ public class ClassicalParserTest {
 
 
     @Test
-    public void parseProofFailed() {
+    void parseProofFailed() {
         ParseClassicalProof parser = new ParseClassicalProof();
         NaturalDeduction nd = new NaturalDeduction();
         nd.initializeProof(List.of(P), QimpP);
@@ -53,13 +53,13 @@ public class ClassicalParserTest {
     }
 
     @Test
-    public void parseEmptyFile() {
+    void parseEmptyFile() {
         var parser = new ParseClassicalProof();
         assertThrows(InvalidProofException.class, () -> parser.parseProof(""));
     }
 
     @Test
-    public void parseGarbledFileReportsTheLine() {
+    void parseGarbledFileReportsTheLine() {
         var parser = new ParseClassicalProof();
         var goodLine = "P" + " ".repeat(11) + "Ass";
         var blank = assertThrows(InvalidProofException.class, () -> parser.parseProof(goodLine + "\n\n" + goodLine));

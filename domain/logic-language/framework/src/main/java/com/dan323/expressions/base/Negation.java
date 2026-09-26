@@ -7,7 +7,7 @@ public abstract class Negation<T extends LogicOperation> extends UnaryOperation<
 
     private static final String OPERATOR = "-";
 
-    public Negation(T element) {
+    protected Negation(T element) {
         super(element);
     }
 

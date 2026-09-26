@@ -102,8 +102,8 @@ public final class ModalDiaE implements ModalAction {
 
     @Override
     public boolean equals(Object o) {
-        if (o instanceof ModalDiaE) {
-            return j == ((ModalDiaE) o).j;
+        if (o instanceof ModalDiaE diaE) {
+            return j == diaE.j;
         } else {
             return false;
         }

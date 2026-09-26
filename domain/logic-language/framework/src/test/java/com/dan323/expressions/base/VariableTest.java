@@ -11,7 +11,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class VariableTest {
 
     @Test
-    public void toStringTest() {
+    void toStringTest() {
         assertEquals("P", new VariableStub("P").toString());
     }
 

@@ -42,8 +42,10 @@ const FOCUSABLE = 'button, input, select, textarea, a[href], [tabindex]:not([tab
 function trapTab(event: KeyboardEvent, dialog: HTMLElement) {
   const focusable = Array.from(dialog.querySelectorAll<HTMLElement>(FOCUSABLE)).filter((element) => !element.hasAttribute('disabled'));
   if (focusable.length === 0) return;
-  const edge = event.shiftKey ? focusable[0] : focusable[focusable.length - 1];
-  const target = event.shiftKey ? focusable[focusable.length - 1] : focusable[0];
+  const first = focusable[0];
+  const last = focusable.at(-1) ?? first;
+  const edge = event.shiftKey ? first : last;
+  const target = event.shiftKey ? last : first;
   if (document.activeElement === edge || !dialog.contains(document.activeElement)) {
     event.preventDefault();
     target.focus();
@@ -201,6 +203,13 @@ const NewProofModal: FC<NewProofModalProps> = ({ isOpen, opener: openerProp, onC
 
   // Start Proof and Load proof share `loadAttempt`, so only one of them runs at a time.
   const canLoad = proofText.trim() !== '' && !isLoading && !isSubmitting;
+  // What Start Proof is described by: why it is disabled, or why the last attempt failed.
+  let submitDescription: string | undefined;
+  if (goal.trim() === '') {
+    submitDescription = 'new-proof-submit-hint';
+  } else if (submitError) {
+    submitDescription = 'new-proof-submit-error';
+  }
   const handleLoad = async () => {
     if (!onLoadText || !canLoad) return;
     const attempt = ++loadAttempt.current;
@@ -349,7 +358,7 @@ const NewProofModal: FC<NewProofModalProps> = ({ isOpen, opener: openerProp, onC
             className="submit-btn"
             onClick={handleSubmit}
             disabled={goal.trim() === '' || isSubmitting || isLoading}
-            aria-describedby={goal.trim() === '' ? 'new-proof-submit-hint' : submitError ? 'new-proof-submit-error' : undefined}
+            aria-describedby={submitDescription}
           >
             {isSubmitting ? 'Starting…' : 'Start Proof'}
           </button>

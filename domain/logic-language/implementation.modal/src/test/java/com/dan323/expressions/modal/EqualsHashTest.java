@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test;
 public class EqualsHashTest {
 
     @Test
-    public void equalsConjTest() {
+    void equalsConjTest() {
         VariableModal v1 = new VariableModal("P");
         VariableModal v2 = new VariableModal("P");
         ConjunctionModal c1 = new ConjunctionModal(v1, v1);
@@ -20,7 +20,7 @@ public class EqualsHashTest {
     }
 
     @Test
-    public void negationEquals() {
+    void negationEquals() {
         VariableModal p = new VariableModal("P");
         VariableModal q = new VariableModal("Q");
         NegationModal d = new NegationModal(p);
@@ -33,7 +33,7 @@ public class EqualsHashTest {
     }
 
     @Test
-    public void equalsImpTest() {
+    void equalsImpTest() {
         VariableModal v1 = new VariableModal("P");
         VariableModal v2 = new VariableModal("P");
         VariableModal v3 = new VariableModal("Q");
@@ -47,7 +47,7 @@ public class EqualsHashTest {
     }
 
     @Test
-    public void equalsDisjTest() {
+    void equalsDisjTest() {
         VariableModal v1 = new VariableModal("P");
         VariableModal v2 = new VariableModal("P");
         VariableModal v3 = new VariableModal("Q");
@@ -62,7 +62,7 @@ public class EqualsHashTest {
 
 
     @Test
-    public void testNotEquals() {
+    void testNotEquals() {
         VariableModal v1 = new VariableModal("P");
         VariableModal v2 = new VariableModal("Q");
         ConjunctionModal c1 = new ConjunctionModal(v1, v1);
@@ -74,7 +74,7 @@ public class EqualsHashTest {
     }
 
     @Test
-    public void equalsVarTest() {
+    void equalsVarTest() {
         VariableModal v = new VariableModal("P");
         VariableModal w = new VariableModal("P");
         Assertions.assertEquals(v, w);
@@ -82,7 +82,7 @@ public class EqualsHashTest {
     }
 
     @Test
-    public void equalsConsTest() {
+    void equalsConsTest() {
         ConstantModal v = ConstantModal.FALSE;
         ConstantModal w = ConstantModal.TRUE;
         Assertions.assertNotEquals(v, w);

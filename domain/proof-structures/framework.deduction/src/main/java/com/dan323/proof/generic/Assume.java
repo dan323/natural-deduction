@@ -15,7 +15,7 @@ public abstract class Assume<T extends LogicOperation, Q extends ProofStep<T>, P
 
     protected final T log;
 
-    public Assume(T clo) {
+    protected Assume(T clo) {
         log = clo;
     }
 

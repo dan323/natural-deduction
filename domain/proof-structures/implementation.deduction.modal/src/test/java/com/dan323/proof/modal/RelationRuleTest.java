@@ -14,7 +14,7 @@ import static org.junit.jupiter.api.Assertions.*;
 public class RelationRuleTest {
 
     @Test
-    public void reflexionTest() {
+    void reflexionTest() {
         var reflexive = new Reflexive(1);
         var mnd = new ModalNaturalDeduction("s0");
         var p = new VariableModal("P");
@@ -28,7 +28,7 @@ public class RelationRuleTest {
     }
 
     @Test
-    public void transitiveTest() {
+    void transitiveTest() {
         var transitive = new Transitive(2,2);
         var mnd = new ModalNaturalDeduction("s0");
         var p = new VariableModal("P");

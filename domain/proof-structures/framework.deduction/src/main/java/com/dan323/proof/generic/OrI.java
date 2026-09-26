@@ -18,7 +18,7 @@ public abstract class OrI<T extends LogicOperation, Q extends ProofStep<T>, P ex
     private final T intro;
     private final BinaryOperator<T> disjunction;
 
-    public OrI(int app, T lo, BinaryOperator<T> disjunction) {
+    protected OrI(int app, T lo, BinaryOperator<T> disjunction) {
         applyAt = app;
         intro = lo;
         this.disjunction = disjunction;

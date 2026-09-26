@@ -47,7 +47,7 @@ public class RuleFalseTest {
     }
 
     @Test
-    public void fIIsValidTest() {
+    void fIIsValidTest() {
         FIStub fI = new RuleFalseTest.FIStub(1, 2);
 
         assertEquals(1, fI.getPos());
@@ -74,31 +74,31 @@ public class RuleFalseTest {
 
         assertFalse(fI.isValid(pf));
 
-        Variable var = new Variable("P") {
+        Variable atom = new Variable("P") {
         };
-        Negation<LogicOperation> notVar = mockNot(var);
+        Negation<LogicOperation> notVar = mockNot(atom);
         doReturn(notVar).when(pStep1).getStep();
-        doReturn(var).when(pStep0).getStep();
+        doReturn(atom).when(pStep0).getStep();
 
         assertTrue(fI.isValid(pf));
     }
 
     @Test
-    public void equalsTest(){
-        Variable var = mock(Variable.class);
-        FEStub fE = new RuleFalseTest.FEStub(var, 1);
+    void equalsTest(){
+        Variable atom = mock(Variable.class);
+        FEStub fE = new RuleFalseTest.FEStub(atom, 1);
 
         assertEquals(fE, fE);
-        assertNotEquals(fE, new RuleFalseTest.FEStub(var, 2));
-        assertEquals(new RuleFalseTest.FEStub(var, 1), fE);
+        assertNotEquals(fE, new RuleFalseTest.FEStub(atom, 2));
+        assertEquals(new RuleFalseTest.FEStub(atom, 1), fE);
         assertNotEquals(fE, new Object());
-        assertEquals(new RuleFalseTest.FEStub(var, 1).hashCode(), fE.hashCode());
+        assertEquals(new RuleFalseTest.FEStub(atom, 1).hashCode(), fE.hashCode());
     }
 
     @Test
-    public void fEIsValidTest() {
-        Variable var = mock(Variable.class);
-        FEStub fE = new RuleFalseTest.FEStub(var, 1);
+    void fEIsValidTest() {
+        Variable atom = mock(Variable.class);
+        FEStub fE = new RuleFalseTest.FEStub(atom, 1);
 
         doReturn(list).when(pf).getSteps();
         doReturn(1).when(list).size();
@@ -127,39 +127,39 @@ public class RuleFalseTest {
     }
 
     @Test
-    public void fEApplyTest() {
-        List<ProofStep<LogicOperation>> record = new ArrayList<>();
+    void fEApplyTest() {
+        List<ProofStep<LogicOperation>> added = new ArrayList<>();
         doReturn(list).when(pf).getSteps();
         doReturn(pStep0).when(list).getLast();
         doReturn(1).when(pStep0).getAssumptionLevel();
-        doAnswer(invocationOnMock -> record.add(invocationOnMock.getArgument(0))).when(list).add(any(ProofStep.class));
+        doAnswer(invocationOnMock -> added.add(invocationOnMock.getArgument(0))).when(list).add(any(ProofStep.class));
         Variable variable = mock(Variable.class, Answers.CALLS_REAL_METHODS);
         doReturn("P").when(variable).toString();
 
         FEStub notE = new RuleFalseTest.FEStub(variable, 1);
         notE.applyStepSupplier(pf, ProofStep::new);
 
-        assertEquals(new ProofReason("FE", List.of(), List.of(1)), record.getFirst().getProof());
-        assertEquals(1, record.getFirst().getAssumptionLevel());
-        assertEquals("P", record.getFirst().getStep().toString());
-        assertTrue(record.getFirst().isValid());
+        assertEquals(new ProofReason("FE", List.of(), List.of(1)), added.getFirst().getProof());
+        assertEquals(1, added.getFirst().getAssumptionLevel());
+        assertEquals("P", added.getFirst().getStep().toString());
+        assertTrue(added.getFirst().isValid());
     }
 
     @Test
-    public void fIApplyTest() {
-        List<ProofStep<LogicOperation>> record = new ArrayList<>();
+    void fIApplyTest() {
+        List<ProofStep<LogicOperation>> added = new ArrayList<>();
         doReturn(list).when(pf).getSteps();
         doReturn(pStep1).when(list).getLast();
         doReturn(1).when(pStep1).getAssumptionLevel();
-        doAnswer(invocationOnMock -> record.add(invocationOnMock.getArgument(0))).when(list).add(any(ProofStep.class));
+        doAnswer(invocationOnMock -> added.add(invocationOnMock.getArgument(0))).when(list).add(any(ProofStep.class));
 
         FIStub notI = new RuleFalseTest.FIStub(1, 2);
         notI.applyStepSupplier(pf, ProofStep::new);
 
-        assertEquals(new ProofReason("FI", List.of(), List.of(1, 2)), record.getFirst().getProof());
-        assertEquals(1, record.getFirst().getAssumptionLevel());
-        assertTrue(((Constant) record.getFirst().getStep()).isFalsehood());
-        assertTrue(record.getFirst().isValid());
+        assertEquals(new ProofReason("FI", List.of(), List.of(1, 2)), added.getFirst().getProof());
+        assertEquals(1, added.getFirst().getAssumptionLevel());
+        assertTrue(((Constant) added.getFirst().getStep()).isFalsehood());
+        assertTrue(added.getFirst().isValid());
     }
 
     public static <T extends LogicOperation> Constant getFalse() {
@@ -173,7 +173,7 @@ public class RuleFalseTest {
 
         @Override
         public void apply(ProofTest.ProofStub pf) {
-
+            // A test stub: applying it does nothing
         }
     }
 
@@ -184,7 +184,7 @@ public class RuleFalseTest {
 
         @Override
         public void apply(ProofTest.ProofStub pf) {
-
+            // A test stub: applying it does nothing
         }
     }
 

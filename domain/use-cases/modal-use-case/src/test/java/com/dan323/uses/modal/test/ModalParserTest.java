@@ -28,7 +28,7 @@ public class ModalParserTest {
     private static final RelationOperation s0LessS1 = new LessEqual("s0", "s1");
 
     @Test
-    public void parseProofSuccessfully() {
+    void parseProofSuccessfully() {
         var parser = new ModalProofParser();
         var nd = new ModalNaturalDeduction();
         nd.initializeProof(List.of(P), QimpP);
@@ -44,7 +44,7 @@ public class ModalParserTest {
     }
 
     @Test
-    public void parseProofRelationSuccessfully() {
+    void parseProofRelationSuccessfully() {
         var parser = new ModalProofParser();
         var nd = new ModalNaturalDeduction();
         nd.initializeProof(List.of(new Always(P), s0LessS1), P);
@@ -54,7 +54,7 @@ public class ModalParserTest {
     }
 
     @Test
-    public void parseProofSuccessfulFailed() {
+    void parseProofSuccessfulFailed() {
         var parser = new ModalProofParser();
         var nd = new ModalNaturalDeduction();
         nd.initializeProof(List.of(P), QimpP);
@@ -65,7 +65,7 @@ public class ModalParserTest {
 
 
     @Test
-    public void parseProofFailed() {
+    void parseProofFailed() {
         var parser = new ModalProofParser();
         var nd = new ModalNaturalDeduction();
         nd.initializeProof(List.of(P), QimpP);
@@ -75,7 +75,7 @@ public class ModalParserTest {
     }
 
     @Test
-    public void parseGarbledFileReportsTheLine() {
+    void parseGarbledFileReportsTheLine() {
         var parser = new ModalProofParser();
         assertThrows(InvalidProofException.class, () -> parser.parseProof(""));
         var blankLineFile = "s0: P" + " ".repeat(11) + "Ass\n\n";

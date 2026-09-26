@@ -1,6 +1,7 @@
 # Natural Deduction
 
-A system for [natural deduction](https://en.wikipedia.org/wiki/Natural_deduction) supporting classical and modal propositional logic.
+A system for [natural deduction](https://en.wikipedia.org/wiki/Natural_deduction) supporting classical, intuitionistic and modal propositional logic, with
+exercises and an automatic solver.
 
 ## Status
 
@@ -31,8 +32,13 @@ docker run -p 8080:8080 dan323/natural-deduction
 
 ## Supported Logics
 
-- **Classical Propositional Logic** - Standard propositional calculus with natural deduction rules
-- **Modal Propositional Logic** - Extends classical logic with modal operators (necessity □, possibility ◇)
+- **Classical Propositional Logic** (`classical`) - Standard propositional calculus with natural deduction rules
+- **Intuitionistic Propositional Logic** (`intuitionistic`) - Classical logic without double negation elimination
+- **Modal Propositional Logic** (`modal`) - Extends classical logic with modal operators (necessity □, possibility ◇)
+  over states reachable by a reflexive and transitive relation
+- **Modal Logic with Next and Until** (`modal-next-until`) - Modal logic over discrete time, with Next `X` and Until `U`
+
+Every logic has a catalog of exercises; classical and modal logic also have an automatic solver.
 
 ## Documentation
 
@@ -42,7 +48,7 @@ Complete documentation is available in the [docs/](./docs/) folder:
 - **[Setup & Installation](./docs/SETUP.md)** - Build and run instructions
 - **[Architecture](./docs/ARCHITECTURE.md)** - System design and component structure
 - **[Modules](./docs/MODULES.md)** - Detailed module descriptions
-- **[Logical Languages](./docs/LANGUAGES.md)** - Classical and modal logic specifications
+- **[Logical Languages](./docs/LANGUAGES.md)** - The logics and their rules
 - **[Development Guide](./docs/DEVELOPMENT.md)** - Contributing and extending
 - **[REST API](./docs/API.md)** - API endpoint reference
 

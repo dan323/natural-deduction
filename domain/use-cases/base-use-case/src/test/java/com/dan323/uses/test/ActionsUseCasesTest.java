@@ -43,7 +43,7 @@ public class ActionsUseCasesTest {
             -> actionsUseCaseConfiguration.useCases(getActions, transformers, parsers, List.of());
 
     @Test
-    public void solveTest() {
+    void solveTest() {
         ActionsUseCases cases = useCases
                 .withNoParsers()
                 .withTransformers(Transformers.getTransformers())
@@ -57,7 +57,7 @@ public class ActionsUseCasesTest {
 
     @Test
     @SuppressWarnings({"rawtypes", "unchecked"})
-    public void logicWithoutSolverTest() {
+    void logicWithoutSolverTest() {
         Transformer solving = Transformers.getTransformers().getFirst();
         Transformer notSolving = new Transformer() {
             @Override
@@ -91,14 +91,15 @@ public class ActionsUseCasesTest {
                 .withTransformers(List.of(notSolving))
                 .withNoActions();
         var solve = cases.solveProblem("l1");
-        var exception = assertThrows(NoSolverException.class, () -> solve.perform(genericProof("l1")));
+        var proof = genericProof("l1");
+        var exception = assertThrows(NoSolverException.class, () -> solve.perform(proof));
         assertEquals("There is no solver for the logic 'l1'", exception.getMessage());
         // The other use cases of the logic still work
         assertTrue(cases.applyAction("l1").perform(actionAddOneStep(), genericProof("l1")).applied());
     }
 
     @Test
-    public void actionsTest() {
+    void actionsTest() {
         ActionsUseCases cases = useCases
                 .withNoParsers()
                 .withNoTransformers()
@@ -111,7 +112,7 @@ public class ActionsUseCasesTest {
     }
 
     @Test
-    public void exercisesTest() {
+    void exercisesTest() {
         var catalog = new LogicalExercises() {
             @Override
             public String logic() {
@@ -130,7 +131,7 @@ public class ActionsUseCasesTest {
     }
 
     @Test
-    public void exerciseCatalogForUnknownLogicIsRejectedTest() {
+    void exerciseCatalogForUnknownLogicIsRejectedTest() {
         var catalog = new LogicalExercises() {
             @Override
             public String logic() {
@@ -152,7 +153,7 @@ public class ActionsUseCasesTest {
     }
 
     @Test
-    public void applierTest() {
+    void applierTest() {
         var cases = useCases
                 .withNoParsers()
                 .withTransformers(Transformers.getTransformers())
@@ -164,7 +165,7 @@ public class ActionsUseCasesTest {
     }
 
     @Test
-    public void rejectedActionSaysWhyTest() {
+    void rejectedActionSaysWhyTest() {
         var cases = useCases
                 .withNoParsers()
                 .withTransformers(Transformers.getTransformers())
@@ -176,7 +177,7 @@ public class ActionsUseCasesTest {
     }
 
     @Test
-    public void outOfRangeSourceIsRejectedTest() {
+    void outOfRangeSourceIsRejectedTest() {
         var cases = useCases
                 .withNoParsers()
                 .withTransformers(Transformers.getTransformers())
@@ -188,7 +189,7 @@ public class ActionsUseCasesTest {
     }
 
     @Test
-    public void unbuildableActionTest() {
+    void unbuildableActionTest() {
         var throwing = new Transformer() {
             @Override
             public String logic() {
@@ -222,7 +223,7 @@ public class ActionsUseCasesTest {
     }
 
     @Test
-    public void buildFailureWithoutMessageDoesNotLeakNullTest() {
+    void buildFailureWithoutMessageDoesNotLeakNullTest() {
         for (var failure : List.of(new IllegalStateException(), new IllegalStateException("  "))) {
             var applier = applierFailingToBuild(failure);
             var action = actionAddOneStep();
@@ -234,7 +235,7 @@ public class ActionsUseCasesTest {
     }
 
     @Test
-    public void invalidActionIsNotWrappedAgainTest() {
+    void invalidActionIsNotWrappedAgainTest() {
         var failure = new InvalidActionException("Action1 needs an expression");
         var applier = applierFailingToBuild(failure);
         var action = actionAddOneStep();
@@ -273,7 +274,7 @@ public class ActionsUseCasesTest {
     }
 
     @Test
-    public void unknownLogicIsReportedConsistentlyTest() {
+    void unknownLogicIsReportedConsistentlyTest() {
         var cases = useCases
                 .withParsers(Parsers.parsers())
                 .withTransformers(Transformers.getTransformers())
@@ -286,7 +287,7 @@ public class ActionsUseCasesTest {
     }
 
     @Test
-    public void parseProofTest() {
+    void parseProofTest() {
         var cases = useCases
                 .withParsers(Parsers.parsers())
                 .withTransformers(Transformers.getTransformers())

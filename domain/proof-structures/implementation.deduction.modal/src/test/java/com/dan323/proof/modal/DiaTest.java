@@ -24,7 +24,7 @@ public class DiaTest {
     private static final String STATE_1 = "s1";
 
     @Test
-    public void diaEApply() {
+    void diaEApply() {
         var diaE = new ModalDiaE(1);
         var mlo = new VariableModal("P");
         var conclusion = new VariableModal("Q");
@@ -47,7 +47,7 @@ public class DiaTest {
     }
 
     @Test
-    public void diaIApply() {
+    void diaIApply() {
         // Init variables
         var mlo = new VariableModal("P");
         var diaI = new ModalDiaI(2, 1);
@@ -66,7 +66,7 @@ public class DiaTest {
     }
 
     @Test
-    public void diaEValid() {
+    void diaEValid() {
         // Init variables
         var mlo = mock(ModalLogicalOperation.class);
         var diaE = new ModalDiaE(1);
@@ -183,7 +183,7 @@ public class DiaTest {
     }
 
     @Test
-    public void diaIValid() {
+    void diaIValid() {
         var diaI = new ModalDiaI(2, 1);
         var proof = new ModalNaturalDeduction(STATE_0);
         var initStep = new LessEqual(STATE_0, STATE_1);

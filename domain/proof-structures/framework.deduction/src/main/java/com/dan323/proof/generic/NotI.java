@@ -18,7 +18,7 @@ public abstract class NotI<T extends LogicOperation, Q extends ProofStep<T>, P e
 
     private final Function<T, Negation<T>> negate;
 
-    public NotI(Function<T, Negation<T>> negate) {
+    protected NotI(Function<T, Negation<T>> negate) {
         this.negate = negate;
     }
 

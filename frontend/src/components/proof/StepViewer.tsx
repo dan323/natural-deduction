@@ -77,8 +77,7 @@ export const StepViewer: FC<StepProps> = ({
       {showState && (
         <td className="state">
           {state
-            ? state
-            : <><span aria-hidden="true">–</span><span className="visually-hidden">none (a relation between states)</span></>}
+            || <><span aria-hidden="true">–</span><span className="visually-hidden">none (a relation between states)</span></>}
         </td>
       )}
       <td className="step-cell">

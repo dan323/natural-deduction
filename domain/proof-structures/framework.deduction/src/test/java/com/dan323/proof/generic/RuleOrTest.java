@@ -56,7 +56,7 @@ public class RuleOrTest {
     }
 
     @Test
-    public void equalsTest() {
+    void equalsTest() {
         OrEStub orE = new RuleOrTest.OrEStub(1, 2, 3);
         assertEquals(1, orE.getDisj());
         assertEquals(2, orE.get1());
@@ -71,7 +71,7 @@ public class RuleOrTest {
     }
 
     @Test
-    public void orEIsValidTest() {
+    void orEIsValidTest() {
         OrEStub orE = new RuleOrTest.OrEStub(1, 2, 2);
 
         assertEquals(new RuleOrTest.OrEStub(1, 2, 2), orE);
@@ -110,7 +110,7 @@ public class RuleOrTest {
     }
 
     @Test
-    public void orIIsValidTest() {
+    void orIIsValidTest() {
         LogicOperation logicOperation = mock(LogicOperation.class);
         OrIStub orI = new RuleOrTest.OrIStub(2, logicOperation);
 
@@ -139,8 +139,8 @@ public class RuleOrTest {
     }
 
     @Test
-    public void orEApplyTest() {
-        List<ProofStep<LogicOperation>> record = new ArrayList<>();
+    void orEApplyTest() {
+        List<ProofStep<LogicOperation>> added = new ArrayList<>();
         doReturn(list).when(pf).getSteps();
         Variable variable = mock(Variable.class);
         Implication<LogicOperation> implication = mockImplication(variable, variable);
@@ -149,20 +149,20 @@ public class RuleOrTest {
         doReturn(pStep1).when(list).get(1);
         doReturn(1).when(pStep1).getAssumptionLevel();
         doReturn(implication).when(pStep1).getStep();
-        doAnswer(invocationOnMock -> record.add(invocationOnMock.getArgument(0))).when(list).add(any(ProofStep.class));
+        doAnswer(invocationOnMock -> added.add(invocationOnMock.getArgument(0))).when(list).add(any(ProofStep.class));
 
         OrEStub orE = new RuleOrTest.OrEStub(1, 2, 2);
         orE.applyStepSupplier(pf, ProofStep::new);
 
-        assertEquals(new ProofReason("|E", List.of(), List.of(1, 2, 2)), record.getFirst().getProof());
-        assertEquals(1, record.getFirst().getAssumptionLevel());
-        assertEquals("P", record.getFirst().getStep().toString());
-        Assertions.assertTrue(record.getFirst().isValid());
+        assertEquals(new ProofReason("|E", List.of(), List.of(1, 2, 2)), added.getFirst().getProof());
+        assertEquals(1, added.getFirst().getAssumptionLevel());
+        assertEquals("P", added.getFirst().getStep().toString());
+        Assertions.assertTrue(added.getFirst().isValid());
     }
 
     @Test
-    public void orIApplyTest() {
-        List<ProofStep<LogicOperation>> record = new ArrayList<>();
+    void orIApplyTest() {
+        List<ProofStep<LogicOperation>> added = new ArrayList<>();
         doReturn(list).when(pf).getSteps();
         doReturn(pStep0).when(list).get(eq(0));
         doReturn(pStep0).when(list).getLast();
@@ -170,15 +170,15 @@ public class RuleOrTest {
         Variable variable = mock(Variable.class, Answers.CALLS_REAL_METHODS);
         doReturn("P").when(variable).toString();
         doReturn(variable).when(pStep0).getStep();
-        doAnswer(invocationOnMock -> record.add(invocationOnMock.getArgument(0))).when(list).add(any(ProofStep.class));
+        doAnswer(invocationOnMock -> added.add(invocationOnMock.getArgument(0))).when(list).add(any(ProofStep.class));
 
         OrIStub orI = new RuleOrTest.OrIStub(1, variable);
         orI.applyStepSupplier(pf, ProofStep::new);
 
-        assertEquals(new ProofReason("|I", List.of(), List.of(1)), record.getFirst().getProof());
-        assertEquals(1, record.getFirst().getAssumptionLevel());
-        assertEquals("P | P", record.getFirst().getStep().toString());
-        Assertions.assertTrue(record.getFirst().isValid());
+        assertEquals(new ProofReason("|I", List.of(), List.of(1)), added.getFirst().getProof());
+        assertEquals(1, added.getFirst().getAssumptionLevel());
+        assertEquals("P | P", added.getFirst().getStep().toString());
+        Assertions.assertTrue(added.getFirst().isValid());
     }
 
     public static class OrIStub extends OrI<LogicOperation, ProofStep<LogicOperation>, ProofTest.ProofStub> {
@@ -188,7 +188,7 @@ public class RuleOrTest {
 
         @Override
         public void apply(ProofTest.ProofStub pf) {
-
+            // A test stub: applying it does nothing
         }
     }
 
@@ -199,7 +199,7 @@ public class RuleOrTest {
 
         @Override
         public void apply(ProofTest.ProofStub pf) {
-
+            // A test stub: applying it does nothing
         }
     }
 }

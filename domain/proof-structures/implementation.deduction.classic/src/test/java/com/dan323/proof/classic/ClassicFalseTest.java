@@ -11,7 +11,7 @@ import org.junit.jupiter.api.Test;
 
 public class ClassicFalseTest {
     @Test
-    public void classicFIApply() {
+    void classicFIApply() {
         ClassicFI classicFI = new ClassicFI(1, 2);
         VariableClassic variable = new VariableClassic("P");
         ClassicAssume assume = new ClassicAssume(variable);
@@ -29,7 +29,7 @@ public class ClassicFalseTest {
     }
 
     @Test
-    public void classicFEApply() {
+    void classicFEApply() {
         ClassicFI classicFI = new ClassicFI(1, 2);
         VariableClassic variable = new VariableClassic("P");
         ClassicAssume assume = new ClassicAssume(variable);

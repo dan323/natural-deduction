@@ -13,6 +13,12 @@ async function errorMessage(response: Response): Promise<string> {
     return `Request failed with status ${response.status}.`;
 }
 
+// The URL of an endpoint of a logic. The logic ids (`LOGICS`) are plain words, which encoding leaves as they are; it
+// keeps any other value inside its path segment.
+function logicUrl(logic: string, endpoint: string): string {
+    return `/logic/${encodeURIComponent(logic)}/${endpoint}`;
+}
+
 // A list the server answers for `GET /logic/{logic}/{resource}` never changes while it runs, so every consumer shares
 // one request per logic (the Menu is remounted for each new proof, and mounted twice in development). A failed request
 // is dropped, so that the next call tries again.
@@ -20,13 +26,13 @@ function perLogicCache<T>(resource: string) {
     const cache = new Map<string, Promise<T[]>>();
 
     const request = async (logic: string): Promise<T[]> => {
-        const response = await fetch(`/logic/${logic}/${resource}`);
+        const response = await fetch(logicUrl(logic, resource));
         if (!response.ok) {
             throw new Error(await errorMessage(response));
         }
         const body: unknown = await response.json();
         if (!Array.isArray(body)) {
-            throw new Error(`The server did not answer with a list of ${resource}.`);
+            throw new TypeError(`The server did not answer with a list of ${resource}.`);
         }
         return body as T[];
     };
@@ -101,7 +107,7 @@ function withDone(body: ApplyActionResponse): ApplyActionResponse {
 export async function applyAction(logic: string, proof: ProofDto, action: ActionDto, consumer: (actions: ApplyActionResponse) => void): Promise<void> {
     let result: ApplyActionResponse;
     try {
-        const response = await fetch(`/logic/${logic}/action`, {
+        const response = await fetch(logicUrl(logic, 'action'), {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -162,7 +168,7 @@ export async function loadProofFromText(logic: string, text: string, consumer: (
     try {
         const body = new FormData();
         body.append('file', new Blob([cleaned], { type: 'text/plain' }), 'proof.txt');
-        const response = await fetch(`/logic/${logic}/proof`, { method: 'POST', body });
+        const response = await fetch(logicUrl(logic, 'proof'), { method: 'POST', body });
         if (response.ok) {
             const proof: ProofDto = await response.json();
             result = { success: true, proof, done: proof.done, message: '' };
@@ -187,7 +193,7 @@ export async function solveProof(logic: string, proof: ProofDto, consumer: (resp
     const controller = new AbortController();
     const deadline = setTimeout(() => controller.abort(), SOLVE_DEADLINE_MS);
     try {
-        const response = await fetch(`/logic/${logic}/solve`, {
+        const response = await fetch(logicUrl(logic, 'solve'), {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

@@ -16,7 +16,7 @@ public abstract class DeductionTheorem<T extends LogicOperation, Q extends Proof
 
     private final BinaryOperator<T> constructor;
 
-    public DeductionTheorem(BinaryOperator<T> construct) {
+    protected DeductionTheorem(BinaryOperator<T> construct) {
         constructor = construct;
     }
 

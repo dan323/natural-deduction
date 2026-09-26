@@ -12,7 +12,7 @@ import static org.mockito.Mockito.mock;
 public class ModalBasicTest {
 
     @Test
-    public void copyTest() {
+    void copyTest() {
         ProofStepModal pStep = mock(ProofStepModal.class);
         ModalCopy copy = new ModalCopy(1);
         ModalNaturalDeduction pf = new ModalNaturalDeduction("s0");
@@ -31,7 +31,7 @@ public class ModalBasicTest {
     }
 
     @Test
-    public void assmsTest() {
+    void assmsTest() {
         VariableModal variable = new VariableModal("P");
         ModalAssume assms = new ModalAssume(variable, "i");
         ModalNaturalDeduction pf = new ModalNaturalDeduction("s0");

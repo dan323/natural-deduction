@@ -18,7 +18,7 @@ import static org.mockito.Mockito.mock;
 public class ModalAndTest {
 
     @Test
-    public void modalAndIValid() {
+    void modalAndIValid() {
         String state = "i";
         String state2 = "j";
         VariableModal p = new VariableModal("P");
@@ -43,7 +43,7 @@ public class ModalAndTest {
     }
 
     @Test
-    public void modalAndEApply() {
+    void modalAndEApply() {
         ProofStepModal pStep = mock(ProofStepModal.class);
         ModalAndE1 andE1 = new ModalAndE1(1);
         ModalNaturalDeduction pf = new ModalNaturalDeduction("s0");
@@ -71,7 +71,7 @@ public class ModalAndTest {
     }
 
     @Test
-    public void ModalAndIApply() {
+    void ModalAndIApply() {
         String state = "i";
         ModalAndI andI = new ModalAndI(1, 2);
         ModalAssume assume1 = new ModalAssume(new VariableModal("P"), state);

@@ -23,6 +23,8 @@ import static com.dan323.model.ParamKind.INT;
  */
 public class ClassicGetActions implements LogicalGetActions {
 
+    private static final String LINE_WITH_A = "Line with A";
+
     private final List<ActionDescriptorDto> actions = Arrays.stream(AvailableAction.values())
             .map(ClassicGetActions::describe)
             .toList();
@@ -62,14 +64,14 @@ public class ClassicGetActions implements LogicalGetActions {
             case ASSUME -> rule(action, "Assumption", "Ass", OTHER,
                     "Assume A, opening a new subproof", formula("Assumption (A)"));
             case ORI1 -> rule(action, "Or introduction (left)", "∨I", INTRODUCTION,
-                    "From A, derive A ∨ B for any B", line("Line with A"), formula("Right side (B)"));
+                    "From A, derive A ∨ B for any B", line(LINE_WITH_A), formula("Right side (B)"));
             case ORI2 -> rule(action, "Or introduction (right)", "∨I", INTRODUCTION,
                     "From B, derive A ∨ B for any A", line("Line with B"), formula("Left side (A)"));
             case ORE -> rule(action, "Or elimination", "∨E", ELIMINATION,
                     "From A ∨ B, A → C and B → C, derive C",
                     line("Disjunction (A ∨ B)"), line("Implication (A → C)"), line("Implication (B → C)"));
             case ANDI -> rule(action, "And introduction", "∧I", INTRODUCTION,
-                    "From A and B, derive A ∧ B", line("Line with A"), line("Line with B"));
+                    "From A and B, derive A ∧ B", line(LINE_WITH_A), line("Line with B"));
             case ANDE1 -> rule(action, "And elimination (left)", "∧E", ELIMINATION,
                     "From A ∧ B, derive A", line("Conjunction (A ∧ B)"));
             case ANDE2 -> rule(action, "And elimination (right)", "∧E", ELIMINATION,
@@ -87,7 +89,7 @@ public class ClassicGetActions implements LogicalGetActions {
             case FE -> rule(action, "Falsum elimination", "⊥E", ELIMINATION,
                     "From ⊥, derive any A", line("Falsum (⊥)"), formula("Formula to derive (A)"));
             case FI -> rule(action, "Falsum introduction", "⊥I", INTRODUCTION,
-                    "From A and ¬A, derive ⊥", line("Line with A"), line("Negation (¬A)"));
+                    "From A and ¬A, derive ⊥", line(LINE_WITH_A), line("Negation (¬A)"));
         };
     }
 }

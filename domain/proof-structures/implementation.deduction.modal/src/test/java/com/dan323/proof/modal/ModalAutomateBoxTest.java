@@ -13,7 +13,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 public class ModalAutomateBoxTest {
 
     @Test
-    public void automateAlwaysPimpP() {
+    void automateAlwaysPimpP() {
         var p = new VariableModal("P");
         var naturalDeduction = new ModalNaturalDeduction();
         naturalDeduction.initializeProof(List.of(), new Always(new ImplicationModal(p, p)));
@@ -22,7 +22,7 @@ public class ModalAutomateBoxTest {
     }
 
     @Test
-    public void automateReflexionFrame() {
+    void automateReflexionFrame() {
         var p = new VariableModal("P");
         var naturalDeduction = new ModalNaturalDeduction();
         naturalDeduction.initializeProof(List.of(new Always(p)), p);
@@ -31,7 +31,7 @@ public class ModalAutomateBoxTest {
     }
 
     @Test
-    public void automateAlwaysImplication() {
+    void automateAlwaysImplication() {
         var p = new VariableModal("P");
         var q = new VariableModal("Q");
         var naturalDeduction = new ModalNaturalDeduction();
@@ -42,7 +42,7 @@ public class ModalAutomateBoxTest {
 
 
     @Test
-    public void automateTransitiveFrame() {
+    void automateTransitiveFrame() {
         var p = new VariableModal("P");
         var naturalDeduction = new ModalNaturalDeduction();
         naturalDeduction.initializeProof(List.of(new Always(p)), new Always(new Always(p)));

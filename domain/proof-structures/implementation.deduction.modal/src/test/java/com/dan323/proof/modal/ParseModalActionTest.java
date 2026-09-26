@@ -16,7 +16,7 @@ import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 public class ParseModalActionTest {
 
     @Test
-    public void parseAndETest() {
+    void parseAndETest() {
         var mnd = new ModalNaturalDeduction("s0");
         var p = new VariableModal("P");
         var q = new VariableModal("Q");
@@ -39,7 +39,7 @@ public class ParseModalActionTest {
     }
 
     @Test
-    public void parseAndITest() {
+    void parseAndITest() {
         var mnd = new ModalNaturalDeduction("s0");
         var p = new VariableModal("P");
         var q = new VariableModal("Q");
@@ -53,7 +53,7 @@ public class ParseModalActionTest {
     }
 
     @Test
-    public void parseOrITest() {
+    void parseOrITest() {
         var mnd = new ModalNaturalDeduction("s0");
         var p = new VariableModal("P");
         var q = new VariableModal("Q");
@@ -75,7 +75,7 @@ public class ParseModalActionTest {
     }
 
     @Test
-    public void parseOrETest() {
+    void parseOrETest() {
         var mnd = new ModalNaturalDeduction("s0");
         var p = new VariableModal("P");
         var q = new VariableModal("Q");
@@ -90,7 +90,7 @@ public class ParseModalActionTest {
     }
 
     @Test
-    public void parseCopyRelations() {
+    void parseCopyRelations() {
         var mnd = new ModalNaturalDeduction("s0");
         var p = new VariableModal("P");
         var q = new VariableModal("Q");
@@ -110,7 +110,7 @@ public class ParseModalActionTest {
     }
 
     @Test
-    public void parseNot() {
+    void parseNot() {
         var mnd = new ModalNaturalDeduction("s0");
         var p = new VariableModal("P");
         mnd.initializeProof(List.of(), new ImplicationModal(p, new NegationModal(new NegationModal(p))));
@@ -128,7 +128,7 @@ public class ParseModalActionTest {
     }
 
     @Test
-    public void parseFalse() {
+    void parseFalse() {
         var mnd = new ModalNaturalDeduction("s0");
         var p = new VariableModal("P");
         mnd.initializeProof(List.of(), new ImplicationModal(p, new NegationModal(new NegationModal(p))));
@@ -144,7 +144,7 @@ public class ParseModalActionTest {
     }
 
     @Test
-    public void parseImp() {
+    void parseImp() {
         var mnd = new ModalNaturalDeduction("s0");
         var p = new VariableModal("P");
         var q = new VariableModal("Q");
@@ -160,7 +160,7 @@ public class ParseModalActionTest {
     }
 
     @Test
-    public void parseBox() {
+    void parseBox() {
         var mnd = new ModalNaturalDeduction("s0");
         var p = new VariableModal("P");
         mnd.initializeProof(List.of(new Always(p)), p);
@@ -177,7 +177,7 @@ public class ParseModalActionTest {
     }
 
     @Test
-    public void parseDia() {
+    void parseDia() {
         var mnd = new ModalNaturalDeduction("s0");
         var p = new VariableModal("P");
         mnd.initializeProof(List.of(new Always(p)), p);
@@ -195,7 +195,7 @@ public class ParseModalActionTest {
     }
 
     @Test
-    public void parseAction() {
+    void parseAction() {
         var action = ParseModalAction.parseAction("Ass", List.of(), new VariableModal("P"), "s0");
         assertInstanceOf(ModalAssume.class, action);
         action = ParseModalAction.parseAction("Refl", List.of(1), null, null);
@@ -211,7 +211,7 @@ public class ParseModalActionTest {
     }
 
     @Test
-    public void parseClassicalNamesTest() {
+    void parseClassicalNamesTest() {
         // The names classical logic uses for the shared rules are also accepted
         assertEquals(new ModalCopy(1), ParseModalAction.parseAction("COPY", List.of(1), null, null));
         assertEquals(new ModalModusPonens(1, 2), ParseModalAction.parseAction("MP", List.of(1, 2), null, null));

@@ -17,7 +17,7 @@ import java.util.List;
 public class ClassicNotTest {
 
     @Test
-    public void classicNotIApply() {
+    void classicNotIApply() {
         ClassicNotI classicNotI = new ClassicNotI();
         VariableClassic variable = new VariableClassic("P");
         ConstantClassic bottom = ConstantClassic.FALSE;
@@ -35,7 +35,7 @@ public class ClassicNotTest {
     }
 
     @Test
-    public void classicNotEApply() {
+    void classicNotEApply() {
         ClassicNotE notE = new ClassicNotE(1);
         NegationClassic negneg = new NegationClassic(new NegationClassic(new VariableClassic("P")));
         ClassicAssume assume = new ClassicAssume(negneg);

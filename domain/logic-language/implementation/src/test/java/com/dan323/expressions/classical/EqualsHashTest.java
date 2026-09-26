@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test;
 public class EqualsHashTest {
 
     @Test
-    public void equalsConjTest() {
+    void equalsConjTest() {
         VariableClassic v1 = new VariableClassic("P");
         VariableClassic v2 = new VariableClassic("P");
         ConjunctionClassic c1 = new ConjunctionClassic(v1, v1);
@@ -20,7 +20,7 @@ public class EqualsHashTest {
     }
 
     @Test
-    public void equalsImpTest() {
+    void equalsImpTest() {
         VariableClassic v1 = new VariableClassic("P");
         VariableClassic v2 = new VariableClassic("P");
         VariableClassic v3 = new VariableClassic("Q");
@@ -34,7 +34,7 @@ public class EqualsHashTest {
     }
 
     @Test
-    public void equalsDisjTest() {
+    void equalsDisjTest() {
         VariableClassic v1 = new VariableClassic("P");
         VariableClassic v2 = new VariableClassic("P");
         VariableClassic v3 = new VariableClassic("Q");
@@ -48,7 +48,7 @@ public class EqualsHashTest {
     }
 
     @Test
-    public void testNotEquals() {
+    void testNotEquals() {
         VariableClassic v1 = new VariableClassic("P");
         VariableClassic v2 = new VariableClassic("Q");
         ConjunctionClassic c1 = new ConjunctionClassic(v1, v1);
@@ -60,7 +60,7 @@ public class EqualsHashTest {
     }
 
     @Test
-    public void equalsVarTest() {
+    void equalsVarTest() {
         VariableClassic v = new VariableClassic("P");
         VariableClassic w = new VariableClassic("P");
         Assertions.assertEquals(v, w);
@@ -68,7 +68,7 @@ public class EqualsHashTest {
     }
 
     @Test
-    public void equalsConsTest() {
+    void equalsConsTest() {
         ConstantClassic v = ConstantClassic.FALSE;
         ConstantClassic w = ConstantClassic.TRUE;
         Assertions.assertNotEquals(v, w);
@@ -77,7 +77,7 @@ public class EqualsHashTest {
     }
 
     @Test
-    public void negationEquals() {
+    void negationEquals() {
         VariableClassic p = new VariableClassic("P");
         VariableClassic q = new VariableClassic("Q");
         NegationClassic d = new NegationClassic(p);

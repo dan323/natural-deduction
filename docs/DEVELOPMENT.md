@@ -59,7 +59,11 @@ The project follows these key principles:
 
 ## Adding a New Logical System
 
-To add support for a new logical system (e.g., intuitionistic logic), follow these steps:
+To add support for a new logical system (e.g., a temporal or relevance logic), follow these steps. A logic that is
+another one with fewer rules does not need new modules: `intuitionistic` is classical logic filtered by
+`AvailableAction.isIntuitionistic()` (package `com.dan323.uses.intuitionistic` in `classical-use-case`). One with more
+rules or connectives can subclass the existing one: `modal-next-until` extends modal logic (packages `nextuntil` in the
+modal modules).
 
 ### Step 1: Create the Modules
 
@@ -76,11 +80,12 @@ The code of `classical` and `modal` is the reference; in short:
    and write a parser (the existing ones are built on javaluator).
 2. **Proofs** (`domain/proof-structures/`): bind `framework.deduction` (`Proof<T,Q>`, `ProofStep`, `Action`, the generic
    rule bases) to the language: a proof class (`NaturalDeduction`, `ModalNaturalDeduction`), one class per rule,
-   a `Parse*Action` to build rules from their names and reasons, and the automatic solver (`automate()`).
+   a `Parse*Action` to build rules from their names and reasons, and the automatic solver (`automate()`). A logic
+   without a solver answers `false` to `Transformer.hasSolver()`, so its `/solve` is a 400.
 3. **Use case** (`domain/use-cases/<logic>-use-case`): expose three Spring beans, keyed by the logic name (`"classical"`,
    `"modal"`): a `Transformer` (DTO to domain proof and back, by replaying every step), a `ProofParser` (text file to
-   proof) and a `LogicalGetActions` (the descriptors of the actions, see `ActionDescriptorDto`). Add a `*Configuration`
-   that declares them.
+   proof) and a `LogicalGetActions` (the descriptors of the actions, see `ActionDescriptorDto`), and optionally a
+   `LogicalExercises` catalog (`GET .../exercises`). Add a `*Configuration` that declares them.
 4. **Wire it** in `executable/.../ApplicationConfiguration` by importing that configuration. No new controller is
    needed: `ControllerInterface` serves every logic under `/logic/{logic}/...`.
 
@@ -96,8 +101,9 @@ Add the use-case module to `<modules>` in `domain/use-cases/pom.xml`, and depend
 
 Test each layer as the existing logics do (see `ClassicAndTest` in `implementation.deduction.classic`, the tests of
 `modal-use-case`) and add the new logic to the integration tests in `executable/src/test/java`. `RestServiceIT` checks
-the `/logic/{logic}/actions|action|solve` endpoints of `classical` and `modal`, and `FatJarActionsIT` checks the
-action lists from the packaged jar. If the rule list of the new logic is an enum, add a test that every entry builds
+the `/logic/{logic}/...` endpoints of every logic, and `FatJarActionsIT` checks the action lists from the packaged
+jar. Each exercise needs a reference solution, which a test replays (`ClassicalExercisesTest`, `ModalExercisesTest`,
+...). Add the new logic to the Docker smoke test in `OnMaster.yml` too. If the rule list of the new logic is an enum, add a test that every entry builds
 an action, as `modal-use-case` does for `AvailableModalAction`.
 
 ### Step 8: Frontend Support (if needed)
@@ -109,7 +115,8 @@ intuitionistic, modal and modal-next-until). Add the new logic there, with `hasS
 ### Step 9: Update Documentation
 
 Update:
-- [LANGUAGES.md](./LANGUAGES.md) - Add intuitionistic logic description
+- [LANGUAGES.md](./LANGUAGES.md) - Describe the new logic and its rules
+- [API.md](./API.md) - Its actions, exercises and anything specific to it
 - [MODULES.md](./MODULES.md) - Add new modules
 - [ARCHITECTURE.md](./ARCHITECTURE.md) - Update if needed
 
@@ -125,8 +132,10 @@ Example: add a new rule to classical logic
    with `apply(proof)`.
 2. **Add it to `AvailableAction`**, to `ParseClassicalAction` (so that it can be built from its name, and parsed from a
    proof file) and to the `switch` in `ClassicGetActions` in `classical-use-case`, which lists its inputs (`INT`,
-   `EXPRESSION`). That `switch` has no default branch, so the build fails until it is described. For modal logic add a
-   value to `AvailableModalAction` and to `ParseModalAction`.
+   `EXPRESSION`). That `switch` has no default branch, so the build fails until it is described, and so does the one
+   of `AvailableAction.isIntuitionistic()`, which decides whether intuitionistic logic has the rule. For modal logic add
+   a value to `AvailableModalAction` and to `ParseModalAction`. A rule that both logics share keeps both names
+   (`AvailableAction`'s rule name and `ParseModalAction.ruleName`), which `SharedRuleNamesTest` checks.
 3. **Add unit tests** next to the existing ones in `src/test/java/com/dan323/proof/classic/`
 4. **Update the automatic solver** (`ClassicalAutomate`) if it should use the rule
 
@@ -167,6 +176,7 @@ Use JUnit 6 and Mockito. Rules are tested against real proofs (see `ClassicAndTe
 
 - `RestServiceIT` - the REST API on a random port
 - `RestSolveTimeoutIT` - the 422 answer of a solve that does not finish, with a test-only logic
+- `NoExerciseCatalogContextTest` (a unit test) - the application still starts, and answers `[]` for the exercises, when no logic has an exercise catalog
 - `FatJarActionsIT` - starts the packaged fat jar and checks the action lists and the solver; only works through `mvn verify`
 
 `SpringVersionAlignmentTest` (a unit test) fails when `spring.version` in the root pom no longer matches the Spring

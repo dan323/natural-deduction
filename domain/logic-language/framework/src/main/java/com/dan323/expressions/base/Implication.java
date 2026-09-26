@@ -7,7 +7,7 @@ public abstract class Implication<T extends LogicOperation> extends BinaryOperat
 
     private static final String OPERATOR = "->";
 
-    public Implication(T left, T right) {
+    protected Implication(T left, T right) {
         super(left, right);
     }
 

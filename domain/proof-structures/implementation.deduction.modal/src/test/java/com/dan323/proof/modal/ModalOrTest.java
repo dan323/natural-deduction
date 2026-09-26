@@ -19,7 +19,7 @@ import static org.mockito.Mockito.mock;
 public class ModalOrTest {
 
     @Test
-    public void modalOrIApply() {
+    void modalOrIApply() {
         var variableQ = new VariableModal("Q");
         var pStep = mock(ProofStepModal.class);
         var orI1 = new ModalOrI1(1, variableQ);
@@ -47,7 +47,7 @@ public class ModalOrTest {
     }
 
     @Test
-    public void modalOrEApply() {
+    void modalOrEApply() {
         var state = "i";
         var orE = new ModalOrE(1, 2, 3);
         var p = new VariableModal("P");
@@ -70,7 +70,7 @@ public class ModalOrTest {
     }
 
     @Test
-    public void modalOrValid() {
+    void modalOrValid() {
         var state = "i";
         var state1 = "j";
         var orE = new ModalOrE(1, 2, 3);

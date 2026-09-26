@@ -26,7 +26,7 @@ public class BoxTest {
     private static final String STATE_1 = "s1";
 
     @Test
-    public void boxIValid() {
+    void boxIValid() {
         var boxI = new ModalBoxI();
         var proof = new ModalNaturalDeduction(STATE_0);
         var prop = mock(ModalLogicalOperation.class);
@@ -80,7 +80,7 @@ public class BoxTest {
     }
 
     @Test
-    public void boxEValid() {
+    void boxEValid() {
         var boxE = new ModalBoxE(1, 2);
         var proof = new ModalNaturalDeduction(STATE_0);
         var prop = mock(ModalLogicalOperation.class);
@@ -117,7 +117,7 @@ public class BoxTest {
     }
 
     @Test
-    public void boxIApply() {
+    void boxIApply() {
         var boxI = new ModalBoxI();
         var pf = new ModalNaturalDeduction(STATE_0);
         var prop = new VariableModal("P");
@@ -135,7 +135,7 @@ public class BoxTest {
     }
 
     @Test
-    public void boxEApply() {
+    void boxEApply() {
         var boxE = new ModalBoxE(1, 2);
         var pf = new ModalNaturalDeduction(STATE_0);
         var prop = new VariableModal("P");

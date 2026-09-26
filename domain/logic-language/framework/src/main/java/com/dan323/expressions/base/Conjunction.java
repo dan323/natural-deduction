@@ -7,7 +7,7 @@ public abstract class Conjunction<T extends LogicOperation> extends BinaryOperat
 
     private static final String OPERATOR = "&";
 
-    public Conjunction(T left, T right) {
+    protected Conjunction(T left, T right) {
         super(left, right);
     }
 

@@ -16,7 +16,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 public class ModalImpTest {
 
     @Test
-    public void modalDTValid() {
+    void modalDTValid() {
         var deductionTheorem = new ModalDeductionTheorem();
         var pf = new ModalNaturalDeduction("s0");
         assertFalse(deductionTheorem.isValid(pf));
@@ -30,7 +30,7 @@ public class ModalImpTest {
     }
 
     @Test
-    public void modalDTApply() {
+    void modalDTApply() {
         var state = "i";
         var deductionTheorem = new ModalDeductionTheorem();
         var variable = new VariableModal("P");
@@ -47,7 +47,7 @@ public class ModalImpTest {
     }
 
     @Test
-    public void modalMPValid() {
+    void modalMPValid() {
         var state = "i";
         var pr = new ModalNaturalDeduction("s0");
         var mp = new ModalModusPonens(2, 1);
@@ -69,7 +69,7 @@ public class ModalImpTest {
     }
 
     @Test
-    public void modalMPApply() {
+    void modalMPApply() {
         var state = "i";
         var modusPonens = new ModalModusPonens(1, 2);
         var variable = new VariableModal("P");

@@ -173,7 +173,7 @@ const Menu: FC<MenuProps> = ({ logic, onColorChange, setProof, proof, ref, onNew
 
     useImperativeHandle(ref, () => ({
         selectLine: (line: number) => {
-            const sourceIndex = sources.findIndex(source => source === null);
+            const sourceIndex = sources.indexOf(null);
             if (done || sourceIndex < 0) return;
             const index = params.findIndex((kind, i) => kind === 'INT' && sourceIndexOf(params, i) === sourceIndex);
             setErrorMessage('');

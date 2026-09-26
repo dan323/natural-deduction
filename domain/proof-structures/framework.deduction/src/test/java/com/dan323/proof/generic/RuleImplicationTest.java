@@ -53,7 +53,7 @@ public class RuleImplicationTest {
     }
 
     @Test
-    public void deductionThIsValidTest() {
+    void deductionThIsValidTest() {
         DeductionTheoremStub ded = new DeductionTheoremStub();
 
         Assertions.assertEquals(new DeductionTheoremStub(), ded);
@@ -79,8 +79,8 @@ public class RuleImplicationTest {
     }
 
     @Test
-    public void deductionThApplyTest() {
-        List<ProofStep<LogicOperation>> record = new ArrayList<>();
+    void deductionThApplyTest() {
+        List<ProofStep<LogicOperation>> added = new ArrayList<>();
         doReturn(list).when(pf).getSteps();
         doReturn(2).when(list).size();
         doReturn(pStep0).when(list).get(0);
@@ -90,19 +90,19 @@ public class RuleImplicationTest {
         Variable variable = mock(Variable.class, Answers.CALLS_REAL_METHODS);
         doReturn("P").when(variable).toString();
         doReturn(variable).when(pStep0).getStep();
-        doAnswer(invocationOnMock -> record.add(invocationOnMock.getArgument(0))).when(list).add(any(ProofStep.class));
+        doAnswer(invocationOnMock -> added.add(invocationOnMock.getArgument(0))).when(list).add(any(ProofStep.class));
 
         DeductionTheoremStub ded = new DeductionTheoremStub();
         ded.applyStepSupplier(pf, ProofStep::new);
 
-        Assertions.assertEquals(new ProofReason("->I", List.of(new ProofReason.Range(1, 2)), List.of()), record.getFirst().getProof());
-        Assertions.assertEquals(0, record.getFirst().getAssumptionLevel());
-        Assertions.assertEquals("P -> P", record.getFirst().getStep().toString());
-        Assertions.assertTrue(record.getFirst().isValid());
+        Assertions.assertEquals(new ProofReason("->I", List.of(new ProofReason.Range(1, 2)), List.of()), added.getFirst().getProof());
+        Assertions.assertEquals(0, added.getFirst().getAssumptionLevel());
+        Assertions.assertEquals("P -> P", added.getFirst().getStep().toString());
+        Assertions.assertTrue(added.getFirst().isValid());
     }
 
     @Test
-    public void modusPonensValidTest() {
+    void modusPonensValidTest() {
         ModusPonensStub ded = new ModusPonensStub(1, 2);
 
         Assertions.assertEquals(new ModusPonensStub(1, 2), ded);
@@ -118,39 +118,39 @@ public class RuleImplicationTest {
 
         Assertions.assertFalse(ded.isValid(pf));
 
-        var P = mock(Variable.class);
-        var imp = mockImplication(P, P);
+        var atom = mock(Variable.class);
+        var imp = mockImplication(atom, atom);
         doReturn(pStep1).when(list).get(eq(1));
         doReturn(true).when(pStep0).isValid();
         doReturn(true).when(pStep1).isValid();
-        doReturn(P).when(pStep1).getStep();
+        doReturn(atom).when(pStep1).getStep();
         doReturn(imp).when(pStep0).getStep();
 
         Assertions.assertTrue(ded.isValid(pf));
     }
 
     @Test
-    public void modusPonensApplyTest() {
-        List<ProofStep<LogicOperation>> record = new ArrayList<>();
+    void modusPonensApplyTest() {
+        List<ProofStep<LogicOperation>> added = new ArrayList<>();
         doReturn(list).when(pf).getSteps();
         doReturn(pStep0).when(list).get(eq(0));
         doReturn(pStep1).when(list).getLast();
         Variable variable = mock(Variable.class, Answers.CALLS_REAL_METHODS);
         doReturn("P").when(variable).toString();
         doReturn(mockImplication(variable, variable)).when(pStep0).getStep();
-        doAnswer(invocationOnMock -> record.add(invocationOnMock.getArgument(0))).when(list).add(any(ProofStep.class));
+        doAnswer(invocationOnMock -> added.add(invocationOnMock.getArgument(0))).when(list).add(any(ProofStep.class));
 
         ModusPonensStub ded = new ModusPonensStub(1, 2);
         ded.applyStepSupplier(pf, ProofStep::new);
 
-        Assertions.assertEquals(new ProofReason("->E", List.of(), List.of(1, 2)), record.getFirst().getProof());
-        Assertions.assertEquals(0, record.getFirst().getAssumptionLevel());
-        Assertions.assertEquals("P", record.getFirst().getStep().toString());
-        Assertions.assertTrue(record.getFirst().isValid());
+        Assertions.assertEquals(new ProofReason("->E", List.of(), List.of(1, 2)), added.getFirst().getProof());
+        Assertions.assertEquals(0, added.getFirst().getAssumptionLevel());
+        Assertions.assertEquals("P", added.getFirst().getStep().toString());
+        Assertions.assertTrue(added.getFirst().isValid());
     }
 
     @Test
-    public void equalsFalse() {
+    void equalsFalse() {
         Assertions.assertNotEquals(new ModusPonensStub(1, 2), new DeductionTheoremStub());
     }
 
@@ -161,7 +161,7 @@ public class RuleImplicationTest {
 
         @Override
         public void apply(ProofTest.ProofStub pf) {
-
+            // A test stub: applying it does nothing
         }
     }
 
@@ -172,7 +172,7 @@ public class RuleImplicationTest {
 
         @Override
         public void apply(ProofTest.ProofStub pf) {
-
+            // A test stub: applying it does nothing
         }
     }
 

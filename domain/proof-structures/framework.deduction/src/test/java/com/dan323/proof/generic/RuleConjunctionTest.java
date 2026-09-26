@@ -46,7 +46,7 @@ public class RuleConjunctionTest {
     }
 
     @Test
-    public void andIValidityTest() {
+    void andIValidityTest() {
         AndIStub andI = new AndIStub(1, 2);
 
         Assertions.assertEquals(new AndIStub(1, 2), andI);
@@ -62,7 +62,7 @@ public class RuleConjunctionTest {
     }
 
     @Test
-    public void andRuleNotEquals() {
+    void andRuleNotEquals() {
         Assertions.assertNotEquals(new AndIStub(1, 2), new AndIStub(1, 3));
         Assertions.assertNotEquals(new AndIStub(1, 2), new AndIStub(2, 2));
         Assertions.assertNotEquals(new AndEStub(1), new AndEStub(2));
@@ -71,7 +71,7 @@ public class RuleConjunctionTest {
     }
 
     @Test
-    public void andEValidityTest() {
+    void andEValidityTest() {
         AndEStub andE = new AndEStub(1);
 
         Assertions.assertEquals(new AndEStub(1), andE);
@@ -87,8 +87,8 @@ public class RuleConjunctionTest {
     }
 
     @Test
-    public void andIApply() {
-        List<ProofStep<LogicOperation>> record = new ArrayList<>();
+    void andIApply() {
+        List<ProofStep<LogicOperation>> added = new ArrayList<>();
         doReturn(list).when(pf).getSteps();
         doReturn(false).when(list).isEmpty();
         doReturn(pStep).when(list).getLast();
@@ -99,21 +99,21 @@ public class RuleConjunctionTest {
         doReturn("P").when(variable).toString();
         doReturn(variable).when(pStep).getStep();
         doAnswer(invocationOnMock ->
-                record.add(invocationOnMock.getArgument(0))
+                added.add(invocationOnMock.getArgument(0))
         ).when(list).add(any(ProofStep.class));
 
         AndIStub andI = new AndIStub(1, 2);
         andI.applyStepSupplier(pf, ProofStep::new);
 
-        Assertions.assertEquals("P & P", record.getFirst().getStep().toString());
-        Assertions.assertEquals(1, record.getFirst().getAssumptionLevel());
-        Assertions.assertEquals("&I [1, 2]", record.getFirst().getProof().toString());
-        Assertions.assertEquals("   P & P           &I [1, 2]", record.getFirst().toString());
+        Assertions.assertEquals("P & P", added.getFirst().getStep().toString());
+        Assertions.assertEquals(1, added.getFirst().getAssumptionLevel());
+        Assertions.assertEquals("&I [1, 2]", added.getFirst().getProof().toString());
+        Assertions.assertEquals("   P & P           &I [1, 2]", added.getFirst().toString());
     }
 
     @Test
-    public void andEApply() {
-        List<ProofStep<LogicOperation>> record = new ArrayList<>();
+    void andEApply() {
+        List<ProofStep<LogicOperation>> added = new ArrayList<>();
         doReturn(list).when(pf).getSteps();
         doReturn(false).when(list).isEmpty();
         doReturn(pStep).when(list).get(0);
@@ -122,23 +122,23 @@ public class RuleConjunctionTest {
         Variable variable = mock(Variable.class, Answers.CALLS_REAL_METHODS);
         doReturn("P").when(variable).toString();
         doReturn(mockConjunction(variable, variable)).when(pStep).getStep();
-        doAnswer(invocationOnMock -> record.add(invocationOnMock.getArgument(0))).when(list).add(any(ProofStep.class));
+        doAnswer(invocationOnMock -> added.add(invocationOnMock.getArgument(0))).when(list).add(any(ProofStep.class));
 
         AndEStub andE = new AndEStub(1);
         andE.applyStepSupplier(pf, ProofStep::new);
 
-        Assertions.assertEquals("P", record.getFirst().getStep().toString());
-        Assertions.assertEquals(1, record.getFirst().getAssumptionLevel());
-        Assertions.assertEquals("&E [1]", record.getFirst().getProof().toString());
-        Assertions.assertEquals("   P           &E [1]", record.getFirst().toString());
+        Assertions.assertEquals("P", added.getFirst().getStep().toString());
+        Assertions.assertEquals(1, added.getFirst().getAssumptionLevel());
+        Assertions.assertEquals("&E [1]", added.getFirst().getProof().toString());
+        Assertions.assertEquals("   P           &E [1]", added.getFirst().toString());
 
         AndEStub2 andE2 = new AndEStub2(1);
         andE2.applyStepSupplier(pf, ProofStep::new);
 
-        Assertions.assertEquals("P", record.get(1).getStep().toString());
-        Assertions.assertEquals(1, record.get(1).getAssumptionLevel());
-        Assertions.assertEquals("&E [1]", record.get(1).getProof().toString());
-        Assertions.assertEquals("   P           &E [1]", record.get(1).toString());
+        Assertions.assertEquals("P", added.get(1).getStep().toString());
+        Assertions.assertEquals(1, added.get(1).getAssumptionLevel());
+        Assertions.assertEquals("&E [1]", added.get(1).getProof().toString());
+        Assertions.assertEquals("   P           &E [1]", added.get(1).toString());
     }
 
     public static class AndEStub extends AndE<LogicOperation, ProofStep<LogicOperation>, ProofTest.ProofStub> {

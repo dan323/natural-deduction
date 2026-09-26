@@ -18,7 +18,7 @@ import static org.mockito.Mockito.mock;
 public class ClassicAndTest {
 
     @Test
-    public void classicAndEApply() {
+    void classicAndEApply() {
         ProofStep<ClassicalLogicOperation> pStep = mock(ProofStep.class);
         ClassicAndE1 andE1 = new ClassicAndE1(1);
         NaturalDeduction pf = new NaturalDeduction();
@@ -45,7 +45,7 @@ public class ClassicAndTest {
     }
 
     @Test
-    public void classicAndIApply() {
+    void classicAndIApply() {
         ClassicAndI andI = new ClassicAndI(1, 2);
         ClassicAssume assume1 = new ClassicAssume(new VariableClassic("P"));
         ClassicAssume assume2 = new ClassicAssume(new VariableClassic("Q"));

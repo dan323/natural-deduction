@@ -15,7 +15,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 public class NaturalDeductionTest {
 
     @Test
-    public void automatePimpP() {
+    void automatePimpP() {
         var p = new VariableClassic("P");
         var naturalDeduction = new NaturalDeduction();
         naturalDeduction.initializeProof(List.of(), new ImplicationClassic(p, p));
@@ -24,7 +24,7 @@ public class NaturalDeductionTest {
     }
 
     @Test
-    public void automateNotNotPimpP() {
+    void automateNotNotPimpP() {
         var p = new VariableClassic("P");
         var naturalDeduction = new NaturalDeduction();
         naturalDeduction.initializeProof(List.of(), new ImplicationClassic(new NegationClassic(new NegationClassic(p)), p));
@@ -33,7 +33,7 @@ public class NaturalDeductionTest {
     }
 
     @Test
-    public void automatePimpNotNotP() {
+    void automatePimpNotNotP() {
         var p = new VariableClassic("P");
         var naturalDeduction = new NaturalDeduction();
         naturalDeduction.initializeProof(List.of(), new ImplicationClassic(p, new NegationClassic(new NegationClassic(p))));
@@ -42,7 +42,7 @@ public class NaturalDeductionTest {
     }
 
     @Test
-    public void automateExcludedMiddle() {
+    void automateExcludedMiddle() {
         var p = new VariableClassic("P");
         var naturalDeduction = new NaturalDeduction();
         naturalDeduction.initializeProof(List.of(), new DisjunctionClassic(p, new NegationClassic(p)));
@@ -51,7 +51,7 @@ public class NaturalDeductionTest {
     }
 
     @Test
-    public void setAssmsTest() {
+    void setAssmsTest() {
         var p = new VariableClassic("P");
         var q = new VariableClassic("Q");
         var naturalDeduction = new NaturalDeduction();
@@ -61,7 +61,7 @@ public class NaturalDeductionTest {
     }
 
     @Test
-    public void automateBasicFact() {
+    void automateBasicFact() {
         var p = new VariableClassic("P");
         var q = new VariableClassic("Q");
         var naturalDeduction = new NaturalDeduction();
@@ -71,7 +71,7 @@ public class NaturalDeductionTest {
     }
 
     @Test
-    public void automateFalseImpAnything() {
+    void automateFalseImpAnything() {
         var p = new VariableClassic("P");
         var q = new VariableClassic("Q");
         var naturalDeduction = new NaturalDeduction();
@@ -81,7 +81,7 @@ public class NaturalDeductionTest {
     }
 
     @Test
-    public void automateAND() {
+    void automateAND() {
         var p = new VariableClassic("P");
         var q = new VariableClassic("Q");
         var naturalDeduction = new NaturalDeduction();
@@ -91,7 +91,7 @@ public class NaturalDeductionTest {
     }
 
     @Test
-    public void automateImpossible() {
+    void automateImpossible() {
         var p = new VariableClassic("P");
         var q = new VariableClassic("Q");
         var naturalDeduction = new NaturalDeduction();

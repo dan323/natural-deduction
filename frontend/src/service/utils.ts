@@ -162,7 +162,7 @@ function closingParenthesis(text: string): number {
 
 // The goal a proof text reads back with: `POST .../proof` takes the last line as the goal. Null for an empty proof.
 export function loadedGoal(proof: ProofDto): string | null {
-  const last = proof.steps[proof.steps.length - 1] as StepDto | undefined;
+  const last = proof.steps.at(-1);
   return last === undefined ? null : last.expression.trim();
 }
 
@@ -171,10 +171,9 @@ export function loadedGoal(proof: ProofDto): string | null {
 // goal, so the last line must also be a top-level step equal to the goal. Spaces are ignored in the comparison, since
 // the goal may still be as the user typed it; any other difference in writing counts as a different goal.
 export function loadsBackWithSameGoal(proof: ProofDto): boolean {
-  const last = proof.steps[proof.steps.length - 1] as StepDto | undefined;
+  const last = proof.steps.at(-1);
   const withoutSpaces = (formula: string) => formula.replace(/\s+/g, '');
   return proof.done === true
-    && last !== undefined
-    && last.assmsLevel === 0
+    && last?.assmsLevel === 0
     && withoutSpaces(last.expression) === withoutSpaces(proof.goal);
 }
