@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>ModalNextUntilLogicParser.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">jacoco-report-aggregate</a> &gt; <a href="../index.html" class="el_bundle">implementation.modal</a> &gt; <a href="index.source.html" class="el_package">com.dan323.expressions</a> &gt; <span class="el_source">ModalNextUntilLogicParser.java</span></div><h1>ModalNextUntilLogicParser.java</h1><pre class="source lang-java linenums">package com.dan323.expressions;
+
+import com.dan323.expressions.modal.ModalLogicalOperation;
+import com.dan323.expressions.modal.ModalOperation;
+import com.dan323.expressions.modal.Next;
+import com.dan323.expressions.modal.Until;
+import com.dan323.expressions.modal.VariableModal;
+import com.dan323.expressions.relation.Equals;
+import com.dan323.expressions.relation.LessEqual;
+import com.dan323.expressions.relation.StateTerm;
+import com.fathzer.soft.javaluator.BracketPair;
+import com.fathzer.soft.javaluator.Constant;
+import com.fathzer.soft.javaluator.Operator;
+import com.fathzer.soft.javaluator.Parameters;
+import com.fathzer.soft.javaluator.Tokenizer;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+/**
+ * The language of {@code modal-next-until}: the modal language plus Next, {@code X A} ({@link Next}), and Until,
+ * {@code A U B} ({@link Until}), written as their {@code toString()} prints them.
+ * &lt;p&gt;
+ * {@code X} is a unary connective like {@code -}, {@code []} and {@code &lt;&gt;}, and here any unary connective can follow
+ * any other ({@code X - p}, {@code [] X p}). {@code U} binds tighter than the binary connectives ({@code -&gt;}, {@code |},
+ * {@code &amp;}) and looser than the unary ones, and groups to the left: {@code - p U X q -&gt; r} is
+ * {@code ((- p) U (X q)) -&gt; r}. The other connectives bind as in the modal parser.
+ * &lt;p&gt;
+ * javaluator cuts every token at every operator symbol, even inside a name, so a plain {@code U} or {@code X} operator
+ * would split {@code TRUE} or {@code Xp}. Here they are operators only as words of their own (no letter, digit or
+ * {@code _} next to them), so {@code TRUE}, {@code Up}, {@code pUq} and {@code Xp} stay names, and no variable can be
+ * called {@code U} or {@code X}.
+ * &lt;p&gt;
+ * The sides of a relation ({@code s0 &lt;= s0+1}) must be states ({@link StateTerm}), and are kept the way
+ * {@link StateTerm#normalize} writes them.
+ */
+public class ModalNextUntilLogicParser extends ModalLogicParser {
+
+    private static final String UNTIL_SYMBOL = &quot;U&quot;;
+    private static final String NEXT_SYMBOL = &quot;X&quot;;
+    // Only the order of the precedences matters. The unary connectives share one, so that any of them can follow
+    // another (the modal parser reads &quot;- [] p&quot; but not &quot;[] - p&quot;).
+    private static final int UNARY = 5;
+<span class="fc" id="L49">    private static final List&lt;Operator&gt; OPERATORS = List.of(</span>
+            new Operator(&quot;&amp;&quot;, 2, Operator.Associativity.LEFT, 1),
+            new Operator(&quot;|&quot;, 2, Operator.Associativity.LEFT, 2),
+            new Operator(&quot;-&gt;&quot;, 2, Operator.Associativity.LEFT, 3),
+            new Operator(UNTIL_SYMBOL, 2, Operator.Associativity.LEFT, 4),
+            new Operator(&quot;-&quot;, 1, Operator.Associativity.RIGHT, UNARY),
+            new Operator(&quot;[]&quot;, 1, Operator.Associativity.RIGHT, UNARY),
+            new Operator(&quot;&lt;&gt;&quot;, 1, Operator.Associativity.RIGHT, UNARY),
+            new Operator(NEXT_SYMBOL, 1, Operator.Associativity.RIGHT, UNARY),
+            new Operator(&quot;&lt;=&quot;, 2, Operator.Associativity.LEFT, 7),
+            new Operator(&quot;=&quot;, 2, Operator.Associativity.LEFT, 8));
+<span class="fc" id="L60">    private static final Set&lt;String&gt; WORD_OPERATORS = Set.of(UNTIL_SYMBOL, NEXT_SYMBOL);</span>
+<span class="fc" id="L61">    private static final Pattern WORD_OPERATOR = Pattern.compile(&quot;(?&lt;![\\p{L}\\p{N}_])[UX](?![\\p{L}\\p{N}_])&quot;);</span>
+
+    private final Tokenizer tokenizerWithoutWords;
+
+    public ModalNextUntilLogicParser() {
+<span class="fc" id="L66">        super(buildParams());</span>
+<span class="fc" id="L67">        var delimiters = Stream.concat(getOperators().stream().map(Operator::getSymbol), Stream.of(&quot;(&quot;, &quot;)&quot;))</span>
+<span class="fc bfc" id="L68" title="All 2 branches covered.">                .filter(symbol -&gt; !WORD_OPERATORS.contains(symbol))</span>
+<span class="fc" id="L69">                .distinct()</span>
+<span class="fc" id="L70">                .collect(Collectors.toCollection(ArrayList::new));</span>
+        // The Tokenizer sorts the list it is given (longest symbol first), so it must be mutable.
+<span class="fc" id="L72">        tokenizerWithoutWords = new Tokenizer(delimiters);</span>
+<span class="fc" id="L73">    }</span>
+
+    private static Parameters buildParams() {
+<span class="fc" id="L76">        Parameters parameters = new Parameters();</span>
+<span class="fc" id="L77">        parameters.add(new Constant(&quot;FALSE&quot;));</span>
+<span class="fc" id="L78">        parameters.add(new Constant(&quot;TRUE&quot;));</span>
+<span class="fc" id="L79">        parameters.addOperators(OPERATORS);</span>
+<span class="fc" id="L80">        parameters.addExpressionBracket(BracketPair.PARENTHESES);</span>
+<span class="fc" id="L81">        return parameters;</span>
+    }
+
+    @Override
+    protected Iterator&lt;String&gt; tokenize(String expression) {
+<span class="fc" id="L86">        List&lt;String&gt; tokens = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L87">        var matcher = WORD_OPERATOR.matcher(expression);</span>
+<span class="fc" id="L88">        int start = 0;</span>
+<span class="fc bfc" id="L89" title="All 2 branches covered.">        while (matcher.find()) {</span>
+<span class="fc" id="L90">            tokenizerWithoutWords.tokenize(expression.substring(start, matcher.start())).forEachRemaining(tokens::add);</span>
+<span class="fc" id="L91">            tokens.add(matcher.group());</span>
+<span class="fc" id="L92">            start = matcher.end();</span>
+        }
+<span class="fc" id="L94">        tokenizerWithoutWords.tokenize(expression.substring(start)).forEachRemaining(tokens::add);</span>
+<span class="fc" id="L95">        return tokens.iterator();</span>
+    }
+
+    @Override
+    protected ModalOperation evaluate(Operator operator, Iterator&lt;ModalOperation&gt; operands, Object evaluationContext) {
+<span class="fc bfc" id="L100" title="All 5 branches covered.">        return switch (operator.getSymbol()) {</span>
+<span class="fc" id="L101">            case UNTIL_SYMBOL -&gt; new Until(formula(operands.next()), formula(operands.next()));</span>
+<span class="fc" id="L102">            case NEXT_SYMBOL -&gt; new Next(formula(operands.next()));</span>
+<span class="fc" id="L103">            case &quot;&lt;=&quot; -&gt; new LessEqual(state(operands.next()), state(operands.next()));</span>
+<span class="fc" id="L104">            case &quot;=&quot; -&gt; new Equals(state(operands.next()), state(operands.next()));</span>
+<span class="fc" id="L105">            default -&gt; super.evaluate(operator, operands, evaluationContext);</span>
+        };
+    }
+
+    private static ModalLogicalOperation formula(ModalOperation operand) {
+<span class="fc bfc" id="L110" title="All 2 branches covered.">        if (operand instanceof ModalLogicalOperation formula) {</span>
+<span class="fc" id="L111">            return formula;</span>
+        }
+<span class="fc" id="L113">        throw new IllegalArgumentException(&quot;'&quot; + operand + &quot;' is a relation, and X and U take formulas&quot;);</span>
+    }
+
+    private static String state(ModalOperation operand) {
+<span class="fc bfc" id="L117" title="All 2 branches covered.">        if (operand instanceof VariableModal variable) {</span>
+<span class="fc" id="L118">            return StateTerm.normalize(variable.toString());</span>
+        }
+<span class="fc" id="L120">        throw new IllegalArgumentException(&quot;'&quot; + operand + &quot;' is not a state: the sides of a relation are states such as s0 or s0+1&quot;);</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>
