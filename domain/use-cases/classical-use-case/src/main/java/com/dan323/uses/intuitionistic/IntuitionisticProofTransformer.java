@@ -27,9 +27,8 @@ public class IntuitionisticProofTransformer extends ClassicalProofTransformer {
 
     @Override
     public ClassicalAction from(ActionDto action) {
-        var named = withConstantName(action);
-        IntuitionisticRules.checkActionName(named.name());
-        return super.from(named);
+        IntuitionisticRules.checkActionName(action.name(), constantName(action.name()));
+        return super.from(action);
     }
 
     @Override

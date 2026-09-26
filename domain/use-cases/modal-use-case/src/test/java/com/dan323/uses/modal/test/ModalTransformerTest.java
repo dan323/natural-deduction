@@ -117,6 +117,7 @@ public class ModalTransformerTest {
         assertInstanceOf(ModalCopy.class, transformer.from(new ActionDto("COPY", List.of(1), Map.of())));
         assertInstanceOf(ModalModusPonens.class, transformer.from(new ActionDto("MP", List.of(1, 2), Map.of())));
         var missingExpression = new ActionDto("ASSUME", List.of(), Map.of("state", "s0"));
-        assertThrows(com.dan323.uses.InvalidActionException.class, () -> transformer.from(missingExpression));
+        var exception = assertThrows(com.dan323.uses.InvalidActionException.class, () -> transformer.from(missingExpression));
+        assertEquals("ASSUME needs an expression", exception.getMessage());
     }
 }

@@ -122,6 +122,38 @@ public class RestServiceIT {
         assertEquals(2, Objects.requireNonNull(response.getBody()).proof().steps().size());
     }
 
+    @Test
+    public void everyLogicAcceptsBothNamesOfASharedRule() {
+        var classical = new ProofDto(List.of(new StepDto("P", "Ass", 0, Map.of())), "classical", "P");
+        var modalStep = new StepDto("P", "Ass", 0, Map.of("state", "s0"));
+        for (var name : List.of("COPY", "Rep")) {
+            for (var logic : List.of("classical", "intuitionistic")) {
+                assertCopies(logic, name, new ProofDto(classical.steps(), logic, "P"));
+            }
+            for (var logic : List.of("modal", "modal-next-until")) {
+                assertCopies(logic, name, new ProofDto(List.of(modalStep), logic, "P"));
+            }
+        }
+    }
+
+    private void assertCopies(String logic, String name, ProofDto proof) {
+        var response = restTemplate.exchange(createURLWithPort("/logic/" + logic + "/action"), HttpMethod.POST,
+                new HttpEntity<>(new ProofActionRequest(new ActionDto(name, List.of(1), Map.of()), proof), headers), ProofResponse.class);
+        assertEquals(HttpStatus.OK, response.getStatusCode(), logic + " " + name);
+        assertEquals("Rep [1]", last(Objects.requireNonNull(response.getBody()).proof()).rule(), logic + " " + name);
+    }
+
+    @Test
+    public void intuitionisticRejectsDoubleNegationEliminationUnderBothNames() {
+        var proof = new ProofDto(List.of(new StepDto("- (- P)", "Ass", 0, Map.of())), "intuitionistic", "P");
+        for (var name : List.of("NOTE", "-E")) {
+            var response = restTemplate.exchange(createURLWithPort("/logic/intuitionistic/action"), HttpMethod.POST,
+                    new HttpEntity<>(new ProofActionRequest(new ActionDto(name, List.of(1), Map.of()), proof), headers), ErrorResponse.class);
+            assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+            assertEquals("Rule " + name + " is not a rule of intuitionistic logic", Objects.requireNonNull(response.getBody()).message());
+        }
+    }
+
     private static final String NEXT_UNTIL = "modal-next-until";
 
     private static StepDto last(ProofDto proof) {

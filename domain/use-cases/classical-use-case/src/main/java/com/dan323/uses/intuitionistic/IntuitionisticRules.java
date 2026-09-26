@@ -22,10 +22,13 @@ final class IntuitionisticRules {
     /**
      * Rejects an action name that is a classical rule without being an intuitionistic one. Other names are left to
      * the classical parsing, which rejects the unknown ones.
+     *
+     * @param name         the name as the client sent it, for the error
+     * @param constantName its {@link AvailableAction} constant name (e.g. {@code NOTE} for {@code -E})
      */
-    static void checkActionName(String name) {
+    static void checkActionName(String name, String constantName) {
         for (AvailableAction action : AvailableAction.values()) {
-            if (action.name().equals(name) && !action.isIntuitionistic()) {
+            if (action.name().equals(constantName) && !action.isIntuitionistic()) {
                 throw new InvalidActionException("Rule " + name + " is not a rule of intuitionistic logic");
             }
         }

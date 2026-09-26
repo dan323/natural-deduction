@@ -121,6 +121,6 @@ class IntuitionisticUseTest {
         var proof = new ProofDto(List.of(new StepDto("- (- p)", "Ass", 0, Map.of())), "intuitionistic", "p");
         var note = new ActionDto("-E", List.of(1), Map.of());
         var exception = assertThrows(InvalidActionException.class, () -> applier.perform(note, proof));
-        assertEquals("Rule NOTE is not a rule of intuitionistic logic", exception.getMessage());
+        assertEquals("Rule -E is not a rule of intuitionistic logic", exception.getMessage());
     }
 }

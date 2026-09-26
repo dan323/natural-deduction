@@ -122,6 +122,6 @@ public class ClassicalTransformerTest {
         assertEquals("Rep [1]", result.proof().steps().get(1).rule());
         var missingExpression = new ActionDto("Ass", List.of(), Map.of());
         var exception = assertThrows(InvalidActionException.class, () -> transformer.from(missingExpression));
-        assertEquals("ASSUME needs an expression", exception.getMessage());
+        assertEquals("Ass needs an expression", exception.getMessage());
     }
 }

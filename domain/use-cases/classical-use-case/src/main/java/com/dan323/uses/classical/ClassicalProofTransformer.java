@@ -78,20 +78,20 @@ public class ClassicalProofTransformer implements Transformer<ClassicalLogicOper
     }
 
     public ClassicalAction from(ActionDto action) {
-        var named = withConstantName(action);
-        return ParseClassicalAction.parseAction(named.name(), named.sources(), ActionExpression.of(named, ACTIONS)
+        var name = constantName(action.name());
+        return ParseClassicalAction.parseAction(name, action.sources(), ActionExpression.of(action, name, ACTIONS)
                 .map(ParseClassicalAction::parseExpression).orElse(null));
     }
 
     /**
-     * The action under its {@link AvailableAction} constant name (the descriptor name), also when it was sent under its
+     * The {@link AvailableAction} constant name (the descriptor name) of an action, also when it was sent under its
      * rule name ({@code Rep} for {@code COPY}), so that the descriptor checks see it. Unknown names are left as they are.
      */
-    protected static ActionDto withConstantName(ActionDto action) {
+    protected static String constantName(String name) {
         try {
-            return new ActionDto(AvailableAction.fromName(action.name()).name(), action.sources(), action.extraParameters());
+            return AvailableAction.fromName(name).name();
         } catch (IllegalArgumentException e) {
-            return action;
+            return name;
         }
     }
 
