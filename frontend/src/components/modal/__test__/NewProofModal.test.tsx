@@ -134,6 +134,18 @@ describe('NewProofModal accessibility', () => {
     expect(onClose).toHaveBeenCalledTimes(1);
   });
 
+  test('closes on a click on the backdrop, not on one inside its content', async () => {
+    const onClose = jest.fn();
+    const user = userEvent.setup();
+    render(<NewProofModal isOpen={true} onClose={onClose} onSubmit={jest.fn()} />);
+
+    await user.click(screen.getByRole('heading', { name: 'New Proof' }));
+    expect(onClose).not.toHaveBeenCalled();
+
+    await user.click(screen.getByRole('dialog'));
+    expect(onClose).toHaveBeenCalledTimes(1);
+  });
+
   test('focuses the first premise on open and gives the focus back on close', async () => {
     const Harness = () => {
       const [open, setOpen] = useState(false);

@@ -36,13 +36,9 @@ export const ProofViewer: FC<ProofViewerProps> = ({ proof, coloring, onSelectLin
       let ranges: RangeDto[] = [];
 
       parts.forEach(part => {
-        const rangeMatch = /(\d+)-(\d+)/.exec(part);
-        if (rangeMatch) {
-          ranges.push({ start: Number.parseInt(rangeMatch[1]), end: Number.parseInt(rangeMatch[2]) });
-        } else {
-          const number = Number.parseInt(part);
-          ranges.push({ start: number, end: number });
-        }
+        // Each part is `n` or `n-m` (the regex above allows nothing else).
+        const [start, end = start] = part.split('-').map(number => Number.parseInt(number));
+        ranges.push({ start, end });
       });
 
       return ranges;
@@ -81,9 +77,11 @@ export const ProofViewer: FC<ProofViewerProps> = ({ proof, coloring, onSelectLin
           </thead>
           <tbody>
             {proof.steps.map((step, index) => {
+              // A row is the proof's line of that number (steps are only ever added or undone at the end).
+              const line = index + 1;
               return (
                 <StepViewer
-                  key={index}
+                  key={line}
                   step={step}
                   stepIndex={index}
                   className={isHighlighted(index) ? 'highlighted' : ''}

@@ -55,7 +55,7 @@ function copyLoadNote(proof: ProofDto): ReactNode {
 type CopyResult = { proof: ProofDto, text: string, copied: boolean };
 
 // Says what "Copy proof as text" did. When the clipboard is not available, it shows the text to copy by hand.
-function CopyStatus({ copy }: { copy: CopyResult }) {
+function CopyStatus({ copy }: Readonly<{ copy: CopyResult }>) {
   if (copy.copied) {
     return (
       <output className="copy-status" aria-live="polite">
@@ -79,6 +79,71 @@ function CopyStatus({ copy }: { copy: CopyResult }) {
         wrap="off"
         onFocus={(e) => e.target.select()}
       />
+    </div>
+  );
+}
+
+type EmptyProofStateProps = {
+  logic: string,
+  isRestoring: boolean,
+  restoreError: string,
+  isStartingExample: boolean,
+  exampleError: string,
+  // While the example or an exercise is being started, in the logic picked here.
+  isChangingLogicBlocked: boolean,
+  isExercisesOpen: boolean,
+  onLogicChange: (logic: string) => void,
+  onTryExample: () => void,
+  onBrowseExercises: () => void,
+};
+
+// What the page shows before any proof is on screen: the logic picker, "Try an example" and the way to the exercises.
+function EmptyProofState({
+  logic, isRestoring, restoreError, isStartingExample, exampleError, isChangingLogicBlocked, isExercisesOpen,
+  onLogicChange, onTryExample, onBrowseExercises,
+}: Readonly<EmptyProofStateProps>) {
+  return (
+    <div className="empty-proof-state">
+      <output className="paragraph" aria-live="polite">
+        {isRestoring
+          ? 'Restoring the proof from before the page was reloaded…'
+          : <>No proof loaded. Click <strong>New Proof</strong> to begin.</>}
+      </output>
+      {restoreError && <p className="restore-error" role="alert">{restoreError}</p>}
+      <div className="empty-logic">
+        <label htmlFor="empty-logic-select" className="empty-logic-label">Logic:</label>
+        <select
+          id="empty-logic-select"
+          value={logic}
+          onChange={(e) => onLogicChange(e.target.value)}
+          disabled={isChangingLogicBlocked}
+          aria-describedby="empty-logic-desc"
+        >
+          {LOGICS.map((info) => <option key={info.id} value={info.id}>{info.name}</option>)}
+        </select>
+        <p id="empty-logic-desc" className="empty-logic-desc">
+          {logicInfo(logic)?.description} The example and the exercises use this logic.
+        </p>
+      </div>
+      <h2 className="how-it-works-title">How it works</h2>
+      <ol className="how-it-works">
+        <li>Enter the premises and the goal of the proof.</li>
+        <li>Pick an inference rule.</li>
+        <li>Enter the line numbers the rule uses, and apply it.</li>
+      </ol>
+      <button className="try-example-btn" onClick={onTryExample} disabled={isStartingExample}>
+        {isStartingExample ? 'Starting the example…' : 'Try an example'}
+      </button>
+      {exampleError && <p className="try-example-error" role="alert">{exampleError}</p>}
+      <p className="try-example-desc">
+        Premises <code>{EXAMPLE_PREMISES.join(', ')}</code>, goal <code>{EXAMPLE_GOAL}</code>.
+      </p>
+      {!isExercisesOpen && (
+        <p className="browse-exercises">
+          Or practise with a graded exercise:{' '}
+          <button className="browse-exercises-btn" onClick={onBrowseExercises}>Browse exercises</button>
+        </p>
+      )}
     </div>
   );
 }
@@ -620,48 +685,18 @@ function App() {
           {hasProof ? (
             <Proof proof={proof} coloring={colorMapping} onSelectLine={handleSelectLine} />
           ) : (
-            <div className="empty-proof-state">
-              <output className="paragraph" aria-live="polite">
-                {isRestoring
-                  ? 'Restoring the proof from before the page was reloaded…'
-                  : <>No proof loaded. Click <strong>New Proof</strong> to begin.</>}
-              </output>
-              {restoreError && <p className="restore-error" role="alert">{restoreError}</p>}
-              <div className="empty-logic">
-                <label htmlFor="empty-logic-select" className="empty-logic-label">Logic:</label>
-                <select
-                  id="empty-logic-select"
-                  value={logic}
-                  onChange={(e) => handleEmptyLogicChange(e.target.value)}
-                  disabled={isStartingExample || startingExerciseId !== null}
-                  aria-describedby="empty-logic-desc"
-                >
-                  {LOGICS.map((info) => <option key={info.id} value={info.id}>{info.name}</option>)}
-                </select>
-                <p id="empty-logic-desc" className="empty-logic-desc">
-                  {logicInfo(logic)?.description} The example and the exercises use this logic.
-                </p>
-              </div>
-              <h2 className="how-it-works-title">How it works</h2>
-              <ol className="how-it-works">
-                <li>Enter the premises and the goal of the proof.</li>
-                <li>Pick an inference rule.</li>
-                <li>Enter the line numbers the rule uses, and apply it.</li>
-              </ol>
-              <button className="try-example-btn" onClick={handleTryExample} disabled={isStartingExample}>
-                {isStartingExample ? 'Starting the example…' : 'Try an example'}
-              </button>
-              {exampleError && <p className="try-example-error" role="alert">{exampleError}</p>}
-              <p className="try-example-desc">
-                Premises <code>{EXAMPLE_PREMISES.join(', ')}</code>, goal <code>{EXAMPLE_GOAL}</code>.
-              </p>
-              {!isExercisesOpen && (
-                <p className="browse-exercises">
-                  Or practise with a graded exercise:{' '}
-                  <button className="browse-exercises-btn" onClick={handleBrowseExercises}>Browse exercises</button>
-                </p>
-              )}
-            </div>
+            <EmptyProofState
+              logic={logic}
+              isRestoring={isRestoring}
+              restoreError={restoreError}
+              isStartingExample={isStartingExample}
+              exampleError={exampleError}
+              isChangingLogicBlocked={isStartingExample || startingExerciseId !== null}
+              isExercisesOpen={isExercisesOpen}
+              onLogicChange={handleEmptyLogicChange}
+              onTryExample={handleTryExample}
+              onBrowseExercises={handleBrowseExercises}
+            />
           )}
         </main>
       </div>
