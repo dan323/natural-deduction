@@ -3,20 +3,44 @@
 import com.dan323.classical.*;
 
 <span class="fc" id="L5">public enum AvailableAction {</span>
-<span class="fc" id="L6">    ASSUME(ClassicAssume.class), ORI1(ClassicOrI1.class), ORI2(ClassicOrI2.class),</span>
-<span class="fc" id="L7">    ORE(ClassicOrE.class), ANDI(ClassicAndI.class), ANDE1(ClassicAndE1.class),</span>
-<span class="fc" id="L8">    ANDE2(ClassicAndE2.class), COPY(ClassicCopy.class), NOTE(ClassicNotE.class),</span>
-<span class="fc" id="L9">    NOTI(ClassicNotI.class), DT(ClassicDeductionTheorem.class), MP(ClassicModusPonens.class),</span>
-<span class="fc" id="L10">    FE(ClassicFE.class), FI(ClassicFI.class);</span>
+<span class="fc" id="L6">    ASSUME(ClassicAssume.class, &quot;Ass&quot;), ORI1(ClassicOrI1.class, &quot;|I1&quot;), ORI2(ClassicOrI2.class, &quot;|I2&quot;),</span>
+<span class="fc" id="L7">    ORE(ClassicOrE.class, &quot;|E&quot;), ANDI(ClassicAndI.class, &quot;&amp;I&quot;), ANDE1(ClassicAndE1.class, &quot;&amp;E1&quot;),</span>
+<span class="fc" id="L8">    ANDE2(ClassicAndE2.class, &quot;&amp;E2&quot;), COPY(ClassicCopy.class, &quot;Rep&quot;), NOTE(ClassicNotE.class, &quot;-E&quot;),</span>
+<span class="fc" id="L9">    NOTI(ClassicNotI.class, &quot;-I&quot;), DT(ClassicDeductionTheorem.class, &quot;-&gt;I&quot;), MP(ClassicModusPonens.class, &quot;-&gt;E&quot;),</span>
+<span class="fc" id="L10">    FE(ClassicFE.class, &quot;FE&quot;), FI(ClassicFI.class, &quot;FI&quot;);</span>
 
     final String actionName;
+    private final String ruleName;
 
-<span class="fc" id="L14">    AvailableAction(Class&lt;? extends ClassicalAction&gt; actionName){</span>
-<span class="fc" id="L15">        this.actionName = actionName.getSimpleName();</span>
-<span class="fc" id="L16">    }</span>
+<span class="fc" id="L15">    AvailableAction(Class&lt;? extends ClassicalAction&gt; actionName, String ruleName){</span>
+<span class="fc" id="L16">        this.actionName = actionName.getSimpleName();</span>
+<span class="fc" id="L17">        this.ruleName = ruleName;</span>
+<span class="fc" id="L18">    }</span>
+
+    /**
+     * The name of the rule as modal logic knows it ({@code ParseModalAction.parseAction}), e.g. {@code Rep} for
+     * {@link #COPY}, so that a client can send the same name to every logic.
+     */
+    public String getRuleName() {
+<span class="fc" id="L25">        return ruleName;</span>
+    }
+
+    /**
+     * The action called {@code name}, either its constant name ({@code COPY}) or its rule name ({@code Rep}).
+     *
+     * @throws IllegalArgumentException when no action has that name
+     */
+    public static AvailableAction fromName(String name) {
+<span class="fc bfc" id="L34" title="All 2 branches covered.">        for (AvailableAction action : values()) {</span>
+<span class="fc bfc" id="L35" title="All 4 branches covered.">            if (action.name().equals(name) || action.ruleName.equals(name)) {</span>
+<span class="fc" id="L36">                return action;</span>
+            }
+        }
+<span class="fc" id="L39">        throw new IllegalArgumentException(&quot;The rule &quot; + name + &quot; is not valid.&quot;);</span>
+    }
 
     public String getActionName(){
-<span class="nc" id="L19">        return actionName;</span>
+<span class="nc" id="L43">        return actionName;</span>
     }
 
     /**
@@ -25,9 +49,9 @@ import com.dan323.classical.*;
      */
     public boolean isIntuitionistic() {
         // No default branch: adding an action does not compile until it is decided here.
-<span class="fc bfc" id="L28" title="All 2 branches covered.">        return switch (this) {</span>
-<span class="fc" id="L29">            case NOTE -&gt; false;</span>
-<span class="fc" id="L30">            case ASSUME, ORI1, ORI2, ORE, ANDI, ANDE1, ANDE2, COPY, NOTI, DT, MP, FE, FI -&gt; true;</span>
+<span class="fc bfc" id="L52" title="All 2 branches covered.">        return switch (this) {</span>
+<span class="fc" id="L53">            case NOTE -&gt; false;</span>
+<span class="fc" id="L54">            case ASSUME, ORI1, ORI2, ORE, ANDI, ANDE1, ANDE2, COPY, NOTI, DT, MP, FE, FI -&gt; true;</span>
         };
     }
 }

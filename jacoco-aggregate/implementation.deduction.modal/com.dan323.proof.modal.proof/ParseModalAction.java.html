@@ -203,30 +203,47 @@ public final class ParseModalAction {
 <span class="nc" id="L203">        return modalParser.evaluate(expression);</span>
     }
 
+    /**
+     * The names classical logic gives to the rules it shares with modal logic ({@code AvailableAction}), mapped to the
+     * modal rule names, so that a client can send the same name to every logic.
+     */
+<span class="fc" id="L210">    private static final Map&lt;String, String&gt; CLASSICAL_NAMES = Map.ofEntries(</span>
+<span class="fc" id="L211">            Map.entry(&quot;ASSUME&quot;, &quot;Ass&quot;), Map.entry(&quot;ORI1&quot;, &quot;|I1&quot;), Map.entry(&quot;ORI2&quot;, &quot;|I2&quot;), Map.entry(&quot;ORE&quot;, &quot;|E&quot;),</span>
+<span class="fc" id="L212">            Map.entry(&quot;ANDI&quot;, &quot;&amp;I&quot;), Map.entry(&quot;ANDE1&quot;, &quot;&amp;E1&quot;), Map.entry(&quot;ANDE2&quot;, &quot;&amp;E2&quot;), Map.entry(&quot;COPY&quot;, &quot;Rep&quot;),</span>
+<span class="fc" id="L213">            Map.entry(&quot;NOTE&quot;, &quot;-E&quot;), Map.entry(&quot;NOTI&quot;, &quot;-I&quot;), Map.entry(&quot;DT&quot;, &quot;-&gt;I&quot;), Map.entry(&quot;MP&quot;, &quot;-&gt;E&quot;));</span>
+
+    /**
+     * @return the modal rule name for {@code name}: {@code name} itself, unless it is the classical name of a shared
+     * rule (e.g. {@code COPY} gives {@code Rep})
+     */
+    public static String ruleName(String name) {
+<span class="fc" id="L220">        return CLASSICAL_NAMES.getOrDefault(name, name);</span>
+    }
+
     public static AbstractModalAction parseAction(String name, List&lt;Integer&gt; sources, ModalOperation extraInfo, String state) {
-<span class="pc bpc" id="L207" title="13 of 21 branches missed.">        return switch (name) {</span>
+<span class="pc bpc" id="L224" title="13 of 21 branches missed.">        return switch (ruleName(name)) {</span>
             case &quot;Ass&quot; -&gt;
-<span class="pc bpc" id="L209" title="1 of 2 branches missed.">                    extraInfo instanceof RelationOperation relationOperation ? new ModalAssume(relationOperation) : new ModalAssume((ModalLogicalOperation) extraInfo, state);</span>
-<span class="nc" id="L210">            case &quot;|I1&quot; -&gt; new ModalOrI1(sources.getFirst(), (ModalLogicalOperation) extraInfo);</span>
-<span class="nc" id="L211">            case &quot;|I2&quot; -&gt; new ModalOrI2(sources.getFirst(), (ModalLogicalOperation) extraInfo);</span>
-<span class="nc" id="L212">            case &quot;|E&quot; -&gt; new ModalOrE(sources.get(0), sources.get(1), sources.get(2));</span>
-<span class="nc" id="L213">            case &quot;&amp;I&quot; -&gt; new ModalAndI(sources.get(0), sources.get(1));</span>
-<span class="fc" id="L214">            case &quot;&amp;E1&quot; -&gt; new ModalAndE1(sources.getFirst());</span>
-<span class="nc" id="L215">            case &quot;&amp;E2&quot; -&gt; new ModalAndE2(sources.getFirst());</span>
-<span class="fc" id="L216">            case &quot;Rep&quot; -&gt; new ModalCopy(sources.getFirst());</span>
-<span class="fc" id="L217">            case &quot;-E&quot; -&gt; new ModalNotE(sources.getFirst());</span>
-<span class="nc" id="L218">            case &quot;-I&quot; -&gt; new ModalNotI();</span>
-<span class="fc" id="L219">            case &quot;-&gt;I&quot; -&gt; new ModalDeductionTheorem();</span>
-<span class="fc" id="L220">            case &quot;-&gt;E&quot; -&gt; new ModalModusPonens(sources.get(0), sources.get(1));</span>
-<span class="nc" id="L221">            case &quot;FE&quot; -&gt; new ModalFE(sources.get(0), (ModalLogicalOperation) extraInfo, state);</span>
-<span class="nc" id="L222">            case &quot;FI&quot; -&gt; new ModalFI(sources.get(0), sources.get(1));</span>
-<span class="nc" id="L223">            case &quot;[]I&quot; -&gt; new ModalBoxI();</span>
-<span class="nc" id="L224">            case &quot;[]E&quot; -&gt; new ModalBoxE(sources.get(0), sources.get(1));</span>
-<span class="nc" id="L225">            case &quot;&lt;&gt;I&quot; -&gt; new ModalDiaI(sources.get(0), sources.get(1));</span>
-<span class="nc" id="L226">            case &quot;&lt;&gt;E&quot; -&gt; new ModalDiaE(sources.get(0));</span>
-<span class="fc" id="L227">            case REFL -&gt; new Reflexive(sources.get(0));</span>
-<span class="nc" id="L228">            case TRANS -&gt; new Transitive(sources.get(0), sources.get(1));</span>
-<span class="fc" id="L229">            default -&gt; throw new IllegalArgumentException(&quot;The rule &quot; + name + &quot; is not valid.&quot;);</span>
+<span class="pc bpc" id="L226" title="1 of 2 branches missed.">                    extraInfo instanceof RelationOperation relationOperation ? new ModalAssume(relationOperation) : new ModalAssume((ModalLogicalOperation) extraInfo, state);</span>
+<span class="nc" id="L227">            case &quot;|I1&quot; -&gt; new ModalOrI1(sources.getFirst(), (ModalLogicalOperation) extraInfo);</span>
+<span class="nc" id="L228">            case &quot;|I2&quot; -&gt; new ModalOrI2(sources.getFirst(), (ModalLogicalOperation) extraInfo);</span>
+<span class="nc" id="L229">            case &quot;|E&quot; -&gt; new ModalOrE(sources.get(0), sources.get(1), sources.get(2));</span>
+<span class="nc" id="L230">            case &quot;&amp;I&quot; -&gt; new ModalAndI(sources.get(0), sources.get(1));</span>
+<span class="fc" id="L231">            case &quot;&amp;E1&quot; -&gt; new ModalAndE1(sources.getFirst());</span>
+<span class="nc" id="L232">            case &quot;&amp;E2&quot; -&gt; new ModalAndE2(sources.getFirst());</span>
+<span class="fc" id="L233">            case &quot;Rep&quot; -&gt; new ModalCopy(sources.getFirst());</span>
+<span class="fc" id="L234">            case &quot;-E&quot; -&gt; new ModalNotE(sources.getFirst());</span>
+<span class="nc" id="L235">            case &quot;-I&quot; -&gt; new ModalNotI();</span>
+<span class="fc" id="L236">            case &quot;-&gt;I&quot; -&gt; new ModalDeductionTheorem();</span>
+<span class="fc" id="L237">            case &quot;-&gt;E&quot; -&gt; new ModalModusPonens(sources.get(0), sources.get(1));</span>
+<span class="nc" id="L238">            case &quot;FE&quot; -&gt; new ModalFE(sources.get(0), (ModalLogicalOperation) extraInfo, state);</span>
+<span class="nc" id="L239">            case &quot;FI&quot; -&gt; new ModalFI(sources.get(0), sources.get(1));</span>
+<span class="nc" id="L240">            case &quot;[]I&quot; -&gt; new ModalBoxI();</span>
+<span class="nc" id="L241">            case &quot;[]E&quot; -&gt; new ModalBoxE(sources.get(0), sources.get(1));</span>
+<span class="nc" id="L242">            case &quot;&lt;&gt;I&quot; -&gt; new ModalDiaI(sources.get(0), sources.get(1));</span>
+<span class="nc" id="L243">            case &quot;&lt;&gt;E&quot; -&gt; new ModalDiaE(sources.get(0));</span>
+<span class="fc" id="L244">            case REFL -&gt; new Reflexive(sources.get(0));</span>
+<span class="nc" id="L245">            case TRANS -&gt; new Transitive(sources.get(0), sources.get(1));</span>
+<span class="fc" id="L246">            default -&gt; throw new IllegalArgumentException(&quot;The rule &quot; + name + &quot; is not valid.&quot;);</span>
         };
     }
 }

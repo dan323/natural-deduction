@@ -129,22 +129,26 @@ public final class ParseClassicalAction {
 <span class="fc" id="L129">        return ProofReason.parseReason(ruleString, new HashMap&lt;&gt;());</span>
     }
 
+    /**
+     * @param name either the {@link AvailableAction} constant ({@code COPY}) or the rule name shared with modal logic
+     *             ({@code Rep}), see {@link AvailableAction#fromName}
+     */
     public static ClassicalAction parseAction(String name, List&lt;Integer&gt; sources, ClassicalLogicOperation extraInfo){
-<span class="fc bfc" id="L133" title="All 14 branches covered.">        return switch (AvailableAction.valueOf(AvailableAction.class, name)) {</span>
-<span class="fc" id="L134">            case ASSUME -&gt; new ClassicAssume(extraInfo);</span>
-<span class="fc" id="L135">            case ORI1 -&gt; new ClassicOrI1(sources.get(0), extraInfo);</span>
-<span class="fc" id="L136">            case ORI2 -&gt; new ClassicOrI2(sources.get(0), extraInfo);</span>
-<span class="fc" id="L137">            case ORE -&gt; new ClassicOrE(sources.get(0), sources.get(1), sources.get(2));</span>
-<span class="fc" id="L138">            case ANDI -&gt; new ClassicAndI(sources.get(0), sources.get(1));</span>
-<span class="fc" id="L139">            case ANDE1 -&gt; new ClassicAndE1(sources.get(0));</span>
-<span class="fc" id="L140">            case ANDE2 -&gt; new ClassicAndE2(sources.get(0));</span>
-<span class="fc" id="L141">            case COPY -&gt; new ClassicCopy(sources.getFirst());</span>
-<span class="fc" id="L142">            case NOTE -&gt; new ClassicNotE(sources.getFirst());</span>
-<span class="fc" id="L143">            case NOTI -&gt; new ClassicNotI();</span>
-<span class="fc" id="L144">            case DT -&gt; new ClassicDeductionTheorem();</span>
-<span class="fc" id="L145">            case MP -&gt; new ClassicModusPonens(sources.get(0), sources.get(1));</span>
-<span class="fc" id="L146">            case FE -&gt; new ClassicFE(sources.get(0), extraInfo);</span>
-<span class="fc" id="L147">            case FI -&gt; new ClassicFI(sources.get(0), sources.get(1));</span>
+<span class="fc bfc" id="L137" title="All 14 branches covered.">        return switch (AvailableAction.fromName(name)) {</span>
+<span class="fc" id="L138">            case ASSUME -&gt; new ClassicAssume(extraInfo);</span>
+<span class="fc" id="L139">            case ORI1 -&gt; new ClassicOrI1(sources.get(0), extraInfo);</span>
+<span class="fc" id="L140">            case ORI2 -&gt; new ClassicOrI2(sources.get(0), extraInfo);</span>
+<span class="fc" id="L141">            case ORE -&gt; new ClassicOrE(sources.get(0), sources.get(1), sources.get(2));</span>
+<span class="fc" id="L142">            case ANDI -&gt; new ClassicAndI(sources.get(0), sources.get(1));</span>
+<span class="fc" id="L143">            case ANDE1 -&gt; new ClassicAndE1(sources.get(0));</span>
+<span class="fc" id="L144">            case ANDE2 -&gt; new ClassicAndE2(sources.get(0));</span>
+<span class="fc" id="L145">            case COPY -&gt; new ClassicCopy(sources.getFirst());</span>
+<span class="fc" id="L146">            case NOTE -&gt; new ClassicNotE(sources.getFirst());</span>
+<span class="fc" id="L147">            case NOTI -&gt; new ClassicNotI();</span>
+<span class="fc" id="L148">            case DT -&gt; new ClassicDeductionTheorem();</span>
+<span class="fc" id="L149">            case MP -&gt; new ClassicModusPonens(sources.get(0), sources.get(1));</span>
+<span class="fc" id="L150">            case FE -&gt; new ClassicFE(sources.get(0), extraInfo);</span>
+<span class="fc" id="L151">            case FI -&gt; new ClassicFI(sources.get(0), sources.get(1));</span>
         };
     }
 }
