@@ -88,6 +88,15 @@ describe('service/actions', () => {
 
       expect(consumer).toHaveBeenCalledWith({ success: false, message: 'Network error. Please try again.' });
     });
+
+    test('a logic the UI does not offer is refused without asking the backend', async () => {
+      const consumer = jest.fn();
+
+      await applyAction('foo', proof, action, consumer);
+
+      expect(fetchMock).not.toHaveBeenCalled();
+      expect(consumer).toHaveBeenCalledWith({ success: false, message: "Unknown logic 'foo'" });
+    });
   });
 
   describe('solveProof', () => {
@@ -167,14 +176,25 @@ describe('service/actions', () => {
     });
 
     test('reports the message of an error response', async () => {
-      fetchMock.mockResolvedValue(jsonResponse(404, { message: 'Unknown logic: foo' }));
+      fetchMock.mockResolvedValue(jsonResponse(500, { message: 'Something went wrong' }));
+      const consumer = jest.fn();
+      const onError = jest.fn();
+
+      await fetchActions('classical', consumer, onError);
+
+      expect(consumer).not.toHaveBeenCalled();
+      expect(onError).toHaveBeenCalledWith('Something went wrong');
+    });
+
+    test('refuses a logic the UI does not offer without asking the backend', async () => {
       const consumer = jest.fn();
       const onError = jest.fn();
 
       await fetchActions('foo', consumer, onError);
 
+      expect(fetchMock).not.toHaveBeenCalled();
       expect(consumer).not.toHaveBeenCalled();
-      expect(onError).toHaveBeenCalledWith('Unknown logic: foo');
+      expect(onError).toHaveBeenCalledWith("Unknown logic 'foo'");
     });
 
     test('reports a network failure', async () => {

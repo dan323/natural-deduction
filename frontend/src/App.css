@@ -144,6 +144,7 @@
 
 /* What Copy proof as text did, and the text itself when the clipboard is not available */
 .copy-status {
+  display: block;
   margin: 0 24px 12px;
   padding: 8px 12px;
   color: #1a1a1a;
@@ -154,7 +155,8 @@
   text-align: left;
 }
 
-.copy-status p {
+.copy-status output {
+  display: block;
   margin: 0 0 8px;
 }
 

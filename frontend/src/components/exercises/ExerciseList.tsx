@@ -33,7 +33,7 @@ const difficulties = Object.keys(difficultyTitles) as Difficulty[];
 // The exercises of the logic, grouped by difficulty. A solved exercise says so in text ("Solved"), not by colour alone.
 const ExerciseList: FC<ExerciseListProps> = ({ logic, state, solved, currentId, startingId, startError, onStart, onClose }) => {
     const renderBody = () => {
-        if (state.kind === 'loading') return <p role="status">Loading the exercises…</p>;
+        if (state.kind === 'loading') return <output className="paragraph" aria-live="polite">Loading the exercises…</output>;
         if (state.kind === 'error') {
             return <p className="exercises-error" role="alert">The exercises could not be loaded: {state.message}</p>;
         }

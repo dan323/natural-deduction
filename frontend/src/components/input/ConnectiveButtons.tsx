@@ -49,7 +49,7 @@ const ConnectiveButtons: FC<ConnectiveButtonsProps> = ({ getInput, onInsert, tar
     const where = target ? ` in ${target}` : '';
 
     return (
-        <div className="connective-buttons" role="group" aria-label={target ? `Connectives for ${target}` : 'Connectives'}>
+        <fieldset className="connective-buttons plain-group" aria-label={target ? `Connectives for ${target}` : 'Connectives'}>
             {connectivesFor(logic).map(({ symbol, ascii, name, insert: text }) => (
                 <button
                     key={ascii}
@@ -65,7 +65,7 @@ const ConnectiveButtons: FC<ConnectiveButtonsProps> = ({ getInput, onInsert, tar
                     {symbol}
                 </button>
             ))}
-        </div>
+        </fieldset>
     );
 };
 

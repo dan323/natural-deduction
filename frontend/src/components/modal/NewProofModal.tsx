@@ -62,7 +62,7 @@ const NewProofModal: FC<NewProofModalProps> = ({ isOpen, opener: openerProp, onC
   const [logic, setLogic] = useState(initialLogic);
   const premiseRefs = useRef<Array<HTMLInputElement | null>>([]);
   const goalRef = useRef<HTMLInputElement>(null);
-  const dialogRef = useRef<HTMLDivElement>(null);
+  const dialogRef = useRef<HTMLDialogElement>(null);
   const opener = useRef<HTMLElement | null>(null);
   // The premise that gets the focus after the next render, when a removal takes the focused one away.
   const pendingFocus = useRef<number | null>(null);
@@ -229,10 +229,10 @@ const NewProofModal: FC<NewProofModalProps> = ({ isOpen, opener: openerProp, onC
   if (!isOpen) return null;
 
   return (
-    <div
+    <dialog
+      open
       ref={dialogRef}
       className="modal"
-      role="dialog"
       aria-modal="true"
       aria-labelledby="new-proof-modal-title"
       onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
@@ -253,7 +253,7 @@ const NewProofModal: FC<NewProofModalProps> = ({ isOpen, opener: openerProp, onC
           </select>
           <p id="modal-logic-desc" className="modal-logic-desc">{logicInfo(logic)?.description}</p>
           <p id={SYNTAX_HINT_ID} className="syntax-hint modal-syntax-hint">Syntax: {syntaxHint(logic)}</p>
-          <div role="group" aria-labelledby="new-proof-premises-label">
+          <fieldset className="plain-group" aria-labelledby="new-proof-premises-label">
             <span id="new-proof-premises-label" className="modal-section-label">Premises:</span>
             {premises.map((premise, index) => (
               <Fragment key={premise.id}>
@@ -297,7 +297,7 @@ const NewProofModal: FC<NewProofModalProps> = ({ isOpen, opener: openerProp, onC
             <button className="add-premise-btn" onClick={handleAddPremise} disabled={isSubmitting}>
               + Add Premise
             </button>
-          </div>
+          </fieldset>
 
           <label htmlFor="modal-goal" className="modal-section-label">Goal:</label>
           <input
@@ -367,7 +367,7 @@ const NewProofModal: FC<NewProofModalProps> = ({ isOpen, opener: openerProp, onC
           </button>
         </div>
       </div>
-    </div>
+    </dialog>
   );
 };
 
