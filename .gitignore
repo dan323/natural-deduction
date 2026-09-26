@@ -9,6 +9,7 @@ target/
 # Generated files
 .playwright-mcp/
 .claude/worktrees/
+.workflow-runs/
 
 # Logging
 *.log
