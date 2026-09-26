@@ -10,7 +10,7 @@ type ConnectiveButtonsProps = {
     // Names the input in the buttons' accessible names when several inputs have their own buttons, e.g. "Goal".
     target?: string;
     disabled?: boolean;
-    // The logic of the proof the formula is for: a modal proof also gets the □ and ◇ buttons.
+    // The logic of the proof the formula is for: a modal proof also gets the □ and ◇ buttons, a modal-next-until one X and U too.
     logic?: string;
 };
 
@@ -48,12 +48,12 @@ const ConnectiveButtons: FC<ConnectiveButtonsProps> = ({ getInput, onInsert, tar
 
     return (
         <div className="connective-buttons" role="group" aria-label={target ? `Connectives for ${target}` : 'Connectives'}>
-            {connectivesFor(logic).map(({ symbol, ascii, name }) => (
+            {connectivesFor(logic).map(({ symbol, ascii, name, insert: text }) => (
                 <button
                     key={ascii}
                     type="button"
                     className="connective-btn"
-                    onClick={() => insert(ascii)}
+                    onClick={() => insert(text ?? ascii)}
                     // Keeps the selection of the input while the button is pressed.
                     onMouseDown={(event) => event.preventDefault()}
                     disabled={disabled}

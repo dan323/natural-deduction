@@ -1,4 +1,5 @@
 import { ProofDto, StepDto } from "../types";
+import { NEXT_UNTIL_LOGIC } from "../components/input/connectives";
 
 // Renders logical operators in a formula (only symbols, never letters, so a variable named E or I is untouched).
 export function renderExpression(expression: string): string {
@@ -30,6 +31,13 @@ const FORMULA_TOKEN = /^(?:->|<>|<=|\[\]|[&|=\-()]|\w+)/;
 const BINARY_OPERATORS = new Set(['&', '|', '->', '<=', '=']);
 const UNARY_OPERATORS = new Set(['-', '[]', '<>']);
 
+// `modal-next-until` (`ModalNextUntilLogicParser`) adds Next, `X A`, and Until, `A U B`, as words of their own: `\w+`
+// takes a whole word, so `X` and `U` are operators exactly when no letter, digit or `_` touches them, and `Xp`, `pUq`,
+// `TRUE` stay names. A state there can be a successor term, `s0+1` or `s0 + 1 + 1`, which is one operand.
+const NEXT = 'X';
+const UNTIL = 'U';
+const SUCCESSOR_STEPS = /^(?:\s*\+\s*\d+)+(?!\w)/;
+
 type FormulaState = {
   depth: number;
   // true at the start and after an operator or "(", false after an operand or ")"
@@ -37,14 +45,14 @@ type FormulaState = {
 };
 
 // Updates the state with one token of a formula and returns the problem it causes, if any.
-function checkToken(token: string, state: FormulaState): string | null {
+function checkToken(token: string, state: FormulaState, nextUntil: boolean): string | null {
   if (token === ')') {
     if (state.depth === 0) return 'Unbalanced parentheses: ")" has no matching "(".';
     if (state.expectOperand) return 'A parenthesis is closed right after an operator or "(".';
     state.depth--;
     return null;
   }
-  if (BINARY_OPERATORS.has(token)) {
+  if (BINARY_OPERATORS.has(token) || (nextUntil && token === UNTIL)) {
     if (state.expectOperand) return `The operator "${token}" is missing its left operand.`;
     state.expectOperand = true;
     return null;
@@ -52,24 +60,29 @@ function checkToken(token: string, state: FormulaState): string | null {
   // "(", a negation-like operator or an operand: all of them need an operator (or nothing) before them.
   if (!state.expectOperand) return `Missing operator before "${token}".`;
   if (token === '(') state.depth++;
-  else if (!UNARY_OPERATORS.has(token)) state.expectOperand = false;
+  else if (!UNARY_OPERATORS.has(token) && !(nextUntil && token === NEXT)) state.expectOperand = false;
   return null;
 }
 
 // A light syntax check of a formula typed by the user, so that obvious mistakes are reported before they become a
 // proof line. Returns a message describing the first problem, or null when nothing is wrong. It is deliberately
-// conservative: the backend parser stays the source of truth.
-export function checkFormula(formula: string): string | null {
+// conservative: the backend parser stays the source of truth. `logic` is the logic of the proof the formula is for: only
+// `modal-next-until` reads `X`, `U` and successor states such as `s0+1`.
+export function checkFormula(formula: string, logic?: string): string | null {
   const text = formula.trim();
   if (text === '') return 'This field must not be blank.';
 
+  const nextUntil = logic === NEXT_UNTIL_LOGIC;
   const state: FormulaState = { depth: 0, expectOperand: true };
   let rest = text;
   while (rest !== '') {
-    const token = FORMULA_TOKEN.exec(rest)?.[0];
+    let token = FORMULA_TOKEN.exec(rest)?.[0];
     if (token === undefined) return `Unexpected symbol "${rest[0]}".`;
+    if (nextUntil && /^\w/.test(token) && token !== NEXT && token !== UNTIL) {
+      token += SUCCESSOR_STEPS.exec(rest.slice(token.length))?.[0] ?? '';
+    }
     rest = rest.slice(token.length).trimStart();
-    const problem = checkToken(token, state);
+    const problem = checkToken(token, state, nextUntil);
     if (problem !== null) return problem;
   }
 
@@ -104,8 +117,11 @@ function statePrefix(step: StepDto): string {
 // that holds in a state. Only the top-level operator counts: the backend's `ModalLogicParser` also accepts a relation
 // inside a connective (`p & s0 <= s1`), and such a formula holds in a state. The relations bind tighter than every
 // connective there, so the formula is a relation exactly when, outside parentheses, it has a relation and no connective.
-export function isRelationFormula(formula: string): boolean {
+// In `modal-next-until` (`logic`) the sides may be successor terms (`s0+1 <= s1`), and `X` and `U` as words of their own
+// are connectives too.
+export function isRelationFormula(formula: string, logic?: string): boolean {
   const text = withoutEnclosingParentheses(formula.trim());
+  const nextUntil = logic === NEXT_UNTIL_LOGIC;
   let depth = 0;
   let relation = false;
   for (let i = 0; i < text.length; i++) {
@@ -118,6 +134,9 @@ export function isRelationFormula(formula: string): boolean {
       i++;
     } else if (char === '=') relation = true;
     else if ('&|-[]<>'.includes(char)) return false;
+    else if (nextUntil && (char === NEXT || char === UNTIL) && !/\w/.test(text[i - 1] ?? '') && !/\w/.test(text[i + 1] ?? '')) {
+      return false;
+    }
   }
   return relation;
 }

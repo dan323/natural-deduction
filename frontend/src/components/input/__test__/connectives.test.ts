@@ -5,6 +5,22 @@ describe('insertAtCursor', () => {
         expect(insertAtCursor('p  q', 2, 2, '->')).toEqual({ value: 'p -> q', caret: 4 });
     });
 
+    test('a word operator gets a space in front when a name is right before the caret, so it does not join it', () => {
+        expect(insertAtCursor('p U', 3, 3, 'X ')).toEqual({ value: 'p U X ', caret: 6 });
+        expect(insertAtCursor('p1', 2, 2, 'X ')).toEqual({ value: 'p1 X ', caret: 5 });
+    });
+
+    test('a word operator gets no extra space at the start, after a space or after a symbol', () => {
+        expect(insertAtCursor('', 0, 0, 'X ')).toEqual({ value: 'X ', caret: 2 });
+        expect(insertAtCursor('p U ', 4, 4, 'X ')).toEqual({ value: 'p U X ', caret: 6 });
+        expect(insertAtCursor('(', 1, 1, 'X ')).toEqual({ value: '(X ', caret: 3 });
+        expect(insertAtCursor('p &', 3, 3, 'X ')).toEqual({ value: 'p &X ', caret: 5 });
+    });
+
+    test('a symbol is inserted as is after a name', () => {
+        expect(insertAtCursor('p', 1, 1, '->')).toEqual({ value: 'p->', caret: 3 });
+    });
+
     test('replaces the selection', () => {
         expect(insertAtCursor('p & q', 2, 3, '->')).toEqual({ value: 'p -> q', caret: 4 });
     });
@@ -53,6 +69,20 @@ describe('connectives', () => {
         expect(syntaxHint('modal')).toBe(
             '-> implies, & and, | or, - not, [] necessarily, <> possibly; '
             + 'relations between states: s0 <= s1 (s1 is reachable from s0), s0 = s1 (the same state)'
+        );
+    });
+
+    test('a modal-next-until proof also gets X and U, which are typed with spaces around them', () => {
+        expect(connectivesFor('modal-next-until').map(({ symbol, ascii, insert }) => [symbol, insert ?? ascii])).toEqual([
+            ['→', '->'], ['∧', '&'], ['∨', '|'], ['¬', '-'], ['□', '[]'], ['◇', '<>'], ['X', 'X '], ['U', ' U '],
+        ]);
+    });
+
+    test('the modal-next-until syntax hint adds X, U and successor states', () => {
+        expect(syntaxHint('modal-next-until')).toBe(
+            '-> implies, & and, | or, - not, [] necessarily, <> possibly, X next, U until; '
+            + 'relations between states: s0 <= s1 (s1 is reachable from s0), s0 = s1 (the same state); '
+            + 'X and U only as words of their own (Xp and pUq are names); s0+1 is the state after s0'
         );
     });
 });

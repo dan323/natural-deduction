@@ -734,7 +734,7 @@ describe('NewProofModal logic', () => {
     const select = screen.getByLabelText('Logic:');
     expect(select).toHaveValue('intuitionistic');
     expect(select).toHaveAccessibleDescription(expect.stringContaining('without double negation elimination'));
-    expect(screen.getAllByRole('option').map((option) => option.textContent)).toEqual(['Classical', 'Intuitionistic', 'Modal']);
+    expect(screen.getAllByRole('option').map((option) => option.textContent)).toEqual(['Classical', 'Intuitionistic', 'Modal', 'Modal with Next and Until']);
 
     await user.selectOptions(select, 'classical');
     await user.type(screen.getByLabelText('Premise 1'), '--p');
@@ -767,5 +767,65 @@ describe('NewProofModal logic', () => {
 
     await user.selectOptions(screen.getByLabelText('Logic:'), 'classical');
     expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+  });
+});
+
+describe('NewProofModal modal-next-until formula help', () => {
+  test.each([
+    ['modal-next-until', true],
+    ['modal', false],
+    ['classical', false],
+  ])('a %s proof has the X and U buttons: %p', (logic, nextUntil) => {
+    render(<NewProofModal isOpen onClose={jest.fn()} logic={logic} onSubmit={jest.fn()} />);
+
+    expect(screen.queryAllByRole('button', { name: /^Insert (next|until) / })).toHaveLength(nextUntil ? 4 : 0);
+    expect(screen.queryAllByText(/Xp and pUq are names/)).toHaveLength(nextUntil ? 1 : 0);
+  });
+
+  test('X and U typed with the buttons are words of their own, and pass the check', async () => {
+    const user = userEvent.setup();
+    const onSubmit = jest.fn().mockResolvedValue(null);
+    render(<NewProofModal isOpen onClose={jest.fn()} logic="modal-next-until" onSubmit={onSubmit} />);
+
+    await user.click(screen.getByRole('button', { name: 'Insert next (X) in Premise 1' }));
+    await user.type(screen.getByLabelText('Premise 1'), 'p');
+    await user.type(screen.getByLabelText('Goal:'), 'p');
+    await user.click(screen.getByRole('button', { name: 'Insert until (U) in Goal' }));
+    await user.type(screen.getByLabelText('Goal:'), 'q');
+    await user.click(screen.getByRole('button', { name: 'Start Proof' }));
+
+    expect(onSubmit).toHaveBeenCalledWith(['X p'], 'p U q', 'modal-next-until');
+  });
+
+  test('X is a name, not an operator, in modal logic, so X p is refused before it is sent', async () => {
+    const user = userEvent.setup();
+    const onSubmit = jest.fn();
+    render(<NewProofModal isOpen onClose={jest.fn()} logic="modal" onSubmit={onSubmit} />);
+
+    await user.type(screen.getByLabelText('Goal:'), 'X p');
+    await user.click(screen.getByRole('button', { name: 'Start Proof' }));
+
+    expect(onSubmit).not.toHaveBeenCalled();
+    expect(screen.getByText(/Missing operator before "p"/)).toBeInTheDocument();
+  });
+
+  test('the errors of the instant check go away when the logic changes, since they were about the other one', async () => {
+    const user = userEvent.setup();
+    const onSubmit = jest.fn().mockResolvedValue(null);
+    render(<NewProofModal isOpen onClose={jest.fn()} logic="modal" onSubmit={onSubmit} />);
+
+    await user.type(screen.getByLabelText('Premise 1'), 'X q');
+    await user.type(screen.getByLabelText('Goal:'), 'X p');
+    await user.click(screen.getByRole('button', { name: 'Start Proof' }));
+    expect(screen.getByLabelText('Premise 1')).toHaveAttribute('aria-invalid', 'true');
+    expect(screen.getByLabelText('Goal:')).toHaveAttribute('aria-invalid', 'true');
+
+    await user.selectOptions(screen.getByLabelText('Logic:'), 'modal-next-until');
+
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+    expect(screen.getByLabelText('Premise 1')).not.toHaveAttribute('aria-invalid');
+    expect(screen.getByLabelText('Goal:')).not.toHaveAttribute('aria-invalid');
+    await user.click(screen.getByRole('button', { name: 'Start Proof' }));
+    expect(onSubmit).toHaveBeenCalled();
   });
 });
