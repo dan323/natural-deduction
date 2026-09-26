@@ -46,6 +46,8 @@ const ConnectiveButtons: FC<ConnectiveButtonsProps> = ({ getInput, onInsert, tar
         onInsert(result.value);
     };
 
+    const where = target ? ` in ${target}` : '';
+
     return (
         <div className="connective-buttons" role="group" aria-label={target ? `Connectives for ${target}` : 'Connectives'}>
             {connectivesFor(logic).map(({ symbol, ascii, name, insert: text }) => (
@@ -57,7 +59,7 @@ const ConnectiveButtons: FC<ConnectiveButtonsProps> = ({ getInput, onInsert, tar
                     // Keeps the selection of the input while the button is pressed.
                     onMouseDown={(event) => event.preventDefault()}
                     disabled={disabled}
-                    aria-label={`Insert ${name} (${ascii})${target ? ` in ${target}` : ''}`}
+                    aria-label={`Insert ${name} (${ascii})${where}`}
                     title={`Insert ${name} (${ascii})`}
                 >
                     {symbol}

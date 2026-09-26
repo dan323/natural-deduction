@@ -43,7 +43,7 @@ const EXAMPLE_GOAL = 'q';
 // last line, not rejected.
 function copyLoadNote(proof: ProofDto): ReactNode {
   if (!proof.done) {
-    const last = proof.steps[proof.steps.length - 1] as StepDto | undefined;
+    const last = proof.steps.at(-1);
     if (last?.assmsLevel !== 0) return 'It only loads back in the New Proof dialog once the proof is finished.';
     return <>It is not finished, so it loads back in the New Proof dialog as a proof of its last line <code>{loadedGoal(proof)}</code> instead of the goal <code>{proof.goal}</code>.</>;
   }

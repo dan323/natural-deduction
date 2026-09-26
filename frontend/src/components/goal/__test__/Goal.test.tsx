@@ -104,7 +104,7 @@ describe('Goal celebration', () => {
     const before = Array.from(container.querySelectorAll('.emoji')).map(e => e.outerHTML);
 
     rerender(<Goal expression="A → B" success={true} />);
-    expect(random.mock.calls.length).toBe(rolled);
+    expect(random.mock.calls).toHaveLength(rolled);
     expect(Array.from(container.querySelectorAll('.emoji')).map(e => e.outerHTML)).toEqual(before);
   });
 

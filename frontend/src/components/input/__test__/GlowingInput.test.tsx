@@ -1,4 +1,4 @@
-import { render, fireEvent, act } from '@testing-library/react';
+import { render, fireEvent } from '@testing-library/react';
 import GlowingInput from '../GlowingInput';
 
 describe('Glowing input', () => {
@@ -29,9 +29,7 @@ describe('Glowing input', () => {
         );
 
         const input = getByLabelText(/Enter line number:/i);
-        act(() => {
-            fireEvent.change(input, { target: { value: '1' } });
-        });
+        fireEvent.change(input, { target: { value: '1' } });
         // The glow is drawn by the stylesheet from this property. An inline box-shadow would beat the focus style.
         expect(input).toHaveClass('glowing-input');
         expect(input).toHaveStyle('--glow-color: #ffcc00');
@@ -51,9 +49,7 @@ describe('Glowing input', () => {
         );
 
         const input = getByLabelText(/Enter line number:/i);
-        act(() => {
-            fireEvent.change(input, { target: { value: '1' } });
-        });
+        fireEvent.change(input, { target: { value: '1' } });
         expect(input).not.toHaveStyle('--glow-color: #ffcc00');
     });
 
@@ -71,9 +67,7 @@ describe('Glowing input', () => {
         );
 
         const input = getByLabelText(/Enter line number:/i);
-        act(() => {
-            fireEvent.change(input, { target: { value: '2' } });
-        });
+        fireEvent.change(input, { target: { value: '2' } });
         expect(onInputMock).toHaveBeenCalledWith(0, 2);
     });
 
@@ -91,9 +85,7 @@ describe('Glowing input', () => {
         );
 
         const input = getByLabelText(/Enter line number:/i);
-        act(() => {
-            fireEvent.change(input, { target: { value: '3' } });
-        });
+        fireEvent.change(input, { target: { value: '3' } });
         expect(onColorChangeMock).toHaveBeenCalledWith("#ffcc00", 2);
     });
 
@@ -111,9 +103,7 @@ describe('Glowing input', () => {
         );
 
         const input = getByLabelText(/Enter line number:/i);
-        act(() => {
-            fireEvent.change(input, { target: { value: 'abc' } });
-        });
+        fireEvent.change(input, { target: { value: 'abc' } });
         expect(onColorChangeMock).toHaveBeenCalledTimes(1);
         expect(onColorChangeMock).toHaveBeenCalledWith("#ffcc00", -1);
         expect(input).not.toHaveStyle('--glow-color: #ffcc00');
@@ -133,10 +123,8 @@ describe('Glowing input', () => {
         );
 
         const input = getByLabelText(/Enter line number:/i);
-        act(() => {
-            fireEvent.change(input, { target: { value: '5' } });
-            fireEvent.change(input, { target: { value: '' } });
-        })
+        fireEvent.change(input, { target: { value: '5' } });
+        fireEvent.change(input, { target: { value: '' } });
         expect(onColorChangeMock).toHaveBeenCalledWith("#ffcc00", -1);
         expect(input).not.toHaveStyle('--glow-color: #ffcc00');
     });

@@ -82,7 +82,7 @@ describe('Menu Component', () => {
         // Wait for the input fields to appear
         await waitFor(() => {
             const inputFields = screen.getAllByLabelText(/Line number:/i);
-            expect(inputFields.length).toBe(2); // Expecting 2 input fields for Action1
+            expect(inputFields).toHaveLength(2); // Expecting 2 input fields for Action1
         });
     });
 
@@ -151,32 +151,21 @@ describe('Menu Component', () => {
         });
 
         render(<Menu {...defaultProps} />);
-        await act(async () => {
-            fireEvent.change(screen.getByLabelText(/Select Inference Rule:/i), { target: { value: 'Action1' } });
-            // Wait for the component to process the state update
-            await waitFor(() => {
-                const inputFields = screen.getAllByLabelText(/Line number:/i);
-                expect(inputFields.length).toBe(2);
-            })
+        fireEvent.change(screen.getByLabelText(/Select Inference Rule:/i), { target: { value: 'Action1' } });
+        // Wait for the component to process the state update
+        await waitFor(() => {
+            const inputFields = screen.getAllByLabelText(/Line number:/i);
+            expect(inputFields).toHaveLength(2);
         });
 
-        await act(async () => {
-            const inputs = screen.getAllByLabelText(/Line number:/i);
-            fireEvent.change(inputs[0], { target: { value: '1' } });
-
-            // Wait for the component to process the state update
-            await waitFor(() => {
-                expect((inputs[0] as HTMLInputElement).value).toBe('1');
-            })
+        const inputs = screen.getAllByLabelText(/Line number:/i);
+        fireEvent.change(inputs[0], { target: { value: '1' } });
+        await waitFor(() => {
+            expect((inputs[0] as HTMLInputElement).value).toBe('1');
         });
-        await act(async () => {
-            const inputs = screen.getAllByLabelText(/Line number:/i);
-            fireEvent.change(inputs[1], { target: { value: '2' } });
-
-            // Wait for the component to process the state update
-            await waitFor(() => {
-                expect((inputs[1] as HTMLInputElement).value).toBe('2');
-            });
+        fireEvent.change(inputs[1], { target: { value: '2' } });
+        await waitFor(() => {
+            expect((inputs[1] as HTMLInputElement).value).toBe('2');
         });
         const performButton = screen.getByRole('button', { name: /Apply Rule/i });
         fireEvent.click(performButton);
@@ -215,11 +204,9 @@ describe('Menu Component', () => {
 
         fireEvent.change(screen.getByLabelText(/Select Inference Rule:/i), { target: { value: 'Action1' } });
 
-        await waitFor(() => {
-            const inputs = screen.getAllByLabelText(/Line number:/i);
-            fireEvent.change(inputs[0], { target: { value: '1' } });
-            fireEvent.change(inputs[1], { target: { value: '2' } });
-        });
+        const inputs = await screen.findAllByLabelText(/Line number:/i);
+        fireEvent.change(inputs[0], { target: { value: '1' } });
+        fireEvent.change(inputs[1], { target: { value: '2' } });
 
         const performButton = screen.getByRole('button', { name: /Apply Rule/i });
         fireEvent.click(performButton);

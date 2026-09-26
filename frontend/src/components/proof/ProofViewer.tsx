@@ -30,7 +30,7 @@ export const ProofViewer: FC<ProofViewerProps> = ({ proof, coloring, onSelectLin
   };
 
   const parseRangeFromRule = (rule: string): RangeDto[] | null => {
-    let match = /\[(\d+(-\d+)?(, \d+(-\d+)?)*?)\]/.exec(rule);
+    let match = /\[(\d+(?:-\d+)?(?:, \d+(?:-\d+)?)*)\]/.exec(rule);
     if (match) {
       const parts = match[1].split(',');
       let ranges: RangeDto[] = [];
@@ -38,9 +38,9 @@ export const ProofViewer: FC<ProofViewerProps> = ({ proof, coloring, onSelectLin
       parts.forEach(part => {
         const rangeMatch = /(\d+)-(\d+)/.exec(part);
         if (rangeMatch) {
-          ranges.push({ start: parseInt(rangeMatch[1]), end: parseInt(rangeMatch[2]) });
+          ranges.push({ start: Number.parseInt(rangeMatch[1]), end: Number.parseInt(rangeMatch[2]) });
         } else {
-          const number = parseInt(part);
+          const number = Number.parseInt(part);
           ranges.push({ start: number, end: number });
         }
       });

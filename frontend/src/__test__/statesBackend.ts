@@ -17,7 +17,7 @@ export function mockStatesBackend(fetchMock: jest.Mock, actions: ActionDescripto
   fetchMock.mockImplementation(async (url: string, init?: RequestInit) => {
     if (url.endsWith('/actions')) return jsonResponse(200, actions);
     if (url.endsWith('/exercises')) return jsonResponse(200, []);
-    const { proofDto, actionDto } = JSON.parse(String(init!.body)) as { proofDto: ProofDto, actionDto: { name: string, extraParameters: Record<string, string> } };
+    const { proofDto, actionDto } = JSON.parse(init!.body as string) as { proofDto: ProofDto, actionDto: { name: string, extraParameters: Record<string, string> } };
     const badPremise = proofDto.steps.findIndex((step) =>
       step.rule === 'Ass' && step.assmsLevel === 0 && !step.expression.includes('=') && step.extraParameters.state !== 's0');
     if (badPremise !== -1) {

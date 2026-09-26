@@ -106,13 +106,9 @@
     vertical-align: middle;
 }
 
-/* No Alternate Row Colors */
+/* No Alternate Row Colors. Rows are clicked (or activated with the keyboard) to fill the next line input of the rule */
 .proof-viewer tbody tr {
     background-color: transparent;
-}
-
-/* Rows are clicked (or activated with the keyboard) to fill the next line input of the rule */
-.proof-viewer tbody tr {
     cursor: pointer;
 }
 
