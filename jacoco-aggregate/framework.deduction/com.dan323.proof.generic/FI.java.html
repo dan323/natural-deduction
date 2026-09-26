@@ -20,7 +20,7 @@ public abstract class FI&lt;T extends LogicOperation, Q extends ProofStep&lt;T&g
     private final int pos;
     private final Supplier&lt;Constant&gt; constantFunction;
 
-<span class="fc" id="L23">    public FI(int a, int b, Supplier&lt;Constant&gt; genConst) {</span>
+<span class="fc" id="L23">    protected FI(int a, int b, Supplier&lt;Constant&gt; genConst) {</span>
 <span class="fc" id="L24">        pos = a;</span>
 <span class="fc" id="L25">        neg = b;</span>
 <span class="fc" id="L26">        constantFunction = genConst;</span>

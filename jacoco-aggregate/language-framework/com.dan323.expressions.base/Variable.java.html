@@ -5,15 +5,15 @@
  */
 public abstract class Variable implements LogicOperation {
 
-    private final String var;
+    private final String name;
 
-<span class="fc" id="L10">    public Variable(String var) {</span>
-<span class="fc" id="L11">        this.var = var;</span>
+<span class="fc" id="L10">    protected Variable(String name) {</span>
+<span class="fc" id="L11">        this.name = name;</span>
 <span class="fc" id="L12">    }</span>
 
     @Override
     public String toString() {
-<span class="fc" id="L16">        return var;</span>
+<span class="fc" id="L16">        return name;</span>
     }
 
 }

@@ -32,7 +32,7 @@ jacoco-report-aggregate/implementation.modal,com.dan323.expressions.modal,UnaryM
 jacoco-report-aggregate/implementation.modal,com.dan323.expressions,ModalLogicParser,5,205,1,10,1,29,1,15,0,7
 jacoco-report-aggregate/implementation.modal,com.dan323.expressions,ModalNextUntilLogicParser,0,289,0,13,0,37,0,16,0,8
 jacoco-report-aggregate/implementation.deduction.modal,com.dan323.proof.modal,ModalDeductionTheorem,0,80,1,5,0,10,1,7,0,5
-jacoco-report-aggregate/implementation.deduction.modal,com.dan323.proof.modal,ModalDiaE,20,308,7,29,3,49,8,18,1,7
+jacoco-report-aggregate/implementation.deduction.modal,com.dan323.proof.modal,ModalDiaE,20,310,7,29,3,49,8,18,1,7
 jacoco-report-aggregate/implementation.deduction.modal,com.dan323.proof.modal,ModalFI,0,58,0,8,0,7,0,11,0,7
 jacoco-report-aggregate/implementation.deduction.modal,com.dan323.proof.modal,ModalDiaI,22,157,6,8,1,16,7,7,1,6
 jacoco-report-aggregate/implementation.deduction.modal,com.dan323.proof.modal,ModalFE,0,50,0,4,0,7,0,7,0,5
@@ -50,7 +50,7 @@ jacoco-report-aggregate/implementation.deduction.modal,com.dan323.proof.modal,Mo
 jacoco-report-aggregate/implementation.deduction.modal,com.dan323.proof.modal,ModalAndE1,0,33,0,0,0,5,0,4,0,4
 jacoco-report-aggregate/implementation.deduction.modal,com.dan323.proof.modal,ModalModusPonens,0,47,0,4,0,7,0,6,0,4
 jacoco-report-aggregate/implementation.deduction.modal,com.dan323.proof.modal,ModalCopy,18,46,2,2,2,7,3,5,1,5
-jacoco-report-aggregate/implementation.deduction.modal,com.dan323.proof.modal.internal,ModalAutomate,175,1903,46,212,14,280,36,141,0,45
+jacoco-report-aggregate/implementation.deduction.modal,com.dan323.proof.modal.internal,ModalAutomate,175,1915,46,214,14,283,36,143,0,46
 jacoco-report-aggregate/implementation.deduction.modal,com.dan323.proof.modal.proof,ModalNaturalDeduction,2,175,3,21,1,40,3,20,0,11
 jacoco-report-aggregate/implementation.deduction.modal,com.dan323.proof.modal.proof,ProofStepModal,3,31,1,1,1,9,1,4,0,4
 jacoco-report-aggregate/implementation.deduction.modal,com.dan323.proof.modal.proof,ParseModalAction,249,627,16,36,22,96,22,58,6,30

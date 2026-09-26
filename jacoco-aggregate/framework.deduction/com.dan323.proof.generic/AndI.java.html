@@ -18,7 +18,7 @@ public abstract class AndI&lt;T extends LogicOperation, Q extends ProofStep&lt;T
     private final int applyAt2;
     private final BinaryOperator&lt;T&gt; conjunctionConstructor;
 
-<span class="fc" id="L21">    public AndI(int a, int b, BinaryOperator&lt;T&gt; construct) {</span>
+<span class="fc" id="L21">    protected AndI(int a, int b, BinaryOperator&lt;T&gt; construct) {</span>
 <span class="fc" id="L22">        applyAt1 = a;</span>
 <span class="fc" id="L23">        applyAt2 = b;</span>
 <span class="fc" id="L24">        conjunctionConstructor = construct;</span>
