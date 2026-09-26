@@ -126,7 +126,7 @@ docs/README.md
 
 | Layer    | Technology                  | Documentation                      |
 |----------|-----------------------------|------------------------------------|
-| Backend  | Java 21, Spring Boot 3.5.16 | [SETUP.md](./SETUP.md)             |
+| Backend  | Java 21, Spring Boot 4.1.1 | [SETUP.md](./SETUP.md)             |
 | Frontend | React 19, TypeScript, Vite  | [SETUP.md](./SETUP.md)             |
 | Build    | Maven                       | [SETUP.md](./SETUP.md)             |
 | Testing  | JUnit 6, Jest, PIT          | [SETUP.md](./SETUP.md)             |

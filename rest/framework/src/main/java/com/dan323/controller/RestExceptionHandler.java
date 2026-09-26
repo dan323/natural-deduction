@@ -44,7 +44,7 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(SolveTimeoutException.class)
     public ResponseEntity<ErrorResponse> handleSolveTimeout(SolveTimeoutException e) {
-        return error(HttpStatus.UNPROCESSABLE_ENTITY, e.getMessage());
+        return error(HttpStatus.UNPROCESSABLE_CONTENT, e.getMessage());
     }
 
     @ExceptionHandler(SolverBusyException.class)

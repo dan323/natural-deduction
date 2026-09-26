@@ -13,7 +13,7 @@ import com.dan323.uses.Transformer;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.TestConfiguration;
-import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.boot.resttestclient.TestRestTemplate;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpEntity;
@@ -103,7 +103,7 @@ public class RestSolveTimeoutIT {
         var response = restTemplate.exchange("http://localhost:" + port + "/logic/slow/solve", HttpMethod.POST,
                 new HttpEntity<>(new ProofDto(List.of(), "slow", "P"), new HttpHeaders()), ErrorResponse.class);
 
-        assertEquals(HttpStatus.UNPROCESSABLE_ENTITY, response.getStatusCode());
+        assertEquals(HttpStatus.UNPROCESSABLE_CONTENT, response.getStatusCode());
         assertEquals("The solver did not finish within 300 ms, try solving part of the proof by hand first",
                 Objects.requireNonNull(response.getBody()).message());
     }

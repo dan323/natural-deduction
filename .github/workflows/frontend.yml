@@ -20,13 +20,13 @@ jobs:
     - name: npm set up
       uses: actions/setup-node@v7
       with:
-        node-version: 20
+        node-version: 24
         cache: npm
         cache-dependency-path: frontend/package-lock.json
     - name: install
       run: |
         cd frontend
-        npm ci
+        npm ci --ignore-scripts
     - name: type check
       run: |
         cd frontend
@@ -36,7 +36,7 @@ jobs:
         cd frontend
         npm run test
     - name: SonarQube Scan
-      uses: sonarsource/sonarqube-scan-action@v8.2.2
+      uses: sonarsource/sonarqube-scan-action@ba9859eae8dd6bd29e412f25ddbbef3d032000f4 # v8.2.2
       env:
         SONAR_ORGANIZATION: ${{ secrets.SONAR_ORGANIZATION }}
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}

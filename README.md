@@ -54,7 +54,7 @@ Complete documentation is available in the [docs/](./docs/) folder:
 
 ## Technology Stack
 
-- **Backend**: Java 21, Spring Boot 3.5.16
+- **Backend**: Java 21, Spring Boot 4.1.1
 - **Frontend**: React 19, TypeScript, Vite
 - **Build**: Maven, Docker
 - **Testing**: JUnit 6, Jest, PIT mutation testing

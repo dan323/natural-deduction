@@ -1,20 +1,25 @@
 # UI improvement plan
 
 Based on a live audit of the UI (UX, accessibility, performance, functional bugs), a read of `frontend/src`, and checks
-against the running backend. Out of scope for now: changes to the solver. Intuitionistic (PR 9) and modal (PR 10) logic
-are brought to the UI.
+against the running backend. Out of scope: changes to the solver. PRs 9 and 10 brought intuitionistic, modal and a new
+`modal-next-until` logic to the UI.
 
 Defaults taken for the open questions (change them and the affected steps move): the descriptor DTO **is** extended
 (additively), formula input help is a **hint plus connective buttons** (no Unicode parsing), and **Phase 1 goes first**.
 
-## Status (2026-09-24)
+## Status (2026-09-26)
+
+Every step of this plan is merged; nothing is pending. To continue, add a new plan (`/plan-next-issues`).
 
 PRs 1-6 are merged: 1-3, 4.1, 5.1, 5.2 and 5.4 as #124-#128, #130 and #131; 4.2 and 5.3 folded into #127 and #129;
 5.5 (#122) as #138, 5.6 (#123) as #137, 6.1 (#132) as #135 and 6.2 (#133) as #134.
 PRs 7-9 are merged: 7.1 (#139) as #151, 7.2 (#140) as #153, 7.3 (#141) as #156, 8.1 (#142) as #152, 8.2 (#143) as #157,
-9.1 (#144) as #155, 9.2 (#145) as #158. PR 10.1-10.3 are merged: 10.1 (#146) as #154, 10.2 (#147) as #160, 10.3 (#148)
-as #159. Pending: 10.4 (#149) and 10.5 (#150). 10.5 was redesigned as a `modal-next-until` logic (Next and Until); its
-first attempt, PR #161, was closed unmerged.
+9.1 (#144) as #155, 9.2 (#145) as #158. PR 10 is merged: 10.1 (#146) as #154, 10.2 (#147) as #160, 10.3 (#148)
+as #159, 10.4 (#149) as #162, and 10.5 (#150) as #163 (backend) and #164 (frontend). 10.5 was redesigned as a
+`modal-next-until` logic (Next and Until); its first attempt, PR #161, was closed unmerged.
+
+Merged outside the plan: #165 (every logic accepts both the classical and the modal name of the 14 shared rules, e.g.
+`MP`/`->E`), #166 and #167 (Sonar fixes without behaviour changes, docs brought up to date).
 
 ## Audit summary
 
@@ -212,7 +217,7 @@ Order inside this PR series: 5.1, 5.3, 5.2, 5.4, 5.5, 5.6 (one small PR each).
 
 ## PR 7: Backend-checked proofs
 
-**7.1 Check a new proof's formulas with the backend before showing it** — open, tracked as #139
+**7.1 Check a new proof's formulas with the backend before showing it** — done (#151, issue #139)
 - Change: `NewProofModal` keeps `checkFormula` as the instant check, but on submit `App.handleNewProofSubmit` sends the
   premises-only proof (premises + goal) through the existing `replayProof` (`service/actions.ts`, the path Undo uses;
   the transformers parse the goal and every step). A rejection keeps the dialog open with the backend's message; success
@@ -222,7 +227,7 @@ Order inside this PR series: 5.1, 5.3, 5.2, 5.4, 5.5, 5.6 (one small PR each).
   message; an accepted proof is the one the backend returned; a late answer after Cancel is ignored.
 - Done when: a formula the backend cannot parse never becomes a proof line.
 
-**7.2 Keep the proof across a page reload** (`App.tsx`) — open, tracked as #140
+**7.2 Keep the proof across a page reload** (`App.tsx`) — done (#153, issue #140)
 - Change: nothing in `frontend/src` uses storage today, so a reload loses the proof. Save the current `ProofDto` to
   `sessionStorage` on every change (read and write wrapped in try/catch); on mount, restore it through `replayProof`
   so the backend re-checks it and gives back `done`. A rejected or corrupt saved proof falls back to the empty state with
@@ -231,7 +236,7 @@ Order inside this PR series: 5.1, 5.3, 5.2, 5.4, 5.5, 5.6 (one small PR each).
   storage that throws is ignored; a new proof replaces the saved one.
 - Done when: reloading mid-proof shows the same proof with the same done state.
 
-**7.3 "Load from text" accepts only finished proofs, through `POST .../proof`** — open, tracked as #141
+**7.3 "Load from text" accepts only finished proofs, through `POST .../proof`** — done (#156, issue #141)
 - Change: "Load from text" posts the text to `POST /logic/{logic}/proof`, which already takes the last line as the goal,
   the leading `Ass` lines as the premises, and rejects a proof that does not end at the top level or has a step that does
   not follow. Remove the dialog's goal field, `parseProofText` and the replay-based `loadProofFromText` (keep
@@ -248,7 +253,7 @@ Order inside this PR series: 5.1, 5.3, 5.2, 5.4, 5.5, 5.6 (one small PR each).
 
 ## PR 8: Exercises
 
-**8.1 An exercise catalog per logic (backend)** — open, tracked as #142
+**8.1 An exercise catalog per logic (backend)** — done (#152, issue #142)
 - Change: `GET /logic/{logic}/exercises` returns `ExerciseDto(id, title, premises, goal, difficulty)` from a per-logic
   bean, collected into a map by `logic()` like the other use-case beans. The classical set has about 12 exercises from
   easy to hard (MP chains, ∧/∨ elimination, →I, ¬I, `--p ⊢ p`, `⊢ p | -p`). Each exercise keeps a reference solution in
@@ -257,7 +262,7 @@ Order inside this PR series: 5.1, 5.3, 5.2, 5.4, 5.5, 5.6 (one small PR each).
   the exercise's, and it is done. `RestServiceIT`: 200 with the list, 404 for an unknown logic.
 - Done when: every listed exercise is provable, and a test fails if one is not.
 
-**8.2 Exercises in the UI (frontend)** — open, tracked as #143
+**8.2 Exercises in the UI (frontend)** — done (#157, issue #143)
 - Change: an "Exercises" list, reachable from the empty state and the toolbar, grouped by difficulty. "Start" opens the
   exercise through the 7.1 path (backend-checked). Solved exercises are recorded in `localStorage` (wrapped in try/catch)
   and shown with a text marker, not colour alone. When a proof started from an exercise is done, the completion notice
@@ -270,7 +275,7 @@ Order inside this PR series: 5.1, 5.3, 5.2, 5.4, 5.5, 5.6 (one small PR each).
 
 ## PR 9: Intuitionistic logic
 
-**9.1 Intuitionistic propositional logic (backend)** — open, tracked as #144
+**9.1 Intuitionistic propositional logic (backend)** — done (#155, issue #144)
 - Investigate first: intuitionistic = classical without double negation elimination (`NOTE`, `ClassicNotE`, "¬E");
   `FE` (ex falso) stays. Choose between a thin `implementation.deduction.intuitionistic` / `intuitionistic-use-case` pair
   reusing the classical language and rule classes with its own `NaturalDeduction` subclass and action enum without
@@ -285,7 +290,7 @@ Order inside this PR series: 5.1, 5.3, 5.2, 5.4, 5.5, 5.6 (one small PR each).
 - Done when: `GET /logic/intuitionistic/actions` lists every classical rule except ¬E, and a classical-only proof is
   rejected.
 
-**9.2 Pick the logic in the UI (frontend)** — open, tracked as #145
+**9.2 Pick the logic in the UI (frontend)** — done (#158, issue #145)
 - Change: `LOGIC` in `constant.ts` becomes the list of logics the UI supports (classical, intuitionistic; modal stays
   backend-only). The New Proof dialog gets a logic selector and the current logic is shown next to the goal. Everything
   that uses `LOGIC` (`Menu`, `actions.ts`, 7.2's saved proof, 8.2's list) reads it from `proof.logic` instead.
@@ -300,7 +305,7 @@ Order inside this PR series: 5.1, 5.3, 5.2, 5.4, 5.5, 5.6 (one small PR each).
 The backend is complete (`/logic/modal/actions|action|solve|proof`); the UI has pieces already (`Menu` renders `STATE`
 inputs and sends `extraParameters.state`, `renderExpression` shows `[]`/`<>` as □/◇) but cannot run a modal proof yet.
 
-**10.1 Describe the modal rules (backend)** — open, tracked as #146
+**10.1 Describe the modal rules (backend)** — done (#154, issue #146)
 - Change: `AvailableModalAction` builds its descriptors with `ActionDescriptorDto.of(name, params)` only, so the modal
   rules have no `label`, `symbol`, `category`, `description` or `paramLabels` (PR 4.1 left `ModalGetActions` alone).
   Fill them for all 20 rules as `ClassicGetActions` does, in a form that fails to compile or fails a test when a rule is
@@ -311,7 +316,7 @@ inputs and sends `extraParameters.state`, `renderExpression` shows `[]`/`<>` as 
   existing test that every entry builds an action keeps passing.
 - Done when: `GET /logic/modal/actions` describes each rule as the classical endpoint does.
 
-**10.2 States in modal proofs (frontend)** — open, tracked as #147
+**10.2 States in modal proofs (frontend)** — done (#160, issue #147)
 - Change: `ModalProofTransformer.initialAssumption` rejects a premise whose `extraParameters.state` is not the initial
   state `s0`, and `handleNewProofSubmit` sends `{}`. For a modal proof, premises get `{ state: 's0' }` (investigate
   first what relation premises such as `s0 <= s1` need; `initialAssumption` only checks logical formulas). `StepViewer`
@@ -321,16 +326,17 @@ inputs and sends `extraParameters.state`, `renderExpression` shows `[]`/`<>` as 
   state and is absent for classical proofs; an Apply with a `STATE` input round-trips against a mocked modal backend.
 - Done when: a modal proof started in the UI survives its first action, and every row says which state it is in.
 
-**10.3 Modal formula help (frontend)** — open, tracked as #148
+**10.3 Modal formula help (frontend)** — done (#159, issue #148)
 - Change: the #138 hint and connective buttons cover only `→ ∧ ∨ ¬`. For a modal proof add `□` (`[]`) and `◇` (`<>`)
   buttons and hint entries, and explain relation formulas (`s0 <= s1`, `s0 = s1`) in the hint. `checkFormula` already
   knows these tokens; add tests for them. Note: `Until` (`U`) exists in the model but `ModalLogicParser` has no operator
-  for it, so it cannot be typed; leave it out of the help.
+  for it, so it cannot be typed in `"modal"`; leave it out of the help. (Since 10.5, `"modal-next-until"` has its own
+  `X` and `U` buttons and hint entries.)
 - Tests: `GlowingInputConnectives.test.tsx` / `NewProofModal.test.tsx`: modal buttons appear only for modal proofs and
   insert `[]`/`<>`; `utils.test.ts`: `checkFormula` on `[]p -> p`, `<>(p & q)`, `s0 <= s1`, and a dangling `[]`.
 - Done when: every modal formula can be typed with the buttons, and the hint lists every operator the parser accepts.
 
-**10.4 Offer modal logic in the selector (frontend + exercises)** — open, tracked as #149
+**10.4 Offer modal logic in the selector (frontend + exercises)** — done (#162, issue #149)
 - Change: add `"modal"` to the logics of 9.2's selector once 10.1-10.3 are in; add a modal exercise set to 8.1's
   catalog (e.g. `[]p ⊢ p` with `Refl`, `[]p ⊢ [][]p` with `Trans`, `p ⊢ <>p`), each with a reference solution checked by
   the same `ProofParser` test. Extend the `OnMaster.yml` smoke test only if it does not already cover modal actions (it
@@ -339,13 +345,17 @@ inputs and sends `extraParameters.state`, `renderExpression` shows `[]`/`<>` as 
   exercise list loads; backend: the modal reference solutions replay.
 - Done when: a student can pick modal logic, start a modal exercise and finish it in the UI.
 
-**10.5 A `modal-next-until` logic: modal logic with Next and Until (backend, then UI)** — open, tracked as #150
+**10.5 A `modal-next-until` logic: modal logic with Next and Until (backend, then UI)** — done (#163 backend, #164 frontend; issue #150)
 - Idea: keep `"modal"` as it is and add a new logic, `ModalNextUntil` (URL key `"modal-next-until"`), that is modal
   logic over discrete states with two new operators: Next `X` (`s: X P` iff `s+1: P`, where `s+1` is the successor
   state of `s`) and Until `U`. A first attempt (PR #161, closed) gave `U` a strong-until meaning over `<=` alone; without
   a next state the natural Until rules are unsound there, so Next is needed. `Until` (`expressions/modal/Until.java`,
   printed `A U B`) already exists in the formula model; `X` needs a new unary formula class.
-- Semantics (to confirm in the investigation): states form a discrete order, every state `s` has a successor `s+1`,
+- Outcome: built as planned below. States are successor terms (`s0`, `s0+1`, ...) that the backend normalizes; the
+  rules are `XI`, `XE`, `Succ`, `UI` (`UI1`/`UI2`), `UE`, `U<>` and an induction rule `Ind`; there is no solver
+  (`/solve` answers 400); `isDone()` requires the goal in `s0`; `"modal"` is unchanged (`ModalFreshStateTest`). The
+  investigation notes below are kept as the design record.
+- Semantics (as investigated): states form a discrete order, every state `s` has a successor `s+1`,
   `s <= s+1`, and `<=` is the reflexive-transitive closure of the successor, so `□`/`◇`/`Refl`/`Trans` keep their meaning.
   `s: A U B` iff for some `k >= 0`, `s+k: B` and `s+j: A` for every `j < k` (strong until).
 - Investigate first:
