@@ -169,4 +169,27 @@ class FirstOrderParserTest {
         error = assertThrows(IllegalArgumentException.class, () -> parser.parse("x = "));
         assertEquals("Expected a term but found the end of the input", error.getMessage());
     }
+
+    @Test
+    void deepNestingIsAnIllegalArgumentNotAStackOverflow() {
+        int deep = 20000;
+        for (String text : List.of("(".repeat(deep) + "p" + ")".repeat(deep),
+                "-".repeat(deep) + "p",
+                "forall x. ".repeat(deep) + "p",
+                "f(".repeat(deep) + "x" + ")".repeat(deep) + " = y")) {
+            IllegalArgumentException error = assertThrows(IllegalArgumentException.class, () -> parser.parse(text));
+            assertTrue(error.getMessage().contains("nested"), error.getMessage());
+        }
+        String deepTerm = "(".repeat(deep) + "x" + ")".repeat(deep);
+        assertThrows(IllegalArgumentException.class, () -> parser.parseTerm(deepTerm));
+    }
+
+    @Test
+    void nestingWithinTheLimitParses() {
+        int depth = FirstOrderParser.MAX_DEPTH - 10;
+        assertEquals(parser.parse("p"), parser.parse("(".repeat(depth) + "p" + ")".repeat(depth)));
+        assertInstanceOf(NegationFirstOrder.class, parser.parse("-".repeat(depth) + "p"));
+        assertEquals(parser.parseTerm("x"), parser.parseTerm("(".repeat(depth) + "x" + ")".repeat(depth)));
+        assertInstanceOf(Equals.class, parser.parse("f(".repeat(depth) + "x" + ")".repeat(depth) + " = y"));
+    }
 }

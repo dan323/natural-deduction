@@ -23,13 +23,15 @@ import java.util.Set;
  * A quantifier body reaches as far right as it can, so {@code forall x. P(x) & Q} quantifies over the conjunction.
  * Terms (variables, constants and function symbols) are identifiers that start with a lowercase letter; a predicate
  * name is any identifier, and one without arguments is a propositional variable, so {@code p -> q} parses.
- * {@code forall}, {@code exists}, {@code TRUE} and {@code FALSE} are reserved. Every error is an
- * {@link IllegalArgumentException}.
+ * {@code forall}, {@code exists}, {@code TRUE} and {@code FALSE} are reserved. Nesting (parentheses, negations,
+ * quantifiers, function arguments) is limited to {@value #MAX_DEPTH} levels, so deep input cannot overflow the stack.
+ * Every error is an {@link IllegalArgumentException}.
  */
 public final class FirstOrderParser {
 
     private static final Set<String> RESERVED = Set.of(Forall.KEYWORD, Exists.KEYWORD, "TRUE", "FALSE");
     private static final List<String> SYMBOLS = List.of("->", "&", "|", "-", "(", ")", ",", ".", "=");
+    static final int MAX_DEPTH = 500;
 
     /**
      * @param text a formula
@@ -101,6 +103,7 @@ public final class FirstOrderParser {
 
         private final List<String> tokens;
         private int position;
+        private int depth;
 
         private Cursor(List<String> tokens) {
             this.tokens = tokens;
@@ -163,7 +166,22 @@ public final class FirstOrderParser {
             return left;
         }
 
+        private void enter() {
+            if (++depth > MAX_DEPTH) {
+                throw new IllegalArgumentException("The input is nested more than " + MAX_DEPTH + " levels deep");
+            }
+        }
+
         private FirstOrderOperation unary() {
+            enter();
+            try {
+                return unaryBody();
+            } finally {
+                depth--;
+            }
+        }
+
+        private FirstOrderOperation unaryBody() {
             if (accept("-")) {
                 return new NegationFirstOrder(unary());
             } else if (accept(Forall.KEYWORD)) {
@@ -224,6 +242,15 @@ public final class FirstOrderParser {
         }
 
         private Term term() {
+            enter();
+            try {
+                return termBody();
+            } finally {
+                depth--;
+            }
+        }
+
+        private Term termBody() {
             if (accept("(")) {
                 Term term = term();
                 expect(")");
