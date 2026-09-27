@@ -38,8 +38,8 @@ jacoco-report-aggregate/implementation.firstorder,com.dan323.expressions.firstor
 jacoco-report-aggregate/implementation.firstorder,com.dan323.expressions.firstorder,ImplicationFirstOrder,0,56,0,0,0,9,0,6,0,6
 jacoco-report-aggregate/implementation.firstorder,com.dan323.expressions.firstorder,Exists,0,15,0,0,0,5,0,4,0,4
 jacoco-report-aggregate/implementation.firstorder,com.dan323.expressions.firstorder,Alpha,0,278,3,21,0,32,3,23,0,11
-jacoco-report-aggregate/implementation.firstorder,com.dan323.expressions.firstorder,Printer,0,23,1,5,0,3,1,4,0,2
-jacoco-report-aggregate/implementation.firstorder,com.dan323.expressions.firstorder,FirstOrderParser.Cursor,0,391,0,52,0,93,0,45,0,19
+jacoco-report-aggregate/implementation.firstorder,com.dan323.expressions.firstorder,Printer,0,23,0,6,0,3,0,5,0,2
+jacoco-report-aggregate/implementation.firstorder,com.dan323.expressions.firstorder,FirstOrderParser.Cursor,0,421,0,52,0,102,0,45,0,19
 jacoco-report-aggregate/implementation.firstorder,com.dan323.expressions.firstorder,FirstOrderParser,0,165,1,25,0,37,1,20,0,8
 jacoco-report-aggregate/implementation.firstorder,com.dan323.expressions.firstorder,ConjunctionFirstOrder,0,56,0,0,0,9,0,6,0,6
 jacoco-report-aggregate/implementation.firstorder,com.dan323.expressions.firstorder,FunctionApplication,0,75,0,2,0,11,0,7,0,6

@@ -18,7 +18,7 @@ final class Printer {
     }
 
     private static String operand(FirstOrderOperation operand) {
-<span class="pc bpc" id="L21" title="1 of 6 branches missed.">        return operand instanceof BinaryOperation || operand instanceof UnaryOperation || operand instanceof Quantifier</span>
+<span class="fc bfc" id="L21" title="All 6 branches covered.">        return operand instanceof BinaryOperation || operand instanceof UnaryOperation || operand instanceof Quantifier</span>
 <span class="fc" id="L22">                ? &quot;(&quot; + operand + &quot;)&quot; : operand.toString();</span>
     }
 }
