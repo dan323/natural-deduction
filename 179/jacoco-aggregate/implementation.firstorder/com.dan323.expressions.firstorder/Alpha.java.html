@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>Alpha.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">jacoco-report-aggregate</a> &gt; <a href="../index.html" class="el_bundle">implementation.firstorder</a> &gt; <a href="index.source.html" class="el_package">com.dan323.expressions.firstorder</a> &gt; <span class="el_source">Alpha.java</span></div><h1>Alpha.java</h1><pre class="source lang-java linenums">package com.dan323.expressions.firstorder;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+/**
+ * Equality up to renaming of bound variables. Two formulas are alpha-equivalent exactly when their canonical forms are
+ * equal: a canonical form names every bound variable after the depth of its binder ({@code #0}, {@code #1}, ...), which
+ * no identifier can clash with, and drops the name the binder gave it.
+ */
+final class Alpha {
+
+    private Alpha() {
+    }
+
+    static boolean equal(FirstOrderOperation formula, Object other) {
+<span class="fc bfc" id="L19" title="All 4 branches covered.">        return other instanceof FirstOrderOperation that &amp;&amp; canonical(formula).equals(canonical(that));</span>
+    }
+
+    static int hash(FirstOrderOperation formula) {
+<span class="fc" id="L23">        return canonical(formula).hashCode();</span>
+    }
+
+    static String canonical(FirstOrderOperation formula) {
+<span class="fc" id="L27">        return canonical(formula, Map.of(), 0);</span>
+    }
+
+    private static String canonical(FirstOrderOperation formula, Map&lt;String, String&gt; bound, int depth) {
+<span class="fc bfc" id="L31" title="All 8 branches covered.">        return switch (formula) {</span>
+<span class="fc" id="L32">            case ConjunctionFirstOrder c -&gt; binary(&quot;&amp;&quot;, c.getLeft(), c.getRight(), bound, depth);</span>
+<span class="fc" id="L33">            case DisjunctionFirstOrder d -&gt; binary(&quot;|&quot;, d.getLeft(), d.getRight(), bound, depth);</span>
+<span class="fc" id="L34">            case ImplicationFirstOrder i -&gt; binary(&quot;-&gt;&quot;, i.getLeft(), i.getRight(), bound, depth);</span>
+<span class="fc" id="L35">            case NegationFirstOrder n -&gt; &quot;-(&quot; + canonical(n.getElement(), bound, depth) + &quot;)&quot;;</span>
+<span class="fc" id="L36">            case ConstantFirstOrder k -&gt; &quot;$&quot; + k.name();</span>
+<span class="fc" id="L37">            case Predicate p -&gt; p.getName() + p.getArguments().stream()</span>
+<span class="fc" id="L38">                    .map(t -&gt; canonical(t, bound))</span>
+<span class="fc" id="L39">                    .collect(Collectors.joining(&quot;,&quot;, &quot;(&quot;, &quot;)&quot;));</span>
+<span class="fc" id="L40">            case Equals e -&gt; &quot;=(&quot; + canonical(e.getLeft(), bound) + &quot;,&quot; + canonical(e.getRight(), bound) + &quot;)&quot;;</span>
+<span class="fc" id="L41">            case Quantifier q -&gt; {</span>
+<span class="fc" id="L42">                Map&lt;String, String&gt; inner = new HashMap&lt;&gt;(bound);</span>
+<span class="fc" id="L43">                inner.put(q.getVariable(), &quot;#&quot; + depth);</span>
+<span class="fc" id="L44">                yield q.getSymbol() + &quot;(&quot; + canonical(q.getBody(), inner, depth + 1) + &quot;)&quot;;</span>
+            }
+        };
+    }
+
+    private static String binary(String operator, FirstOrderOperation left, FirstOrderOperation right,
+                                 Map&lt;String, String&gt; bound, int depth) {
+<span class="fc" id="L51">        return operator + &quot;(&quot; + canonical(left, bound, depth) + &quot;,&quot; + canonical(right, bound, depth) + &quot;)&quot;;</span>
+    }
+
+    private static String canonical(Term term, Map&lt;String, String&gt; bound) {
+<span class="fc bfc" id="L55" title="All 3 branches covered.">        return switch (term) {</span>
+<span class="fc" id="L56">            case VariableTerm v -&gt; bound.getOrDefault(v.name(), v.name());</span>
+<span class="fc" id="L57">            case FunctionApplication f -&gt; f.name() + f.arguments().stream()</span>
+<span class="fc" id="L58">                    .map(t -&gt; canonical(t, bound))</span>
+<span class="fc" id="L59">                    .collect(Collectors.joining(&quot;,&quot;, &quot;(&quot;, &quot;)&quot;));</span>
+<span class="fc" id="L60">            case Product p -&gt; &quot;*(&quot; + canonical(p.left(), bound) + &quot;,&quot; + canonical(p.right(), bound) + &quot;)&quot;;</span>
+        };
+    }
+
+    /**
+     * @param name  the name to start from
+     * @param avoid the names the result must not be
+     * @return {@code name} with its trailing digits replaced by the smallest positive number that gives a name not in
+     * {@code avoid}
+     */
+    static String fresh(String name, Set&lt;String&gt; avoid) {
+<span class="fc" id="L71">        String base = name.replaceAll(&quot;\\d+$&quot;, &quot;&quot;);</span>
+<span class="fc" id="L72">        int i = 1;</span>
+<span class="fc bfc" id="L73" title="All 2 branches covered.">        while (avoid.contains(base + i)) {</span>
+<span class="fc" id="L74">            i++;</span>
+        }
+<span class="fc" id="L76">        return base + i;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>

@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>Product.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">jacoco-report-aggregate</a> &gt; <a href="../index.html" class="el_bundle">implementation.firstorder</a> &gt; <a href="index.source.html" class="el_package">com.dan323.expressions.firstorder</a> &gt; <span class="el_source">Product.java</span></div><h1>Product.java</h1><pre class="source lang-java linenums">package com.dan323.expressions.firstorder;
+
+import java.util.HashSet;
+import java.util.Objects;
+import java.util.Set;
+
+/**
+ * The infix product {@code left*right}. The parser reads {@code *} as left-associative; the printer puts parentheses
+ * around every operand that is itself a product, so {@code (x*y)*z} and {@code x*(y*z)} print as written.
+ *
+ * @param left  the left factor
+ * @param right the right factor
+ */
+public record Product(Term left, Term right) implements Term {
+
+<span class="fc" id="L16">    public Product {</span>
+<span class="fc" id="L17">        Objects.requireNonNull(left);</span>
+<span class="fc" id="L18">        Objects.requireNonNull(right);</span>
+<span class="fc" id="L19">    }</span>
+
+    @Override
+    public Set&lt;String&gt; freeVariables() {
+<span class="fc" id="L23">        Set&lt;String&gt; free = new HashSet&lt;&gt;(left.freeVariables());</span>
+<span class="fc" id="L24">        free.addAll(right.freeVariables());</span>
+<span class="fc" id="L25">        return Set.copyOf(free);</span>
+    }
+
+    @Override
+    public Term substitute(String variable, Term term) {
+<span class="fc" id="L30">        return new Product(left.substitute(variable, term), right.substitute(variable, term));</span>
+    }
+
+    @Override
+    public String toString() {
+<span class="fc" id="L35">        return factor(left) + &quot;*&quot; + factor(right);</span>
+    }
+
+    private static String factor(Term term) {
+<span class="fc bfc" id="L39" title="All 2 branches covered.">        return term instanceof Product ? &quot;(&quot; + term + &quot;)&quot; : term.toString();</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>

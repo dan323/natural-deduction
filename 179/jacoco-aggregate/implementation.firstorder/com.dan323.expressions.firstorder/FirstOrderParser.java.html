@@ -1,0 +1,266 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>FirstOrderParser.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">jacoco-report-aggregate</a> &gt; <a href="../index.html" class="el_bundle">implementation.firstorder</a> &gt; <a href="index.source.html" class="el_package">com.dan323.expressions.firstorder</a> &gt; <span class="el_source">FirstOrderParser.java</span></div><h1>FirstOrderParser.java</h1><pre class="source lang-java linenums">package com.dan323.expressions.firstorder;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+
+/**
+ * A hand-written recursive-descent parser for first-order formulas. The other languages use javaluator, but it cannot
+ * read this one: it only knows function symbols declared up front (so {@code f(x) = y} or {@code P(x, y)} with arbitrary
+ * names fail), and its operators are fixed symbols that cannot bind a variable ({@code forall x. P &amp; Q} is read as the
+ * name {@code forall x. P} conjoined with {@code Q}).
+ * &lt;p&gt;
+ * Grammar, from the loosest binding to the tightest (the connectives keep the precedence the classical and modal
+ * parsers give them, all left-associative):
+ * &lt;pre&gt;
+ * formula := or ('&amp;amp;' or)*
+ * or      := imp ('|' imp)*
+ * imp     := unary ('-&amp;gt;' unary)*
+ * unary   := '-' unary | ('forall' | 'exists') var '.' formula | primary
+ * primary := term '=' term | '(' formula ')' | 'TRUE' | 'FALSE' | name ['(' term (',' term)* ')']
+ * term    := factor ('*' factor)*
+ * factor  := '(' term ')' | var ['(' term (',' term)* ')']
+ * &lt;/pre&gt;
+ * A quantifier body reaches as far right as it can, so {@code forall x. P(x) &amp; Q} quantifies over the conjunction.
+ * Terms (variables, constants and function symbols) are identifiers that start with a lowercase letter; a predicate
+ * name is any identifier, and one without arguments is a propositional variable, so {@code p -&gt; q} parses.
+ * {@code forall}, {@code exists}, {@code TRUE} and {@code FALSE} are reserved. Every error is an
+ * {@link IllegalArgumentException}.
+ */
+<span class="fc" id="L30">public final class FirstOrderParser {</span>
+
+<span class="fc" id="L32">    private static final Set&lt;String&gt; RESERVED = Set.of(Forall.KEYWORD, Exists.KEYWORD, &quot;TRUE&quot;, &quot;FALSE&quot;);</span>
+<span class="fc" id="L33">    private static final List&lt;String&gt; SYMBOLS = List.of(&quot;-&gt;&quot;, &quot;&amp;&quot;, &quot;|&quot;, &quot;-&quot;, &quot;(&quot;, &quot;)&quot;, &quot;,&quot;, &quot;.&quot;, &quot;*&quot;, &quot;=&quot;);</span>
+
+    /**
+     * @param text a formula
+     * @return the formula {@code text} denotes
+     * @throws IllegalArgumentException if {@code text} is not a formula
+     */
+    public FirstOrderOperation parse(String text) {
+<span class="fc" id="L41">        Cursor cursor = new Cursor(tokenize(text));</span>
+<span class="fc" id="L42">        FirstOrderOperation formula = cursor.formula();</span>
+<span class="fc" id="L43">        cursor.expectEnd();</span>
+<span class="fc" id="L44">        return formula;</span>
+    }
+
+    /**
+     * @param text a term
+     * @return the term {@code text} denotes
+     * @throws IllegalArgumentException if {@code text} is not a term
+     */
+    public Term parseTerm(String text) {
+<span class="fc" id="L53">        Cursor cursor = new Cursor(tokenize(text));</span>
+<span class="fc" id="L54">        Term term = cursor.term();</span>
+<span class="fc" id="L55">        cursor.expectEnd();</span>
+<span class="fc" id="L56">        return term;</span>
+    }
+
+    private static List&lt;String&gt; tokenize(String text) {
+<span class="fc bfc" id="L60" title="All 2 branches covered.">        if (text == null) {</span>
+<span class="fc" id="L61">            throw new IllegalArgumentException(&quot;No formula given&quot;);</span>
+        }
+<span class="fc" id="L63">        List&lt;String&gt; tokens = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L64">        int i = 0;</span>
+<span class="fc bfc" id="L65" title="All 2 branches covered.">        while (i &lt; text.length()) {</span>
+<span class="fc" id="L66">            char c = text.charAt(i);</span>
+<span class="fc bfc" id="L67" title="All 2 branches covered.">            if (Character.isWhitespace(c)) {</span>
+<span class="fc" id="L68">                i++;</span>
+<span class="fc bfc" id="L69" title="All 2 branches covered.">            } else if (Character.isLetter(c)) {</span>
+<span class="fc" id="L70">                int start = i;</span>
+<span class="fc bfc" id="L71" title="All 4 branches covered.">                while (i &lt; text.length() &amp;&amp; isIdentifierPart(text.charAt(i))) {</span>
+<span class="fc" id="L72">                    i++;</span>
+                }
+<span class="fc" id="L74">                tokens.add(text.substring(start, i));</span>
+<span class="fc" id="L75">            } else {</span>
+<span class="fc" id="L76">                String symbol = symbolAt(text, i);</span>
+<span class="fc" id="L77">                tokens.add(symbol);</span>
+<span class="fc" id="L78">                i += symbol.length();</span>
+            }
+<span class="fc" id="L80">        }</span>
+<span class="fc" id="L81">        return tokens;</span>
+    }
+
+    private static boolean isIdentifierPart(char c) {
+<span class="pc bpc" id="L85" title="1 of 4 branches missed.">        return Character.isLetterOrDigit(c) || c == '_';</span>
+    }
+
+    private static String symbolAt(String text, int index) {
+<span class="fc bfc" id="L89" title="All 2 branches covered.">        for (String symbol : SYMBOLS) {</span>
+<span class="fc bfc" id="L90" title="All 2 branches covered.">            if (text.startsWith(symbol, index)) {</span>
+<span class="fc" id="L91">                return symbol;</span>
+            }
+<span class="fc" id="L93">        }</span>
+<span class="fc" id="L94">        throw new IllegalArgumentException(&quot;Unexpected character '&quot; + text.charAt(index) + &quot;' at position &quot; + index);</span>
+    }
+
+    private static boolean isIdentifier(String token) {
+<span class="fc bfc" id="L98" title="All 6 branches covered.">        return token != null &amp;&amp; Character.isLetter(token.charAt(0)) &amp;&amp; !RESERVED.contains(token);</span>
+    }
+
+    private static boolean isTermName(String token) {
+<span class="fc bfc" id="L102" title="All 4 branches covered.">        return isIdentifier(token) &amp;&amp; Character.isLowerCase(token.charAt(0));</span>
+    }
+
+    private static final class Cursor {
+
+        private final List&lt;String&gt; tokens;
+        private int position;
+
+<span class="fc" id="L110">        private Cursor(List&lt;String&gt; tokens) {</span>
+<span class="fc" id="L111">            this.tokens = tokens;</span>
+<span class="fc" id="L112">        }</span>
+
+        private String peek() {
+<span class="fc bfc" id="L115" title="All 2 branches covered.">            return position &lt; tokens.size() ? tokens.get(position) : null;</span>
+        }
+
+        private boolean accept(String token) {
+<span class="fc bfc" id="L119" title="All 2 branches covered.">            if (token.equals(peek())) {</span>
+<span class="fc" id="L120">                position++;</span>
+<span class="fc" id="L121">                return true;</span>
+            }
+<span class="fc" id="L123">            return false;</span>
+        }
+
+        private void expect(String token) {
+<span class="fc bfc" id="L127" title="All 2 branches covered.">            if (!accept(token)) {</span>
+<span class="fc" id="L128">                throw error(&quot;'&quot; + token + &quot;'&quot;);</span>
+            }
+<span class="fc" id="L130">        }</span>
+
+        private void expectEnd() {
+<span class="fc bfc" id="L133" title="All 2 branches covered.">            if (peek() != null) {</span>
+<span class="fc" id="L134">                throw error(&quot;the end of the input&quot;);</span>
+            }
+<span class="fc" id="L136">        }</span>
+
+        private IllegalArgumentException error(String expected) {
+<span class="fc bfc" id="L139" title="All 2 branches covered.">            String found = peek() == null ? &quot;the end of the input&quot; : &quot;'&quot; + peek() + &quot;'&quot;;</span>
+<span class="fc" id="L140">            return new IllegalArgumentException(&quot;Expected &quot; + expected + &quot; but found &quot; + found);</span>
+        }
+
+        private FirstOrderOperation formula() {
+<span class="fc" id="L144">            FirstOrderOperation left = disjunction();</span>
+<span class="fc bfc" id="L145" title="All 2 branches covered.">            while (accept(&quot;&amp;&quot;)) {</span>
+<span class="fc" id="L146">                left = new ConjunctionFirstOrder(left, disjunction());</span>
+            }
+<span class="fc" id="L148">            return left;</span>
+        }
+
+        private FirstOrderOperation disjunction() {
+<span class="fc" id="L152">            FirstOrderOperation left = implication();</span>
+<span class="fc bfc" id="L153" title="All 2 branches covered.">            while (accept(&quot;|&quot;)) {</span>
+<span class="fc" id="L154">                left = new DisjunctionFirstOrder(left, implication());</span>
+            }
+<span class="fc" id="L156">            return left;</span>
+        }
+
+        private FirstOrderOperation implication() {
+<span class="fc" id="L160">            FirstOrderOperation left = unary();</span>
+<span class="fc bfc" id="L161" title="All 2 branches covered.">            while (accept(&quot;-&gt;&quot;)) {</span>
+<span class="fc" id="L162">                left = new ImplicationFirstOrder(left, unary());</span>
+            }
+<span class="fc" id="L164">            return left;</span>
+        }
+
+        private FirstOrderOperation unary() {
+<span class="fc bfc" id="L168" title="All 2 branches covered.">            if (accept(&quot;-&quot;)) {</span>
+<span class="fc" id="L169">                return new NegationFirstOrder(unary());</span>
+<span class="fc bfc" id="L170" title="All 2 branches covered.">            } else if (accept(Forall.KEYWORD)) {</span>
+<span class="fc" id="L171">                String variable = boundVariable();</span>
+<span class="fc" id="L172">                return new Forall(variable, formula());</span>
+<span class="fc bfc" id="L173" title="All 2 branches covered.">            } else if (accept(Exists.KEYWORD)) {</span>
+<span class="fc" id="L174">                String variable = boundVariable();</span>
+<span class="fc" id="L175">                return new Exists(variable, formula());</span>
+            }
+<span class="fc" id="L177">            return primary();</span>
+        }
+
+        private String boundVariable() {
+<span class="fc" id="L181">            String variable = peek();</span>
+<span class="fc bfc" id="L182" title="All 2 branches covered.">            if (!isTermName(variable)) {</span>
+<span class="fc" id="L183">                throw error(&quot;a variable&quot;);</span>
+            }
+<span class="fc" id="L185">            position++;</span>
+<span class="fc" id="L186">            expect(&quot;.&quot;);</span>
+<span class="fc" id="L187">            return variable;</span>
+        }
+
+        private FirstOrderOperation primary() {
+<span class="fc" id="L191">            int start = position;</span>
+<span class="fc" id="L192">            Term left = tryTerm();</span>
+<span class="fc bfc" id="L193" title="All 4 branches covered.">            if (left != null &amp;&amp; accept(&quot;=&quot;)) {</span>
+<span class="fc" id="L194">                return new Equals(left, term());</span>
+            }
+<span class="fc" id="L196">            position = start;</span>
+<span class="fc bfc" id="L197" title="All 2 branches covered.">            if (accept(&quot;(&quot;)) {</span>
+<span class="fc" id="L198">                FirstOrderOperation formula = formula();</span>
+<span class="fc" id="L199">                expect(&quot;)&quot;);</span>
+<span class="fc" id="L200">                return formula;</span>
+<span class="fc bfc" id="L201" title="All 2 branches covered.">            } else if (accept(&quot;TRUE&quot;)) {</span>
+<span class="fc" id="L202">                return ConstantFirstOrder.TRUE;</span>
+<span class="fc bfc" id="L203" title="All 2 branches covered.">            } else if (accept(&quot;FALSE&quot;)) {</span>
+<span class="fc" id="L204">                return ConstantFirstOrder.FALSE;</span>
+            }
+<span class="fc" id="L206">            String name = peek();</span>
+<span class="fc bfc" id="L207" title="All 2 branches covered.">            if (!isIdentifier(name)) {</span>
+<span class="fc" id="L208">                throw error(&quot;a formula&quot;);</span>
+            }
+<span class="fc" id="L210">            position++;</span>
+<span class="fc bfc" id="L211" title="All 2 branches covered.">            return new Predicate(name, accept(&quot;(&quot;) ? arguments() : List.of());</span>
+        }
+
+        /**
+         * @return the term that starts here, or {@code null} (and the position unchanged) if none does
+         */
+        private Term tryTerm() {
+<span class="fc" id="L218">            int start = position;</span>
+            try {
+<span class="fc" id="L220">                return term();</span>
+<span class="fc" id="L221">            } catch (IllegalArgumentException e) {</span>
+<span class="fc" id="L222">                position = start;</span>
+<span class="fc" id="L223">                return null;</span>
+            }
+        }
+
+        private Term term() {
+<span class="fc" id="L228">            Term left = factor();</span>
+<span class="fc bfc" id="L229" title="All 2 branches covered.">            while (accept(&quot;*&quot;)) {</span>
+<span class="fc" id="L230">                left = new Product(left, factor());</span>
+            }
+<span class="fc" id="L232">            return left;</span>
+        }
+
+        private Term factor() {
+<span class="fc bfc" id="L236" title="All 2 branches covered.">            if (accept(&quot;(&quot;)) {</span>
+<span class="fc" id="L237">                Term term = term();</span>
+<span class="fc" id="L238">                expect(&quot;)&quot;);</span>
+<span class="fc" id="L239">                return term;</span>
+            }
+<span class="fc" id="L241">            String name = peek();</span>
+<span class="fc bfc" id="L242" title="All 2 branches covered.">            if (!isTermName(name)) {</span>
+<span class="fc" id="L243">                throw error(&quot;a term&quot;);</span>
+            }
+<span class="fc" id="L245">            position++;</span>
+<span class="fc bfc" id="L246" title="All 2 branches covered.">            if (accept(&quot;(&quot;)) {</span>
+<span class="fc" id="L247">                return new FunctionApplication(name, arguments());</span>
+            }
+<span class="fc" id="L249">            return new VariableTerm(name);</span>
+        }
+
+        /**
+         * Reads the arguments after an opening parenthesis, and the closing one
+         */
+        private List&lt;Term&gt; arguments() {
+<span class="fc" id="L256">            List&lt;Term&gt; arguments = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L257">            arguments.add(term());</span>
+<span class="fc bfc" id="L258" title="All 2 branches covered.">            while (accept(&quot;,&quot;)) {</span>
+<span class="fc" id="L259">                arguments.add(term());</span>
+            }
+<span class="fc" id="L261">            expect(&quot;)&quot;);</span>
+<span class="fc" id="L262">            return arguments;</span>
+        }
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>
