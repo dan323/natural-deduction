@@ -395,8 +395,9 @@ A new logic, `"first-order"`: function symbols, predicates, `=`, `∀`/`∃`, an
 solver (`hasSolver` false, `/solve` answers 400), so the solver stays out of scope.
 
 Syntax defaults (change them and the steps move): `forall x. A` / `exists x. A` (reserved words, shown `∀x.`/`∃x.`, the
-body reaches as far right as it can, parentheses limit it). Terms: a lowercase identifier (variable or constant),
-`f(t, ...)`, and infix `*` (binds tighter than `=`, left-associative). Atoms: `t = s` or a predicate `P(t, ...)`; a bare
+body reaches as far right as it can, parentheses limit it). Terms: a lowercase identifier (variable or constant)
+or a function application `f(t, ...)`. There is no infix notation: a binary operation such as the group product is a
+function symbol the user names, as predicates are (`m(x, y)`). Atoms: `t = s` or a predicate `P(t, ...)`; a bare
 identifier used as a formula is a 0-ary predicate, so `p -> q` still parses. A free name in a premise (such as `e`) acts
 as a constant. Formulas are equal up to renaming of bound variables (`∀x.P(x)` equals `∀y.P(y)`), which `isDone()`
 relies on.
@@ -405,11 +406,11 @@ relies on.
 - Investigate first: javaluator cannot parse binders or function symbols that are not declared up front; confirm this,
   and if it holds, write a small hand-written parser instead.
 - Change: a new `domain/logic-language/implementation.firstorder` module with term classes (variable, function
-  application, `*`), `Equals` and a predicate atom, connectives that implement the framework's
+  application), `Equals` and a predicate atom, connectives that implement the framework's
   `Conjunction`/`Implication`/`Negation`/... (so the generic rule bases apply), `Forall`/`Exists`, and the parser.
   It also provides `freeVariables()`, capture-avoiding `substitute(var, term)`, `equals`/`hashCode` up to renaming of
   bound variables, and a `toString()` that the parser reads back. The `module-info` exports the package.
-- Tests: parse/print round-trip, including the precedence of `*`, `=`, the connectives and quantifier scope
+- Tests: parse/print round-trip, including the precedence of `=`, the connectives and quantifier scope
   (`forall x. P(x) & Q` scopes over the conjunction); bad input (`P(`, `forall . P`, `x = `); substitution avoids
   capture (`(forall y. x = y)[x:=y]` renames `y`); alpha-equivalent formulas are equal and hash the same.
 - Done when: the group axioms parse and print back unchanged, and substitution is capture-free.
@@ -447,13 +448,13 @@ relies on.
 **11.4 Group theory: premise sets and exercises (backend)** — pending (issue #173)
 - Change: a `LogicalTheories` catalog behind a new `GET /logic/{logic}/theories` endpoint. Each theory is
   `{id, name, premises}`; a known logic without one answers `[]`, as exercises do. `first-order` gets `group`:
-  - `forall x. forall y. forall z. (x*y)*z = x*(y*z)`
-  - `forall x. e*x = x & x*e = x`
-  - `forall x. i(x)*x = e & x*i(x) = e`
+  - `forall x. forall y. forall z. m(m(x, y), z) = m(x, m(y, z))`
+  - `forall x. m(e, x) = x & m(x, e) = x`
+  - `forall x. m(i(x), x) = e & m(x, i(x)) = e`
 
   Add a group exercise set built on those premises, with reference solutions, ordered by difficulty: uniqueness of the
   identity, left cancellation, `forall x. i(i(x)) = x`, uniqueness of inverses,
-  `forall x. forall y. i(x*y) = i(y)*i(x)`, and (hard) that `forall x. x*x = e` implies commutativity. Update
+  `forall x. forall y. i(m(x, y)) = m(i(y), i(x))`, and (hard) that `forall x. m(x, x) = e` implies commutativity. Update
   `docs/API.md`.
 - Tests: the premises of each theory parse; every group solution replays and is done; `RestServiceIT` covers
   `/theories`, including `[]` for classical and 404 for an unknown logic.
@@ -462,7 +463,7 @@ relies on.
 **11.5 First-order logic in the UI (frontend)** — pending (issue #174)
 - Change: add `"first-order"` to `LOGICS` with `hasSolver: false`; `Menu` renders `TERM` inputs;
   `checkFormula`/`isRelationFormula` learn the first-order syntax, for that logic only; `renderExpression` shows
-  `∀`/`∃`; `connectives.ts` adds `∀`, `∃`, `=` and `*` buttons and hint entries, for that logic only. `proofToText`
+  `∀`/`∃`; `connectives.ts` adds `∀`, `∃` and `=` buttons and hint entries, for that logic only. `proofToText`
   should work unchanged; check that it does.
 - Tests: `utils.test.ts`: `checkFormula` on the group axioms and on malformed quantifiers, and `forall` is refused in
   classical; `GlowingInputConnectives.test.tsx`: the new buttons appear only for `first-order`;
