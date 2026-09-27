@@ -2,6 +2,7 @@ package com.dan323.expressions.firstorder;
 
 import org.junit.jupiter.api.Test;
 
+import java.util.List;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -27,8 +28,8 @@ class AlphaEquivalenceTest {
     void renamingBoundVariablesKeepsFormulasEqual() {
         assertAlphaEqual("forall x. P(x)", "forall y. P(y)");
         assertAlphaEqual("exists x. forall y. R(x, y)", "exists y. forall x. R(y, x)");
-        assertAlphaEqual("forall x. forall y. forall z. (x*y)*z = x*(y*z)",
-                "forall a. forall b. forall c. (a*b)*c = a*(b*c)");
+        assertAlphaEqual("forall x. forall y. forall z. m(m(x, y), z) = m(x, m(y, z))",
+                "forall a. forall b. forall c. m(m(a, b), c) = m(a, m(b, c))");
         assertAlphaEqual("P(z) & (forall x. Q(x, z))", "P(z) & (forall w. Q(w, z))");
         assertAlphaEqual("forall x. forall x. P(x)", "forall y. forall z. P(z)");
         assertAlphaEqual("- (exists x. x = e) | FALSE", "- (exists u. u = e) | FALSE");
@@ -49,10 +50,38 @@ class AlphaEquivalenceTest {
         assertNotAlphaEqual("p", "- p");
         assertNotAlphaEqual("TRUE", "FALSE");
         assertNotAlphaEqual("TRUE", "T");
-        assertNotAlphaEqual("a*b = c", "b*a = c");
-        assertNotAlphaEqual("P(a*b)", "P(ab)");
-        assertNotEquals(parser.parse("p"), "p");
+        assertNotAlphaEqual("m(a, b) = c", "m(b, a) = c");
+        assertNotAlphaEqual("P(m(a, b))", "P(ab)");
+        assertNotAlphaEqual("P(f(a))", "P(f, a)");
+        assertNotEquals("p", parser.parse("p"));
         assertNotEquals(null, parser.parse("forall x. P(x)"));
+    }
+
+    @Test
+    void quantifiersDoNotCollideWithPredicatesNamedLikeTheirTag() {
+        assertNotAlphaEqual("forall x. p(y)", "A(p(y))");
+        assertNotAlphaEqual("exists x. f(c)", "E(f(c))");
+        assertNotEquals(parser.parse("forall x. p(y)").hashCode(), parser.parse("A(p(y))").hashCode());
+    }
+
+    @Test
+    void boundVariablesDoNotCollideWithFreeNames() {
+        // the parser never reads '#0', but the constructors take any name
+        FirstOrderOperation bound = new Forall("x", new Predicate("p", List.of(new VariableTerm("x"))));
+        FirstOrderOperation free = new Forall("x", new Predicate("p", List.of(new VariableTerm("#0"))));
+        assertNotEquals(bound, free);
+        assertNotEquals(free, bound);
+    }
+
+    @Test
+    void namesWithDelimitersDoNotCollide() {
+        FirstOrderOperation one = new Predicate("p", List.of(new VariableTerm("x,y")));
+        FirstOrderOperation two = new Predicate("p", List.of(new VariableTerm("x"), new VariableTerm("y")));
+        assertNotEquals(one, two);
+        assertNotEquals(two, one);
+        assertNotEquals(new Predicate("p(x)"), new Predicate("p", List.of(new VariableTerm("x"))));
+        assertNotEquals(new Predicate("p", List.of(new FunctionApplication("f(a", List.of(new VariableTerm("b"))))),
+                new Predicate("p", List.of(new FunctionApplication("f", List.of(new VariableTerm("a,b"))))));
     }
 
     @Test
@@ -65,7 +94,7 @@ class AlphaEquivalenceTest {
 
     @Test
     void everyKindOfFormulaEqualsItsCopy() {
-        String[] formulas = {"p & q", "p | q", "p -> q", "- p", "TRUE", "P(a, f(b))", "a*b = c",
+        String[] formulas = {"p & q", "p | q", "p -> q", "- p", "TRUE", "P(a, f(b))", "m(a, b) = c",
                 "forall x. P(x)", "exists x. P(x)"};
         for (String text : formulas) {
             FirstOrderOperation formula = parser.parse(text);

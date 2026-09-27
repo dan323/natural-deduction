@@ -30,7 +30,7 @@ public final class ImplicationFirstOrder extends Implication<FirstOrderOperation
 
     @Override
     public boolean equals(Object obj) {
-        return Alpha.equal(this, obj);
+        return Alpha.equivalent(this, obj);
     }
 
     @Override

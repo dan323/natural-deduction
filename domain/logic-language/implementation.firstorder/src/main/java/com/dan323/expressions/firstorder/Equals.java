@@ -7,23 +7,15 @@ import java.util.Set;
 /**
  * The equation {@code left = right} between two terms. As a formula it is not symmetric: {@code a = b} and
  * {@code b = a} are different formulas.
+ *
+ * @param left  the left-hand term
+ * @param right the right-hand term
  */
-public final class Equals implements FirstOrderOperation {
+public record Equals(Term left, Term right) implements FirstOrderOperation {
 
-    private final Term left;
-    private final Term right;
-
-    public Equals(Term left, Term right) {
-        this.left = Objects.requireNonNull(left);
-        this.right = Objects.requireNonNull(right);
-    }
-
-    public Term getLeft() {
-        return left;
-    }
-
-    public Term getRight() {
-        return right;
+    public Equals {
+        Objects.requireNonNull(left);
+        Objects.requireNonNull(right);
     }
 
     @Override
@@ -45,7 +37,7 @@ public final class Equals implements FirstOrderOperation {
 
     @Override
     public boolean equals(Object obj) {
-        return Alpha.equal(this, obj);
+        return Alpha.equivalent(this, obj);
     }
 
     @Override

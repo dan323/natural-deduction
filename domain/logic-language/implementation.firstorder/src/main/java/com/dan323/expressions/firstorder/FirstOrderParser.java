@@ -18,8 +18,7 @@ import java.util.Set;
  * imp     := unary ('-&gt;' unary)*
  * unary   := '-' unary | ('forall' | 'exists') var '.' formula | primary
  * primary := term '=' term | '(' formula ')' | 'TRUE' | 'FALSE' | name ['(' term (',' term)* ')']
- * term    := factor ('*' factor)*
- * factor  := '(' term ')' | var ['(' term (',' term)* ')']
+ * term    := '(' term ')' | name ['(' term (',' term)* ')']
  * </pre>
  * A quantifier body reaches as far right as it can, so {@code forall x. P(x) & Q} quantifies over the conjunction.
  * Terms (variables, constants and function symbols) are identifiers that start with a lowercase letter; a predicate
@@ -30,7 +29,7 @@ import java.util.Set;
 public final class FirstOrderParser {
 
     private static final Set<String> RESERVED = Set.of(Forall.KEYWORD, Exists.KEYWORD, "TRUE", "FALSE");
-    private static final List<String> SYMBOLS = List.of("->", "&", "|", "-", "(", ")", ",", ".", "*", "=");
+    private static final List<String> SYMBOLS = List.of("->", "&", "|", "-", "(", ")", ",", ".", "=");
 
     /**
      * @param text a formula
@@ -98,10 +97,6 @@ public final class FirstOrderParser {
         return token != null && Character.isLetter(token.charAt(0)) && !RESERVED.contains(token);
     }
 
-    private static boolean isTermName(String token) {
-        return isIdentifier(token) && Character.isLowerCase(token.charAt(0));
-    }
-
     private static final class Cursor {
 
         private final List<String> tokens;
@@ -109,6 +104,10 @@ public final class FirstOrderParser {
 
         private Cursor(List<String> tokens) {
             this.tokens = tokens;
+        }
+
+        private static boolean isTermName(String token) {
+            return isIdentifier(token) && Character.isLowerCase(token.charAt(0));
         }
 
         private String peek() {
@@ -225,14 +224,6 @@ public final class FirstOrderParser {
         }
 
         private Term term() {
-            Term left = factor();
-            while (accept("*")) {
-                left = new Product(left, factor());
-            }
-            return left;
-        }
-
-        private Term factor() {
             if (accept("(")) {
                 Term term = term();
                 expect(")");

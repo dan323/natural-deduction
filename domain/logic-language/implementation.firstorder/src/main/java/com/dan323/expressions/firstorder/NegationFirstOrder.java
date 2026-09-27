@@ -22,7 +22,7 @@ public final class NegationFirstOrder extends Negation<FirstOrderOperation> impl
 
     @Override
     public boolean equals(Object obj) {
-        return Alpha.equal(this, obj);
+        return Alpha.equivalent(this, obj);
     }
 
     @Override

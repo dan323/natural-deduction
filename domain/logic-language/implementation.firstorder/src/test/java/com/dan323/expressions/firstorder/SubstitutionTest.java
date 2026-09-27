@@ -48,8 +48,9 @@ class SubstitutionTest {
 
     @Test
     void substitutionWithoutCaptureKeepsTheBinder() {
-        FirstOrderOperation substituted = parser.parse("forall y. x*y = y*x").substitute("x", parser.parseTerm("i(z)"));
-        assertEquals("forall y. i(z)*y = y*i(z)", substituted.toString());
+        FirstOrderOperation substituted = parser.parse("forall y. m(x, y) = m(y, x)")
+                .substitute("x", parser.parseTerm("i(z)"));
+        assertEquals("forall y. m(i(z), y) = m(y, i(z))", substituted.toString());
         FirstOrderOperation untouched = parser.parse("forall y. P(y)");
         assertSame(untouched, untouched.substitute("x", v("y")));
     }
@@ -57,23 +58,23 @@ class SubstitutionTest {
     @Test
     void substitutionReachesEveryConnective() {
         FirstOrderOperation formula = parser.parse("- P(x) | (x = e -> Q(f(x))) & TRUE");
-        FirstOrderOperation substituted = formula.substitute("x", parser.parseTerm("a*b"));
-        assertEquals(parser.parse("- P(a*b) | (a*b = e -> Q(f(a*b))) & TRUE"), substituted);
+        FirstOrderOperation substituted = formula.substitute("x", parser.parseTerm("m(a, b)"));
+        assertEquals(parser.parse("- P(m(a, b)) | (m(a, b) = e -> Q(f(m(a, b)))) & TRUE"), substituted);
         assertEquals(Set.of("a", "b", "e"), substituted.freeVariables());
         assertSame(ConstantFirstOrder.FALSE, ConstantFirstOrder.FALSE.substitute("x", v("a")));
     }
 
     @Test
     void termSubstitution() {
-        Term term = parser.parseTerm("(x*y)*f(x, e)");
-        assertEquals(parser.parseTerm("(i(y)*y)*f(i(y), e)"), term.substitute("x", parser.parseTerm("i(y)")));
+        Term term = parser.parseTerm("m(m(x, y), f(x, e))");
+        assertEquals(parser.parseTerm("m(m(i(y), y), f(i(y), e))"), term.substitute("x", parser.parseTerm("i(y)")));
         assertEquals(Set.of("x", "y", "e"), term.freeVariables());
         assertEquals(v("z"), v("z").substitute("x", v("a")));
     }
 
     @Test
     void freeVariables() {
-        assertEquals(Set.of("e"), parser.parse("forall x. e*x = x & x*e = x").freeVariables());
+        assertEquals(Set.of("e"), parser.parse("forall x. m(e, x) = x & m(x, e) = x").freeVariables());
         assertEquals(Set.of("x", "y"), parser.parse("P(x) & (forall x. R(x, y))").freeVariables());
         assertEquals(Set.of(), parser.parse("p -> q").freeVariables());
         assertEquals(Set.of(), ConstantFirstOrder.TRUE.freeVariables());

@@ -30,7 +30,7 @@ public final class DisjunctionFirstOrder extends Disjunction<FirstOrderOperation
 
     @Override
     public boolean equals(Object obj) {
-        return Alpha.equal(this, obj);
+        return Alpha.equivalent(this, obj);
     }
 
     @Override

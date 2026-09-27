@@ -15,12 +15,12 @@ class FirstOrderParserTest {
     }
 
     private static final String[] GROUP_FORMULAS = {
-            "forall x. forall y. forall z. (x*y)*z = x*(y*z)",
-            "forall x. e*x = x & x*e = x",
-            "forall x. i(x)*x = e & x*i(x) = e",
-            "forall x. forall y. i(x*y) = i(y)*i(x)",
+            "forall x. forall y. forall z. m(m(x, y), z) = m(x, m(y, z))",
+            "forall x. m(e, x) = x & m(x, e) = x",
+            "forall x. m(i(x), x) = e & m(x, i(x)) = e",
+            "forall x. forall y. i(m(x, y)) = m(i(y), i(x))",
             "forall x. i(i(x)) = x",
-            "(forall x. x*x = e) -> (forall x. forall y. x*y = y*x)"
+            "(forall x. m(x, x) = e) -> (forall x. forall y. m(x, y) = m(y, x))"
     };
 
     @Test
@@ -42,7 +42,7 @@ class FirstOrderParserTest {
             "(forall x. P(x)) & Q",
             "Q & (forall x. P(x))",
             "(exists x. P(x)) -> FALSE",
-            "a*b*c = d",
+            "m(m(a, b), c) = d",
             "(a = b) & (b = c)",
             "- (a = b)",
             "forall x. exists y. R(x, y) | x = y"
@@ -59,20 +59,22 @@ class FirstOrderParserTest {
     }
 
     @Test
-    void productIsLeftAssociativeAndTighterThanEquals() {
-        FirstOrderOperation formula = parser.parse("a*b*c = d");
+    void nestedFunctionApplications() {
+        FirstOrderOperation formula = parser.parse("m(m(a, b), c) = d");
         Equals equals = assertInstanceOf(Equals.class, formula);
-        assertEquals(new Product(new Product(v("a"), v("b")), v("c")), equals.getLeft());
-        assertEquals(v("d"), equals.getRight());
-        assertEquals("(a*b)*c = d", formula.toString());
+        assertEquals(new FunctionApplication("m", List.of(new FunctionApplication("m", List.of(v("a"), v("b"))),
+                v("c"))), equals.left());
+        assertEquals(v("d"), equals.right());
+        Term term = parser.parseTerm("f(m(a, b), i(c))");
+        assertEquals(new FunctionApplication("f", List.of(new FunctionApplication("m", List.of(v("a"), v("b"))),
+                new FunctionApplication("i", List.of(v("c"))))), term);
+        assertEquals("f(m(a, b), i(c))", term.toString());
     }
 
     @Test
-    void productInsideFunctionArguments() {
-        Term term = parser.parseTerm("f(a*b, i(c))");
-        assertEquals(new FunctionApplication("f", List.of(new Product(v("a"), v("b")),
-                new FunctionApplication("i", List.of(v("c"))))), term);
-        assertEquals("f(a*b, i(c))", term.toString());
+    void thereIsNoInfixProduct() {
+        assertThrows(IllegalArgumentException.class, () -> parser.parse("a*b = c"));
+        assertThrows(IllegalArgumentException.class, () -> parser.parseTerm("a*b"));
     }
 
     @Test
@@ -137,7 +139,7 @@ class FirstOrderParserTest {
     private static final String[] BAD_INPUT = {
             "P(", "forall . P", "x = ", "", "P)", "P(x,)", "P()", "(P", "a*b", "a * = b", "P(x) = y",
             "forall x P(x)", "forall X. P(X)", "exists forall. P", "x = Y", "P & ", "p q", "P # Q", "f(TRUE) = x",
-            "forall x. ", "- ", "a = b = c", "x = y*"
+            "forall x. ", "- ", "a = b = c", "x = y*", "x*y = e"
     };
 
     @Test
