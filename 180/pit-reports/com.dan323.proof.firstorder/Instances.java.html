@@ -1,0 +1,3262 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
+    <link rel="stylesheet" type="text/css" href="../style.css">
+</head>
+<body>
+
+
+<h1>Instances.java</h1>
+
+<table class="src">
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@20fbd405_1'/>
+1
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_1'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>package com.dan323.proof.firstorder;</span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@20fbd405_2'/>
+2
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_2'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''></span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@20fbd405_3'/>
+3
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_3'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>import com.dan323.expressions.base.BinaryOperation;</span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@20fbd405_4'/>
+4
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_4'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>import com.dan323.expressions.firstorder.ConjunctionFirstOrder;</span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@20fbd405_5'/>
+5
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_5'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>import com.dan323.expressions.firstorder.ConstantFirstOrder;</span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@20fbd405_6'/>
+6
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_6'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>import com.dan323.expressions.firstorder.DisjunctionFirstOrder;</span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@20fbd405_7'/>
+7
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_7'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>import com.dan323.expressions.firstorder.Equals;</span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@20fbd405_8'/>
+8
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_8'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>import com.dan323.expressions.firstorder.FirstOrderOperation;</span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@20fbd405_9'/>
+9
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_9'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>import com.dan323.expressions.firstorder.FunctionApplication;</span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@20fbd405_10'/>
+10
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_10'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>import com.dan323.expressions.firstorder.ImplicationFirstOrder;</span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@20fbd405_11'/>
+11
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_11'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>import com.dan323.expressions.firstorder.NegationFirstOrder;</span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@20fbd405_12'/>
+12
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_12'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>import com.dan323.expressions.firstorder.Predicate;</span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@20fbd405_13'/>
+13
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_13'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>import com.dan323.expressions.firstorder.Quantifier;</span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@20fbd405_14'/>
+14
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_14'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>import com.dan323.expressions.firstorder.Term;</span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@20fbd405_15'/>
+15
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_15'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>import com.dan323.expressions.firstorder.VariableTerm;</span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@20fbd405_16'/>
+16
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_16'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''></span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@20fbd405_17'/>
+17
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_17'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>import java.util.HashSet;</span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@20fbd405_18'/>
+18
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_18'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>import java.util.List;</span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@20fbd405_19'/>
+19
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_19'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>import java.util.Optional;</span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@20fbd405_20'/>
+20
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_20'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>import java.util.Set;</span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@20fbd405_21'/>
+21
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_21'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>import java.util.function.BiPredicate;</span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@20fbd405_22'/>
+22
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_22'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''></span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@20fbd405_23'/>
+23
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_23'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>/**</span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@20fbd405_24'/>
+24
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_24'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''> * Checks on substitution instances, the side conditions of the quantifier and equality rules.</span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@20fbd405_25'/>
+25
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_25'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''> * &#60;p&#62;</span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@20fbd405_26'/>
+26
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_26'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''> * Both checks walk two formulas side by side. Under a quantifier, both bound variables are renamed to one name that is</span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@20fbd405_27'/>
+27
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_27'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''> * free nowhere in the formulas or the terms involved, so a term only matches where its names are free, and a name</span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@20fbd405_28'/>
+28
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_28'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''> * that a quantifier would capture never matches.</span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@20fbd405_29'/>
+29
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_29'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''> */</span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@20fbd405_30'/>
+30
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_30'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>public final class Instances {</span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@20fbd405_31'/>
+31
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_31'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''></span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@20fbd405_32'/>
+32
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_32'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>    private static final String FRESH_BASE = &#34;v&#34;;</span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@20fbd405_33'/>
+33
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_33'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''></span></pre></td></tr>
+
+<tr>
+<td class='uncovered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@20fbd405_34'/>
+34
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_34'></a>
+<span>
+</span>
+</span>
+</td>
+<td class='uncovered'><pre><span  class=''>    private Instances() {</span></pre></td></tr>
+
+<tr>
+<td class='uncovered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@20fbd405_35'/>
+35
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_35'></a>
+<span>
+</span>
+</span>
+</td>
+<td class='uncovered'><pre><span  class=''>        throw new UnsupportedOperationException();</span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@20fbd405_36'/>
+36
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_36'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>    }</span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@20fbd405_37'/>
+37
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_37'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''></span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@20fbd405_38'/>
+38
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_38'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>    /**</span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@20fbd405_39'/>
+39
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_39'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>     * The result of {@link #instanceOf}: whether {@code instance} is {@code body[x:=t]}, and for which {@code t}.</span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@20fbd405_40'/>
+40
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_40'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>     *</span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@20fbd405_41'/>
+41
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_41'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>     * @param matches whether {@code instance} is an instance of the body</span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@20fbd405_42'/>
+42
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_42'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>     * @param term    the term {@code t}, or {@code null} when {@code x} is not free in the body (any term gives it)</span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@20fbd405_43'/>
+43
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_43'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>     */</span></pre></td></tr>
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@20fbd405_44'/>
+44
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_44'></a>
+<span>
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class=''>    public record Match(boolean matches, Term term) {</span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@20fbd405_45'/>
+45
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_45'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''></span></pre></td></tr>
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@20fbd405_46'/>
+46
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_46'></a>
+<span>
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class=''>        private static final Match NONE = new Match(false, null);</span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@20fbd405_47'/>
+47
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_47'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''></span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@20fbd405_48'/>
+48
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_48'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>        public boolean isVacuous() {</span></pre></td></tr>
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@20fbd405_49'/>
+49
+</td>
+<td class='killed'>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_49'>3</a>
+<span>
+1. isVacuous : replaced boolean return with true for com/dan323/proof/firstorder/Instances$Match::isVacuous &rarr; KILLED<br/>
+2. isVacuous : negated conditional &rarr; KILLED<br/>
+3. isVacuous : negated conditional &rarr; KILLED<br/>
+
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class='killed'>            return matches &#38;&#38; term == null;</span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@20fbd405_50'/>
+50
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_50'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>        }</span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@20fbd405_51'/>
+51
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_51'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>    }</span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@20fbd405_52'/>
+52
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_52'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''></span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@20fbd405_53'/>
+53
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_53'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>    /**</span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@20fbd405_54'/>
+54
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_54'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>     * @param body     the body {@code A} of a quantifier</span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@20fbd405_55'/>
+55
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_55'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>     * @param variable the variable {@code x} it binds</span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@20fbd405_56'/>
+56
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_56'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>     * @param instance the candidate formula</span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@20fbd405_57'/>
+57
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_57'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>     * @return whether {@code instance} is {@code A[x:=t]} for some term {@code t}, and that term</span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@20fbd405_58'/>
+58
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_58'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>     */</span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@20fbd405_59'/>
+59
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_59'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>    public static Match instanceOf(FirstOrderOperation body, String variable, FirstOrderOperation instance) {</span></pre></td></tr>
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@20fbd405_60'/>
+60
+</td>
+<td class='killed'>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_60'>1</a>
+<span>
+1. instanceOf : negated conditional &rarr; KILLED<br/>
+
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class='killed'>        if (!body.freeVariables().contains(variable)) {</span></pre></td></tr>
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@20fbd405_61'/>
+61
+</td>
+<td class='killed'>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_61'>2</a>
+<span>
+1. instanceOf : negated conditional &rarr; KILLED<br/>
+2. instanceOf : replaced return value with null for com/dan323/proof/firstorder/Instances::instanceOf &rarr; KILLED<br/>
+
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class='killed'>            return body.equals(instance) ? new Match(true, null) : Match.NONE;</span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@20fbd405_62'/>
+62
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_62'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>        }</span></pre></td></tr>
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@20fbd405_63'/>
+63
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_63'></a>
+<span>
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class=''>        Term[] found = new Term[1];</span></pre></td></tr>
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@20fbd405_64'/>
+64
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_64'></a>
+<span>
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class=''>        BiPredicate&#60;Term, Term&#62; bind = (a, b) -&#62; {</span></pre></td></tr>
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@20fbd405_65'/>
+65
+</td>
+<td class='killed'>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_65'>2</a>
+<span>
+1. lambda$instanceOf$0 : negated conditional &rarr; KILLED<br/>
+2. lambda$instanceOf$0 : negated conditional &rarr; KILLED<br/>
+
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class='killed'>            if (a instanceof VariableTerm(String name) &#38;&#38; name.equals(variable)) {</span></pre></td></tr>
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@20fbd405_66'/>
+66
+</td>
+<td class='killed'>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_66'>1</a>
+<span>
+1. lambda$instanceOf$0 : negated conditional &rarr; KILLED<br/>
+
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class='killed'>                if (found[0] == null) {</span></pre></td></tr>
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@20fbd405_67'/>
+67
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_67'></a>
+<span>
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class=''>                    found[0] = b;</span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@20fbd405_68'/>
+68
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_68'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>                }</span></pre></td></tr>
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@20fbd405_69'/>
+69
+</td>
+<td class='survived'>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_69'>2</a>
+<span>
+1. lambda$instanceOf$0 : replaced boolean return with true for com/dan323/proof/firstorder/Instances::lambda$instanceOf$0 &rarr; SURVIVED<br/>
+2. lambda$instanceOf$0 : replaced boolean return with false for com/dan323/proof/firstorder/Instances::lambda$instanceOf$0 &rarr; KILLED<br/>
+
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class='survived'>                return found[0].equals(b);</span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@20fbd405_70'/>
+70
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_70'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>            }</span></pre></td></tr>
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@20fbd405_71'/>
+71
+</td>
+<td class='killed'>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_71'>1</a>
+<span>
+1. lambda$instanceOf$0 : replaced boolean return with true for com/dan323/proof/firstorder/Instances::lambda$instanceOf$0 &rarr; KILLED<br/>
+
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class='killed'>            return false;</span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@20fbd405_72'/>
+72
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_72'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>        };</span></pre></td></tr>
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@20fbd405_73'/>
+73
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_73'></a>
+<span>
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class=''>        Set&#60;String&#62; avoid = new HashSet&#60;&#62;(body.freeVariables());</span></pre></td></tr>
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@20fbd405_74'/>
+74
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_74'></a>
+<span>
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class=''>        avoid.addAll(instance.freeVariables());</span></pre></td></tr>
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@20fbd405_75'/>
+75
+</td>
+<td class='killed'>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_75'>2</a>
+<span>
+1. instanceOf : negated conditional &rarr; KILLED<br/>
+2. instanceOf : negated conditional &rarr; KILLED<br/>
+
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class='killed'>        if (!correspond(body, instance, bind, avoid, variable) || found[0] == null) {</span></pre></td></tr>
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@20fbd405_76'/>
+76
+</td>
+<td class='killed'>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_76'>1</a>
+<span>
+1. instanceOf : replaced return value with null for com/dan323/proof/firstorder/Instances::instanceOf &rarr; KILLED<br/>
+
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class='killed'>            return Match.NONE;</span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@20fbd405_77'/>
+77
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_77'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>        }</span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@20fbd405_78'/>
+78
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_78'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>        // The walk renames bound variables to names that are free nowhere, so a term that picked one up would be</span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@20fbd405_79'/>
+79
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_79'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>        // captured: substituting it back does not give the instance, and the match is refused.</span></pre></td></tr>
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@20fbd405_80'/>
+80
+</td>
+<td class='killed'>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_80'>2</a>
+<span>
+1. instanceOf : negated conditional &rarr; KILLED<br/>
+2. instanceOf : replaced return value with null for com/dan323/proof/firstorder/Instances::instanceOf &rarr; KILLED<br/>
+
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class='killed'>        return body.substitute(variable, found[0]).equals(instance) ? new Match(true, found[0]) : Match.NONE;</span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@20fbd405_81'/>
+81
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_81'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>    }</span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@20fbd405_82'/>
+82
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_82'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''></span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@20fbd405_83'/>
+83
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_83'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>    /**</span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@20fbd405_84'/>
+84
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_84'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>     * @param from   the formula {@code A}</span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@20fbd405_85'/>
+85
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_85'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>     * @param to     the candidate formula</span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@20fbd405_86'/>
+86
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_86'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>     * @param source the term {@code s}</span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@20fbd405_87'/>
+87
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_87'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>     * @param target the term {@code t}</span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@20fbd405_88'/>
+88
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_88'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>     * @return whether {@code to} is {@code A} with some (maybe none, maybe all) of the free occurrences of {@code s}</span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@20fbd405_89'/>
+89
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_89'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>     * replaced by {@code t}, no name of {@code t} being captured by a quantifier of {@code A}</span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@20fbd405_90'/>
+90
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_90'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>     */</span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@20fbd405_91'/>
+91
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_91'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>    public static boolean isReplacement(FirstOrderOperation from, FirstOrderOperation to, Term source, Term target) {</span></pre></td></tr>
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@20fbd405_92'/>
+92
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_92'></a>
+<span>
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class=''>        Set&#60;String&#62; avoid = new HashSet&#60;&#62;(from.freeVariables());</span></pre></td></tr>
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@20fbd405_93'/>
+93
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_93'></a>
+<span>
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class=''>        avoid.addAll(to.freeVariables());</span></pre></td></tr>
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@20fbd405_94'/>
+94
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_94'></a>
+<span>
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class=''>        avoid.addAll(source.freeVariables());</span></pre></td></tr>
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@20fbd405_95'/>
+95
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_95'></a>
+<span>
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class=''>        avoid.addAll(target.freeVariables());</span></pre></td></tr>
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@20fbd405_96'/>
+96
+</td>
+<td class='killed'>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_96'>5</a>
+<span>
+1. isReplacement : replaced boolean return with false for com/dan323/proof/firstorder/Instances::isReplacement &rarr; KILLED<br/>
+2. lambda$isReplacement$1 : replaced boolean return with true for com/dan323/proof/firstorder/Instances::lambda$isReplacement$1 &rarr; KILLED<br/>
+3. isReplacement : replaced boolean return with true for com/dan323/proof/firstorder/Instances::isReplacement &rarr; KILLED<br/>
+4. lambda$isReplacement$1 : negated conditional &rarr; KILLED<br/>
+5. lambda$isReplacement$1 : negated conditional &rarr; KILLED<br/>
+
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class='killed'>        return correspond(from, to, (a, b) -&#62; a.equals(source) &#38;&#38; b.equals(target), avoid, null);</span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@20fbd405_97'/>
+97
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_97'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>    }</span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@20fbd405_98'/>
+98
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_98'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''></span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@20fbd405_99'/>
+99
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_99'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>    /**</span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@20fbd405_100'/>
+100
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_100'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>     * @param a      the formula on the left</span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@20fbd405_101'/>
+101
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_101'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>     * @param b      the formula on the right</span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@20fbd405_102'/>
+102
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_102'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>     * @param leaf   decides a pair of terms that are not equal and are not two applications of the same function</span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@20fbd405_103'/>
+103
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_103'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>     * @param avoid  names a renamed bound variable must not take</span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@20fbd405_104'/>
+104
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_104'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>     * @param stop   a name that, once a quantifier on the left binds it, makes the rest of that side need to be equal</span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@20fbd405_105'/>
+105
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_105'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>     *               (the variable of {@link #instanceOf}), or {@code null}</span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@20fbd405_106'/>
+106
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_106'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>     * @return whether the formulas have the same shape and every pair of terms in the same place is accepted</span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@20fbd405_107'/>
+107
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_107'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>     */</span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@20fbd405_108'/>
+108
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_108'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>    private static boolean correspond(FirstOrderOperation a, FirstOrderOperation b, BiPredicate&#60;Term, Term&#62; leaf,</span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@20fbd405_109'/>
+109
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_109'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>                                      Set&#60;String&#62; avoid, String stop) {</span></pre></td></tr>
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@20fbd405_110'/>
+110
+</td>
+<td class='killed'>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_110'>1</a>
+<span>
+1. correspond : replaced boolean return with true for com/dan323/proof/firstorder/Instances::correspond &rarr; KILLED<br/>
+
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class='killed'>        return switch (a) {</span></pre></td></tr>
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@20fbd405_111'/>
+111
+</td>
+<td class='killed'>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_111'>2</a>
+<span>
+1. correspond : negated conditional &rarr; KILLED<br/>
+2. correspond : negated conditional &rarr; KILLED<br/>
+
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class='killed'>            case ConjunctionFirstOrder c -&#62; b instanceof ConjunctionFirstOrder d &#38;&#38; binary(c, d, leaf, avoid, stop);</span></pre></td></tr>
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@20fbd405_112'/>
+112
+</td>
+<td class='killed'>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_112'>2</a>
+<span>
+1. correspond : negated conditional &rarr; KILLED<br/>
+2. correspond : negated conditional &rarr; KILLED<br/>
+
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class='killed'>            case DisjunctionFirstOrder c -&#62; b instanceof DisjunctionFirstOrder d &#38;&#38; binary(c, d, leaf, avoid, stop);</span></pre></td></tr>
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@20fbd405_113'/>
+113
+</td>
+<td class='killed'>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_113'>2</a>
+<span>
+1. correspond : negated conditional &rarr; KILLED<br/>
+2. correspond : negated conditional &rarr; KILLED<br/>
+
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class='killed'>            case ImplicationFirstOrder c -&#62; b instanceof ImplicationFirstOrder d &#38;&#38; binary(c, d, leaf, avoid, stop);</span></pre></td></tr>
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@20fbd405_114'/>
+114
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_114'></a>
+<span>
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class=''>            case NegationFirstOrder n -&#62;</span></pre></td></tr>
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@20fbd405_115'/>
+115
+</td>
+<td class='killed'>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_115'>2</a>
+<span>
+1. correspond : negated conditional &rarr; KILLED<br/>
+2. correspond : negated conditional &rarr; KILLED<br/>
+
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class='killed'>                    b instanceof NegationFirstOrder m &#38;&#38; correspond(n.getElement(), m.getElement(), leaf, avoid, stop);</span></pre></td></tr>
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@20fbd405_116'/>
+116
+</td>
+<td class='killed'>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_116'>1</a>
+<span>
+1. correspond : negated conditional &rarr; KILLED<br/>
+
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class='killed'>            case ConstantFirstOrder k -&#62; k == b;</span></pre></td></tr>
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@20fbd405_117'/>
+117
+</td>
+<td class='killed'>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_117'>2</a>
+<span>
+1. correspond : negated conditional &rarr; KILLED<br/>
+2. correspond : negated conditional &rarr; KILLED<br/>
+
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class='killed'>            case Predicate p -&#62; b instanceof Predicate q &#38;&#38; p.getName().equals(q.getName())</span></pre></td></tr>
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@20fbd405_118'/>
+118
+</td>
+<td class='killed'>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_118'>1</a>
+<span>
+1. correspond : negated conditional &rarr; KILLED<br/>
+
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class='killed'>                    &#38;&#38; terms(p.getArguments(), q.getArguments(), leaf);</span></pre></td></tr>
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@20fbd405_119'/>
+119
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_119'></a>
+<span>
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class=''>            case Equals(Term left, Term right) -&#62;</span></pre></td></tr>
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@20fbd405_120'/>
+120
+</td>
+<td class='killed'>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_120'>3</a>
+<span>
+1. correspond : negated conditional &rarr; KILLED<br/>
+2. correspond : negated conditional &rarr; KILLED<br/>
+3. correspond : negated conditional &rarr; KILLED<br/>
+
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class='killed'>                    b instanceof Equals(Term otherLeft, Term otherRight) &#38;&#38; term(left, otherLeft, leaf) &#38;&#38; term(right, otherRight, leaf);</span></pre></td></tr>
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@20fbd405_121'/>
+121
+</td>
+<td class='killed'>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_121'>3</a>
+<span>
+1. correspond : negated conditional &rarr; KILLED<br/>
+2. correspond : negated conditional &rarr; KILLED<br/>
+3. correspond : negated conditional &rarr; KILLED<br/>
+
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class='killed'>            case Quantifier q -&#62; b instanceof Quantifier r &#38;&#38; q.getClass().equals(r.getClass()) &#38;&#38; quantifier(q, r, leaf, avoid, stop);</span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@20fbd405_122'/>
+122
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_122'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>        };</span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@20fbd405_123'/>
+123
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_123'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>    }</span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@20fbd405_124'/>
+124
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_124'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''></span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@20fbd405_125'/>
+125
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_125'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>    private static boolean binary(BinaryOperation&#60;FirstOrderOperation&#62; a, BinaryOperation&#60;FirstOrderOperation&#62; b,</span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@20fbd405_126'/>
+126
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_126'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>                                  BiPredicate&#60;Term, Term&#62; leaf, Set&#60;String&#62; avoid, String stop) {</span></pre></td></tr>
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@20fbd405_127'/>
+127
+</td>
+<td class='killed'>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_127'>2</a>
+<span>
+1. binary : negated conditional &rarr; KILLED<br/>
+2. binary : replaced boolean return with true for com/dan323/proof/firstorder/Instances::binary &rarr; KILLED<br/>
+
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class='killed'>        return correspond(a.getLeft(), b.getLeft(), leaf, avoid, stop)</span></pre></td></tr>
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@20fbd405_128'/>
+128
+</td>
+<td class='killed'>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_128'>1</a>
+<span>
+1. binary : negated conditional &rarr; KILLED<br/>
+
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class='killed'>                &#38;&#38; correspond(a.getRight(), b.getRight(), leaf, avoid, stop);</span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@20fbd405_129'/>
+129
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_129'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>    }</span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@20fbd405_130'/>
+130
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_130'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''></span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@20fbd405_131'/>
+131
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_131'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>    private static boolean quantifier(Quantifier a, Quantifier b, BiPredicate&#60;Term, Term&#62; leaf, Set&#60;String&#62; avoid, String stop) {</span></pre></td></tr>
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@20fbd405_132'/>
+132
+</td>
+<td class='killed'>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_132'>1</a>
+<span>
+1. quantifier : negated conditional &rarr; KILLED<br/>
+
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class='killed'>        if (a.getVariable().equals(stop)) {</span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@20fbd405_133'/>
+133
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_133'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>            // The variable is bound here, so nothing below is an occurrence of it.</span></pre></td></tr>
+
+<tr>
+<td class='uncovered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@20fbd405_134'/>
+134
+</td>
+<td class='survived'>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_134'>2</a>
+<span>
+1. quantifier : replaced boolean return with true for com/dan323/proof/firstorder/Instances::quantifier &rarr; NO_COVERAGE<br/>
+2. quantifier : replaced boolean return with false for com/dan323/proof/firstorder/Instances::quantifier &rarr; NO_COVERAGE<br/>
+
+</span>
+</span>
+</td>
+<td class='uncovered'><pre><span  class='survived'>            return a.equals(b);</span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@20fbd405_135'/>
+135
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_135'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>        }</span></pre></td></tr>
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@20fbd405_136'/>
+136
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_136'></a>
+<span>
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class=''>        Set&#60;String&#62; inner = new HashSet&#60;&#62;(avoid);</span></pre></td></tr>
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@20fbd405_137'/>
+137
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_137'></a>
+<span>
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class=''>        String fresh = fresh(inner);</span></pre></td></tr>
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@20fbd405_138'/>
+138
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_138'></a>
+<span>
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class=''>        inner.add(fresh);</span></pre></td></tr>
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@20fbd405_139'/>
+139
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_139'></a>
+<span>
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class=''>        VariableTerm renamed = new VariableTerm(fresh);</span></pre></td></tr>
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@20fbd405_140'/>
+140
+</td>
+<td class='killed'>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_140'>2</a>
+<span>
+1. quantifier : replaced boolean return with false for com/dan323/proof/firstorder/Instances::quantifier &rarr; KILLED<br/>
+2. quantifier : replaced boolean return with true for com/dan323/proof/firstorder/Instances::quantifier &rarr; KILLED<br/>
+
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class='killed'>        return correspond(a.getBody().substitute(a.getVariable(), renamed), b.getBody().substitute(b.getVariable(), renamed),</span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@20fbd405_141'/>
+141
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_141'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>                leaf, inner, stop);</span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@20fbd405_142'/>
+142
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_142'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>    }</span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@20fbd405_143'/>
+143
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_143'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''></span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@20fbd405_144'/>
+144
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_144'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>    private static boolean terms(List&#60;Term&#62; a, List&#60;Term&#62; b, BiPredicate&#60;Term, Term&#62; leaf) {</span></pre></td></tr>
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@20fbd405_145'/>
+145
+</td>
+<td class='killed'>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_145'>1</a>
+<span>
+1. terms : negated conditional &rarr; KILLED<br/>
+
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class='killed'>        if (a.size() != b.size()) {</span></pre></td></tr>
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@20fbd405_146'/>
+146
+</td>
+<td class='killed'>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_146'>1</a>
+<span>
+1. terms : replaced boolean return with true for com/dan323/proof/firstorder/Instances::terms &rarr; KILLED<br/>
+
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class='killed'>            return false;</span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@20fbd405_147'/>
+147
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_147'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>        }</span></pre></td></tr>
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@20fbd405_148'/>
+148
+</td>
+<td class='killed'>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_148'>2</a>
+<span>
+1. terms : negated conditional &rarr; KILLED<br/>
+2. terms : changed conditional boundary &rarr; KILLED<br/>
+
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class='killed'>        for (int i = 0; i &#60; a.size(); i++) {</span></pre></td></tr>
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@20fbd405_149'/>
+149
+</td>
+<td class='killed'>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_149'>1</a>
+<span>
+1. terms : negated conditional &rarr; KILLED<br/>
+
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class='killed'>            if (!term(a.get(i), b.get(i), leaf)) {</span></pre></td></tr>
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@20fbd405_150'/>
+150
+</td>
+<td class='killed'>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_150'>1</a>
+<span>
+1. terms : replaced boolean return with true for com/dan323/proof/firstorder/Instances::terms &rarr; KILLED<br/>
+
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class='killed'>                return false;</span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@20fbd405_151'/>
+151
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_151'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>            }</span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@20fbd405_152'/>
+152
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_152'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>        }</span></pre></td></tr>
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@20fbd405_153'/>
+153
+</td>
+<td class='killed'>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_153'>1</a>
+<span>
+1. terms : replaced boolean return with false for com/dan323/proof/firstorder/Instances::terms &rarr; KILLED<br/>
+
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class='killed'>        return true;</span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@20fbd405_154'/>
+154
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_154'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>    }</span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@20fbd405_155'/>
+155
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_155'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''></span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@20fbd405_156'/>
+156
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_156'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>    private static boolean term(Term a, Term b, BiPredicate&#60;Term, Term&#62; leaf) {</span></pre></td></tr>
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@20fbd405_157'/>
+157
+</td>
+<td class='killed'>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_157'>1</a>
+<span>
+1. term : negated conditional &rarr; KILLED<br/>
+
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class='killed'>        if (leaf.test(a, b)) {</span></pre></td></tr>
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@20fbd405_158'/>
+158
+</td>
+<td class='killed'>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_158'>1</a>
+<span>
+1. term : replaced boolean return with false for com/dan323/proof/firstorder/Instances::term &rarr; KILLED<br/>
+
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class='killed'>            return true;</span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@20fbd405_159'/>
+159
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_159'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>        }</span></pre></td></tr>
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@20fbd405_160'/>
+160
+</td>
+<td class='killed'>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_160'>2</a>
+<span>
+1. term : negated conditional &rarr; KILLED<br/>
+2. term : negated conditional &rarr; KILLED<br/>
+
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class='killed'>        if (a instanceof FunctionApplication(String name, List&#60;Term&#62; arguments)</span></pre></td></tr>
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@20fbd405_161'/>
+161
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_161'></a>
+<span>
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class=''>                &#38;&#38; b instanceof FunctionApplication(String otherName, List&#60;Term&#62; otherArguments)</span></pre></td></tr>
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@20fbd405_162'/>
+162
+</td>
+<td class='killed'>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_162'>2</a>
+<span>
+1. term : negated conditional &rarr; KILLED<br/>
+2. term : negated conditional &rarr; KILLED<br/>
+
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class='killed'>                &#38;&#38; name.equals(otherName) &#38;&#38; terms(arguments, otherArguments, leaf)) {</span></pre></td></tr>
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@20fbd405_163'/>
+163
+</td>
+<td class='killed'>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_163'>1</a>
+<span>
+1. term : replaced boolean return with false for com/dan323/proof/firstorder/Instances::term &rarr; KILLED<br/>
+
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class='killed'>            return true;</span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@20fbd405_164'/>
+164
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_164'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>        }</span></pre></td></tr>
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@20fbd405_165'/>
+165
+</td>
+<td class='killed'>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_165'>2</a>
+<span>
+1. term : replaced boolean return with false for com/dan323/proof/firstorder/Instances::term &rarr; KILLED<br/>
+2. term : replaced boolean return with true for com/dan323/proof/firstorder/Instances::term &rarr; KILLED<br/>
+
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class='killed'>        return a.equals(b);</span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@20fbd405_166'/>
+166
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_166'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>    }</span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@20fbd405_167'/>
+167
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_167'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''></span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@20fbd405_168'/>
+168
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_168'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>    /**</span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@20fbd405_169'/>
+169
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_169'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>     * @param avoid names in use</span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@20fbd405_170'/>
+170
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_170'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>     * @return a name not in {@code avoid}</span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@20fbd405_171'/>
+171
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_171'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>     */</span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@20fbd405_172'/>
+172
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_172'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>    static String fresh(Set&#60;String&#62; avoid) {</span></pre></td></tr>
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@20fbd405_173'/>
+173
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_173'></a>
+<span>
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class=''>        int i = 0;</span></pre></td></tr>
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@20fbd405_174'/>
+174
+</td>
+<td class='uncertain'>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_174'>1</a>
+<span>
+1. fresh : negated conditional &rarr; TIMED_OUT<br/>
+
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class='uncertain'>        while (avoid.contains(FRESH_BASE + i)) {</span></pre></td></tr>
+
+<tr>
+<td class='uncovered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@20fbd405_175'/>
+175
+</td>
+<td class='survived'>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_175'>1</a>
+<span>
+1. fresh : Changed increment from 1 to -1 &rarr; NO_COVERAGE<br/>
+
+</span>
+</span>
+</td>
+<td class='uncovered'><pre><span  class='survived'>            i++;</span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@20fbd405_176'/>
+176
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_176'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>        }</span></pre></td></tr>
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@20fbd405_177'/>
+177
+</td>
+<td class='survived'>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_177'>1</a>
+<span>
+1. fresh : replaced return value with &#34;&#34; for com/dan323/proof/firstorder/Instances::fresh &rarr; SURVIVED<br/>
+
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class='survived'>        return FRESH_BASE + i;</span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@20fbd405_178'/>
+178
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_178'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>    }</span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@20fbd405_179'/>
+179
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_179'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''></span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@20fbd405_180'/>
+180
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_180'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>    /**</span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@20fbd405_181'/>
+181
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_181'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>     * @param term a term</span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@20fbd405_182'/>
+182
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_182'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>     * @return the name {@code term} is, if it is a bare name (a variable or constant), and not a function application</span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@20fbd405_183'/>
+183
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_183'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>     */</span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@20fbd405_184'/>
+184
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_184'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>    public static Optional&#60;String&#62; name(Term term) {</span></pre></td></tr>
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@20fbd405_185'/>
+185
+</td>
+<td class='killed'>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_185'>1</a>
+<span>
+1. name : negated conditional &rarr; KILLED<br/>
+
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class='killed'>        return term instanceof VariableTerm(String name) ? Optional.of(name) : Optional.empty();</span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@20fbd405_186'/>
+186
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_186'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>    }</span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@20fbd405_187'/>
+187
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_187'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>}</span></pre></td></tr>
+
+
+
+<tr><td></td><td></td><td><h2>Mutations</h2></td></tr>
+
+<tr>
+<td><a href='#org.pitest.mutationtest.report.html.SourceFile@20fbd405_49'>49</a></td> 
+<td></td>
+<td>
+
+<a name='grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_49'/> 
+
+<p class='KILLED'><span class='pop'>1.<span><b>1</b><br/><b>Location : </b>isVacuous<br/><b>Killed by : </b>com.dan323.proof.firstorder.QuantifierRulesTest.[engine:junit-jupiter]/[class:com.dan323.proof.firstorder.QuantifierRulesTest]/[method:forallIntroductionRejectsANameFreeInAPremise()]</span></span> replaced boolean return with true for com/dan323/proof/firstorder/Instances$Match::isVacuous &rarr; KILLED</span>
+</div> <p class='KILLED'><span class='pop'>2.<span><b>2</b><br/><b>Location : </b>isVacuous<br/><b>Killed by : </b>com.dan323.proof.firstorder.QuantifierRulesTest.[engine:junit-jupiter]/[class:com.dan323.proof.firstorder.QuantifierRulesTest]/[method:forallIntroductionOfAVacuousQuantifier()]</span></span> negated conditional &rarr; KILLED</span>
+</div> <p class='KILLED'><span class='pop'>3.<span><b>3</b><br/><b>Location : </b>isVacuous<br/><b>Killed by : </b>com.dan323.proof.firstorder.QuantifierRulesTest.[engine:junit-jupiter]/[class:com.dan323.proof.firstorder.QuantifierRulesTest]/[method:forallIntroductionOfAVacuousQuantifier()]</span></span> negated conditional &rarr; KILLED</span>
+</div> 
+</td>
+</tr>
+<tr>
+<td><a href='#org.pitest.mutationtest.report.html.SourceFile@20fbd405_60'>60</a></td> 
+<td></td>
+<td>
+
+<a name='grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_60'/> 
+
+<p class='KILLED'><span class='pop'>1.<span><b>1</b><br/><b>Location : </b>instanceOf<br/><b>Killed by : </b>com.dan323.proof.firstorder.QuantifierRulesTest.[engine:junit-jupiter]/[class:com.dan323.proof.firstorder.QuantifierRulesTest]/[method:existsIntroductionOfAVacuousQuantifier()]</span></span> negated conditional &rarr; KILLED</span>
+</div> 
+</td>
+</tr>
+<tr>
+<td><a href='#org.pitest.mutationtest.report.html.SourceFile@20fbd405_61'>61</a></td> 
+<td></td>
+<td>
+
+<a name='grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_61'/> 
+
+<p class='KILLED'><span class='pop'>1.<span><b>1</b><br/><b>Location : </b>instanceOf<br/><b>Killed by : </b>com.dan323.proof.firstorder.QuantifierRulesTest.[engine:junit-jupiter]/[class:com.dan323.proof.firstorder.QuantifierRulesTest]/[method:existsIntroductionOfAVacuousQuantifier()]</span></span> negated conditional &rarr; KILLED</span>
+</div> <p class='KILLED'><span class='pop'>2.<span><b>2</b><br/><b>Location : </b>instanceOf<br/><b>Killed by : </b>com.dan323.proof.firstorder.QuantifierRulesTest.[engine:junit-jupiter]/[class:com.dan323.proof.firstorder.QuantifierRulesTest]/[method:existsIntroductionOfAVacuousQuantifier()]</span></span> replaced return value with null for com/dan323/proof/firstorder/Instances::instanceOf &rarr; KILLED</span>
+</div> 
+</td>
+</tr>
+<tr>
+<td><a href='#org.pitest.mutationtest.report.html.SourceFile@20fbd405_65'>65</a></td> 
+<td></td>
+<td>
+
+<a name='grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_65'/> 
+
+<p class='KILLED'><span class='pop'>1.<span><b>1</b><br/><b>Location : </b>lambda$instanceOf$0<br/><b>Killed by : </b>com.dan323.proof.firstorder.QuantifierRulesTest.[engine:junit-jupiter]/[class:com.dan323.proof.firstorder.QuantifierRulesTest]/[method:existsIntroductionMayAbstractSomeOccurrences()]</span></span> negated conditional &rarr; KILLED</span>
+</div> <p class='KILLED'><span class='pop'>2.<span><b>2</b><br/><b>Location : </b>lambda$instanceOf$0<br/><b>Killed by : </b>com.dan323.proof.firstorder.QuantifierRulesTest.[engine:junit-jupiter]/[class:com.dan323.proof.firstorder.QuantifierRulesTest]/[method:existsIntroductionMayAbstractSomeOccurrences()]</span></span> negated conditional &rarr; KILLED</span>
+</div> 
+</td>
+</tr>
+<tr>
+<td><a href='#org.pitest.mutationtest.report.html.SourceFile@20fbd405_66'>66</a></td> 
+<td></td>
+<td>
+
+<a name='grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_66'/> 
+
+<p class='KILLED'><span class='pop'>1.<span><b>1</b><br/><b>Location : </b>lambda$instanceOf$0<br/><b>Killed by : </b>com.dan323.proof.firstorder.QuantifierRulesTest.[engine:junit-jupiter]/[class:com.dan323.proof.firstorder.QuantifierRulesTest]/[method:existsIntroductionNeedsTheSameTermEverywhere()]</span></span> negated conditional &rarr; KILLED</span>
+</div> 
+</td>
+</tr>
+<tr>
+<td><a href='#org.pitest.mutationtest.report.html.SourceFile@20fbd405_69'>69</a></td> 
+<td></td>
+<td>
+
+<a name='grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_69'/> 
+
+<p class='SURVIVED'><span class='pop'>1.<span><b>1</b><br/><b>Location : </b>lambda$instanceOf$0<br/><b>Killed by : </b></span></span> replaced boolean return with true for com/dan323/proof/firstorder/Instances::lambda$instanceOf$0 &rarr; SURVIVED</span>
+<a title="Click to view covering tests" class="view-covered-by-tests" onClick="document.getElementById('MutationIdentifier-[location=Location-[clazz=com.dan323.proof.firstorder.Instances,-method=lambda$instanceOf$0,-methodDesc=(Ljava/lang/String;[Lcom/dan323/expressions/firstorder/Term;Lcom/dan323/expressions/firstorder/Term;Lcom/dan323/expressions/firstorder/Term;)Z],-indexes=[43],-mutator=org.pitest.mutationtest.engine.gregor.mutators.returns.BooleanTrueReturnValsMutator]').style.display=(document.getElementById('MutationIdentifier-[location=Location-[clazz=com.dan323.proof.firstorder.Instances,-method=lambda$instanceOf$0,-methodDesc=(Ljava/lang/String;[Lcom/dan323/expressions/firstorder/Term;Lcom/dan323/expressions/firstorder/Term;Lcom/dan323/expressions/firstorder/Term;)Z],-indexes=[43],-mutator=org.pitest.mutationtest.engine.gregor.mutators.returns.BooleanTrueReturnValsMutator]').style.display == 'block')?'none':'block';">Covering tests</a>
+<div class="covered-tests" id="MutationIdentifier-[location=Location-[clazz=com.dan323.proof.firstorder.Instances,-method=lambda$instanceOf$0,-methodDesc=(Ljava/lang/String;[Lcom/dan323/expressions/firstorder/Term;Lcom/dan323/expressions/firstorder/Term;Lcom/dan323/expressions/firstorder/Term;)Z],-indexes=[43],-mutator=org.pitest.mutationtest.engine.gregor.mutators.returns.BooleanTrueReturnValsMutator]" style="display:none;">Covered by tests:
+<ul>
+</ul>
+</div></div> <p class='KILLED'><span class='pop'>2.<span><b>2</b><br/><b>Location : </b>lambda$instanceOf$0<br/><b>Killed by : </b>com.dan323.proof.firstorder.QuantifierRulesTest.[engine:junit-jupiter]/[class:com.dan323.proof.firstorder.QuantifierRulesTest]/[method:existsIntroductionMayAbstractSomeOccurrences()]</span></span> replaced boolean return with false for com/dan323/proof/firstorder/Instances::lambda$instanceOf$0 &rarr; KILLED</span>
+</div> 
+</td>
+</tr>
+<tr>
+<td><a href='#org.pitest.mutationtest.report.html.SourceFile@20fbd405_71'>71</a></td> 
+<td></td>
+<td>
+
+<a name='grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_71'/> 
+
+<p class='KILLED'><span class='pop'>1.<span><b>1</b><br/><b>Location : </b>lambda$instanceOf$0<br/><b>Killed by : </b>com.dan323.proof.firstorder.QuantifierRulesTest.[engine:junit-jupiter]/[class:com.dan323.proof.firstorder.QuantifierRulesTest]/[method:existsIntroductionAbstractsATerm()]</span></span> replaced boolean return with true for com/dan323/proof/firstorder/Instances::lambda$instanceOf$0 &rarr; KILLED</span>
+</div> 
+</td>
+</tr>
+<tr>
+<td><a href='#org.pitest.mutationtest.report.html.SourceFile@20fbd405_75'>75</a></td> 
+<td></td>
+<td>
+
+<a name='grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_75'/> 
+
+<p class='KILLED'><span class='pop'>1.<span><b>1</b><br/><b>Location : </b>instanceOf<br/><b>Killed by : </b>com.dan323.proof.firstorder.QuantifierRulesTest.[engine:junit-jupiter]/[class:com.dan323.proof.firstorder.QuantifierRulesTest]/[method:existsIntroductionMayAbstractSomeOccurrences()]</span></span> negated conditional &rarr; KILLED</span>
+</div> <p class='KILLED'><span class='pop'>2.<span><b>2</b><br/><b>Location : </b>instanceOf<br/><b>Killed by : </b>com.dan323.proof.firstorder.QuantifierRulesTest.[engine:junit-jupiter]/[class:com.dan323.proof.firstorder.QuantifierRulesTest]/[method:existsIntroductionMayAbstractSomeOccurrences()]</span></span> negated conditional &rarr; KILLED</span>
+</div> 
+</td>
+</tr>
+<tr>
+<td><a href='#org.pitest.mutationtest.report.html.SourceFile@20fbd405_76'>76</a></td> 
+<td></td>
+<td>
+
+<a name='grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_76'/> 
+
+<p class='KILLED'><span class='pop'>1.<span><b>1</b><br/><b>Location : </b>instanceOf<br/><b>Killed by : </b>com.dan323.proof.firstorder.QuantifierRulesTest.[engine:junit-jupiter]/[class:com.dan323.proof.firstorder.QuantifierRulesTest]/[method:existsIntroductionNeedsTheSameTermEverywhere()]</span></span> replaced return value with null for com/dan323/proof/firstorder/Instances::instanceOf &rarr; KILLED</span>
+</div> 
+</td>
+</tr>
+<tr>
+<td><a href='#org.pitest.mutationtest.report.html.SourceFile@20fbd405_80'>80</a></td> 
+<td></td>
+<td>
+
+<a name='grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_80'/> 
+
+<p class='KILLED'><span class='pop'>1.<span><b>1</b><br/><b>Location : </b>instanceOf<br/><b>Killed by : </b>com.dan323.proof.firstorder.QuantifierRulesTest.[engine:junit-jupiter]/[class:com.dan323.proof.firstorder.QuantifierRulesTest]/[method:existsIntroductionMayAbstractSomeOccurrences()]</span></span> negated conditional &rarr; KILLED</span>
+</div> <p class='KILLED'><span class='pop'>2.<span><b>2</b><br/><b>Location : </b>instanceOf<br/><b>Killed by : </b>com.dan323.proof.firstorder.QuantifierRulesTest.[engine:junit-jupiter]/[class:com.dan323.proof.firstorder.QuantifierRulesTest]/[method:existsIntroductionMayAbstractSomeOccurrences()]</span></span> replaced return value with null for com/dan323/proof/firstorder/Instances::instanceOf &rarr; KILLED</span>
+</div> 
+</td>
+</tr>
+<tr>
+<td><a href='#org.pitest.mutationtest.report.html.SourceFile@20fbd405_96'>96</a></td> 
+<td></td>
+<td>
+
+<a name='grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_96'/> 
+
+<p class='KILLED'><span class='pop'>1.<span><b>1</b><br/><b>Location : </b>isReplacement<br/><b>Killed by : </b>com.dan323.proof.firstorder.EqualityRulesTest.[engine:junit-jupiter]/[class:com.dan323.proof.firstorder.EqualityRulesTest]/[method:symmetryOfEquality()]</span></span> replaced boolean return with false for com/dan323/proof/firstorder/Instances::isReplacement &rarr; KILLED</span>
+</div> <p class='KILLED'><span class='pop'>2.<span><b>2</b><br/><b>Location : </b>lambda$isReplacement$1<br/><b>Killed by : </b>com.dan323.proof.firstorder.EqualityRulesTest.[engine:junit-jupiter]/[class:com.dan323.proof.firstorder.EqualityRulesTest]/[method:equalityEliminationGoesLeftToRight()]</span></span> replaced boolean return with true for com/dan323/proof/firstorder/Instances::lambda$isReplacement$1 &rarr; KILLED</span>
+</div> <p class='KILLED'><span class='pop'>3.<span><b>3</b><br/><b>Location : </b>isReplacement<br/><b>Killed by : </b>com.dan323.proof.firstorder.EqualityRulesTest.[engine:junit-jupiter]/[class:com.dan323.proof.firstorder.EqualityRulesTest]/[method:equalityEliminationGoesLeftToRight()]</span></span> replaced boolean return with true for com/dan323/proof/firstorder/Instances::isReplacement &rarr; KILLED</span>
+</div> <p class='KILLED'><span class='pop'>4.<span><b>4</b><br/><b>Location : </b>lambda$isReplacement$1<br/><b>Killed by : </b>com.dan323.proof.firstorder.EqualityRulesTest.[engine:junit-jupiter]/[class:com.dan323.proof.firstorder.EqualityRulesTest]/[method:symmetryOfEquality()]</span></span> negated conditional &rarr; KILLED</span>
+</div> <p class='KILLED'><span class='pop'>5.<span><b>5</b><br/><b>Location : </b>lambda$isReplacement$1<br/><b>Killed by : </b>com.dan323.proof.firstorder.EqualityRulesTest.[engine:junit-jupiter]/[class:com.dan323.proof.firstorder.EqualityRulesTest]/[method:symmetryOfEquality()]</span></span> negated conditional &rarr; KILLED</span>
+</div> 
+</td>
+</tr>
+<tr>
+<td><a href='#org.pitest.mutationtest.report.html.SourceFile@20fbd405_110'>110</a></td> 
+<td></td>
+<td>
+
+<a name='grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_110'/> 
+
+<p class='KILLED'><span class='pop'>1.<span><b>1</b><br/><b>Location : </b>correspond<br/><b>Killed by : </b>com.dan323.proof.firstorder.EqualityRulesTest.[engine:junit-jupiter]/[class:com.dan323.proof.firstorder.EqualityRulesTest]/[method:equalityEliminationGoesLeftToRight()]</span></span> replaced boolean return with true for com/dan323/proof/firstorder/Instances::correspond &rarr; KILLED</span>
+</div> 
+</td>
+</tr>
+<tr>
+<td><a href='#org.pitest.mutationtest.report.html.SourceFile@20fbd405_111'>111</a></td> 
+<td></td>
+<td>
+
+<a name='grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_111'/> 
+
+<p class='KILLED'><span class='pop'>1.<span><b>1</b><br/><b>Location : </b>correspond<br/><b>Killed by : </b>com.dan323.proof.firstorder.QuantifierRulesTest.[engine:junit-jupiter]/[class:com.dan323.proof.firstorder.QuantifierRulesTest]/[method:forallIntroductionRejectsANonInstance()]</span></span> negated conditional &rarr; KILLED</span>
+</div> <p class='KILLED'><span class='pop'>2.<span><b>2</b><br/><b>Location : </b>correspond<br/><b>Killed by : </b>com.dan323.proof.firstorder.EqualityRulesTest.[engine:junit-jupiter]/[class:com.dan323.proof.firstorder.EqualityRulesTest]/[method:equalityEliminationThroughConnectivesAndEquations()]</span></span> negated conditional &rarr; KILLED</span>
+</div> 
+</td>
+</tr>
+<tr>
+<td><a href='#org.pitest.mutationtest.report.html.SourceFile@20fbd405_112'>112</a></td> 
+<td></td>
+<td>
+
+<a name='grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_112'/> 
+
+<p class='KILLED'><span class='pop'>1.<span><b>1</b><br/><b>Location : </b>correspond<br/><b>Killed by : </b>com.dan323.proof.firstorder.EqualityRulesTest.[engine:junit-jupiter]/[class:com.dan323.proof.firstorder.EqualityRulesTest]/[method:equalityEliminationThroughConnectivesAndEquations()]</span></span> negated conditional &rarr; KILLED</span>
+</div> <p class='KILLED'><span class='pop'>2.<span><b>2</b><br/><b>Location : </b>correspond<br/><b>Killed by : </b>com.dan323.proof.firstorder.EqualityRulesTest.[engine:junit-jupiter]/[class:com.dan323.proof.firstorder.EqualityRulesTest]/[method:equalityEliminationThroughConnectivesAndEquations()]</span></span> negated conditional &rarr; KILLED</span>
+</div> 
+</td>
+</tr>
+<tr>
+<td><a href='#org.pitest.mutationtest.report.html.SourceFile@20fbd405_113'>113</a></td> 
+<td></td>
+<td>
+
+<a name='grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_113'/> 
+
+<p class='KILLED'><span class='pop'>1.<span><b>1</b><br/><b>Location : </b>correspond<br/><b>Killed by : </b>com.dan323.proof.firstorder.EqualityRulesTest.[engine:junit-jupiter]/[class:com.dan323.proof.firstorder.EqualityRulesTest]/[method:equalityEliminationThroughConnectivesAndEquations()]</span></span> negated conditional &rarr; KILLED</span>
+</div> <p class='KILLED'><span class='pop'>2.<span><b>2</b><br/><b>Location : </b>correspond<br/><b>Killed by : </b>com.dan323.proof.firstorder.EqualityRulesTest.[engine:junit-jupiter]/[class:com.dan323.proof.firstorder.EqualityRulesTest]/[method:equalityEliminationThroughConnectivesAndEquations()]</span></span> negated conditional &rarr; KILLED</span>
+</div> 
+</td>
+</tr>
+<tr>
+<td><a href='#org.pitest.mutationtest.report.html.SourceFile@20fbd405_115'>115</a></td> 
+<td></td>
+<td>
+
+<a name='grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_115'/> 
+
+<p class='KILLED'><span class='pop'>1.<span><b>1</b><br/><b>Location : </b>correspond<br/><b>Killed by : </b>com.dan323.proof.firstorder.EqualityRulesTest.[engine:junit-jupiter]/[class:com.dan323.proof.firstorder.EqualityRulesTest]/[method:equalityEliminationThroughConnectivesAndEquations()]</span></span> negated conditional &rarr; KILLED</span>
+</div> <p class='KILLED'><span class='pop'>2.<span><b>2</b><br/><b>Location : </b>correspond<br/><b>Killed by : </b>com.dan323.proof.firstorder.EqualityRulesTest.[engine:junit-jupiter]/[class:com.dan323.proof.firstorder.EqualityRulesTest]/[method:equalityEliminationThroughConnectivesAndEquations()]</span></span> negated conditional &rarr; KILLED</span>
+</div> 
+</td>
+</tr>
+<tr>
+<td><a href='#org.pitest.mutationtest.report.html.SourceFile@20fbd405_116'>116</a></td> 
+<td></td>
+<td>
+
+<a name='grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_116'/> 
+
+<p class='KILLED'><span class='pop'>1.<span><b>1</b><br/><b>Location : </b>correspond<br/><b>Killed by : </b>com.dan323.proof.firstorder.EqualityRulesTest.[engine:junit-jupiter]/[class:com.dan323.proof.firstorder.EqualityRulesTest]/[method:equalityEliminationThroughConnectivesAndEquations()]</span></span> negated conditional &rarr; KILLED</span>
+</div> 
+</td>
+</tr>
+<tr>
+<td><a href='#org.pitest.mutationtest.report.html.SourceFile@20fbd405_117'>117</a></td> 
+<td></td>
+<td>
+
+<a name='grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_117'/> 
+
+<p class='KILLED'><span class='pop'>1.<span><b>1</b><br/><b>Location : </b>correspond<br/><b>Killed by : </b>com.dan323.proof.firstorder.EqualityRulesTest.[engine:junit-jupiter]/[class:com.dan323.proof.firstorder.EqualityRulesTest]/[method:equalityEliminationMayReplaceSomeOccurrences()]</span></span> negated conditional &rarr; KILLED</span>
+</div> <p class='KILLED'><span class='pop'>2.<span><b>2</b><br/><b>Location : </b>correspond<br/><b>Killed by : </b>com.dan323.proof.firstorder.EqualityRulesTest.[engine:junit-jupiter]/[class:com.dan323.proof.firstorder.EqualityRulesTest]/[method:equalityEliminationMayReplaceSomeOccurrences()]</span></span> negated conditional &rarr; KILLED</span>
+</div> 
+</td>
+</tr>
+<tr>
+<td><a href='#org.pitest.mutationtest.report.html.SourceFile@20fbd405_118'>118</a></td> 
+<td></td>
+<td>
+
+<a name='grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_118'/> 
+
+<p class='KILLED'><span class='pop'>1.<span><b>1</b><br/><b>Location : </b>correspond<br/><b>Killed by : </b>com.dan323.proof.firstorder.EqualityRulesTest.[engine:junit-jupiter]/[class:com.dan323.proof.firstorder.EqualityRulesTest]/[method:equalityEliminationGoesLeftToRight()]</span></span> negated conditional &rarr; KILLED</span>
+</div> 
+</td>
+</tr>
+<tr>
+<td><a href='#org.pitest.mutationtest.report.html.SourceFile@20fbd405_120'>120</a></td> 
+<td></td>
+<td>
+
+<a name='grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_120'/> 
+
+<p class='KILLED'><span class='pop'>1.<span><b>1</b><br/><b>Location : </b>correspond<br/><b>Killed by : </b>com.dan323.proof.firstorder.EqualityRulesTest.[engine:junit-jupiter]/[class:com.dan323.proof.firstorder.EqualityRulesTest]/[method:symmetryOfEquality()]</span></span> negated conditional &rarr; KILLED</span>
+</div> <p class='KILLED'><span class='pop'>2.<span><b>2</b><br/><b>Location : </b>correspond<br/><b>Killed by : </b>com.dan323.proof.firstorder.EqualityRulesTest.[engine:junit-jupiter]/[class:com.dan323.proof.firstorder.EqualityRulesTest]/[method:symmetryOfEquality()]</span></span> negated conditional &rarr; KILLED</span>
+</div> <p class='KILLED'><span class='pop'>3.<span><b>3</b><br/><b>Location : </b>correspond<br/><b>Killed by : </b>com.dan323.proof.firstorder.EqualityRulesTest.[engine:junit-jupiter]/[class:com.dan323.proof.firstorder.EqualityRulesTest]/[method:symmetryOfEquality()]</span></span> negated conditional &rarr; KILLED</span>
+</div> 
+</td>
+</tr>
+<tr>
+<td><a href='#org.pitest.mutationtest.report.html.SourceFile@20fbd405_121'>121</a></td> 
+<td></td>
+<td>
+
+<a name='grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_121'/> 
+
+<p class='KILLED'><span class='pop'>1.<span><b>1</b><br/><b>Location : </b>correspond<br/><b>Killed by : </b>com.dan323.proof.firstorder.EqualityRulesTest.[engine:junit-jupiter]/[class:com.dan323.proof.firstorder.EqualityRulesTest]/[method:equalityEliminationDoesNotReplaceABoundOccurrence()]</span></span> negated conditional &rarr; KILLED</span>
+</div> <p class='KILLED'><span class='pop'>2.<span><b>2</b><br/><b>Location : </b>correspond<br/><b>Killed by : </b>com.dan323.proof.firstorder.EqualityRulesTest.[engine:junit-jupiter]/[class:com.dan323.proof.firstorder.EqualityRulesTest]/[method:equalityEliminationDoesNotReplaceABoundOccurrence()]</span></span> negated conditional &rarr; KILLED</span>
+</div> <p class='KILLED'><span class='pop'>3.<span><b>3</b><br/><b>Location : </b>correspond<br/><b>Killed by : </b>com.dan323.proof.firstorder.EqualityRulesTest.[engine:junit-jupiter]/[class:com.dan323.proof.firstorder.EqualityRulesTest]/[method:equalityEliminationDoesNotReplaceABoundOccurrence()]</span></span> negated conditional &rarr; KILLED</span>
+</div> 
+</td>
+</tr>
+<tr>
+<td><a href='#org.pitest.mutationtest.report.html.SourceFile@20fbd405_127'>127</a></td> 
+<td></td>
+<td>
+
+<a name='grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_127'/> 
+
+<p class='KILLED'><span class='pop'>1.<span><b>1</b><br/><b>Location : </b>binary<br/><b>Killed by : </b>com.dan323.proof.firstorder.EqualityRulesTest.[engine:junit-jupiter]/[class:com.dan323.proof.firstorder.EqualityRulesTest]/[method:equalityEliminationThroughConnectivesAndEquations()]</span></span> negated conditional &rarr; KILLED</span>
+</div> <p class='KILLED'><span class='pop'>2.<span><b>2</b><br/><b>Location : </b>binary<br/><b>Killed by : </b>com.dan323.proof.firstorder.EqualityRulesTest.[engine:junit-jupiter]/[class:com.dan323.proof.firstorder.EqualityRulesTest]/[method:equalityEliminationThroughConnectivesAndEquations()]</span></span> replaced boolean return with true for com/dan323/proof/firstorder/Instances::binary &rarr; KILLED</span>
+</div> 
+</td>
+</tr>
+<tr>
+<td><a href='#org.pitest.mutationtest.report.html.SourceFile@20fbd405_128'>128</a></td> 
+<td></td>
+<td>
+
+<a name='grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_128'/> 
+
+<p class='KILLED'><span class='pop'>1.<span><b>1</b><br/><b>Location : </b>binary<br/><b>Killed by : </b>com.dan323.proof.firstorder.EqualityRulesTest.[engine:junit-jupiter]/[class:com.dan323.proof.firstorder.EqualityRulesTest]/[method:equalityEliminationThroughConnectivesAndEquations()]</span></span> negated conditional &rarr; KILLED</span>
+</div> 
+</td>
+</tr>
+<tr>
+<td><a href='#org.pitest.mutationtest.report.html.SourceFile@20fbd405_132'>132</a></td> 
+<td></td>
+<td>
+
+<a name='grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_132'/> 
+
+<p class='KILLED'><span class='pop'>1.<span><b>1</b><br/><b>Location : </b>quantifier<br/><b>Killed by : </b>com.dan323.proof.firstorder.EqualityRulesTest.[engine:junit-jupiter]/[class:com.dan323.proof.firstorder.EqualityRulesTest]/[method:equalityEliminationUnderAQuantifier()]</span></span> negated conditional &rarr; KILLED</span>
+</div> 
+</td>
+</tr>
+<tr>
+<td><a href='#org.pitest.mutationtest.report.html.SourceFile@20fbd405_134'>134</a></td> 
+<td></td>
+<td>
+
+<a name='grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_134'/> 
+
+<p class='NO_COVERAGE'><span class='pop'>1.<span><b>1</b><br/><b>Location : </b>quantifier<br/><b>Killed by : </b></span></span> replaced boolean return with true for com/dan323/proof/firstorder/Instances::quantifier &rarr; NO_COVERAGE</span>
+</div> <p class='NO_COVERAGE'><span class='pop'>2.<span><b>2</b><br/><b>Location : </b>quantifier<br/><b>Killed by : </b></span></span> replaced boolean return with false for com/dan323/proof/firstorder/Instances::quantifier &rarr; NO_COVERAGE</span>
+</div> 
+</td>
+</tr>
+<tr>
+<td><a href='#org.pitest.mutationtest.report.html.SourceFile@20fbd405_140'>140</a></td> 
+<td></td>
+<td>
+
+<a name='grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_140'/> 
+
+<p class='KILLED'><span class='pop'>1.<span><b>1</b><br/><b>Location : </b>quantifier<br/><b>Killed by : </b>com.dan323.proof.firstorder.EqualityRulesTest.[engine:junit-jupiter]/[class:com.dan323.proof.firstorder.EqualityRulesTest]/[method:equalityEliminationDoesNotReplaceABoundOccurrence()]</span></span> replaced boolean return with false for com/dan323/proof/firstorder/Instances::quantifier &rarr; KILLED</span>
+</div> <p class='KILLED'><span class='pop'>2.<span><b>2</b><br/><b>Location : </b>quantifier<br/><b>Killed by : </b>com.dan323.proof.firstorder.EqualityRulesTest.[engine:junit-jupiter]/[class:com.dan323.proof.firstorder.EqualityRulesTest]/[method:equalityEliminationDoesNotReplaceABoundOccurrence()]</span></span> replaced boolean return with true for com/dan323/proof/firstorder/Instances::quantifier &rarr; KILLED</span>
+</div> 
+</td>
+</tr>
+<tr>
+<td><a href='#org.pitest.mutationtest.report.html.SourceFile@20fbd405_145'>145</a></td> 
+<td></td>
+<td>
+
+<a name='grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_145'/> 
+
+<p class='KILLED'><span class='pop'>1.<span><b>1</b><br/><b>Location : </b>terms<br/><b>Killed by : </b>com.dan323.proof.firstorder.EqualityRulesTest.[engine:junit-jupiter]/[class:com.dan323.proof.firstorder.EqualityRulesTest]/[method:equalityEliminationMayReplaceSomeOccurrences()]</span></span> negated conditional &rarr; KILLED</span>
+</div> 
+</td>
+</tr>
+<tr>
+<td><a href='#org.pitest.mutationtest.report.html.SourceFile@20fbd405_146'>146</a></td> 
+<td></td>
+<td>
+
+<a name='grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_146'/> 
+
+<p class='KILLED'><span class='pop'>1.<span><b>1</b><br/><b>Location : </b>terms<br/><b>Killed by : </b>com.dan323.proof.firstorder.EqualityRulesTest.[engine:junit-jupiter]/[class:com.dan323.proof.firstorder.EqualityRulesTest]/[method:equalityEliminationRejectsANonSubstitutionInstance()]</span></span> replaced boolean return with true for com/dan323/proof/firstorder/Instances::terms &rarr; KILLED</span>
+</div> 
+</td>
+</tr>
+<tr>
+<td><a href='#org.pitest.mutationtest.report.html.SourceFile@20fbd405_148'>148</a></td> 
+<td></td>
+<td>
+
+<a name='grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_148'/> 
+
+<p class='KILLED'><span class='pop'>1.<span><b>1</b><br/><b>Location : </b>terms<br/><b>Killed by : </b>com.dan323.proof.firstorder.EqualityRulesTest.[engine:junit-jupiter]/[class:com.dan323.proof.firstorder.EqualityRulesTest]/[method:equalityEliminationGoesLeftToRight()]</span></span> negated conditional &rarr; KILLED</span>
+</div> <p class='KILLED'><span class='pop'>2.<span><b>2</b><br/><b>Location : </b>terms<br/><b>Killed by : </b>com.dan323.proof.firstorder.EqualityRulesTest.[engine:junit-jupiter]/[class:com.dan323.proof.firstorder.EqualityRulesTest]/[method:equalityEliminationMayReplaceSomeOccurrences()]</span></span> changed conditional boundary &rarr; KILLED</span>
+</div> 
+</td>
+</tr>
+<tr>
+<td><a href='#org.pitest.mutationtest.report.html.SourceFile@20fbd405_149'>149</a></td> 
+<td></td>
+<td>
+
+<a name='grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_149'/> 
+
+<p class='KILLED'><span class='pop'>1.<span><b>1</b><br/><b>Location : </b>terms<br/><b>Killed by : </b>com.dan323.proof.firstorder.EqualityRulesTest.[engine:junit-jupiter]/[class:com.dan323.proof.firstorder.EqualityRulesTest]/[method:equalityEliminationGoesLeftToRight()]</span></span> negated conditional &rarr; KILLED</span>
+</div> 
+</td>
+</tr>
+<tr>
+<td><a href='#org.pitest.mutationtest.report.html.SourceFile@20fbd405_150'>150</a></td> 
+<td></td>
+<td>
+
+<a name='grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_150'/> 
+
+<p class='KILLED'><span class='pop'>1.<span><b>1</b><br/><b>Location : </b>terms<br/><b>Killed by : </b>com.dan323.proof.firstorder.EqualityRulesTest.[engine:junit-jupiter]/[class:com.dan323.proof.firstorder.EqualityRulesTest]/[method:equalityEliminationGoesLeftToRight()]</span></span> replaced boolean return with true for com/dan323/proof/firstorder/Instances::terms &rarr; KILLED</span>
+</div> 
+</td>
+</tr>
+<tr>
+<td><a href='#org.pitest.mutationtest.report.html.SourceFile@20fbd405_153'>153</a></td> 
+<td></td>
+<td>
+
+<a name='grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_153'/> 
+
+<p class='KILLED'><span class='pop'>1.<span><b>1</b><br/><b>Location : </b>terms<br/><b>Killed by : </b>com.dan323.proof.firstorder.EqualityRulesTest.[engine:junit-jupiter]/[class:com.dan323.proof.firstorder.EqualityRulesTest]/[method:equalityEliminationMayReplaceSomeOccurrences()]</span></span> replaced boolean return with false for com/dan323/proof/firstorder/Instances::terms &rarr; KILLED</span>
+</div> 
+</td>
+</tr>
+<tr>
+<td><a href='#org.pitest.mutationtest.report.html.SourceFile@20fbd405_157'>157</a></td> 
+<td></td>
+<td>
+
+<a name='grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_157'/> 
+
+<p class='KILLED'><span class='pop'>1.<span><b>1</b><br/><b>Location : </b>term<br/><b>Killed by : </b>com.dan323.proof.firstorder.EqualityRulesTest.[engine:junit-jupiter]/[class:com.dan323.proof.firstorder.EqualityRulesTest]/[method:equalityEliminationGoesLeftToRight()]</span></span> negated conditional &rarr; KILLED</span>
+</div> 
+</td>
+</tr>
+<tr>
+<td><a href='#org.pitest.mutationtest.report.html.SourceFile@20fbd405_158'>158</a></td> 
+<td></td>
+<td>
+
+<a name='grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_158'/> 
+
+<p class='KILLED'><span class='pop'>1.<span><b>1</b><br/><b>Location : </b>term<br/><b>Killed by : </b>com.dan323.proof.firstorder.EqualityRulesTest.[engine:junit-jupiter]/[class:com.dan323.proof.firstorder.EqualityRulesTest]/[method:symmetryOfEquality()]</span></span> replaced boolean return with false for com/dan323/proof/firstorder/Instances::term &rarr; KILLED</span>
+</div> 
+</td>
+</tr>
+<tr>
+<td><a href='#org.pitest.mutationtest.report.html.SourceFile@20fbd405_160'>160</a></td> 
+<td></td>
+<td>
+
+<a name='grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_160'/> 
+
+<p class='KILLED'><span class='pop'>1.<span><b>1</b><br/><b>Location : </b>term<br/><b>Killed by : </b>com.dan323.proof.firstorder.QuantifierRulesTest.[engine:junit-jupiter]/[class:com.dan323.proof.firstorder.QuantifierRulesTest]/[method:existsIntroductionAbstractsATerm()]</span></span> negated conditional &rarr; KILLED</span>
+</div> <p class='KILLED'><span class='pop'>2.<span><b>2</b><br/><b>Location : </b>term<br/><b>Killed by : </b>com.dan323.proof.firstorder.EqualityRulesTest.[engine:junit-jupiter]/[class:com.dan323.proof.firstorder.EqualityRulesTest]/[method:equalityEliminationGoesLeftToRight()]</span></span> negated conditional &rarr; KILLED</span>
+</div> 
+</td>
+</tr>
+<tr>
+<td><a href='#org.pitest.mutationtest.report.html.SourceFile@20fbd405_162'>162</a></td> 
+<td></td>
+<td>
+
+<a name='grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_162'/> 
+
+<p class='KILLED'><span class='pop'>1.<span><b>1</b><br/><b>Location : </b>term<br/><b>Killed by : </b>com.dan323.proof.firstorder.QuantifierRulesTest.[engine:junit-jupiter]/[class:com.dan323.proof.firstorder.QuantifierRulesTest]/[method:existsIntroductionAbstractsATerm()]</span></span> negated conditional &rarr; KILLED</span>
+</div> <p class='KILLED'><span class='pop'>2.<span><b>2</b><br/><b>Location : </b>term<br/><b>Killed by : </b>com.dan323.proof.firstorder.QuantifierRulesTest.[engine:junit-jupiter]/[class:com.dan323.proof.firstorder.QuantifierRulesTest]/[method:existsIntroductionAbstractsATerm()]</span></span> negated conditional &rarr; KILLED</span>
+</div> 
+</td>
+</tr>
+<tr>
+<td><a href='#org.pitest.mutationtest.report.html.SourceFile@20fbd405_163'>163</a></td> 
+<td></td>
+<td>
+
+<a name='grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_163'/> 
+
+<p class='KILLED'><span class='pop'>1.<span><b>1</b><br/><b>Location : </b>term<br/><b>Killed by : </b>com.dan323.proof.firstorder.QuantifierRulesTest.[engine:junit-jupiter]/[class:com.dan323.proof.firstorder.QuantifierRulesTest]/[method:existsIntroductionAbstractsATerm()]</span></span> replaced boolean return with false for com/dan323/proof/firstorder/Instances::term &rarr; KILLED</span>
+</div> 
+</td>
+</tr>
+<tr>
+<td><a href='#org.pitest.mutationtest.report.html.SourceFile@20fbd405_165'>165</a></td> 
+<td></td>
+<td>
+
+<a name='grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_165'/> 
+
+<p class='KILLED'><span class='pop'>1.<span><b>1</b><br/><b>Location : </b>term<br/><b>Killed by : </b>com.dan323.proof.firstorder.EqualityRulesTest.[engine:junit-jupiter]/[class:com.dan323.proof.firstorder.EqualityRulesTest]/[method:symmetryOfEquality()]</span></span> replaced boolean return with false for com/dan323/proof/firstorder/Instances::term &rarr; KILLED</span>
+</div> <p class='KILLED'><span class='pop'>2.<span><b>2</b><br/><b>Location : </b>term<br/><b>Killed by : </b>com.dan323.proof.firstorder.EqualityRulesTest.[engine:junit-jupiter]/[class:com.dan323.proof.firstorder.EqualityRulesTest]/[method:equalityEliminationGoesLeftToRight()]</span></span> replaced boolean return with true for com/dan323/proof/firstorder/Instances::term &rarr; KILLED</span>
+</div> 
+</td>
+</tr>
+<tr>
+<td><a href='#org.pitest.mutationtest.report.html.SourceFile@20fbd405_174'>174</a></td> 
+<td></td>
+<td>
+
+<a name='grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_174'/> 
+
+<p class='TIMED_OUT'><span class='pop'>1.<span><b>1</b><br/><b>Location : </b>fresh<br/><b>Killed by : </b></span></span> negated conditional &rarr; TIMED_OUT</span>
+</div> 
+</td>
+</tr>
+<tr>
+<td><a href='#org.pitest.mutationtest.report.html.SourceFile@20fbd405_175'>175</a></td> 
+<td></td>
+<td>
+
+<a name='grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_175'/> 
+
+<p class='NO_COVERAGE'><span class='pop'>1.<span><b>1</b><br/><b>Location : </b>fresh<br/><b>Killed by : </b></span></span> Changed increment from 1 to -1 &rarr; NO_COVERAGE</span>
+</div> 
+</td>
+</tr>
+<tr>
+<td><a href='#org.pitest.mutationtest.report.html.SourceFile@20fbd405_177'>177</a></td> 
+<td></td>
+<td>
+
+<a name='grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_177'/> 
+
+<p class='SURVIVED'><span class='pop'>1.<span><b>1</b><br/><b>Location : </b>fresh<br/><b>Killed by : </b></span></span> replaced return value with &#34;&#34; for com/dan323/proof/firstorder/Instances::fresh &rarr; SURVIVED</span>
+<a title="Click to view covering tests" class="view-covered-by-tests" onClick="document.getElementById('MutationIdentifier-[location=Location-[clazz=com.dan323.proof.firstorder.Instances,-method=fresh,-methodDesc=(Ljava/util/Set;)Ljava/lang/String;],-indexes=[22],-mutator=org.pitest.mutationtest.engine.gregor.mutators.returns.EmptyObjectReturnValsMutator]').style.display=(document.getElementById('MutationIdentifier-[location=Location-[clazz=com.dan323.proof.firstorder.Instances,-method=fresh,-methodDesc=(Ljava/util/Set;)Ljava/lang/String;],-indexes=[22],-mutator=org.pitest.mutationtest.engine.gregor.mutators.returns.EmptyObjectReturnValsMutator]').style.display == 'block')?'none':'block';">Covering tests</a>
+<div class="covered-tests" id="MutationIdentifier-[location=Location-[clazz=com.dan323.proof.firstorder.Instances,-method=fresh,-methodDesc=(Ljava/util/Set;)Ljava/lang/String;],-indexes=[22],-mutator=org.pitest.mutationtest.engine.gregor.mutators.returns.EmptyObjectReturnValsMutator]" style="display:none;">Covered by tests:
+<ul>
+</ul>
+</div></div> 
+</td>
+</tr>
+<tr>
+<td><a href='#org.pitest.mutationtest.report.html.SourceFile@20fbd405_185'>185</a></td> 
+<td></td>
+<td>
+
+<a name='grouporg.pitest.mutationtest.report.html.SourceFile@20fbd405_185'/> 
+
+<p class='KILLED'><span class='pop'>1.<span><b>1</b><br/><b>Location : </b>name<br/><b>Killed by : </b>com.dan323.proof.firstorder.QuantifierRulesTest.[engine:junit-jupiter]/[class:com.dan323.proof.firstorder.QuantifierRulesTest]/[method:forallIntroductionRejectsANameInTheTarget()]</span></span> negated conditional &rarr; KILLED</span>
+</div> 
+</td>
+</tr>
+
+</table>
+
+
+<h2>Active mutators</h2>
+<ul>
+</ul>
+
+<h2>Tests examined</h2>
+<ul>
+</ul>
+
+<br/>
+
+Report generated by <a href='https://pitest.org'>PIT</a> 1.30.0 <a href='https://github.com/sponsors/hcoles'>support</a>
+
+</body>
+</html>

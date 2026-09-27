@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
+    <link rel="stylesheet" type="text/css" href="../style.css">
+</head>
+<body>
+
+
+<h1>Printer.java</h1>
+
+<table class="src">
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@70b58122_1'/>
+1
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@70b58122_1'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>package com.dan323.expressions.firstorder;</span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@70b58122_2'/>
+2
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@70b58122_2'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''></span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@70b58122_3'/>
+3
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@70b58122_3'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>import com.dan323.expressions.base.BinaryOperation;</span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@70b58122_4'/>
+4
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@70b58122_4'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>import com.dan323.expressions.base.UnaryOperation;</span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@70b58122_5'/>
+5
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@70b58122_5'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''></span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@70b58122_6'/>
+6
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@70b58122_6'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>/**</span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@70b58122_7'/>
+7
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@70b58122_7'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''> * Printing of the binary connectives. It follows the framework&#39;s {@link BinaryOperation#toString()} (parentheses around</span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@70b58122_8'/>
+8
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@70b58122_8'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''> * a binary or unary operand) and also puts them around a quantifier operand: on the left its body would otherwise reach</span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@70b58122_9'/>
+9
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@70b58122_9'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''> * over the connective, and on the right they are not needed but make the scope plain.</span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@70b58122_10'/>
+10
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@70b58122_10'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''> */</span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@70b58122_11'/>
+11
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@70b58122_11'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>final class Printer {</span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@70b58122_12'/>
+12
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@70b58122_12'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''></span></pre></td></tr>
+
+<tr>
+<td class='uncovered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@70b58122_13'/>
+13
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@70b58122_13'></a>
+<span>
+</span>
+</span>
+</td>
+<td class='uncovered'><pre><span  class=''>    private Printer() {</span></pre></td></tr>
+
+<tr>
+<td class='uncovered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@70b58122_14'/>
+14
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@70b58122_14'></a>
+<span>
+</span>
+</span>
+</td>
+<td class='uncovered'><pre><span  class=''>    }</span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@70b58122_15'/>
+15
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@70b58122_15'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''></span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@70b58122_16'/>
+16
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@70b58122_16'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>    static String binary(FirstOrderOperation left, String operator, FirstOrderOperation right) {</span></pre></td></tr>
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@70b58122_17'/>
+17
+</td>
+<td class='killed'>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@70b58122_17'>1</a>
+<span>
+1. binary : replaced return value with &#34;&#34; for com/dan323/expressions/firstorder/Printer::binary &rarr; KILLED<br/>
+
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class='killed'>        return operand(left) + &#34; &#34; + operator + &#34; &#34; + operand(right);</span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@70b58122_18'/>
+18
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@70b58122_18'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>    }</span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@70b58122_19'/>
+19
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@70b58122_19'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''></span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@70b58122_20'/>
+20
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@70b58122_20'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>    private static String operand(FirstOrderOperation operand) {</span></pre></td></tr>
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@70b58122_21'/>
+21
+</td>
+<td class='killed'>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@70b58122_21'>4</a>
+<span>
+1. operand : negated conditional &rarr; KILLED<br/>
+2. operand : negated conditional &rarr; KILLED<br/>
+3. operand : negated conditional &rarr; KILLED<br/>
+4. operand : replaced return value with &#34;&#34; for com/dan323/expressions/firstorder/Printer::operand &rarr; KILLED<br/>
+
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class='killed'>        return operand instanceof BinaryOperation || operand instanceof UnaryOperation || operand instanceof Quantifier</span></pre></td></tr>
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@70b58122_22'/>
+22
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@70b58122_22'></a>
+<span>
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class=''>                ? &#34;(&#34; + operand + &#34;)&#34; : operand.toString();</span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@70b58122_23'/>
+23
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@70b58122_23'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>    }</span></pre></td></tr>
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@70b58122_24'/>
+24
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@70b58122_24'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>}</span></pre></td></tr>
+
+
+
+<tr><td></td><td></td><td><h2>Mutations</h2></td></tr>
+
+<tr>
+<td><a href='#org.pitest.mutationtest.report.html.SourceFile@70b58122_17'>17</a></td> 
+<td></td>
+<td>
+
+<a name='grouporg.pitest.mutationtest.report.html.SourceFile@70b58122_17'/> 
+
+<p class='KILLED'><span class='pop'>1.<span><b>1</b><br/><b>Location : </b>binary<br/><b>Killed by : </b>com.dan323.expressions.firstorder.FirstOrderParserTest.[engine:junit-jupiter]/[class:com.dan323.expressions.firstorder.FirstOrderParserTest]/[method:equalsBindsTighterThanConnectives()]</span></span> replaced return value with &#34;&#34; for com/dan323/expressions/firstorder/Printer::binary &rarr; KILLED</span>
+</div> 
+</td>
+</tr>
+<tr>
+<td><a href='#org.pitest.mutationtest.report.html.SourceFile@70b58122_21'>21</a></td> 
+<td></td>
+<td>
+
+<a name='grouporg.pitest.mutationtest.report.html.SourceFile@70b58122_21'/> 
+
+<p class='KILLED'><span class='pop'>1.<span><b>1</b><br/><b>Location : </b>operand<br/><b>Killed by : </b>com.dan323.expressions.firstorder.FirstOrderParserTest.[engine:junit-jupiter]/[class:com.dan323.expressions.firstorder.FirstOrderParserTest]/[method:equalsBindsTighterThanConnectives()]</span></span> negated conditional &rarr; KILLED</span>
+</div> <p class='KILLED'><span class='pop'>2.<span><b>2</b><br/><b>Location : </b>operand<br/><b>Killed by : </b>com.dan323.expressions.firstorder.FirstOrderParserTest.[engine:junit-jupiter]/[class:com.dan323.expressions.firstorder.FirstOrderParserTest]/[method:equalsBindsTighterThanConnectives()]</span></span> negated conditional &rarr; KILLED</span>
+</div> <p class='KILLED'><span class='pop'>3.<span><b>3</b><br/><b>Location : </b>operand<br/><b>Killed by : </b>com.dan323.expressions.firstorder.FirstOrderParserTest.[engine:junit-jupiter]/[class:com.dan323.expressions.firstorder.FirstOrderParserTest]/[method:equalsBindsTighterThanConnectives()]</span></span> negated conditional &rarr; KILLED</span>
+</div> <p class='KILLED'><span class='pop'>4.<span><b>4</b><br/><b>Location : </b>operand<br/><b>Killed by : </b>com.dan323.expressions.firstorder.FirstOrderParserTest.[engine:junit-jupiter]/[class:com.dan323.expressions.firstorder.FirstOrderParserTest]/[method:equalsBindsTighterThanConnectives()]</span></span> replaced return value with &#34;&#34; for com/dan323/expressions/firstorder/Printer::operand &rarr; KILLED</span>
+</div> 
+</td>
+</tr>
+
+</table>
+
+
+<h2>Active mutators</h2>
+<ul>
+</ul>
+
+<h2>Tests examined</h2>
+<ul>
+</ul>
+
+<br/>
+
+Report generated by <a href='https://pitest.org'>PIT</a> 1.30.0 <a href='https://github.com/sponsors/hcoles'>support</a>
+
+</body>
+</html>
