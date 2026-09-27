@@ -28,6 +28,11 @@
         </dependency>
         <dependency>
             <groupId>com.dan323</groupId>
+            <artifactId>implementation.firstorder</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.dan323</groupId>
             <artifactId>implementation.deduction.modal</artifactId>
             <version>${project.version}</version>
         </dependency>
