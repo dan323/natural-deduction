@@ -24,7 +24,9 @@ import java.util.Set;
  * Terms (variables, constants and function symbols) are identifiers that start with a lowercase letter; a predicate
  * name is any identifier, and one without arguments is a propositional variable, so {@code p -> q} parses.
  * {@code forall}, {@code exists}, {@code TRUE} and {@code FALSE} are reserved. Nesting (parentheses, negations,
- * quantifiers, function arguments) is limited to {@value #MAX_DEPTH} levels, so deep input cannot overflow the stack.
+ * quantifiers, function arguments, and each further operand of a chain of {@code &}, {@code |} or {@code ->}, which
+ * nests the tree one level deeper) is limited to {@value #MAX_DEPTH} levels, so no formula the parser returns is deep
+ * enough to overflow the stack of the code that walks it.
  * Every error is an {@link IllegalArgumentException}.
  */
 public final class FirstOrderParser {
@@ -143,27 +145,45 @@ public final class FirstOrderParser {
         }
 
         private FirstOrderOperation formula() {
-            FirstOrderOperation left = disjunction();
-            while (accept("&")) {
-                left = new ConjunctionFirstOrder(left, disjunction());
+            int start = depth;
+            try {
+                FirstOrderOperation left = disjunction();
+                while (accept("&")) {
+                    enter();
+                    left = new ConjunctionFirstOrder(left, disjunction());
+                }
+                return left;
+            } finally {
+                depth = start;
             }
-            return left;
         }
 
         private FirstOrderOperation disjunction() {
-            FirstOrderOperation left = implication();
-            while (accept("|")) {
-                left = new DisjunctionFirstOrder(left, implication());
+            int start = depth;
+            try {
+                FirstOrderOperation left = implication();
+                while (accept("|")) {
+                    enter();
+                    left = new DisjunctionFirstOrder(left, implication());
+                }
+                return left;
+            } finally {
+                depth = start;
             }
-            return left;
         }
 
         private FirstOrderOperation implication() {
-            FirstOrderOperation left = unary();
-            while (accept("->")) {
-                left = new ImplicationFirstOrder(left, unary());
+            int start = depth;
+            try {
+                FirstOrderOperation left = unary();
+                while (accept("->")) {
+                    enter();
+                    left = new ImplicationFirstOrder(left, unary());
+                }
+                return left;
+            } finally {
+                depth = start;
             }
-            return left;
         }
 
         private void enter() {

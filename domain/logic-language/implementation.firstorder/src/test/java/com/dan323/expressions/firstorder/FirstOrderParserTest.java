@@ -176,7 +176,11 @@ class FirstOrderParserTest {
         for (String text : List.of("(".repeat(deep) + "p" + ")".repeat(deep),
                 "-".repeat(deep) + "p",
                 "forall x. ".repeat(deep) + "p",
-                "f(".repeat(deep) + "x" + ")".repeat(deep) + " = y")) {
+                "f(".repeat(deep) + "x" + ")".repeat(deep) + " = y",
+                "p" + " & p".repeat(deep),
+                "p" + " | p".repeat(deep),
+                "p" + " -> p".repeat(deep),
+                "p" + " & p | p -> p".repeat(deep))) {
             IllegalArgumentException error = assertThrows(IllegalArgumentException.class, () -> parser.parse(text));
             assertTrue(error.getMessage().contains("nested"), error.getMessage());
         }
@@ -191,5 +195,16 @@ class FirstOrderParserTest {
         assertInstanceOf(NegationFirstOrder.class, parser.parse("-".repeat(depth) + "p"));
         assertEquals(parser.parseTerm("x"), parser.parseTerm("(".repeat(depth) + "x" + ")".repeat(depth)));
         assertInstanceOf(Equals.class, parser.parse("f(".repeat(depth) + "x" + ")".repeat(depth) + " = y"));
+        FirstOrderOperation chain = parser.parse("p" + " & p".repeat(depth));
+        assertInstanceOf(ConjunctionFirstOrder.class, chain);
+        assertEquals(chain, parser.parse(chain.toString()));
+        assertEquals(chain.hashCode(), parser.parse(chain.toString()).hashCode());
+    }
+
+    @Test
+    void chainsInSeparateParenthesesDoNotAddUp() {
+        int length = FirstOrderParser.MAX_DEPTH / 2;
+        String chain = "(p" + " & p".repeat(length) + ")";
+        assertInstanceOf(DisjunctionFirstOrder.class, parser.parse(chain + " | " + chain + " | " + chain));
     }
 }
