@@ -1,15 +1,17 @@
 # UI improvement plan
 
 Based on a live audit of the UI (UX, accessibility, performance, functional bugs), a read of `frontend/src`, and checks
-against the running backend. Out of scope: changes to the solver. PRs 9 and 10 brought intuitionistic, modal and a new
-`modal-next-until` logic to the UI.
+against the running backend. Out of scope: changes to the solver, except in PR 12 (solvers for the logics that have
+none). PRs 9 and 10 brought intuitionistic, modal and a new `modal-next-until` logic to the UI.
 
 Defaults taken for the open questions (change them and the affected steps move): the descriptor DTO **is** extended
 (additively), formula input help is a **hint plus connective buttons** (no Unicode parsing), and **Phase 1 goes first**.
 
-## Status (2026-09-26)
+## Status (2026-09-27)
 
-Every step of this plan is merged; nothing is pending. To continue, add a new plan (`/plan-next-issues`).
+PRs 1-10 are merged. PR 11 (first-order logic with equality and group theory) is pending: 11.1-11.6 are open as
+issues #170-#175, one per step. PR 12 (solvers for intuitionistic, modal-next-until and first-order logic) is pending:
+12.1-12.3 are open as issues #176-#178; 12.3 comes after PR 11.
 
 PRs 1-6 are merged: 1-3, 4.1, 5.1, 5.2 and 5.4 as #124-#128, #130 and #131; 4.2 and 5.3 folded into #127 and #129;
 5.5 (#122) as #138, 5.6 (#123) as #137, 6.1 (#132) as #135 and 6.2 (#133) as #134.
@@ -19,7 +21,8 @@ as #159, 10.4 (#149) as #162, and 10.5 (#150) as #163 (backend) and #164 (fronte
 `modal-next-until` logic (Next and Until); its first attempt, PR #161, was closed unmerged.
 
 Merged outside the plan: #165 (every logic accepts both the classical and the modal name of the 14 shared rules, e.g.
-`MP`/`->E`), #166 and #167 (Sonar fixes without behaviour changes, docs brought up to date).
+`MP`/`->E`), #166, #167 and #169 (Sonar fixes without behaviour changes, docs brought up to date), and #168
+(pipeline, backend and frontend dependency bumps).
 
 ## Audit summary
 
@@ -386,6 +389,145 @@ inputs and sends `extraParameters.state`, `renderExpression` shows `[]`/`<>` as 
 
 ---
 
+## PR 11: First-order logic with equality (and group theory)
+
+A new logic, `"first-order"`: function symbols, predicates, `=`, `∀`/`∃`, and group theory as a set of premises. No
+solver (`hasSolver` false, `/solve` answers 400), so the solver stays out of scope.
+
+Syntax defaults (change them and the steps move): `forall x. A` / `exists x. A` (reserved words, shown `∀x.`/`∃x.`, the
+body reaches as far right as it can, parentheses limit it). Terms: a lowercase identifier (variable or constant),
+`f(t, ...)`, and infix `*` (binds tighter than `=`, left-associative). Atoms: `t = s` or a predicate `P(t, ...)`; a bare
+identifier used as a formula is a 0-ary predicate, so `p -> q` still parses. A free name in a premise (such as `e`) acts
+as a constant. Formulas are equal up to renaming of bound variables (`∀x.P(x)` equals `∀y.P(y)`), which `isDone()`
+relies on.
+
+**11.1 First-order language (backend)** — pending (issue #170)
+- Investigate first: javaluator cannot parse binders or function symbols that are not declared up front; confirm this,
+  and if it holds, write a small hand-written parser instead.
+- Change: a new `domain/logic-language/implementation.firstorder` module with term classes (variable, function
+  application, `*`), `Equals` and a predicate atom, connectives that implement the framework's
+  `Conjunction`/`Implication`/`Negation`/... (so the generic rule bases apply), `Forall`/`Exists`, and the parser.
+  It also provides `freeVariables()`, capture-avoiding `substitute(var, term)`, `equals`/`hashCode` up to renaming of
+  bound variables, and a `toString()` that the parser reads back. The `module-info` exports the package.
+- Tests: parse/print round-trip, including the precedence of `*`, `=`, the connectives and quantifier scope
+  (`forall x. P(x) & Q` scopes over the conjunction); bad input (`P(`, `forall . P`, `x = `); substitution avoids
+  capture (`(forall y. x = y)[x:=y]` renames `y`); alpha-equivalent formulas are equal and hash the same.
+- Done when: the group axioms parse and print back unchanged, and substitution is capture-free.
+
+**11.2 First-order natural deduction (backend)** — pending (issue #171)
+- Change: a new `implementation.deduction.firstorder` module with `FirstOrderNaturalDeduction` (`automate()`
+  unsupported), the 14 shared propositional rules bound to the new language (as the `Modal*` classes are), a
+  `ParseFirstOrderAction` for the rule strings, and `ProofStep.toString()` in the usual text layout (no state prefix).
+  The new rules:
+  - `∀E`: line i plus a term t, gives `A[x:=t]`.
+  - `∀I`: line i plus the target `forall x. A`. It holds if line i is `A[x:=a]` for a name `a` that is free in no
+    premise, no open assumption, and not in the target.
+  - `∃I`: line i plus the target `exists x. A`. It holds if line i is `A[x:=t]` for some term t.
+  - `∃E`: line i `exists x. A` and a subproof that opens with `A[x:=a]` and closes on C, with `a` fresh (not in the ∃
+    formula, C, the premises, or any assumption open outside the subproof). It discharges the subproof as `<>E` does.
+  - `=I`: a term t, gives `t = t`.
+  - `=E`: line i `s = t`, line j `A`, plus a target that must be `A` with some occurrences of `s` replaced by `t`.
+- Tests: valid and invalid cases for each new rule, including `∀I` on a name that is free in a premise or an open
+  assumption, `∃E` with a name that is not fresh or that escapes into C, `=E` with a target that is not a substitution
+  instance, and capture cases; a small proof (`forall x. P(x) ⊢ exists x. P(x)`) replays through `parse()`.
+- Done when: that proof and `a = b, P(a) ⊢ P(b)` are done, and each forbidden generalization is rejected.
+
+**11.3 Serve `"first-order"` (backend)** — pending (issue #172)
+- Change: a new `first-order-use-case` module with a `Transformer`, a `ProofParser` and a `LogicalGetActions` with
+  10.1-style descriptions (`∀I` "For-all introduction", ...), and a `FirstOrderConfiguration` imported in
+  `ApplicationConfiguration`. A new `ParamKind` `TERM`, sent in `extraParameters.term`, is needed for `∀E`/`=I` (an
+  additive change); the targets are `EXPRESSION` params. Add a pure first-order exercise set with replayed reference
+  solutions (quantifier swaps, `∀`/`∧` distribution, symmetry and transitivity of `=`), add
+  `/logic/first-order/actions` to the `OnMaster.yml` smoke test, and update `docs/API.md` and `CLAUDE.md`.
+- Tests: every descriptor has a non-blank label and description and `paramLabels.size() == params.size()`; a `TERM`
+  param round-trips; `FirstOrderExercisesTest` replays every solution; `RestServiceIT` covers actions, action, proof
+  text and `/solve` → 400; the other logics are unchanged.
+- Done when: `/logic/first-order/...` proves `forall x. P(x) ⊢ exists x. P(x)` over REST.
+
+**11.4 Group theory: premise sets and exercises (backend)** — pending (issue #173)
+- Change: a `LogicalTheories` catalog behind a new `GET /logic/{logic}/theories` endpoint. Each theory is
+  `{id, name, premises}`; a known logic without one answers `[]`, as exercises do. `first-order` gets `group`:
+  - `forall x. forall y. forall z. (x*y)*z = x*(y*z)`
+  - `forall x. e*x = x & x*e = x`
+  - `forall x. i(x)*x = e & x*i(x) = e`
+
+  Add a group exercise set built on those premises, with reference solutions, ordered by difficulty: uniqueness of the
+  identity, left cancellation, `forall x. i(i(x)) = x`, uniqueness of inverses,
+  `forall x. forall y. i(x*y) = i(y)*i(x)`, and (hard) that `forall x. x*x = e` implies commutativity. Update
+  `docs/API.md`.
+- Tests: the premises of each theory parse; every group solution replays and is done; `RestServiceIT` covers
+  `/theories`, including `[]` for classical and 404 for an unknown logic.
+- Done when: `GET /logic/first-order/theories` returns the group axioms, and the group exercises are served.
+
+**11.5 First-order logic in the UI (frontend)** — pending (issue #174)
+- Change: add `"first-order"` to `LOGICS` with `hasSolver: false`; `Menu` renders `TERM` inputs;
+  `checkFormula`/`isRelationFormula` learn the first-order syntax, for that logic only; `renderExpression` shows
+  `∀`/`∃`; `connectives.ts` adds `∀`, `∃`, `=` and `*` buttons and hint entries, for that logic only. `proofToText`
+  should work unchanged; check that it does.
+- Tests: `utils.test.ts`: `checkFormula` on the group axioms and on malformed quantifiers, and `forall` is refused in
+  classical; `GlowingInputConnectives.test.tsx`: the new buttons appear only for `first-order`;
+  `AppFirstOrder.test.tsx`: an `∀E` with a term round-trips against a mocked backend.
+- Done when: a student can pick first-order logic and finish `forall x. P(x) ⊢ exists x. P(x)` in the UI.
+
+**11.6 Start from a theory (frontend)** — pending (issue #175)
+- Change: for a logic whose `/theories` is not empty, the New Proof dialog gets a "Premises from theory" picker.
+  Choosing Group fills in the premises, which stay editable. The exercise list shows the group exercises under their
+  own heading.
+- Tests: `NewProofModal.test.tsx`: the picker is hidden for classical, filling it inserts the three axioms, and they
+  can be edited before Start Proof.
+- Done when: a student can start "Group axioms ⊢ `forall x. i(i(x)) = x`" in two clicks and prove it.
+
+---
+
+## PR 12: Solvers for the logics that have none
+
+This lifts "Out of scope: changes to the solver" for this PR only. Each step adds one solver behind the existing
+`/solve` (timeout, concurrency cap and `done=false` for an unfinished proof all stay as they are), sets `hasSolver` to
+true in `Transformer` and in `LOGICS`, and updates `docs/API.md` and `CLAUDE.md`. A solver emits only rules from its
+logic's descriptor list, so its result replays through `Transformer.from` and Undo works on it. Like the existing
+solvers, it starts from the premises (`proof.reset()`). `classical` and `modal` solve exactly as before.
+
+**12.1 Intuitionistic solver (backend + one flag)** — pending (issue #176)
+- Change: an `IntuitionisticNaturalDeduction` (a subclass of `NaturalDeduction`, which stops being `final`) whose
+  `automate()` runs a new `IntuitionisticAutomate`. `ClassicalAutomate` cannot be reused: it proves goals by
+  contradiction (`-I` then `-E`) and uses `DeMorgan`. The new solver is a complete search in the contraction-free
+  sequent calculus G4ip, which always terminates. It translates the sequent proof into steps with `Ass`, `->I`, `->E`,
+  `&I`, `&E1/2`, `|I1/2`, `|E`, `-I`, `FI`, `FE` and `Rep`, never `-E`. The intuitionistic `Transformer`/`ProofParser`
+  create this proof type. `IntuitionisticProofTransformer.hasSolver()` returns true, and `LOGICS` sets
+  `hasSolver: true` with a description that no longer says "There is no solver."
+- Tests: every intuitionistic exercise is solved, the result contains no `-E` step, and it replays and is done.
+  Unprovable goals (`p | -p`, `--p -> p`, `((p -> q) -> p) -> p`) end with `done=false` well within the timeout.
+  `RestServiceIT`: `/logic/intuitionistic/solve` answers 200 (was 400). The classical solver tests are unchanged.
+- Done when: Solve appears for intuitionistic logic in the UI and finishes every intuitionistic exercise.
+
+**12.2 modal-next-until solver (backend + one flag)** — pending (issue #177)
+- Change: open `ModalAutomate` up for extension (it drops `final` and gains protected hooks for intro and elimination
+  rules, with its current behaviour as the default). A `ModalNextUntilAutomate` adds the following: for a goal `X A`
+  in `s`, the goal `A` in `s+1`, then `XI`; for a goal `A U B`, try `UI1` (`B` in `s`), then `UI2` (`A` in `s`,
+  `A U B` in `s+1`) up to a depth bound; elimination with `XE`, `UE` and `U<>`. It does not use `Ind`, because
+  induction needs an invariant, so a goal that only `Ind` can prove ends with `done=false`.
+  `ModalNextUntilNaturalDeduction.automate()` runs it, and `hasSolver` becomes true in the transformer and in `LOGICS`.
+- Tests: every `modal-next-until` exercise whose reference solution has no `Ind` step is solved, replays and is done in
+  `s0`. An `Ind` exercise ends with `done=false` before the timeout. `ModalFreshStateTest` and the `modal` solver tests
+  are unchanged. `RestServiceIT`: `/logic/modal-next-until/solve` answers 200.
+- Done when: Solve appears for modal-next-until and finishes its non-induction exercises.
+
+**12.3 First-order solver (backend + one flag; after PR 11)** — pending (issue #178)
+- Change: a best-effort `FirstOrderAutomate` (first-order logic is undecidable, so it can fail, and it ends with
+  `done=false` when it does). It combines the classical propositional strategy with:
+  - `∀I` or `∃E` with a fresh name when the goal or an assumption calls for it;
+  - `∀E` or `∃I` instantiated with the terms already in the proof, up to a bounded term depth;
+  - `=I`, and `=E` limited to symmetry and transitivity chains.
+
+  `FirstOrderNaturalDeduction.automate()` runs it, and `hasSolver` becomes true in the transformer and in `LOGICS`
+  (PR 11 ships with `hasSolver: false`).
+- Tests: every pure first-order exercise from 11.3 is solved, replays and is done. The group exercises are not
+  required. A goal the solver cannot prove ends with `done=false` before the timeout. `RestServiceIT`:
+  `/logic/first-order/solve` answers 200.
+- Done when: Solve finishes `forall x. P(x) ⊢ exists x. P(x)` and the pure first-order exercises in the UI.
+
+---
+
 ## Verification after all PRs
 
 - Jest tests next to each touched component as listed; `npm run typecheck`; `mvn -B verify` for PRs 2 and 4.
@@ -399,3 +541,6 @@ inputs and sends `extraParameters.state`, `renderExpression` shows `[]`/`<>` as 
 - The client-side formula check can drift from the real parser: keep it conservative, or add the parse endpoint.
 - `<dialog>` under jsdom (Jest 30) has partial support; be ready to fall back to a manual focus trap.
 - The Rule column renames rules in the display only; the `[1-2, 4]` range text that `ProofViewer` regex-parses must not change.
+- PR 11: equational proofs get long when every `=E` means typing the full target formula. If this hurts, a follow-up
+  could have `=E` compute the target from a chosen occurrence. The first-order `checkFormula` can drift from the Java
+  parser; keep it conservative.
