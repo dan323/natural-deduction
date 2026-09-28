@@ -212,6 +212,24 @@ describe('checkFormula in first-order', () => {
     expect(checkFormula('-'.repeat(400) + 'p', FO)).toBeNull();
   });
 
+  test('each further operand of a chain counts as a level, as the backend counts it', () => {
+    for (const operator of [' & ', ' | ', ' -> ']) {
+      expect(checkFormula(Array(500).fill('p').join(operator), FO)).toBeNull();
+      expect(checkFormula(Array(501).fill('p').join(operator), FO)).toMatch(/nested more than 500 levels deep/);
+    }
+    expect(checkFormula(Array(600).fill('P(x)').join(' & '), FO)).toMatch(/nested more than 500 levels deep/);
+  });
+
+  test('names and whitespace are read as the backend (Java char-based) tokenizer reads them', () => {
+    expect(checkFormula('P(x2, y_1)', FO)).toBeNull();
+    expect(checkFormula('P(é) &\tQ(x) | R', FO)).toBeNull();
+    expect(checkFormula('P(x²)', FO)).toMatch(/Unexpected symbol "²"/);
+    expect(checkFormula('P(x) & Q', FO)).toMatch(/Unexpected symbol " "/);
+    expect(checkFormula('P(x) & Q', FO)).toMatch(/Unexpected symbol " "/);
+    expect(checkFormula('P(\u{1D465})', FO)).toMatch(/Unexpected symbol "\u{1D465}"/u);
+    expect(checkFormula('P(x\u{1D465})', FO)).toMatch(/Unexpected symbol "\u{1D465}"/u);
+  });
+
   test.each(['forall x. P(x)', 'exists x. P(x)', 'P(x)', 'forall x. x = x'])('the other logics refuse %j', (formula) => {
     expect(checkFormula(formula)).not.toBeNull();
     expect(checkFormula(formula, 'classical')).not.toBeNull();

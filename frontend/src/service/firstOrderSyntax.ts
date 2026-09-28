@@ -11,17 +11,22 @@
 // A quantifier body reaches as far right as it can. Terms (variables, constants and function symbols) start with a
 // lowercase letter; a predicate is any name, and one without arguments is a propositional variable (`p -> q`). There
 // is no infix operation on terms: a product is a function symbol, `m(x, y)`. `forall`, `exists`, `TRUE` and `FALSE`
-// are reserved. Like the backend, nesting is limited to MAX_DEPTH levels (here counted by negations, quantifiers,
-// parentheses and function arguments, which is never more than the backend counts), so a pasted formula of thousands
-// of `-` or `(` gets a message instead of overflowing the stack.
+// are reserved. Like the backend, nesting is limited to MAX_DEPTH levels, counted as the backend counts them (each
+// negation, quantifier, parenthesis and function argument, and each further operand of an `&`, `|` or `->` chain), so a
+// pasted formula of thousands of `-` or `(` gets a message instead of overflowing the stack, and a chain the backend
+// would refuse is refused here too.
 
 const QUANTIFIERS: ReadonlySet<string> = new Set(['forall', 'exists']);
 const RESERVED: ReadonlySet<string> = new Set([...QUANTIFIERS, 'TRUE', 'FALSE']);
 // The longer symbol first, so that `->` is not read as `-` and `>`.
 const SYMBOLS = ['->', '&', '|', '-', '(', ')', ',', '.', '='];
 const BINARY_OPERATORS: ReadonlySet<string> = new Set(['->', '&', '|', '=']);
-// An identifier, as the backend's tokenizer reads one: a letter, then letters, digits and `_`.
-const IDENTIFIER = /^\p{L}[\p{L}\p{N}_]*/u;
+// An identifier, as the backend's (Java `char`-based) tokenizer reads one: a letter, then letters, decimal digits and
+// `_`. `Character.isLetter(char)` is false for the halves of a character outside the BMP, so none of those count.
+const IDENTIFIER = /^(?![\u{10000}-\u{10FFFF}])\p{L}(?:(?![\u{10000}-\u{10FFFF}])[\p{L}\p{Nd}_])*/u;
+// The whitespace Java's `Character.isWhitespace` skips: the Unicode separators except the non-breaking spaces
+// (U+00A0, U+2007, U+202F), plus tab, line feed, vertical tab, form feed, carriage return and U+001C to U+001F.
+const WHITESPACE = /^(?:(?![   ])[\t\n\v\f\r\u001C-\u001F\p{Z}])+/u;
 // The symbols the proof table shows for the quantifiers, which cannot be typed as such.
 const QUANTIFIER_SYMBOLS: Record<string, string> = { '∀': 'forall', '∃': 'exists' };
 
@@ -35,9 +40,13 @@ class SyntaxProblem {
   constructor(readonly message: string) {}
 }
 
+function skipWhitespace(text: string): string {
+  return text.slice(WHITESPACE.exec(text)?.[0].length ?? 0);
+}
+
 function tokenize(text: string): string[] {
   const tokens: string[] = [];
-  let rest = text.trimStart();
+  let rest = skipWhitespace(text);
   while (rest !== '') {
     const token = IDENTIFIER.exec(rest)?.[0] ?? SYMBOLS.find((symbol) => rest.startsWith(symbol));
     if (token === undefined) {
@@ -48,7 +57,7 @@ function tokenize(text: string): string[] {
         : `Unexpected symbol "${char}".`);
     }
     tokens.push(token);
-    rest = rest.slice(token.length).trimStart();
+    rest = skipWhitespace(rest.slice(token.length));
   }
   return tokens;
 }
@@ -88,9 +97,13 @@ class Cursor {
     }
   }
 
+  private enter(): void {
+    if (++this.depth > MAX_DEPTH) throw new SyntaxProblem(TOO_DEEP);
+  }
+
   // Runs `parse` one nesting level deeper.
   private nested(parse: () => void): void {
-    if (++this.depth > MAX_DEPTH) throw new SyntaxProblem(TOO_DEEP);
+    this.enter();
     try {
       parse();
     } finally {
@@ -127,19 +140,30 @@ class Cursor {
     return this.leftover(token);
   }
 
+  // `operand` (operator operand)*, each further operand one level deeper, as the backend nests the tree it builds.
+  private chain(operator: string, operand: () => void): void {
+    const start = this.depth;
+    try {
+      operand();
+      while (this.accept(operator)) {
+        this.enter();
+        operand();
+      }
+    } finally {
+      this.depth = start;
+    }
+  }
+
   formula(): void {
-    this.disjunction();
-    while (this.accept('&')) this.disjunction();
+    this.chain('&', () => this.disjunction());
   }
 
   private disjunction(): void {
-    this.implication();
-    while (this.accept('|')) this.implication();
+    this.chain('|', () => this.implication());
   }
 
   private implication(): void {
-    this.unary();
-    while (this.accept('->')) this.unary();
+    this.chain('->', () => this.unary());
   }
 
   private unary(): void {
