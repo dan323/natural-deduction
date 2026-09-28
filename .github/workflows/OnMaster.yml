@@ -35,20 +35,14 @@ jobs:
       - name: frontend tests
         working-directory: frontend
         run: npm test
-      - name: build frontend
-        working-directory: frontend
-        run: npm run build
-      - name: embed frontend in backend
-        run: |
-          mkdir -p executable/src/main/resources/public
-          cp -r frontend/build/* executable/src/main/resources/public/
       - name: Setup java
         uses: actions/setup-java@v6
         with:
           java-version: 21
           distribution: 'corretto'
           cache: maven
-      # verify runs the unit tests, packages the jar and runs the *IT tests, including the one that boots the fat jar.
+      # verify builds the frontend into the jar (executable/pom.xml), runs the unit tests, packages the jar and runs the
+      # *IT tests, including the one that boots the fat jar and checks its UI.
       - name: backend tests and package
         run: mvn -B -f pom.xml verify
       - run: mv ./executable/target/executable-0.1-SNAPSHOT.jar ./executable/target/executable-${{ env.build-number }}.jar

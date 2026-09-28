@@ -23,9 +23,11 @@ import java.time.Duration;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assumptions.assumeFalse;
 
 /**
  * Starts the packaged Spring Boot fat jar (not the classpath) and checks that it serves the action lists and the
@@ -153,6 +155,28 @@ public class FatJarActionsIT {
 
             assertEquals(200, response.statusCode(), response.body());
             assertTrue(MAPPER.readValue(response.body(), ProofDto.class).isDone(), logic);
+        }
+    }
+
+    /**
+     * The jar must serve the UI built from this checkout's {@code frontend/}, not an older copy: its script offers
+     * every logic the backend serves. Skipped when the build ran with {@code -Dskip.npm}.
+     */
+    @Test
+    void theFatJarServesTheCurrentUi() throws IOException {
+        assumeFalse(Boolean.getBoolean("frontendSkipped"), "the frontend build was skipped");
+        var index = get("/");
+        assertEquals(200, index.statusCode(), index.body());
+        assertTrue(index.body().contains("id=\"root\""), index.body());
+
+        var script = Pattern.compile("src=\"(/assets/[^\"]+\\.js)\"").matcher(index.body());
+        assertTrue(script.find(), index.body());
+        var bundle = get(script.group(1));
+        assertEquals(200, bundle.statusCode());
+        // the LOGICS entries of constant.ts, whatever quotes the minifier picks
+        for (var logic : List.of("classical", "intuitionistic", "modal", "modal-next-until")) {
+            assertTrue(Pattern.compile("id:([\"'`])" + Pattern.quote(logic) + "\\1").matcher(bundle.body()).find(),
+                    "the packaged UI does not offer " + logic);
         }
     }
 }
