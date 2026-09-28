@@ -89,9 +89,10 @@ jobs:
         with:
           java-version: 21
           distribution: 'corretto'
+      # PIT is skipped in executable, so the frontend build it would run there is skipped too.
       - name: mutation testing
         run: |
-          mvn -B -f pom.xml clean test-compile org.pitest:pitest-maven:mutationCoverage org.pitest:pitest-maven:report-aggregate-module
+          mvn -B -f pom.xml clean test-compile org.pitest:pitest-maven:mutationCoverage org.pitest:pitest-maven:report-aggregate-module -Dskip.installnodenpm -Dskip.npm
           mkdir -p target/site
           mv target/pit-reports target/site
       - name: set PR number

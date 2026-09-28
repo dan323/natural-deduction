@@ -9,8 +9,8 @@ Defaults taken for the open questions (change them and the affected steps move):
 
 ## Status (2026-09-27)
 
-PRs 1-10 are merged. PR 11 (first-order logic with equality and group theory) is pending: 11.1-11.6 are open as
-issues #170-#175, one per step. PR 12 (solvers for intuitionistic, modal-next-until and first-order logic) is pending:
+PRs 1-10 are merged. PR 11 (first-order logic with equality and group theory) is in progress: 11.1 (#170) is merged
+as #179, 11.2 (#171) is done, and 11.3-11.6 are open as issues #172-#175, one per step. PR 12 (solvers for intuitionistic, modal-next-until and first-order logic) is pending:
 12.1-12.3 are open as issues #176-#178; 12.3 comes after PR 11.
 
 PRs 1-6 are merged: 1-3, 4.1, 5.1, 5.2 and 5.4 as #124-#128, #130 and #131; 4.2 and 5.3 folded into #127 and #129;
@@ -402,7 +402,7 @@ identifier used as a formula is a 0-ary predicate, so `p -> q` still parses. A f
 as a constant. Formulas are equal up to renaming of bound variables (`∀x.P(x)` equals `∀y.P(y)`), which `isDone()`
 relies on.
 
-**11.1 First-order language (backend)** — pending (issue #170)
+**11.1 First-order language (backend)** — done (#179, issue #170)
 - Investigate first: javaluator cannot parse binders or function symbols that are not declared up front; confirm this,
   and if it holds, write a small hand-written parser instead.
 - Change: a new `domain/logic-language/implementation.firstorder` module with term classes (variable, function
@@ -415,7 +415,7 @@ relies on.
   capture (`(forall y. x = y)[x:=y]` renames `y`); alpha-equivalent formulas are equal and hash the same.
 - Done when: the group axioms parse and print back unchanged, and substitution is capture-free.
 
-**11.2 First-order natural deduction (backend)** — pending (issue #171)
+**11.2 First-order natural deduction (backend)** — done (issue #171)
 - Change: a new `implementation.deduction.firstorder` module with `FirstOrderNaturalDeduction` (`automate()`
   unsupported), the 14 shared propositional rules bound to the new language (as the `Modal*` classes are), a
   `ParseFirstOrderAction` for the rule strings, and `ProofStep.toString()` in the usual text layout (no state prefix).

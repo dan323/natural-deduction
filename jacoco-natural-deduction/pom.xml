@@ -38,6 +38,11 @@
         </dependency>
         <dependency>
             <groupId>com.dan323</groupId>
+            <artifactId>implementation.deduction.firstorder</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.dan323</groupId>
             <artifactId>framework.deduction</artifactId>
             <version>${project.version}</version>
         </dependency>

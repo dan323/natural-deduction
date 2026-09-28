@@ -15,6 +15,7 @@
         <module>framework.deduction</module>
         <module>implementation.deduction.classic</module>
         <module>implementation.deduction.modal</module>
+        <module>implementation.deduction.firstorder</module>
     </modules>
     <artifactId>proof-structures</artifactId>
 
