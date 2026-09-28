@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>Quantifier.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">jacoco-report-aggregate</a> &gt; <a href="../index.html" class="el_bundle">implementation.firstorder</a> &gt; <a href="index.source.html" class="el_package">com.dan323.expressions.firstorder</a> &gt; <span class="el_source">Quantifier.java</span></div><h1>Quantifier.java</h1><pre class="source lang-java linenums">package com.dan323.expressions.firstorder;
+
+import java.util.HashSet;
+import java.util.Objects;
+import java.util.Set;
+
+/**
+ * A formula that binds a variable in its body: {@link Forall} or {@link Exists}. It prints as
+ * {@code keyword x. body}, the body without parentheses of its own, since it reaches as far right as it can.
+ */
+public abstract sealed class Quantifier implements FirstOrderOperation permits Forall, Exists {
+
+    private final String variable;
+    private final FirstOrderOperation body;
+
+<span class="fc" id="L16">    protected Quantifier(String variable, FirstOrderOperation body) {</span>
+<span class="fc" id="L17">        this.variable = Objects.requireNonNull(variable);</span>
+<span class="fc" id="L18">        this.body = Objects.requireNonNull(body);</span>
+<span class="fc" id="L19">    }</span>
+
+    public String getVariable() {
+<span class="fc" id="L22">        return variable;</span>
+    }
+
+    public FirstOrderOperation getBody() {
+<span class="fc" id="L26">        return body;</span>
+    }
+
+    /**
+     * @return the keyword the parser reads, {@code forall} or {@code exists}
+     */
+    public abstract String getKeyword();
+
+    /**
+     * @return a symbol that tells the kind of quantifier apart in the canonical form
+     */
+    abstract String getSymbol();
+
+    /**
+     * @param variable the bound variable
+     * @param body     the body
+     * @return a quantifier of the same kind binding {@code variable} in {@code body}
+     */
+    public abstract Quantifier with(String variable, FirstOrderOperation body);
+
+    @Override
+    public Set&lt;String&gt; freeVariables() {
+<span class="fc" id="L48">        Set&lt;String&gt; free = new HashSet&lt;&gt;(body.freeVariables());</span>
+<span class="fc" id="L49">        free.remove(variable);</span>
+<span class="fc" id="L50">        return Set.copyOf(free);</span>
+    }
+
+    @Override
+    public Quantifier substitute(String name, Term term) {
+<span class="fc bfc" id="L55" title="All 4 branches covered.">        if (variable.equals(name) || !body.freeVariables().contains(name)) {</span>
+<span class="fc" id="L56">            return this;</span>
+        }
+<span class="fc" id="L58">        Set&lt;String&gt; termVariables = term.freeVariables();</span>
+<span class="fc bfc" id="L59" title="All 2 branches covered.">        if (!termVariables.contains(variable)) {</span>
+<span class="fc" id="L60">            return with(variable, body.substitute(name, term));</span>
+        }
+<span class="fc" id="L62">        Set&lt;String&gt; avoid = new HashSet&lt;&gt;(termVariables);</span>
+<span class="fc" id="L63">        avoid.addAll(body.freeVariables());</span>
+<span class="fc" id="L64">        String renamed = Alpha.fresh(variable, avoid);</span>
+<span class="fc" id="L65">        FirstOrderOperation renamedBody = body.substitute(variable, new VariableTerm(renamed));</span>
+<span class="fc" id="L66">        return with(renamed, renamedBody.substitute(name, term));</span>
+    }
+
+    @Override
+    public String toString() {
+<span class="fc" id="L71">        return getKeyword() + &quot; &quot; + variable + &quot;. &quot; + body;</span>
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+<span class="fc" id="L76">        return Alpha.equivalent(this, obj);</span>
+    }
+
+    @Override
+    public int hashCode() {
+<span class="fc" id="L81">        return Alpha.hash(this);</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>
