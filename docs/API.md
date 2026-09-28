@@ -4,7 +4,7 @@ This document describes the REST API endpoints for the Natural Deduction system.
 
 ## Endpoints
 
-The server keeps no session. Every logic (`classical`, `intuitionistic`, `modal`, `modal-next-until`) is served under `/logic/{logic}`; the client sends
+The server keeps no session. Every logic (`classical`, `intuitionistic`, `modal`, `modal-next-until`, `first-order`) is served under `/logic/{logic}`; the client sends
 the whole proof with every request.
 
 Every non-2xx response has the body `{"message": "..."}`. An unknown logic is a 404, malformed input a 400, a
@@ -34,6 +34,7 @@ The first two are from `/logic/classical/actions`, the last from `/logic/modal/a
 | `INT`        | a 1-based line number of the proof     | the next entry of `actionDto.sources`         |
 | `EXPRESSION` | a formula                              | `actionDto.extraParameters.expression`        |
 | `STATE`      | a state (world) name, modal logic only | `actionDto.extraParameters.state`             |
+| `TERM`       | a term (`a`, `f(x, e)`), first-order only | `actionDto.extraParameters.term`           |
 
 The other fields only help a client to present the action. They are optional: a logic that does not provide them
 sends `null` (`[]` for `paramLabels`), and a client falls back to `name` and to a generic label per param kind.
@@ -56,7 +57,7 @@ the `STATE` params of `Ass` and `FE` are labelled `State of A (e.g. s1)`; an `As
 `s0 <= s1` ignores its state. The list is built once at startup.
 
 The 14 rules the two share can be sent under either name to every logic that has the rule: classical, intuitionistic,
-modal and `modal-next-until` logic all accept both `COPY` and `Rep`, `MP` and `->E`, `ASSUME` and `Ass`, and so on (the
+modal, `modal-next-until` and first-order logic all accept both `COPY` and `Rep`, `MP` and `->E`, `ASSUME` and `Ass`, and so on (the
 classical `AvailableAction` names and the modal rule names). Intuitionistic logic has no double negation elimination,
 so it rejects both `NOTE` and `-E`. Errors name the action as it was sent, e.g.
 `Rule -E is not a rule of intuitionistic logic`.
@@ -114,7 +115,7 @@ Runs the automatic solver on the proof (a `ProofDto`) and returns the resulting 
 - At most as many solves as there are processors (at least 2) run at once, per logic. Another one is answered at once
   with `429` and `{"message": "The solver is busy with other proofs, try again in a moment"}`.
 - An invalid proof is a `400`, as for `/action`.
-- A logic without a solver of its own (`intuitionistic`, `modal-next-until`) answers `400` with
+- A logic without a solver of its own (`intuitionistic`, `modal-next-until`, `first-order`) answers `400` with
   `{"message": "There is no solver for the logic 'intuitionistic'"}`.
 
 ### List the exercises: `GET /logic/{logic}/exercises`
@@ -134,7 +135,8 @@ Returns `200` with the logic's exercises, ordered from easy to hard. Each one as
 - Classical logic has 14 exercises, intuitionistic logic 16 (the classical ones except `double-negation-elimination`
   and `excluded-middle`, plus four of its own), modal logic 7 (with premises in `s0`, e.g. `box-elimination`, `[] p` to
   `p`, and `box-transitive`, `[] p` to `[] ([] p)`), `modal-next-until` 9, from `next-in-and-out` (`X p ⊢ X (p | q)`)
-  to `always-always-next` (`[] p ⊢ X ([] p)`). A known logic without exercises answers `200` with `[]`; an unknown
+  to `always-always-next` (`[] p ⊢ X ([] p)`), `first-order` 10, from `forall-gives-exists`
+  (`forall x. P(x) ⊢ exists x. P(x)`) to `transitivity-for-all`. A known logic without exercises answers `200` with `[]`; an unknown
   logic is a `404`.
 - Every exercise has a reference solution on the server, a proof in the proof-file layout (see below) that a unit test
   replays (for modal logic it also checks that the goal is derived in `s0`, which `done` does not look at). It is
@@ -148,7 +150,8 @@ cannot be parsed, or a step that does not follow, is a `400` whose message names
 that is in a state starts with the state and `: `, before the indent (`s0: [] p           Ass`,
 `s1:    q           Ass`); a relation between states (`s0 <= s1           Ass`) has no prefix. A `modal-next-until` file uses the same layout,
 with successor states (`s0+1: p           XE [1]`); a file that does not prove its goal (the last line) in `s0`, such
-as one that ends with `s0+1: p`, is a `400`.
+as one that ends with `s0+1: p`, is a `400`. A `first-order` file has the plain layout; `=I` is written with no lines
+(`a = a           =I`) and `∃E` with the line of the `∃` formula and the discharged subproof (`∃E [1, 2-4]`).
 
 ### Intuitionistic logic
 
@@ -201,6 +204,33 @@ change.
 - A proof is done when a top-level line is the goal in `s0` (or the goal is a relation): `X p ⊢ p` is not done by
   `p` in `s0+1`. In `modal`, `done` still looks at the formula only.
 - `POST /logic/modal-next-until/solve` is a `400`: the modal solver uses none of the Next and Until rules.
+
+### First-order logic
+
+`first-order` is first-order logic with equality. It has no solver (`POST /logic/first-order/solve` is a `400`).
+
+- Formulas: `forall x. A` and `exists x. A` (`forall`, `exists`, `TRUE` and `FALSE` are reserved words; the body
+  reaches as far right as it can, so `forall x. P(x) & Q(x)` quantifies over the conjunction; parentheses limit it),
+  `t = s`, predicates `P(t, ...)` and the connectives of classical logic (`-`, `&`, `|`, `->`). A bare name used as a
+  formula is a 0-ary predicate, so `p -> q` parses. Terms are lowercase names (variables or constants) and function
+  applications `f(t, ...)`; there is no infix notation, a binary operation is a function symbol (`m(x, y)`). A name
+  that is free in a premise, such as `e`, acts as a constant.
+- Formulas are equal up to renaming of bound variables: `exists y. P(y)` proves the goal `exists x. P(x)`.
+- Steps have no `extraParameters`. `GET /logic/first-order/actions` lists 20 actions: the 14 shared rules under their
+  modal names (`Ass`, `|I1`, `->E`, ...; the classical names are accepted too), then:
+
+  | name | params          | rule text      | what it does                                                                        |
+  |------|-----------------|----------------|-------------------------------------------------------------------------------------|
+  | `∀I` | INT, EXPR       | `∀I [i]`       | from `A[x:=a]`, derive the target `forall x. A`; `a` is free in no premise, no open assumption and not in the target |
+  | `∀E` | INT, TERM       | `∀E [i]`       | from `forall x. A` and a term `t`, derive `A[x:=t]`                                  |
+  | `∃I` | INT, EXPR       | `∃I [i]`       | from `A[x:=t]` for some term `t`, derive the target `exists x. A`                    |
+  | `∃E` | INT             | `∃E [i, j-k]`  | from `exists x. A`, close the last assumption `A[x:=a]` (`a` fresh), whose subproof ends on `C`, and derive `C` |
+  | `=I` | TERM            | `=I`           | derive `t = t`                                                                       |
+  | `=E` | INT, INT, EXPR  | `=E [i, j]`    | from `s = t` (line `i`) and `A` (line `j`), derive the target: `A` with some `s` replaced by `t` |
+
+- A term that does not parse, or a missing one (`=I needs a term`), is a `400`; a generalization that breaks its side
+  condition (`∀I` on a name free in a premise) is a `202`. The term of a `∀E` step is not written in the proof: the
+  server recovers it from the formula when it replays the proof.
 
 ## Other endpoints
 

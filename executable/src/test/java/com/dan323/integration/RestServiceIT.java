@@ -124,7 +124,7 @@ public class RestServiceIT {
         var classical = new ProofDto(List.of(new StepDto("P", "Ass", 0, Map.of())), "classical", "P");
         var modalStep = new StepDto("P", "Ass", 0, Map.of("state", "s0"));
         for (var name : List.of("COPY", "Rep")) {
-            for (var logic : List.of("classical", "intuitionistic")) {
+            for (var logic : List.of("classical", "intuitionistic", FIRST_ORDER)) {
                 assertCopies(logic, name, new ProofDto(classical.steps(), logic, "P"));
             }
             for (var logic : List.of("modal", "modal-next-until")) {
@@ -277,6 +277,137 @@ public class RestServiceIT {
         var response = restTemplate.exchange(createURLWithPort("/logic/modal/action"), HttpMethod.POST,
                 new HttpEntity<>(new ProofActionRequest(new ActionDto("Succ", List.of(1), Map.of()), proof), headers), ErrorResponse.class);
         assertError(HttpStatus.BAD_REQUEST, response);
+    }
+
+    private static final String FIRST_ORDER = "first-order";
+
+    private ResponseEntity<ProofResponse> applyFirstOrder(ActionDto action, ProofDto proof) {
+        return restTemplate.exchange(createURLWithPort("/logic/" + FIRST_ORDER + "/action"), HttpMethod.POST,
+                new HttpEntity<>(new ProofActionRequest(action, proof), headers), ProofResponse.class);
+    }
+
+    @Test
+    void firstOrderActionsAreDescribed() {
+        var response = restTemplate.getForEntity(createURLWithPort("/logic/" + FIRST_ORDER + "/actions"), ActionDescriptorDto[].class);
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        var actions = Objects.requireNonNull(response.getBody());
+        assertEquals(20, actions.length);
+        for (var action : actions) {
+            assertFalse(action.label().isBlank(), action.name());
+            assertFalse(action.symbol().isBlank(), action.name());
+            assertFalse(action.description().isBlank(), action.name());
+            assertNotNull(action.category(), action.name());
+            assertEquals(action.params().size(), action.paramLabels().size(), action.name());
+        }
+        var byName = Arrays.stream(actions).collect(Collectors.toMap(ActionDescriptorDto::name, ActionDescriptorDto::params));
+        assertEquals(List.of(ParamKind.INT, ParamKind.TERM), byName.get("∀E"));
+        assertEquals(List.of(ParamKind.TERM), byName.get("=I"));
+        assertEquals(List.of(ParamKind.INT, ParamKind.EXPRESSION), byName.get("∀I"));
+        assertEquals(List.of(ParamKind.INT, ParamKind.INT, ParamKind.EXPRESSION), byName.get("=E"));
+
+        var raw = restTemplate.getForObject(createURLWithPort("/logic/" + FIRST_ORDER + "/actions"), String.class);
+        assertTrue(raw.contains("{\"name\":\"∀E\",\"params\":[\"INT\",\"TERM\"],\"label\":\"For-all elimination\","), raw);
+    }
+
+    @Test
+    void firstOrderProvesForallGivesExists() {
+        var proof = new ProofDto(List.of(new StepDto("forall x. P(x)", "Ass", 0, Map.of())), FIRST_ORDER, "exists x. P(x)");
+
+        var instance = Objects.requireNonNull(applyFirstOrder(new ActionDto("∀E", List.of(1), Map.of("term", "a")), proof).getBody());
+        assertTrue(instance.success());
+        assertFalse(instance.done());
+        assertEquals(new StepDto("P(a)", "∀E [1]", 0, Map.of()), last(instance.proof()));
+
+        var response = applyFirstOrder(new ActionDto("∃I", List.of(2), Map.of("expression", "exists x. P(x)")), instance.proof());
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        var body = Objects.requireNonNull(response.getBody());
+        assertTrue(body.success());
+        assertTrue(body.done());
+        assertEquals(FIRST_ORDER, body.proof().logic());
+        assertEquals(new StepDto("exists x. P(x)", "∃I [2]", 0, Map.of()), last(body.proof()));
+    }
+
+    @Test
+    void firstOrderRejectsAForbiddenGeneralization() {
+        var proof = new ProofDto(List.of(new StepDto("P(a)", "Ass", 0, Map.of())), FIRST_ORDER, "forall x. P(x)");
+
+        var response = applyFirstOrder(new ActionDto("∀I", List.of(1), Map.of("expression", "forall x. P(x)")), proof);
+        assertEquals(HttpStatus.ACCEPTED, response.getStatusCode());
+        assertFalse(Objects.requireNonNull(response.getBody()).success());
+
+        var noTerm = restTemplate.exchange(createURLWithPort("/logic/" + FIRST_ORDER + "/action"), HttpMethod.POST,
+                new HttpEntity<>(new ProofActionRequest(new ActionDto("=I", List.of(), Map.of()), proof), headers), ErrorResponse.class);
+        assertError(HttpStatus.BAD_REQUEST, noTerm);
+        assertEquals("=I needs a term", noTerm.getBody().message());
+    }
+
+    @Test
+    void firstOrderHasNoSolver() {
+        var response = restTemplate.exchange(createURLWithPort("/logic/" + FIRST_ORDER + "/solve"), HttpMethod.POST,
+                new HttpEntity<>(new ProofDto(List.of(), FIRST_ORDER, "forall x. x = x"), headers), ErrorResponse.class);
+        assertError(HttpStatus.BAD_REQUEST, response);
+        assertEquals("There is no solver for the logic 'first-order'", response.getBody().message());
+    }
+
+    @Test
+    void firstOrderLoadsAProofText() {
+        var gap = " ".repeat(11);
+        var text = "exists x. forall y. R(x, y)" + gap + "Ass\n"
+                + "   forall y. R(a, y)" + gap + "Ass\n"
+                + "   R(a, b)" + gap + "∀E [2]\n"
+                + "   exists x. R(x, b)" + gap + "∃I [3]\n"
+                + "exists x. R(x, b)" + gap + "∃E [1, 2-4]\n"
+                + "forall y. exists x. R(x, y)" + gap + "∀I [5]\n";
+        var upload = new HttpHeaders();
+        upload.setContentType(MediaType.MULTIPART_FORM_DATA);
+        var part = new HttpHeaders();
+        part.setContentType(MediaType.TEXT_PLAIN);
+        var resource = new ByteArrayResource(text.getBytes(StandardCharsets.UTF_8)) {
+            @Override
+            public String getFilename() {
+                return "swap.pf";
+            }
+        };
+        MultiValueMap<String, Object> map = new LinkedMultiValueMap<>();
+        map.add("file", new HttpEntity<>(resource, part));
+
+        var response = restTemplate.exchange(createURLWithPort("/logic/" + FIRST_ORDER + "/proof"), HttpMethod.POST,
+                new HttpEntity<>(map, upload), ProofDto.class);
+
+        assertEquals(HttpStatus.CREATED, response.getStatusCode());
+        var proof = Objects.requireNonNull(response.getBody());
+        assertEquals(FIRST_ORDER, proof.logic());
+        assertEquals("forall y. exists x. R(x, y)", proof.goal());
+        assertEquals(new StepDto("R(a, b)", "∀E [2]", 1, Map.of()), proof.steps().get(2));
+        assertEquals(new StepDto("exists x. R(x, b)", "∃E [1, 2-4]", 0, Map.of()), proof.steps().get(4));
+        assertError(HttpStatus.BAD_REQUEST, postUpload("classical", text));
+        // b is free in the premise, so it cannot be generalized
+        assertError(HttpStatus.BAD_REQUEST, postUpload(FIRST_ORDER, "P(b)" + gap + "Ass\n" + "forall x. P(x)" + gap + "∀I [1]\n"));
+    }
+
+    @Test
+    void firstOrderExercisesAreListedWithoutSolutions() {
+        var response = restTemplate.getForEntity(createURLWithPort("/logic/" + FIRST_ORDER + "/exercises"), ExerciseDto[].class);
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        var exercises = Objects.requireNonNull(response.getBody());
+        assertTrue(exercises.length >= 8);
+        assertEquals(new ExerciseDto("forall-gives-exists", "What holds for all holds for some", List.of("forall x. P(x)"),
+                "exists x. P(x)", Difficulty.EASY), exercises[0]);
+        var raw = restTemplate.getForObject(createURLWithPort("/logic/" + FIRST_ORDER + "/exercises"), String.class);
+        assertFalse(raw.contains("∀E ["), raw);
+    }
+
+    @Test
+    void theOtherLogicsDoNotHaveTheQuantifierRules() {
+        var proof = new ProofDto(List.of(new StepDto("P", "Ass", 0, Map.of())), "classical", "P");
+        var classical = restTemplate.exchange(createURLWithPort("/logic/classical/action"), HttpMethod.POST,
+                new HttpEntity<>(new ProofActionRequest(new ActionDto("=I", List.of(), Map.of("term", "a")), proof), headers), ErrorResponse.class);
+        assertError(HttpStatus.BAD_REQUEST, classical);
+        var modalProof = new ProofDto(List.of(new StepDto("P", "Ass", 0, Map.of("state", "s0"))), "modal", "P");
+        var modal = restTemplate.exchange(createURLWithPort("/logic/modal/action"), HttpMethod.POST,
+                new HttpEntity<>(new ProofActionRequest(new ActionDto("∀E", List.of(1), Map.of("term", "a")), modalProof), headers), ErrorResponse.class);
+        assertError(HttpStatus.BAD_REQUEST, modal);
     }
 
     private ResponseEntity<ProofDto> solve(String logic, ProofDto proof) {

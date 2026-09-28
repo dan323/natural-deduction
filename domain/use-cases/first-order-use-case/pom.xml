@@ -5,20 +5,12 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>com.dan323</groupId>
-        <artifactId>domain</artifactId>
+        <artifactId>use-cases</artifactId>
         <version>0.1-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
-    <artifactId>use-cases</artifactId>
-    <packaging>pom</packaging>
-    <modules>
-        <module>base-use-case</module>
-        <module>classical-use-case</module>
-        <module>modal-use-case</module>
-        <module>first-order-use-case</module>
-        <module>model</module>
-    </modules>
+    <artifactId>first-order-use-case</artifactId>
 
     <properties>
         <maven.compiler.source>21</maven.compiler.source>
@@ -28,12 +20,17 @@
     <dependencies>
         <dependency>
             <groupId>com.dan323</groupId>
-            <artifactId>language-framework</artifactId>
+            <artifactId>base-use-case</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>com.dan323</groupId>
-            <artifactId>framework.deduction</artifactId>
+            <artifactId>implementation.firstorder</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.dan323</groupId>
+            <artifactId>implementation.deduction.firstorder</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>
