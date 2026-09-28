@@ -6,6 +6,7 @@ import com.dan323.uses.Exercise;
 import com.dan323.uses.firstorder.FirstOrderConfiguration;
 import com.dan323.uses.firstorder.FirstOrderExercises;
 import com.dan323.uses.firstorder.FirstOrderProofParser;
+import com.dan323.uses.firstorder.FirstOrderTheories;
 import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestFactory;
@@ -37,6 +38,18 @@ class FirstOrderExercisesTest {
         assertEquals(new HashSet<>(List.of(Difficulty.values())), new HashSet<>(difficulties));
         exercises.forEach(exercise -> assertFalse(exercise.title().isBlank()));
         assertTrue(ids.containsAll(List.of("symmetry", "transitivity", "forall-and", "forall-swap", "exists-forall-swap")));
+    }
+
+    @Test
+    void theGroupExercisesStartFromTheGroupAxioms() {
+        var group = catalog.exercises().stream().filter(exercise -> exercise.id().startsWith("group-")).toList();
+        assertEquals(List.of("group-identity-unique", "group-left-cancellation", "group-double-inverse",
+                        "group-inverse-unique", "group-inverse-of-product", "group-exponent-two-commutative"),
+                group.stream().map(Exercise::id).toList());
+        var axioms = new FirstOrderTheories().theories().getFirst().premises();
+        group.forEach(exercise -> assertEquals(axioms, exercise.premises(), exercise.id()));
+        catalog.exercises().stream().filter(exercise -> !group.contains(exercise))
+                .forEach(exercise -> assertNotEquals(axioms, exercise.premises(), exercise.id()));
     }
 
     @Test

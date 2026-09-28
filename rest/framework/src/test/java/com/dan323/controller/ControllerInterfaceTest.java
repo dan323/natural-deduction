@@ -2,6 +2,7 @@ package com.dan323.controller;
 
 import com.dan323.model.Difficulty;
 import com.dan323.model.ExerciseDto;
+import com.dan323.model.TheoryDto;
 import com.dan323.uses.ActionsUseCases;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
@@ -33,6 +34,27 @@ class ControllerInterfaceTest {
         when(useCases.getExercises("modal")).thenReturn(List::of);
 
         var response = controller.getExercises("modal");
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals(List.of(), response.getBody());
+    }
+
+    @Test
+    void theoriesAreReturnedAsTheUseCaseListsThem() {
+        var theories = List.of(new TheoryDto("group", "Group", List.of("forall x. m(e, x) = x & m(x, e) = x")));
+        when(useCases.getTheories("first-order")).thenReturn(() -> theories);
+
+        var response = controller.getTheories("first-order");
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals(theories, response.getBody());
+    }
+
+    @Test
+    void aLogicWithoutTheoriesIsAnEmptyList() {
+        when(useCases.getTheories("classical")).thenReturn(List::of);
+
+        var response = controller.getTheories("classical");
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(List.of(), response.getBody());

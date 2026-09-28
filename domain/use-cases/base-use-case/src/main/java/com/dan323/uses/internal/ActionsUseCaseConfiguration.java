@@ -13,6 +13,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Configuration
 public class ActionsUseCaseConfiguration {
@@ -29,7 +30,7 @@ public class ActionsUseCaseConfiguration {
     @Bean
     @SuppressWarnings({"rawtypes", "unchecked"})
     public ActionsUseCases useCases(List<LogicalGetActions> getActions, List<Transformer> transformers, List<ProofParser> parsers,
-                                    List<LogicalExercises> exercises) {
+                                    List<LogicalExercises> exercises, List<LogicalTheories> theories) {
 
         Map<String, Transformer> transformerMap = transformers.stream()
                 .collect(Collectors.toMap(Transformer::logic, Function.identity()));
@@ -46,21 +47,22 @@ public class ActionsUseCaseConfiguration {
         Set<String> knownLogics = new HashSet<>(transformerMap.keySet());
         knownLogics.addAll(actionGetters.keySet());
         knownLogics.addAll(parserMap.keySet());
-        // A catalog only makes sense for a logic the other use cases serve; otherwise its exercises would be listed
-        // for a logic whose actions, proofs and solver all answer 404.
-        exercises.stream()
-                .map(LogicalExercises::logic)
-                .filter(logic -> !knownLogics.contains(logic))
-                .findFirst()
-                .ifPresent(logic -> {
-                    throw new IllegalStateException("Exercise catalog for unknown logic '" + logic + "'");
-                });
+        // A catalog (of exercises or theories) only makes sense for a logic the other use cases serve; otherwise it
+        // would be listed for a logic whose actions, proofs and solver all answer 404.
+        rejectUnknown(exercises.stream().map(LogicalExercises::logic), knownLogics, "Exercise catalog");
+        rejectUnknown(theories.stream().map(LogicalTheories::logic), knownLogics, "Theories");
         Map<String, ActionsUseCases.GetExercises> exerciseMap = new HashMap<>(exercises.stream()
                 .collect(Collectors.toMap(LogicalExercises::logic, catalog -> {
                     var dtos = catalog.exercises().stream().map(Exercise::toDto).toList();
                     return (ActionsUseCases.GetExercises) () -> dtos;
                 })));
         knownLogics.forEach(logic -> exerciseMap.putIfAbsent(logic, List::of));
+        Map<String, ActionsUseCases.GetTheories> theoryMap = new HashMap<>(theories.stream()
+                .collect(Collectors.toMap(LogicalTheories::logic, catalog -> {
+                    var dtos = List.copyOf(catalog.theories());
+                    return (ActionsUseCases.GetTheories) () -> dtos;
+                })));
+        knownLogics.forEach(logic -> theoryMap.putIfAbsent(logic, List::of));
 
         return new ActionsUseCases() {
 
@@ -88,7 +90,20 @@ public class ActionsUseCaseConfiguration {
             public GetExercises getExercises(String logicName) {
                 return lookup(exerciseMap, logicName);
             }
+
+            @Override
+            public GetTheories getTheories(String logicName) {
+                return lookup(theoryMap, logicName);
+            }
         };
+    }
+
+    private static void rejectUnknown(Stream<String> logics, Set<String> knownLogics, String what) {
+        logics.filter(logic -> !knownLogics.contains(logic))
+                .findFirst()
+                .ifPresent(logic -> {
+                    throw new IllegalStateException(what + " for unknown logic '" + logic + "'");
+                });
     }
 
     @SuppressWarnings({"rawtypes", "unchecked"})

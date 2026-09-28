@@ -13,6 +13,7 @@ import com.dan323.model.ExerciseDto;
 import com.dan323.model.ParamKind;
 import com.dan323.model.ProofDto;
 import com.dan323.model.StepDto;
+import com.dan323.model.TheoryDto;
 import com.dan323.rest.model.ErrorResponse;
 import com.dan323.rest.model.ProofActionRequest;
 import com.dan323.rest.model.ProofResponse;
@@ -396,6 +397,38 @@ public class RestServiceIT {
                 "exists x. P(x)", Difficulty.EASY), exercises[0]);
         var raw = restTemplate.getForObject(createURLWithPort("/logic/" + FIRST_ORDER + "/exercises"), String.class);
         assertFalse(raw.contains("∀E ["), raw);
+    }
+
+    @Test
+    void firstOrderServesTheGroupTheoryAndItsExercises() {
+        var groupAxioms = List.of(
+                "forall x. forall y. forall z. m(m(x, y), z) = m(x, m(y, z))",
+                "forall x. m(e, x) = x & m(x, e) = x",
+                "forall x. m(i(x), x) = e & m(x, i(x)) = e");
+        var response = restTemplate.getForEntity(createURLWithPort("/logic/" + FIRST_ORDER + "/theories"), TheoryDto[].class);
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertArrayEquals(new TheoryDto[]{new TheoryDto("group", "Group", groupAxioms)}, response.getBody());
+
+        var exercises = Objects.requireNonNull(restTemplate.getForObject(createURLWithPort("/logic/" + FIRST_ORDER + "/exercises"), ExerciseDto[].class));
+        var group = Arrays.stream(exercises).filter(exercise -> exercise.premises().equals(groupAxioms)).toList();
+        assertEquals(6, group.size());
+        assertTrue(group.contains(new ExerciseDto("group-double-inverse", "The inverse of the inverse", groupAxioms,
+                "forall x. i(i(x)) = x", Difficulty.MEDIUM)));
+    }
+
+    @Test
+    void aLogicWithoutTheoriesHasNoneAndAnUnknownLogicIsNotFound() {
+        for (var logic : List.of("classical", "intuitionistic", "modal", NEXT_UNTIL)) {
+            var response = restTemplate.getForEntity(createURLWithPort("/logic/" + logic + "/theories"), TheoryDto[].class);
+            assertEquals(HttpStatus.OK, response.getStatusCode(), logic);
+            assertEquals(0, Objects.requireNonNull(response.getBody()).length, logic);
+        }
+        var raw = restTemplate.getForObject(createURLWithPort("/logic/classical/theories"), String.class);
+        assertEquals("[]", raw);
+        var unknown = restTemplate.exchange(createURLWithPort("/logic/nope/theories"), HttpMethod.GET,
+                new HttpEntity<>(null, headers), ErrorResponse.class);
+        assertError(HttpStatus.NOT_FOUND, unknown);
+        assertEquals("Unknown logic 'nope'", Objects.requireNonNull(unknown.getBody()).message());
     }
 
     @Test
