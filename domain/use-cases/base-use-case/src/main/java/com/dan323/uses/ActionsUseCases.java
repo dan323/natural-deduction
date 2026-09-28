@@ -4,6 +4,7 @@ import com.dan323.model.ActionDescriptorDto;
 import com.dan323.model.ActionDto;
 import com.dan323.model.ExerciseDto;
 import com.dan323.model.ProofDto;
+import com.dan323.model.TheoryDto;
 
 import java.util.List;
 
@@ -19,6 +20,8 @@ public interface ActionsUseCases {
 
     GetExercises getExercises(String logicName);
 
+    GetTheories getTheories(String logicName);
+
     interface GetActions {
         List<ActionDescriptorDto> perform();
     }
@@ -28,6 +31,13 @@ public interface ActionsUseCases {
      */
     interface GetExercises {
         List<ExerciseDto> perform();
+    }
+
+    /**
+     * The logic's theories (named premise sets). Empty for a known logic that has none.
+     */
+    interface GetTheories {
+        List<TheoryDto> perform();
     }
 
     interface ParseProof {

@@ -135,12 +135,35 @@ Returns `200` with the logic's exercises, ordered from easy to hard. Each one as
 - Classical logic has 14 exercises, intuitionistic logic 16 (the classical ones except `double-negation-elimination`
   and `excluded-middle`, plus four of its own), modal logic 7 (with premises in `s0`, e.g. `box-elimination`, `[] p` to
   `p`, and `box-transitive`, `[] p` to `[] ([] p)`), `modal-next-until` 9, from `next-in-and-out` (`X p ⊢ X (p | q)`)
-  to `always-always-next` (`[] p ⊢ X ([] p)`), `first-order` 10, from `forall-gives-exists`
-  (`forall x. P(x) ⊢ exists x. P(x)`) to `transitivity-for-all`. A known logic without exercises answers `200` with `[]`; an unknown
+  to `always-always-next` (`[] p ⊢ X ([] p)`), `first-order` 16, from `forall-gives-exists`
+  (`forall x. P(x) ⊢ exists x. P(x)`) to `group-exponent-two-commutative`. Six of the `first-order` ones are group
+  exercises (ids `group-...`): their premises are exactly the axioms of the `group` theory (see below), so a client can
+  tell them apart by comparing the premises. A known logic without exercises answers `200` with `[]`; an unknown
   logic is a `404`.
 - Every exercise has a reference solution on the server, a proof in the proof-file layout (see below) that a unit test
   replays (for modal logic it also checks that the goal is derived in `s0`, which `done` does not look at). It is
   never sent to the client.
+
+### List the theories: `GET /logic/{logic}/theories`
+
+Returns `200` with the logic's theories: named sets of premises (axioms) a proof can start from. The formulas are
+written the way the server prints them, so they can be sent back as premises as they are.
+
+```json
+[
+  {"id": "group", "name": "Group", "premises": [
+    "forall x. forall y. forall z. m(m(x, y), z) = m(x, m(y, z))",
+    "forall x. m(e, x) = x & m(x, e) = x",
+    "forall x. m(i(x), x) = e & m(x, i(x)) = e"]}
+]
+```
+
+- `id` is stable and unique within the logic.
+- Only `first-order` has one, `group`: associativity of the operation `m`, the identity `e` and the inverse `i`. `e`
+  is free in the premises, so it acts as a constant (it cannot be generalized with `∀I`). The group exercises
+  (`group-identity-unique`, `group-left-cancellation`, `group-double-inverse`, `group-inverse-unique`,
+  `group-inverse-of-product`, `group-exponent-two-commutative`) start from these premises.
+- A known logic without theories answers `200` with `[]`; an unknown logic is a `404`.
 
 ### Upload a proof file: `POST /logic/{logic}/proof`
 

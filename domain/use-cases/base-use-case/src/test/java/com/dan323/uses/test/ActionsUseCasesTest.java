@@ -5,6 +5,7 @@ import com.dan323.model.ActionDto;
 import com.dan323.model.Difficulty;
 import com.dan323.model.ExerciseDto;
 import com.dan323.model.ProofDto;
+import com.dan323.model.TheoryDto;
 import com.dan323.proof.generic.Action;
 import com.dan323.proof.generic.proof.Proof;
 import com.dan323.uses.ActionsUseCases;
@@ -12,6 +13,7 @@ import com.dan323.uses.Exercise;
 import com.dan323.uses.InvalidActionException;
 import com.dan323.uses.LogicalExercises;
 import com.dan323.uses.LogicalGetActions;
+import com.dan323.uses.LogicalTheories;
 import com.dan323.uses.NoSolverException;
 import com.dan323.uses.ProofParser;
 import com.dan323.uses.Transformer;
@@ -40,7 +42,7 @@ public class ActionsUseCasesTest {
     private final WithParsers useCases = parsers
             -> transformers
             -> getActions
-            -> actionsUseCaseConfiguration.useCases(getActions, transformers, parsers, List.of());
+            -> actionsUseCaseConfiguration.useCases(getActions, transformers, parsers, List.of(), List.of());
 
     @Test
     void solveTest() {
@@ -124,7 +126,7 @@ public class ActionsUseCasesTest {
                 return List.of(new Exercise("e1", "First", List.of("P"), "P", Difficulty.EASY, "the solution"));
             }
         };
-        var cases = actionsUseCaseConfiguration.useCases(actionsList(), List.of(), List.of(), List.of(catalog));
+        var cases = actionsUseCaseConfiguration.useCases(actionsList(), List.of(), List.of(), List.of(catalog), List.of());
         assertEquals(List.of(new ExerciseDto("e1", "First", List.of("P"), "P", Difficulty.EASY)), cases.getExercises("l1").perform());
         assertEquals(List.of(), cases.getExercises("l2").perform());
         assertThrows(UnknownLogicException.class, () -> cases.getExercises("l3"));
@@ -148,8 +150,44 @@ public class ActionsUseCasesTest {
         List<ProofParser> noParsers = List.of();
         List<LogicalExercises> catalogs = List.of(catalog);
         var exception = assertThrows(IllegalStateException.class,
-                () -> actionsUseCaseConfiguration.useCases(getActions, noTransformers, noParsers, catalogs));
+                () -> actionsUseCaseConfiguration.useCases(getActions, noTransformers, noParsers, catalogs, List.of()));
         assertEquals("Exercise catalog for unknown logic 'l3'", exception.getMessage());
+    }
+
+    @Test
+    void theoriesTest() {
+        var theory = new TheoryDto("t1", "Theory", List.of("P", "Q"));
+        var catalog = theoriesOf("l1", List.of(theory));
+        var cases = actionsUseCaseConfiguration.useCases(actionsList(), List.of(), List.of(), List.of(), List.of(catalog));
+        assertEquals(List.of(theory), cases.getTheories("l1").perform());
+        assertEquals(List.of(), cases.getTheories("l2").perform());
+        assertThrows(UnknownLogicException.class, () -> cases.getTheories("l3"));
+    }
+
+    @Test
+    void theoriesForUnknownLogicAreRejectedTest() {
+        var getActions = actionsList();
+        List<Transformer> noTransformers = List.of();
+        List<ProofParser> noParsers = List.of();
+        List<LogicalExercises> noCatalogs = List.of();
+        List<LogicalTheories> theories = List.of(theoriesOf("l3", List.of()));
+        var exception = assertThrows(IllegalStateException.class,
+                () -> actionsUseCaseConfiguration.useCases(getActions, noTransformers, noParsers, noCatalogs, theories));
+        assertEquals("Theories for unknown logic 'l3'", exception.getMessage());
+    }
+
+    private static LogicalTheories theoriesOf(String logic, List<TheoryDto> theories) {
+        return new LogicalTheories() {
+            @Override
+            public String logic() {
+                return logic;
+            }
+
+            @Override
+            public List<TheoryDto> theories() {
+                return theories;
+            }
+        };
     }
 
     @Test
@@ -283,6 +321,8 @@ public class ActionsUseCasesTest {
         assertThrows(UnknownLogicException.class, () -> cases.applyAction("l3"));
         assertThrows(UnknownLogicException.class, () -> cases.solveProblem("l3"));
         assertThrows(UnknownLogicException.class, () -> cases.parseToProof("l3"));
+        assertThrows(UnknownLogicException.class, () -> cases.getExercises("l3"));
+        assertThrows(UnknownLogicException.class, () -> cases.getTheories("l3"));
         assertEquals("Unknown logic 'l3'", assertThrows(UnknownLogicException.class, () -> cases.getActions("l3")).getMessage());
     }
 

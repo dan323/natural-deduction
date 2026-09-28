@@ -57,6 +57,8 @@ class NoExerciseCatalogContextTest {
             assertTrue(context.getBeansOfType(LogicalExercises.class).isEmpty());
             var useCases = context.getBean(ActionsUseCases.class);
             assertEquals(List.of(), useCases.getExercises("modal").perform());
+            // No logic here has theories either, and those are injected the same way.
+            assertEquals(List.of(), useCases.getTheories("modal").perform());
         }
     }
 }
