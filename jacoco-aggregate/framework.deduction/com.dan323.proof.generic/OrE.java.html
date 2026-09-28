@@ -45,7 +45,7 @@ public abstract class OrE&lt;T extends LogicOperation, Q extends ProofStep&lt;T&
 <span class="fc" id="L45">            LogicOperation dis = pf.getSteps().get(disj - 1).getStep();</span>
 <span class="fc" id="L46">            LogicOperation r1 = pf.getSteps().get(rule1 - 1).getStep();</span>
 <span class="fc" id="L47">            LogicOperation r2 = pf.getSteps().get(rule2 - 1).getStep();</span>
-<span class="pc bpc" id="L48" title="3 of 6 branches missed.">            if ((dis instanceof Disjunction) &amp;&amp; (r1 instanceof Implication) &amp;&amp; (r2 instanceof Implication)) {</span>
+<span class="pc bpc" id="L48" title="2 of 6 branches missed.">            if ((dis instanceof Disjunction) &amp;&amp; (r1 instanceof Implication) &amp;&amp; (r2 instanceof Implication)) {</span>
 <span class="fc" id="L49">                LogicOperation left = ((BinaryOperation&lt;?&gt;) dis).getLeft();</span>
 <span class="fc" id="L50">                LogicOperation right = ((BinaryOperation&lt;?&gt;) dis).getRight();</span>
 <span class="pc bpc" id="L51" title="1 of 4 branches missed.">                if (((BinaryOperation&lt;?&gt;) r1).getLeft().equals(left) &amp;&amp; ((BinaryOperation&lt;?&gt;) r2).getLeft().equals(right)) {</span>
