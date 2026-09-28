@@ -10,7 +10,7 @@ Defaults taken for the open questions (change them and the affected steps move):
 ## Status (2026-09-27)
 
 PRs 1-10 are merged. PR 11 (first-order logic with equality and group theory) is in progress: 11.1 (#170) is merged
-as #179, 11.2 (#171) as #180, 11.3 (#172) as #181, 11.4 (#173) is done, and 11.5-11.6 are open as issues #174-#175, one per step. PR 12 (solvers for intuitionistic, modal-next-until and first-order logic) is pending:
+as #179, 11.2 (#171) as #180, 11.3 (#172) as #181, 11.4 (#173) as #182, 11.5 (#174) is done, and 11.6 is open as issue #175, one per step. PR 12 (solvers for intuitionistic, modal-next-until and first-order logic) is pending:
 12.1-12.3 are open as issues #176-#178; 12.3 comes after PR 11.
 
 PRs 1-6 are merged: 1-3, 4.1, 5.1, 5.2 and 5.4 as #124-#128, #130 and #131; 4.2 and 5.3 folded into #127 and #129;
@@ -445,7 +445,7 @@ relies on.
   text and `/solve` → 400; the other logics are unchanged.
 - Done when: `/logic/first-order/...` proves `forall x. P(x) ⊢ exists x. P(x)` over REST.
 
-**11.4 Group theory: premise sets and exercises (backend)** — done (issue #173)
+**11.4 Group theory: premise sets and exercises (backend)** — done (#182, issue #173)
 - Change: a `LogicalTheories` catalog behind a new `GET /logic/{logic}/theories` endpoint. Each theory is
   `{id, name, premises}`; a known logic without one answers `[]`, as exercises do. `first-order` gets `group`:
   - `forall x. forall y. forall z. m(m(x, y), z) = m(x, m(y, z))`
@@ -460,7 +460,7 @@ relies on.
   `/theories`, including `[]` for classical and 404 for an unknown logic.
 - Done when: `GET /logic/first-order/theories` returns the group axioms, and the group exercises are served.
 
-**11.5 First-order logic in the UI (frontend)** — pending (issue #174)
+**11.5 First-order logic in the UI (frontend)** — done (issue #174)
 - Change: add `"first-order"` to `LOGICS` with `hasSolver: false`; `Menu` renders `TERM` inputs;
   `checkFormula`/`isRelationFormula` learn the first-order syntax, for that logic only; `renderExpression` shows
   `∀`/`∃`; `connectives.ts` adds `∀`, `∃` and `=` buttons and hint entries, for that logic only. `proofToText`

@@ -46,7 +46,7 @@ The Natural Deduction project follows a **plugin-based architecture** with clear
   - Goal/formula input
   - Proof visualization
   - Rule selection (built from the action descriptors of the backend) and application
-  - A logic selector (in the New Proof dialog and on the empty page) offering the logics of `LOGICS` in `constant.ts`: classical, intuitionistic, modal and modal with Next and Until; everything logic-specific (rules, exercises, formula help) follows the logic of the proof on screen
+  - A logic selector (in the New Proof dialog and on the empty page) offering the logics of `LOGICS` in `constant.ts`: classical, intuitionistic, modal, modal with Next and Until, and first-order; everything logic-specific (rules, exercises, formula help) follows the logic of the proof on screen
   - A Solve button that asks the backend's automatic solver to finish the proof, for the logics that have one
   - Undo, "Copy proof as text" and "Load from text" (a finished proof in the proof-text layout)
   - An exercise list (`ExerciseList`, from `GET exercises`) grouped by difficulty, with a "Solved n of m" counter, a "(Solved)" marker per exercise and a "Next exercise" button; starting an exercise over a proof with more than its premises asks for confirmation before discarding it (again, if the proof changed while the exercise was being checked by the backend); an exercise answer arriving after the user asked for another proof is dropped, and so is a rule or solver answer arriving after its proof was replaced, so it can never be shown or marked solved as another exercise

@@ -34,6 +34,12 @@ export const LOGICS: readonly LogicInfo[] = [
         description: 'Modal logic over discrete time: every state s has a next state s+1 (written s0+1, s0+2, ...), X A says that A holds in the next state and A U B that B holds in some later state and A until then. There is no solver.',
         hasSolver: false,
     },
+    {
+        id: 'first-order',
+        name: 'First-order',
+        description: 'Predicates P(x), functions f(x), equations s = t and the quantifiers ∀ (forall x. A) and ∃ (exists x. A). A name that is free in a premise, like e, acts as a constant. There is no solver.',
+        hasSolver: false,
+    },
 ];
 
 // The logic of a new page, before the user picks another one.

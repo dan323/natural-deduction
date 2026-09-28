@@ -85,4 +85,23 @@ describe('connectives', () => {
             + 'X and U only as words of their own (Xp and pUq are names); s0+1 is the state after s0'
         );
     });
+
+    test('a first-order proof also gets the quantifiers, typed as words, and =, and no modal operators', () => {
+        expect(connectivesFor('first-order').map(({ symbol, ascii, insert }) => [symbol, insert ?? ascii])).toEqual([
+            ['→', '->'], ['∧', '&'], ['∨', '|'], ['¬', '-'], ['∀', 'forall '], ['∃', 'exists '], ['=', ' = '],
+        ]);
+    });
+
+    test('the first-order syntax hint adds the quantifiers, equations, terms and predicates', () => {
+        expect(syntaxHint('first-order')).toBe(
+            '-> implies, & and, | or, - not, forall x. A for all, exists x. A there exists (the body A reaches as far '
+            + 'right as it can), s = t equals; terms are lowercase names and functions f(t, ...), such as m(x, e); '
+            + 'predicates P(t, ...)'
+        );
+    });
+
+    test('a quantifier gets a space in front when a name is right before the caret', () => {
+        expect(insertAtCursor('P(x) & -', 8, 8, 'forall ')).toEqual({ value: 'P(x) & -forall ', caret: 15 });
+        expect(insertAtCursor('p', 1, 1, 'exists ')).toEqual({ value: 'p exists ', caret: 9 });
+    });
 });

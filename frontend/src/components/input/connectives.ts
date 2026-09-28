@@ -32,6 +32,19 @@ export const NEXT_UNTIL_CONNECTIVES: readonly Connective[] = [
     { symbol: 'U', ascii: 'U', name: 'until', insert: ' U ' },
 ];
 
+// The logic whose parser (`FirstOrderParser`) reads predicates, terms, equations and the quantifiers.
+export const FIRST_ORDER_LOGIC = 'first-order';
+
+// The quantifiers and equality, on top of the connectives. The quantifiers are the reserved words `forall` and `exists`
+// (the parser does not read ∀ and ∃), followed by a variable and a dot: `forall x. P(x)`. Their buttons type the word and
+// a space, the variable is up to the user; like X, `insertAtCursor` puts a space before the word when a name is right
+// before the caret. There is no infix operation on terms: a product is a function symbol, `m(x, y)`.
+export const FIRST_ORDER_CONNECTIVES: readonly Connective[] = [
+    { symbol: '∀', ascii: 'forall', name: 'for all', insert: 'forall ' },
+    { symbol: '∃', ascii: 'exists', name: 'there exists', insert: 'exists ' },
+    { symbol: '=', ascii: '=', name: 'equals', insert: ' = ' },
+];
+
 // Whether the logic's formulas are modal ones, with □, ◇ and relations between states.
 function isModal(logic?: string): boolean {
     return logic === MODAL_LOGIC || logic === NEXT_UNTIL_LOGIC;
@@ -40,6 +53,7 @@ function isModal(logic?: string): boolean {
 // The connectives an expression input of a proof of `logic` offers.
 export function connectivesFor(logic?: string): readonly Connective[] {
     if (logic === NEXT_UNTIL_LOGIC) return [...CONNECTIVES, ...MODAL_CONNECTIVES, ...NEXT_UNTIL_CONNECTIVES];
+    if (logic === FIRST_ORDER_LOGIC) return [...CONNECTIVES, ...FIRST_ORDER_CONNECTIVES];
     return logic === MODAL_LOGIC ? [...CONNECTIVES, ...MODAL_CONNECTIVES] : CONNECTIVES;
 }
 
@@ -54,8 +68,14 @@ export const RELATION_HINT = 'relations between states: s0 <= s1 (s1 is reachabl
 // In `modal-next-until`, X and U are words of their own, and a state can be the one after another.
 export const NEXT_UNTIL_HINT = 'X and U only as words of their own (Xp and pUq are names); s0+1 is the state after s0';
 
+// First-order formulas: the quantifiers with their variable and body, equations between terms, and what a term and a
+// predicate look like.
+export const FIRST_ORDER_HINT = 'forall x. A for all, exists x. A there exists (the body A reaches as far right as it can), '
+    + 's = t equals; terms are lowercase names and functions f(t, ...), such as m(x, e); predicates P(t, ...)';
+
 // The syntax hint of an expression input of a proof of `logic`: every operator its parser accepts.
 export function syntaxHint(logic?: string): string {
+    if (logic === FIRST_ORDER_LOGIC) return `${SYNTAX_HINT}, ${FIRST_ORDER_HINT}`;
     if (!isModal(logic)) return SYNTAX_HINT;
     const modalHint = `${hintOf(connectivesFor(logic))}; ${RELATION_HINT}`;
     return logic === NEXT_UNTIL_LOGIC ? `${modalHint}; ${NEXT_UNTIL_HINT}` : modalHint;
@@ -63,7 +83,7 @@ export function syntaxHint(logic?: string): string {
 
 // Puts `text` in place of value[start, end) (the selection, or just the caret when start === end) and returns the new
 // value with the caret position right after the inserted text. A `text` that starts with a word character (the X
-// operator) gets a space in front when a word character is right before it, so that it never joins a preceding name.
+// operator, `forall`, `exists`) gets a space in front when a word character is right before it, so that it never joins a preceding name.
 export function insertAtCursor(value: string, start: number, end: number, text: string): { value: string; caret: number } {
     const from = Math.max(0, Math.min(start, end, value.length));
     const to = Math.min(value.length, Math.max(start, end, from));
