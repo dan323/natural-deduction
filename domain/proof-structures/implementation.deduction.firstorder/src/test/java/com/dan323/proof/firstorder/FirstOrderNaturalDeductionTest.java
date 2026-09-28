@@ -76,7 +76,8 @@ class FirstOrderNaturalDeductionTest {
         applies(proof, new FirstOrderFE(19, formula("forall x. Z(x)")), "forall x. Z(x)");
         applies(proof, new FirstOrderDeductionTheorem(), "FALSE -> forall x. Z(x)");
 
-        replay(proof);
+        var copy = replay(proof);
+        assertEquals(proof.getSteps().getLast().getStep(), copy.getSteps().getLast().getStep());
     }
 
     @Test
