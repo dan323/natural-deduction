@@ -11,7 +11,9 @@
 // A quantifier body reaches as far right as it can. Terms (variables, constants and function symbols) start with a
 // lowercase letter; a predicate is any name, and one without arguments is a propositional variable (`p -> q`). There
 // is no infix operation on terms: a product is a function symbol, `m(x, y)`. `forall`, `exists`, `TRUE` and `FALSE`
-// are reserved. The backend also limits the nesting depth; that is left to it.
+// are reserved. Like the backend, nesting is limited to MAX_DEPTH levels (here counted by negations, quantifiers,
+// parentheses and function arguments, which is never more than the backend counts), so a pasted formula of thousands
+// of `-` or `(` gets a message instead of overflowing the stack.
 
 const QUANTIFIERS: ReadonlySet<string> = new Set(['forall', 'exists']);
 const RESERVED: ReadonlySet<string> = new Set([...QUANTIFIERS, 'TRUE', 'FALSE']);
@@ -22,6 +24,9 @@ const BINARY_OPERATORS: ReadonlySet<string> = new Set(['->', '&', '|', '=']);
 const IDENTIFIER = /^\p{L}[\p{L}\p{N}_]*/u;
 // The symbols the proof table shows for the quantifiers, which cannot be typed as such.
 const QUANTIFIER_SYMBOLS: Record<string, string> = { '∀': 'forall', '∃': 'exists' };
+
+const MAX_DEPTH = 500;
+const TOO_DEEP = `The formula is nested more than ${MAX_DEPTH} levels deep.`;
 
 const ENDS_EARLY = 'The formula ends with an operator that has nothing after it.';
 const NEVER_CLOSED = 'Unbalanced parentheses: "(" is never closed.';
@@ -58,6 +63,7 @@ function isTermName(token: string | undefined): token is string {
 
 class Cursor {
   private position = 0;
+  private depth = 0;
 
   constructor(private readonly tokens: string[]) {}
 
@@ -79,6 +85,16 @@ class Cursor {
       case '.': return new SyntaxProblem('"." only follows the variable of forall or exists, as in forall x. P(x).');
       case ',': return new SyntaxProblem('"," only separates the arguments of a function or a predicate, as in P(x, y).');
       default: return new SyntaxProblem(`Missing operator before "${token}".`);
+    }
+  }
+
+  // Runs `parse` one nesting level deeper.
+  private nested(parse: () => void): void {
+    if (++this.depth > MAX_DEPTH) throw new SyntaxProblem(TOO_DEEP);
+    try {
+      parse();
+    } finally {
+      this.depth--;
     }
   }
 
@@ -127,6 +143,10 @@ class Cursor {
   }
 
   private unary(): void {
+    this.nested(() => this.unaryBody());
+  }
+
+  private unaryBody(): void {
     if (this.accept('-')) {
       this.unary();
       return;
@@ -182,6 +202,10 @@ class Cursor {
   }
 
   private term(): void {
+    this.nested(() => this.termBody());
+  }
+
+  private termBody(): void {
     if (this.accept('(')) {
       this.term();
       this.expectClose();

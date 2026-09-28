@@ -10,6 +10,12 @@ describe('insertAtCursor', () => {
         expect(insertAtCursor('p1', 2, 2, 'X ')).toEqual({ value: 'p1 X ', caret: 5 });
     });
 
+    test('a name ending in a non-ASCII letter or digit counts as a name too', () => {
+        expect(insertAtCursor('Pé', 2, 2, 'forall ')).toEqual({ value: 'Pé forall ', caret: 10 });
+        expect(insertAtCursor('p', 1, 1, 'exists ')).toEqual({ value: 'p exists ', caret: 9 });
+        expect(insertAtCursor('(', 1, 1, 'forall ')).toEqual({ value: '(forall ', caret: 8 });
+    });
+
     test('a word operator gets no extra space at the start, after a space or after a symbol', () => {
         expect(insertAtCursor('', 0, 0, 'X ')).toEqual({ value: 'X ', caret: 2 });
         expect(insertAtCursor('p U ', 4, 4, 'X ')).toEqual({ value: 'p U X ', caret: 6 });

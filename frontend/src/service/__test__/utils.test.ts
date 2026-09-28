@@ -205,6 +205,13 @@ describe('checkFormula in first-order', () => {
     expect(checkFormula(formula, FO)).toMatch(message);
   });
 
+  test('a formula nested too deeply gets a message instead of overflowing the stack', () => {
+    expect(checkFormula('-'.repeat(5000) + 'p', FO)).toMatch(/nested more than 500 levels deep/);
+    expect(checkFormula('('.repeat(5000) + 'p' + ')'.repeat(5000), FO)).toMatch(/nested more than 500 levels deep/);
+    expect(checkFormula('P(' + 'f('.repeat(5000) + 'x' + ')'.repeat(5001), FO)).toMatch(/nested more than 500 levels deep/);
+    expect(checkFormula('-'.repeat(400) + 'p', FO)).toBeNull();
+  });
+
   test.each(['forall x. P(x)', 'exists x. P(x)', 'P(x)', 'forall x. x = x'])('the other logics refuse %j', (formula) => {
     expect(checkFormula(formula)).not.toBeNull();
     expect(checkFormula(formula, 'classical')).not.toBeNull();

@@ -81,12 +81,16 @@ export function syntaxHint(logic?: string): string {
     return logic === NEXT_UNTIL_LOGIC ? `${modalHint}; ${NEXT_UNTIL_HINT}` : modalHint;
 }
 
+// A word character as the tokenizers read names (`[\p{L}\p{N}_]`, not ASCII `\w`), so `Pé` counts as a name too.
+const WORD_START = /^[\p{L}\p{N}_]/u;
+const WORD_END = /[\p{L}\p{N}_]$/u;
+
 // Puts `text` in place of value[start, end) (the selection, or just the caret when start === end) and returns the new
 // value with the caret position right after the inserted text. A `text` that starts with a word character (the X
 // operator, `forall`, `exists`) gets a space in front when a word character is right before it, so that it never joins a preceding name.
 export function insertAtCursor(value: string, start: number, end: number, text: string): { value: string; caret: number } {
     const from = Math.max(0, Math.min(start, end, value.length));
     const to = Math.min(value.length, Math.max(start, end, from));
-    const inserted = /^\w/.test(text) && /\w$/.test(value.slice(0, from)) ? ` ${text}` : text;
+    const inserted = WORD_START.test(text) && WORD_END.test(value.slice(0, from)) ? ` ${text}` : text;
     return { value: value.slice(0, from) + inserted + value.slice(to), caret: from + inserted.length };
 }
