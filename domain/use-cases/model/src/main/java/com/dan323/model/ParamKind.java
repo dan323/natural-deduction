@@ -9,5 +9,7 @@ public enum ParamKind {
     /** A formula, sent as {@code extraParameters.expression}. */
     EXPRESSION,
     /** A state (world) name, sent as {@code extraParameters.state}. Only used by modal logic. */
-    STATE
+    STATE,
+    /** A term, such as {@code a} or {@code f(x, e)}, sent as {@code extraParameters.term}. Only used by first-order logic. */
+    TERM
 }

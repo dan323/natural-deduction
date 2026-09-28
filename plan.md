@@ -10,7 +10,7 @@ Defaults taken for the open questions (change them and the affected steps move):
 ## Status (2026-09-27)
 
 PRs 1-10 are merged. PR 11 (first-order logic with equality and group theory) is in progress: 11.1 (#170) is merged
-as #179, 11.2 (#171) is done, and 11.3-11.6 are open as issues #172-#175, one per step. PR 12 (solvers for intuitionistic, modal-next-until and first-order logic) is pending:
+as #179, 11.2 (#171) as #180, 11.3 (#172) is done, and 11.4-11.6 are open as issues #173-#175, one per step. PR 12 (solvers for intuitionistic, modal-next-until and first-order logic) is pending:
 12.1-12.3 are open as issues #176-#178; 12.3 comes after PR 11.
 
 PRs 1-6 are merged: 1-3, 4.1, 5.1, 5.2 and 5.4 as #124-#128, #130 and #131; 4.2 and 5.3 folded into #127 and #129;
@@ -433,7 +433,7 @@ relies on.
   instance, and capture cases; a small proof (`forall x. P(x) ⊢ exists x. P(x)`) replays through `parse()`.
 - Done when: that proof and `a = b, P(a) ⊢ P(b)` are done, and each forbidden generalization is rejected.
 
-**11.3 Serve `"first-order"` (backend)** — pending (issue #172)
+**11.3 Serve `"first-order"` (backend)** — done (issue #172)
 - Change: a new `first-order-use-case` module with a `Transformer`, a `ProofParser` and a `LogicalGetActions` with
   10.1-style descriptions (`∀I` "For-all introduction", ...), and a `FirstOrderConfiguration` imported in
   `ApplicationConfiguration`. A new `ParamKind` `TERM`, sent in `extraParameters.term`, is needed for `∀E`/`=I` (an
