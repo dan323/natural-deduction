@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>StateTerm.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">jacoco-report-aggregate</a> &gt; <a href="../index.html" class="el_bundle">implementation.modal</a> &gt; <a href="index.source.html" class="el_package">com.dan323.expressions.relation</a> &gt; <span class="el_source">StateTerm.java</span></div><h1>StateTerm.java</h1><pre class="source lang-java linenums">package com.dan323.expressions.relation;
+
+import java.util.Objects;
+import java.util.regex.Pattern;
+
+/**
+ * A state of a logic with discrete time ({@code modal-next-until}): a state name, its {@code base}, followed by a
+ * number of successor steps, its {@code offset}. {@code s0} is the base {@code s0} itself, {@code s0+1} is the
+ * successor of {@code s0} and {@code s0+2} the successor of {@code s0+1}.
+ * &lt;p&gt;
+ * A term is written without spaces and with one {@code +k} at most ({@code s0+1+1} and {@code s0 + 2} are read as
+ * {@code s0+2}, and {@code s0+0} as {@code s0}), so two terms name the same state exactly when they are written the
+ * same. A base is a letter or {@code _} followed by letters, digits or {@code _}.
+ *
+ * @param base   the state the term counts from
+ * @param offset how many successor steps after {@code base}, at least 0
+ */
+public record StateTerm(String base, int offset) {
+
+<span class="fc" id="L20">    private static final Pattern BASE_PATTERN = Pattern.compile(&quot;[\\p{L}_][\\p{L}\\p{N}_]*&quot;);</span>
+<span class="fc" id="L21">    private static final Pattern STEP_PATTERN = Pattern.compile(&quot;\\d+&quot;);</span>
+    private static final String NOT_A_STATE = &quot;' is not a state: expected a name such as s0, then +1, +2, ...&quot;;
+
+<span class="fc" id="L24">    public StateTerm {</span>
+<span class="fc" id="L25">        Objects.requireNonNull(base);</span>
+<span class="fc bfc" id="L26" title="All 2 branches covered.">        if (!BASE_PATTERN.matcher(base).matches()) {</span>
+<span class="fc" id="L27">            throw new IllegalArgumentException(&quot;'&quot; + base + &quot;' is not a state name&quot;);</span>
+        }
+<span class="fc bfc" id="L29" title="All 2 branches covered.">        if (offset &lt; 0) {</span>
+<span class="fc" id="L30">            throw new IllegalArgumentException(&quot;A state cannot come before its base&quot;);</span>
+        }
+<span class="fc" id="L32">    }</span>
+
+    /**
+     * @param text a state such as {@code s1} or {@code s0+2}
+     * @return the state written as {@code text}
+     * @throws IllegalArgumentException if {@code text} is not a state
+     */
+    public static StateTerm parse(String text) {
+<span class="fc bfc" id="L40" title="All 2 branches covered.">        if (text == null) {</span>
+<span class="fc" id="L41">            throw new IllegalArgumentException(&quot;A state is missing&quot;);</span>
+        }
+<span class="fc" id="L43">        var parts = text.split(&quot;\\+&quot;, -1);</span>
+<span class="fc bfc" id="L44" title="All 2 branches covered.">        for (int i = 0; i &lt; parts.length; i++) {</span>
+<span class="fc" id="L45">            parts[i] = parts[i].strip();</span>
+        }
+<span class="fc bfc" id="L47" title="All 2 branches covered.">        if (!BASE_PATTERN.matcher(parts[0]).matches()) {</span>
+<span class="fc" id="L48">            throw new IllegalArgumentException(&quot;'&quot; + text + NOT_A_STATE);</span>
+        }
+<span class="fc" id="L50">        int offset = 0;</span>
+<span class="fc bfc" id="L51" title="All 2 branches covered.">        for (int i = 1; i &lt; parts.length; i++) {</span>
+<span class="fc bfc" id="L52" title="All 2 branches covered.">            if (!STEP_PATTERN.matcher(parts[i]).matches()) {</span>
+<span class="fc" id="L53">                throw new IllegalArgumentException(&quot;'&quot; + text + NOT_A_STATE);</span>
+            }
+            try {
+<span class="fc" id="L56">                offset = Math.addExact(offset, Integer.parseInt(parts[i]));</span>
+<span class="fc" id="L57">            } catch (ArithmeticException | NumberFormatException e) {</span>
+<span class="fc" id="L58">                throw new IllegalArgumentException(&quot;'&quot; + text + &quot;' is too far after its base&quot;, e);</span>
+<span class="fc" id="L59">            }</span>
+        }
+<span class="fc" id="L61">        return new StateTerm(parts[0], offset);</span>
+    }
+
+    /**
+     * @param text a state
+     * @return how the state is written, e.g. {@code s0+2} for {@code s0 + 1 + 1}
+     * @throws IllegalArgumentException if {@code text} is not a state
+     */
+    public static String normalize(String text) {
+<span class="fc" id="L70">        return parse(text).toString();</span>
+    }
+
+    /** @return whether this is a state name with no successor steps, such as {@code s1} */
+    public boolean isBase() {
+<span class="fc bfc" id="L75" title="All 2 branches covered.">        return offset == 0;</span>
+    }
+
+    /** @return whether {@link #successor()} can write the next state, i.e. the offset is below {@link Integer#MAX_VALUE} */
+    public boolean hasSuccessor() {
+<span class="fc bfc" id="L80" title="All 2 branches covered.">        return offset &lt; Integer.MAX_VALUE;</span>
+    }
+
+    /**
+     * @return the next state, {@code s+1}
+     * @throws IllegalStateException if the offset is already {@link Integer#MAX_VALUE} (see {@link #hasSuccessor()})
+     */
+    public StateTerm successor() {
+<span class="fc bfc" id="L88" title="All 2 branches covered.">        if (!hasSuccessor()) {</span>
+<span class="fc" id="L89">            throw new IllegalStateException(this + &quot; has no written successor&quot;);</span>
+        }
+<span class="fc" id="L91">        return new StateTerm(base, offset + 1);</span>
+    }
+
+    /**
+     * @return the previous state, {@code s} for {@code s+1}
+     * @throws IllegalStateException if this is a base, which has no written predecessor
+     */
+    public StateTerm predecessor() {
+<span class="fc bfc" id="L99" title="All 2 branches covered.">        if (isBase()) {</span>
+<span class="fc" id="L100">            throw new IllegalStateException(base + &quot; has no written predecessor&quot;);</span>
+        }
+<span class="fc" id="L102">        return new StateTerm(base, offset - 1);</span>
+    }
+
+    @Override
+    public String toString() {
+<span class="fc bfc" id="L107" title="All 2 branches covered.">        return offset == 0 ? base : base + &quot;+&quot; + offset;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>
