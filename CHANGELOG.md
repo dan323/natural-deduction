@@ -53,6 +53,9 @@ The project has never been versioned or tagged, since it was not meant for publi
 - Non-root user and `HEALTHCHECK` in the Dockerfile (#107)
 
 ### Changed
+- The classical and modal solvers are complete: they search a sequent calculus (G3cp; a labelled tableau for S4) and
+  translate the proof into steps, so an unprovable goal answers `done=false` with the premises only, and proofs use
+  introduction rules where they can (#190)
 - Dependencies updated: Spring Boot 3.5.16 to 4.1.1 (Spring 7.0.9), springdoc 3.1.1, Mockito 5.24.0, SLF4J 2.0.20,
   TypeScript 6.0.3, Vite 8.3.1, jest-dom 7, Node 24 in CI and newer artifact and Docker actions;
   `application.properties` is removed, since its properties no longer exist in Boot 4 (#168)
