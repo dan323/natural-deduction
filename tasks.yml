@@ -161,21 +161,33 @@ projects:
     branch: task/171-11-2-first-order-natural-deduction-backen-814a3e
     pr_url: https://github.com/dan323/natural-deduction/pull/180
     date: '2026-09-27'
+I     pr_announced: true
   - id: 848c15
     description: '#172: 11.3 Serve `"first-order"` (backend)'
-    status: pending
+    status: done
     issue_number: 172
     issue_url: https://github.com/dan323/natural-deduction/issues/172
+    branch: task/172-11-3-serve-first-order-backend-0e58f5
+    pr_url: https://github.com/dan323/natural-deduction/pull/181
+    date: '2026-09-28'
+    pr_announced: true
   - id: f19a66
     description: '#173: 11.4 Group theory: premise sets and exercises (backend)'
-    status: pending
+    status: done
     issue_number: 173
     issue_url: https://github.com/dan323/natural-deduction/issues/173
+    branch: task/173-11-4-group-theory-premise-sets-and-exerci-0c8402
+    pr_url: https://github.com/dan323/natural-deduction/pull/182
+    date: '2026-09-28'
+    pr_announced: true
   - id: c14ce0
     description: '#174: 11.5 First-order logic in the UI (frontend)'
-    status: pending
+    status: done
     issue_number: 174
     issue_url: https://github.com/dan323/natural-deduction/issues/174
+    branch: task/174-11-5-first-order-logic-in-the-ui-frontend-a63058
+    pr_url: https://github.com/dan323/natural-deduction/pull/183
+    date: '2026-09-28'
   - id: c9b7a1
     description: '#175: 11.6 Start from a theory (frontend)'
     status: pending

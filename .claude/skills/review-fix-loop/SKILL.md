@@ -130,7 +130,9 @@ the two is true — a green review with red CI (or vice versa) is not done.
 The role instructions live in `.claude/agents/pr-fixer.md`. That agent has no
 Skill or Agent tool, so it cannot run `/code-review` on its own work. It reads the
 clone's CLAUDE.md and runs the local checks (`mvn -B verify` and/or the frontend
-typecheck + tests) before pushing. Pass only the context:
+typecheck + tests) before pushing. After it pushes, it replies to each review thread it fixed with the commit, and
+resolves the thread. A thread it skipped gets the reason as a reply and stays open, so the PR ends with no fixed but
+unresolved comments. Pass only the context:
 
 ```
 Agent(

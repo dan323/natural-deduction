@@ -180,6 +180,12 @@
                     <groupId>org.codehaus.mojo</groupId>
                     <artifactId>versions-maven-plugin</artifactId>
                     <version>${maven.versions.version}</version>
+                    <configuration>
+                        <!-- Suggest releases only: skip alpha, beta, milestone (M1), RC/CR, preview, EA and snapshot versions. -->
+                        <ignoredVersions>
+                            <ignoredVersion>(?i).*[-_.](alpha|a|beta|b|m|milestone|rc|cr|preview|pre|ea|snapshot)[-_.]?\d*([-_.].*)?</ignoredVersion>
+                        </ignoredVersions>
+                    </configuration>
                 </plugin>
             </plugins>
         </pluginManagement>
