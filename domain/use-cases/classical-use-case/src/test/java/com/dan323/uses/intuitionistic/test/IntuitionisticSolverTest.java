@@ -93,6 +93,8 @@ class IntuitionisticSolverTest {
                         start(List.of(), "(p -> (q -> r)) -> ((p & q) -> r)"),
                         start(List.of(), "(p -> q) -> ((- q) -> (- p))"),
                         start(List.of(), "(p -> FALSE) -> (- p)"),
+                        // FALSE is the right side of an implication goal: ->I reaches it, not -I (#191)
+                        start(List.of(), "(- p) -> (p -> FALSE)"),
                         start(List.of(), "((p -> q) & (q -> r)) -> (p -> r)"),
                         start(List.of(), "(p | q) -> (- ((- p) & (- q)))"),
                         start(List.of("p | q", "- p"), "q"),
@@ -121,7 +123,6 @@ class IntuitionisticSolverTest {
                         start(List.of(), "((p | q) & (p | r)) -> (p | (q & r))"),
                         start(List.of(), "((p | q) | r) -> (p | (q | r))"),
                         start(List.of(), "((- p) | q) -> (p -> q)"),
-                        start(List.of(), "(- p) -> (p -> FALSE)"),
                         start(List.of("FALSE"), "p & (- q)"))
                 .map(proof -> DynamicTest.dynamicTest(proof.goal(), () -> assertNotSolved(proof)));
     }

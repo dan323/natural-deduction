@@ -1,0 +1,621 @@
+goal: p
+premise: [] p
+proof:
+s0: [] p           Ass
+s0 <= s0           Refl [1]
+s0: p           []E [1, 2]
+end
+goal: <> p
+premise: p
+proof:
+s0: p           Ass
+s0 <= s0           Refl [1]
+s0: <> p           <>I [1, 2]
+end
+goal: <> p
+premise: [] p
+proof:
+s0: [] p           Ass
+s0 <= s0           Refl [1]
+s0: p           []E [1, 2]
+s0: <> p           <>I [3, 2]
+end
+goal: [] p
+premise: [] (p & q)
+proof:
+s0: [] (p & q)           Ass
+s0 <= s0           Refl [1]
+s0: p & q           []E [1, 2]
+s0: p           &E [3]
+s0: q           &E [3]
+   s0 <= s1           Ass
+s1:    p & q           []E [1, 6]
+   s1 <= s1           Refl [7]
+s1:    p           &E [7]
+s0: [] p           []I [6-9]
+end
+goal: [] (p & q)
+premise: [] p
+premise: [] q
+proof:
+s0: [] p           Ass
+s0: [] q           Ass
+s0 <= s0           Refl [1]
+s0: p           []E [1, 3]
+s0: q           []E [2, 3]
+   s0 <= s1           Ass
+s1:    p           []E [1, 6]
+s1:    q           []E [2, 6]
+s1:    p & q           &I [7, 8]
+s0: [] (p & q)           []I [6-9]
+end
+goal: [] q
+premise: [] (p -> q)
+premise: [] p
+proof:
+s0: [] (p -> q)           Ass
+s0: [] p           Ass
+s0 <= s0           Refl [1]
+s0: p -> q           []E [1, 3]
+s0: p           []E [2, 3]
+s0: q           ->E [4, 5]
+   s0 <= s1           Ass
+s1:    p -> q           []E [1, 7]
+s1:    p           []E [2, 7]
+   s1 <= s1           Refl [8]
+s1:    q           ->E [8, 9]
+s0: [] q           []I [7-11]
+end
+goal: [] ([] p)
+premise: [] p
+proof:
+s0: [] p           Ass
+s0 <= s0           Refl [1]
+s0: p           []E [1, 2]
+   s0 <= s1           Ass
+s1:    p           []E [1, 4]
+   s1 <= s1           Refl [5]
+      s1 <= s2           Ass
+      s0 <= s2           Trans [4, 7]
+s2:       p           []E [1, 8]
+s1:    [] p           []I [7-9]
+s0: [] ([] p)           []I [4-10]
+end
+goal: p | (- p)
+proof:
+s0:    - (p | (- p))           Ass
+s0:       p           Ass
+s0:       p | (- p)           |I [2]
+s0:       FALSE           FI [3, 1]
+s0:    - p           -I [2-4]
+s0:       - p           Ass
+s0:       p | (- p)           |I [6]
+s0:       FALSE           FI [7, 1]
+s0:    - (- p)           -I [6-8]
+s0:    FALSE           FI [5, 9]
+s0: - (- (p | (- p)))           -I [1-10]
+s0: p | (- p)           -E [11]
+end
+goal: (- (- p)) -> p
+proof:
+s0:    - (- p)           Ass
+s0:    p           -E [1]
+s0: (- (- p)) -> p           ->I [1-2]
+end
+goal: ((p -> q) -> p) -> p
+proof:
+s0:    (p -> q) -> p           Ass
+   s0 <= s0           Refl [1]
+s0:       - p           Ass
+s0:          p           Ass
+s0:             - q           Ass
+s0:             FALSE           FI [4, 3]
+s0:          - (- q)           -I [5-6]
+s0:          q           -E [7]
+s0:       p -> q           ->I [4-8]
+s0:       p           ->E [1, 9]
+s0:       FALSE           FI [10, 3]
+s0:    - (- p)           -I [3-11]
+s0:    p           -E [12]
+s0: ((p -> q) -> p) -> p           ->I [1-13]
+end
+goal: ((- p) -> q) -> (p | q)
+proof:
+s0:    (- p) -> q           Ass
+   s0 <= s0           Refl [1]
+s0:       - (p | q)           Ass
+s0:          p           Ass
+s0:          p | q           |I [4]
+s0:          FALSE           FI [5, 3]
+s0:       - p           -I [4-6]
+s0:          q           Ass
+s0:          p | q           |I [8]
+s0:          FALSE           FI [9, 3]
+s0:       - q           -I [8-10]
+s0:       q           ->E [1, 7]
+s0:       FALSE           FI [12, 11]
+s0:    - (- (p | q))           -I [3-13]
+s0:    p | q           -E [14]
+s0: ((- p) -> q) -> (p | q)           ->I [1-15]
+end
+goal: (- (p & q)) -> ((- p) | (- q))
+proof:
+s0:    - (p & q)           Ass
+   s0 <= s0           Refl [1]
+s0:       - ((- p) | (- q))           Ass
+s0:          - p           Ass
+s0:          (- p) | (- q)           |I [4]
+s0:          FALSE           FI [5, 3]
+s0:       - (- p)           -I [4-6]
+s0:          - q           Ass
+s0:          (- p) | (- q)           |I [8]
+s0:          FALSE           FI [9, 3]
+s0:       - (- q)           -I [8-10]
+s0:       p           -E [7]
+s0:       q           -E [11]
+s0:       p & q           &I [12, 13]
+s0:       FALSE           FI [14, 1]
+s0:    - (- ((- p) | (- q)))           -I [3-15]
+s0:    (- p) | (- q)           -E [16]
+s0: (- (p & q)) -> ((- p) | (- q))           ->I [1-17]
+end
+goal: - (- (p | (- p)))
+proof:
+s0:    - (p | (- p))           Ass
+s0:       p           Ass
+s0:       p | (- p)           |I [2]
+s0:       FALSE           FI [3, 1]
+s0:    - p           -I [2-4]
+s0:       - p           Ass
+s0:       p | (- p)           |I [6]
+s0:       FALSE           FI [7, 1]
+s0:    - (- p)           -I [6-8]
+s0:    FALSE           FI [5, 9]
+s0: - (- (p | (- p)))           -I [1-10]
+end
+goal: - (- ((- (- p)) -> p))
+proof:
+s0:    - ((- (- p)) -> p)           Ass
+   s0 <= s0           Refl [1]
+s0:       - (- p)           Ass
+s0:       p           -E [3]
+s0:    (- (- p)) -> p           ->I [3-4]
+s0:    FALSE           FI [5, 1]
+s0: - (- ((- (- p)) -> p))           -I [1-6]
+end
+goal: (- (- (- p))) -> (- p)
+proof:
+s0:    - (- (- p))           Ass
+s0:    - p           -E [1]
+s0: (- (- (- p))) -> (- p)           ->I [1-2]
+end
+goal: ((p | q) -> r) -> ((p -> r) & (q -> r))
+proof:
+s0:    (p | q) -> r           Ass
+   s0 <= s0           Refl [1]
+s0:       q           Ass
+s0:          - r           Ass
+s0:          p | q           |I [3]
+s0:          r           ->E [1, 5]
+s0:          FALSE           FI [6, 4]
+s0:       - (- r)           -I [4-7]
+s0:       r           -E [8]
+s0:    q -> r           ->I [3-9]
+s0:       p           Ass
+s0:          - r           Ass
+s0:             - q           Ass
+end
+goal: ((p -> r) & (q -> r)) -> ((p | q) -> r)
+proof:
+s0:    (p -> r) & (q -> r)           Ass
+   s0 <= s0           Refl [1]
+s0:    p -> r           &E [1]
+s0:    q -> r           &E [1]
+s0:       p | q           Ass
+s0:          - r           Ass
+s0:             - p           Ass
+s0:                p           Ass
+s0:                FALSE           FI [8, 7]
+s0:                q           FE [9]
+s0:             p -> q           ->I [8-10]
+s0:                q           Ass
+s0:             q -> q           ->I [12-12]
+s0:             q           |E [5, 11, 13]
+s0:             r           ->E [4, 14]
+s0:             FALSE           FI [15, 6]
+s0:          - (- p)           -I [7-16]
+s0:          p           -E [17]
+s0:          r           ->E [3, 18]
+s0:          FALSE           FI [19, 6]
+s0:       - (- r)           -I [6-20]
+s0:       r           -E [21]
+s0:    (p | q) -> r           ->I [5-22]
+s0: ((p -> r) & (q -> r)) -> ((p | q) -> r)           ->I [1-23]
+end
+goal: ((p & q) -> r) -> (p -> (q -> r))
+proof:
+s0:    (p & q) -> r           Ass
+   s0 <= s0           Refl [1]
+s0:       p           Ass
+s0:          q           Ass
+s0:             - r           Ass
+s0:             p & q           &I [3, 4]
+s0:             r           ->E [1, 6]
+s0:             FALSE           FI [7, 5]
+s0:          - (- r)           -I [5-8]
+s0:          r           -E [9]
+s0:       q -> r           ->I [4-10]
+s0:    p -> (q -> r)           ->I [3-11]
+s0: ((p & q) -> r) -> (p -> (q -> r))           ->I [1-12]
+end
+goal: (p -> (q -> r)) -> ((p & q) -> r)
+proof:
+s0:    p -> (q -> r)           Ass
+   s0 <= s0           Refl [1]
+s0:       p & q           Ass
+s0:       p           &E [3]
+s0:       q -> r           ->E [1, 4]
+s0:       q           &E [3]
+s0:       r           ->E [5, 6]
+s0:    (p & q) -> r           ->I [3-7]
+s0: (p -> (q -> r)) -> ((p & q) -> r)           ->I [1-8]
+end
+goal: ((((p -> q) -> p) -> p) -> q) -> q
+proof:
+s0:    (((p -> q) -> p) -> p) -> q           Ass
+   s0 <= s0           Refl [1]
+s0:       - q           Ass
+s0:          (p -> q) -> p           Ass
+s0:             - p           Ass
+end
+goal: (p -> q) -> ((- q) -> (- p))
+proof:
+s0:    p -> q           Ass
+   s0 <= s0           Refl [1]
+s0:       - q           Ass
+s0:          p           Ass
+s0:          q           ->E [1, 4]
+s0:          FALSE           FI [5, 3]
+s0:       - p           -I [4-6]
+s0:    (- q) -> (- p)           ->I [3-7]
+s0: (p -> q) -> ((- q) -> (- p))           ->I [1-8]
+end
+goal: ((- p) | q) -> (p -> q)
+proof:
+s0:    (- p) | q           Ass
+   s0 <= s0           Refl [1]
+s0:       p           Ass
+s0:          - q           Ass
+s0:             q           Ass
+s0:             FALSE           FI [5, 1]
+s0:             - p           FE [6]
+s0:          q -> (- p)           ->I [5-7]
+s0:             - p           Ass
+s0:          (- p) -> (- p)           ->I [9-9]
+s0:          - p           |E [1, 10, 8]
+s0:          FALSE           FI [3, 11]
+s0:       - (- q)           -I [4-12]
+s0:       q           -E [13]
+s0:    p -> q           ->I [3-14]
+s0: ((- p) | q) -> (p -> q)           ->I [1-15]
+end
+goal: (p -> q) -> ((- p) | q)
+proof:
+s0:    p -> q           Ass
+   s0 <= s0           Refl [1]
+s0:       - ((- p) | q)           Ass
+s0:          - p           Ass
+s0:          (- p) | q           |I [4]
+s0:          FALSE           FI [5, 3]
+s0:       - (- p)           -I [4-6]
+s0:          q           Ass
+s0:          (- p) | q           |I [8]
+s0:          FALSE           FI [9, 3]
+s0:       - q           -I [8-10]
+s0:       p           -E [7]
+s0:       q           ->E [1, 12]
+s0:       FALSE           FI [13, 11]
+s0:    - (- ((- p) | q))           -I [3-14]
+s0:    (- p) | q           -E [15]
+s0: (p -> q) -> ((- p) | q)           ->I [1-16]
+end
+goal: (p -> FALSE) -> (- p)
+proof:
+s0:    p -> FALSE           Ass
+   s0 <= s0           Refl [1]
+s0:       p           Ass
+s0:       FALSE           ->E [1, 3]
+s0:    - p           -I [3-4]
+s0: (p -> FALSE) -> (- p)           ->I [1-5]
+end
+goal: p -> (q -> p)
+proof:
+s0:    p           Ass
+   s0 <= s0           Refl [1]
+s0:       q           Ass
+s0:       p           Rep [1]
+s0:    q -> p           ->I [3-4]
+s0: p -> (q -> p)           ->I [1-5]
+end
+goal: ((p -> q) & (q -> r)) -> (p -> r)
+proof:
+s0:    (p -> q) & (q -> r)           Ass
+   s0 <= s0           Refl [1]
+s0:    p -> q           &E [1]
+s0:    q -> r           &E [1]
+s0:       p           Ass
+s0:       q           ->E [3, 5]
+s0:       r           ->E [4, 6]
+s0:    p -> r           ->I [5-7]
+s0: ((p -> q) & (q -> r)) -> (p -> r)           ->I [1-8]
+end
+goal: (p | q) -> (q | p)
+proof:
+s0:    p | q           Ass
+   s0 <= s0           Refl [1]
+s0:       - (q | p)           Ass
+s0:          q           Ass
+s0:          q | p           |I [4]
+s0:          FALSE           FI [5, 3]
+s0:       - q           -I [4-6]
+s0:          p           Ass
+s0:          q | p           |I [8]
+s0:          FALSE           FI [9, 3]
+s0:       - p           -I [8-10]
+s0:          q           Ass
+s0:          FALSE           FI [12, 1]
+s0:          p           FE [13]
+s0:       q -> p           ->I [12-14]
+s0:          p           Ass
+s0:       p -> p           ->I [16-16]
+s0:       p           |E [1, 17, 15]
+s0:       FALSE           FI [18, 11]
+s0:    - (- (q | p))           -I [3-19]
+s0:    q | p           -E [20]
+s0: (p | q) -> (q | p)           ->I [1-21]
+end
+goal: TRUE
+proof:
+s0:    - TRUE           Ass
+   s0 <= s0           Refl [1]
+end
+goal: FALSE -> p
+proof:
+s0:    FALSE           Ass
+   s0 <= s0           Refl [1]
+s0:       - p           Ass
+s0:       FALSE           Rep [1]
+s0:    - (- p)           -I [3-4]
+s0:    p           -E [5]
+s0: FALSE -> p           ->I [1-6]
+end
+goal: ([] (p -> q)) -> (([] p) -> ([] q))
+proof:
+s0:    [] (p -> q)           Ass
+   s0 <= s0           Refl [1]
+s0:    p -> q           []E [1, 2]
+s0:       [] p           Ass
+s0:       p           []E [4, 2]
+s0:       q           ->E [3, 5]
+         s0 <= s1           Ass
+s1:          p -> q           []E [1, 7]
+s1:          p           []E [4, 7]
+         s1 <= s1           Refl [8]
+s1:          q           ->E [8, 9]
+s0:       [] q           []I [7-11]
+s0:    ([] p) -> ([] q)           ->I [4-12]
+s0: ([] (p -> q)) -> (([] p) -> ([] q))           ->I [1-13]
+end
+goal: ([] p) -> p
+proof:
+s0:    [] p           Ass
+   s0 <= s0           Refl [1]
+s0:    p           []E [1, 2]
+s0: ([] p) -> p           ->I [1-3]
+end
+goal: p -> (<> p)
+proof:
+s0:    p           Ass
+   s0 <= s0           Refl [1]
+s0:    <> p           <>I [1, 2]
+s0: p -> (<> p)           ->I [1-3]
+end
+goal: ([] p) -> (<> p)
+proof:
+s0:    [] p           Ass
+   s0 <= s0           Refl [1]
+s0:    p           []E [1, 2]
+s0:    <> p           <>I [3, 2]
+s0: ([] p) -> (<> p)           ->I [1-4]
+end
+goal: (- (<> p)) -> ([] (- p))
+proof:
+s0:    - (<> p)           Ass
+      s0 <= s1           Ass
+s1:          p           Ass
+s0:          <> p           <>I [3, 2]
+s0:          FALSE           FI [4, 1]
+s1:       - p           -I [3-5]
+s0:    [] (- p)           []I [2-6]
+s0: (- (<> p)) -> ([] (- p))           ->I [1-7]
+end
+goal: ([] (p & q)) -> (([] p) & ([] q))
+proof:
+s0:    [] (p & q)           Ass
+   s0 <= s0           Refl [1]
+s0:    p & q           []E [1, 2]
+s0:    p           &E [3]
+s0:    q           &E [3]
+      s0 <= s1           Ass
+s1:       p & q           []E [1, 6]
+      s1 <= s1           Refl [7]
+s1:       p           &E [7]
+s1:       q           &E [7]
+s0:    [] q           []I [6-10]
+s0:    q           []E [11, 2]
+      s0 <= s1           Ass
+s1:       p & q           []E [1, 13]
+s1:       q           []E [11, 13]
+      s1 <= s1           Refl [14]
+s1:       p           &E [14]
+s0:    [] p           []I [13-17]
+s0:    ([] p) & ([] q)           &I [18, 11]
+s0: ([] (p & q)) -> (([] p) & ([] q))           ->I [1-19]
+end
+goal: p
+premise: - (- p)
+proof:
+s0: - (- p)           Ass
+s0: p           -E [1]
+end
+goal: q
+premise: p | q
+premise: - p
+proof:
+s0: p | q           Ass
+s0: - p           Ass
+s0 <= s0           Refl [1]
+s0:    p           Ass
+s0:    FALSE           FI [4, 2]
+s0:    q           FE [5]
+s0: p -> q           ->I [4-6]
+s0:    q           Ass
+s0: q -> q           ->I [8-8]
+s0: q           |E [1, 7, 9]
+end
+goal: p & (- q)
+premise: FALSE
+proof:
+s0: FALSE           Ass
+s0 <= s0           Refl [1]
+s0:    q           Ass
+s0:    FALSE           Rep [1]
+s0: - q           -I [3-4]
+s0:    - p           Ass
+s0:    FALSE           Rep [1]
+s0: - (- p)           -I [6-7]
+s0: p           -E [8]
+s0: p & (- q)           &I [9, 5]
+end
+goal: q & r
+premise: p
+premise: - p
+proof:
+s0: p           Ass
+s0: - p           Ass
+s0 <= s0           Refl [1]
+s0:    - r           Ass
+s0:    FALSE           FI [1, 2]
+s0: - (- r)           -I [4-5]
+s0: r           -E [6]
+s0:    - q           Ass
+s0:    FALSE           FI [1, 2]
+s0: - (- q)           -I [8-9]
+s0: q           -E [10]
+s0: q & r           &I [11, 7]
+end
+goal: r
+premise: (p | q) -> r
+premise: q
+proof:
+s0: (p | q) -> r           Ass
+s0: q           Ass
+s0 <= s0           Refl [1]
+s0:    - r           Ass
+s0:    p | q           |I [2]
+s0:    r           ->E [1, 5]
+s0:    FALSE           FI [6, 4]
+s0: - (- r)           -I [4-7]
+s0: r           -E [8]
+end
+goal: r
+premise: (p -> q) -> r
+premise: q
+proof:
+s0: (p -> q) -> r           Ass
+s0: q           Ass
+s0 <= s0           Refl [1]
+s0:    - r           Ass
+s0:       p           Ass
+s0:       q           Rep [2]
+s0:    p -> q           ->I [5-6]
+s0:    r           ->E [1, 7]
+s0:    FALSE           FI [8, 4]
+s0: - (- r)           -I [4-9]
+s0: r           -E [10]
+end
+goal: (- p) | (- q)
+premise: - (p & q)
+proof:
+s0: - (p & q)           Ass
+s0 <= s0           Refl [1]
+s0:    - ((- p) | (- q))           Ass
+s0:       - p           Ass
+s0:       (- p) | (- q)           |I [4]
+s0:       FALSE           FI [5, 3]
+s0:    - (- p)           -I [4-6]
+s0:       - q           Ass
+s0:       (- p) | (- q)           |I [8]
+s0:       FALSE           FI [9, 3]
+s0:    - (- q)           -I [8-10]
+s0:    p           -E [7]
+s0:    q           -E [11]
+s0:    p & q           &I [12, 13]
+s0:    FALSE           FI [14, 1]
+s0: - (- ((- p) | (- q)))           -I [3-15]
+s0: (- p) | (- q)           -E [16]
+end
+goal: - p
+premise: p -> q
+premise: - q
+proof:
+s0: p -> q           Ass
+s0: - q           Ass
+s0 <= s0           Refl [1]
+s0:    p           Ass
+s0:    q           ->E [1, 4]
+s0:    FALSE           FI [5, 2]
+s0: - p           -I [4-6]
+end
+goal: <> q
+premise: <> p
+premise: [] (p -> q)
+proof:
+s0: <> p           Ass
+s0: [] (p -> q)           Ass
+s0 <= s0           Refl [1]
+s0: p -> q           []E [2, 3]
+s0:    - (<> q)           Ass
+      s0 <= s1           Ass
+s1:          q           Ass
+s0:          <> q           <>I [7, 6]
+s0:          FALSE           FI [8, 5]
+s1:       - q           -I [7-9]
+s0:    [] (- q)           []I [6-10]
+s0:    - q           []E [11, 3]
+      s0 <= s1           Ass
+s1:       p -> q           []E [2, 13]
+s1:       - q           []E [11, 13]
+      s1 <= s1           Refl [14]
+s1:          p           Ass
+s1:          q           ->E [14, 17]
+s0:          FALSE           FI [18, 15]
+s1:       - p           -I [17-19]
+s0:    [] (- p)           []I [13-20]
+      s0 <= s1           Ass
+s1:          p           Ass
+s1:          - p           []E [21, 22]
+s0:          FALSE           FI [23, 24]
+s0:    FALSE           <>E [1, 22-25]
+s0: - (- (<> q))           -I [5-26]
+s0: <> q           -E [27]
+end
+goal: (- p) -> (p -> FALSE)
+proof:
+s0:    - p           Ass
+   s0 <= s0           Refl [1]
+s0:       p           Ass
+s0:       FALSE           FI [3, 1]
+s0:    p -> FALSE           ->I [3-4]
+s0: (- p) -> (p -> FALSE)           ->I [1-5]
+end

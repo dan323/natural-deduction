@@ -576,3 +576,11 @@ proof:
 - (- ((- p) | (- q)))           -I [2-14]
 (- p) | (- q)           -E [15]
 end
+goal: (- p) -> (p -> FALSE)
+proof:
+   - p           Ass
+      p           Ass
+      FALSE           FI [2, 1]
+   p -> FALSE           ->I [2-3]
+(- p) -> (p -> FALSE)           ->I [1-4]
+end

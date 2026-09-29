@@ -117,11 +117,19 @@ class IntuitionisticNaturalDeductionTest {
 
     @Test
     void theSearchIsBounded() {
-        // The goal-directed solver keeps opening subproofs for this one (the classical solver never stops on it):
-        // the size bound stops it
-        var proof = solve(List.of(), new ImplicationClassic(new NegationClassic(P), new ImplicationClassic(P, ConstantClassic.FALSE)));
+        // OrE1 leaves q -> q among the steps, and ->E with it and the newest q keeps adding copies of q, a new action
+        // each time: the size bound stops it
+        var proof = solve(List.of(new DisjunctionClassic(P, Q), new NegationClassic(P)), R);
         assertFalse(proof.isDone());
-        assertTrue(proof.getSteps().isEmpty());
+        assertEquals(2, proof.getSteps().size());
+    }
+
+    @Test
+    void falseOnTheRightOfAnImplicationGoalIsReachedWithImplicationIntroduction() {
+        // -I on FALSE would give - p, not p -> FALSE, and the goal was lost (#191)
+        var proof = solve(List.of(), new ImplicationClassic(new NegationClassic(P), new ImplicationClassic(P, ConstantClassic.FALSE)));
+        assertTrue(proof.isDone());
+        assertEquals(5, proof.getSteps().size());
     }
 
     private static List<AvailableAction> rules(NaturalDeduction proof) {

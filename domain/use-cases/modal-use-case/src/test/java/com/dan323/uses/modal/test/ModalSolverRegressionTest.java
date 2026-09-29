@@ -1,12 +1,11 @@
-package com.dan323.uses.classical.test;
+package com.dan323.uses.modal.test;
 
-import com.dan323.classical.proof.NaturalDeduction;
 import com.dan323.model.ProofDto;
 import com.dan323.model.StepDto;
+import com.dan323.proof.modal.proof.ModalNaturalDeduction;
 import com.dan323.uses.Exercise;
-import com.dan323.uses.classical.ClassicalExercises;
-import com.dan323.uses.classical.ClassicalProofTransformer;
-import com.dan323.uses.intuitionistic.IntuitionisticExercises;
+import com.dan323.uses.modal.ModalExercises;
+import com.dan323.uses.modal.ModalProofTransformer;
 import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestFactory;
@@ -26,26 +25,23 @@ import java.util.stream.Stream;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * The classical solver must keep producing exactly the proofs it produced before the goal-directed engine was shared
- * with the intuitionistic solver. The expected proofs in {@code classical-solver-proofs.txt} were written by the
- * original {@code ClassicalAutomate} (origin/master before #185) with {@code -DwriteSolverProofs=true}; each block is
- * the goal, the premises and the proof the solver left, finished or not.
+ * The modal solver must keep producing exactly the proofs it produced before #191 was fixed. The expected proofs in
+ * {@code modal-solver-proofs.txt} were written by {@code ModalAutomate} before that fix with
+ * {@code -DwriteSolverProofs=true}; each block is the goal, the premises (all in {@code s0}) and the proof the solver
+ * left, finished or not.
  */
-class ClassicalSolverRegressionTest {
+class ModalSolverRegressionTest {
 
-    private static final Path EXPECTED = Path.of("src", "test", "resources", "classical-solver-proofs.txt");
+    private static final Path EXPECTED = Path.of("src", "test", "resources", "modal-solver-proofs.txt");
 
-    // Left out because the classical solver does not stop on them (it keeps adding steps), so there is no proof to
-    // compare: (p | (q & r)) -> ((p | q) & (p | r)), ((p | q) & (p | r)) -> (p | (q & r)) and
-    // ((p | q) | r) -> (p | (q | r)). OrE1/OrE2 leave an identity implication B -> B among the steps, and ->E with it
-    // and the newest B is a new action (actions are told apart by their lines) that adds another B, forever.
+    // Left out because the modal solver does not finish them: (p -> p) | q, (p & q) | ((- p) | (- q)) and
+    // q | ((- q) & p) keep adding steps, and (<> (p | q)) -> ((<> p) | (<> q)) fails with a ClassCastException.
     private static final List<String> EXTRA_GOALS = List.of(
             "p | (- p)",
             "(- (- p)) -> p",
             "((p -> q) -> p) -> p",
             "((- p) -> q) -> (p | q)",
             "(- (p & q)) -> ((- p) | (- q))",
-            "(p -> p) | q",
             "- (- (p | (- p)))",
             "- (- ((- (- p)) -> p))",
             "(- (- (- p))) -> (- p)",
@@ -59,12 +55,16 @@ class ClassicalSolverRegressionTest {
             "(p -> q) -> ((- p) | q)",
             "(p -> FALSE) -> (- p)",
             "p -> (q -> p)",
-            "(p & q) | ((- p) | (- q))",
             "((p -> q) & (q -> r)) -> (p -> r)",
             "(p | q) -> (q | p)",
-            "q | ((- q) & p)",
             "TRUE",
-            "FALSE -> p");
+            "FALSE -> p",
+            "([] (p -> q)) -> (([] p) -> ([] q))",
+            "([] p) -> p",
+            "p -> (<> p)",
+            "([] p) -> (<> p)",
+            "(- (<> p)) -> ([] (- p))",
+            "([] (p & q)) -> (([] p) & ([] q))");
 
     private static final List<List<String>> EXTRA_PREMISES = List.of(
             List.of("- (- p)"),
@@ -74,14 +74,16 @@ class ClassicalSolverRegressionTest {
             List.of("(p | q) -> r", "q"),
             List.of("(p -> q) -> r", "q"),
             List.of("- (p & q)"),
-            List.of("p -> q", "- q"));
+            List.of("p -> q", "- q"),
+            List.of("[] p", "[] q"),
+            List.of("<> p", "[] (p -> q)"));
 
     private static final List<String> EXTRA_PREMISE_GOALS = List.of(
-            "p", "q", "p & (- q)", "q & r", "r", "r", "(- p) | (- q)", "- p");
+            "p", "q", "p & (- q)", "q & r", "r", "r", "(- p) | (- q)", "- p", "[] (p & q)", "<> q");
 
     /**
-     * Goals the classical solver did not stop on before #191 was fixed. Their proofs were appended to the end of
-     * {@code classical-solver-proofs.txt} after the fix; the proofs above them are still the original ones.
+     * Goals the modal solver did not stop on before #191 was fixed. Their proofs were appended to the end of
+     * {@code modal-solver-proofs.txt} after the fix; the proofs above them are still the ones from before it.
      */
     private static final List<String> NO_LONGER_LOOPING = List.of("(- p) -> (p -> FALSE)");
 
@@ -90,9 +92,7 @@ class ClassicalSolverRegressionTest {
 
     private static Set<Input> inputs() {
         Set<Input> inputs = new LinkedHashSet<>();
-        Stream.concat(new ClassicalExercises().exercises().stream(), new IntuitionisticExercises().exercises().stream())
-                .map(ClassicalSolverRegressionTest::input)
-                .forEach(inputs::add);
+        new ModalExercises().exercises().stream().map(ModalSolverRegressionTest::input).forEach(inputs::add);
         EXTRA_GOALS.forEach(goal -> inputs.add(new Input(List.of(), goal)));
         for (int i = 0; i < EXTRA_PREMISES.size(); i++) {
             inputs.add(new Input(EXTRA_PREMISES.get(i), EXTRA_PREMISE_GOALS.get(i)));
@@ -112,8 +112,8 @@ class ClassicalSolverRegressionTest {
     }
 
     private static String solve(Input input) {
-        var steps = input.premises().stream().map(premise -> new StepDto(premise, "Ass", 0, Map.of())).toList();
-        NaturalDeduction proof = new ClassicalProofTransformer().from(new ProofDto(steps, "classical", input.goal()));
+        var steps = input.premises().stream().map(premise -> new StepDto(premise, "Ass", 0, Map.of("state", "s0"))).toList();
+        ModalNaturalDeduction proof = new ModalProofTransformer().from(new ProofDto(steps, "modal", input.goal()));
         assertTimeoutPreemptively(Duration.ofSeconds(10), proof::automate);
         return header(input) + proof + "end\n";
     }
@@ -151,14 +151,16 @@ class ClassicalSolverRegressionTest {
 
     @TestFactory
     Stream<DynamicTest> theSolverNoLongerLoops() {
-        var transformer = new ClassicalProofTransformer();
+        var transformer = new ModalProofTransformer();
         return NO_LONGER_LOOPING.stream().map(goal -> DynamicTest.dynamicTest(goal, () -> {
-            NaturalDeduction proof = transformer.from(new ProofDto(List.of(), "classical", goal));
+            ModalNaturalDeduction proof = transformer.from(new ProofDto(List.of(), "modal", goal));
             assertTimeoutPreemptively(Duration.ofSeconds(2), proof::automate);
             assertTrue(proof.isDone(), goal);
-            var solved = transformer.fromProof(proof);
-            assertEquals(goal, solved.steps().getLast().expression());
-            assertTrue(transformer.from(solved).isDone(), goal + ": replays and is done");
+            var last = proof.getSteps().getLast();
+            assertEquals(goal, last.getStep().toString());
+            assertEquals(0, last.getAssumptionLevel());
+            assertEquals(proof.getState0(), last.getState(), goal + ": derived in the initial state");
+            assertTrue(transformer.from(transformer.fromProof(proof)).isDone(), goal + ": replays and is done");
         }));
     }
 

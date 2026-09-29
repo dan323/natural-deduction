@@ -26,7 +26,10 @@ import java.util.Deque;
  * <p>It always stops. An attempt is never nested inside an attempt at the same disjunction, and every disjunction it
  * attempts is a subformula of the premises or of the goal, so attempts nest at most that many deep. The proof and
  * the goals together are also kept below a size proportional to the size of the premises and the goal
- * ({@link #STEPS_PER_SYMBOL}); a round that would go further counts as stuck.
+ * ({@link #STEPS_PER_SYMBOL}); a round that would go further counts as stuck. The shared engine needs that bound:
+ * {@code OrE1}/{@code OrE2} leave an identity implication {@code B -> B} among the steps, and {@code ->E} with it and
+ * the newest {@code B} is a new elimination each time (on {@code p | q, - p} with goal {@code r} it would add copies of
+ * {@code q} forever).
  *
  * @author daniel
  */

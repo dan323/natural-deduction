@@ -149,11 +149,14 @@ public final class ModalAutomate {
     }
 
     /**
-     * If the next goal is {@literal False} and the rule NotI is valid,
-     * we use it to reach the goal
+     * If the last goal is {@literal False}, the goal below it is a negation and the rule NotI is valid, we use it to
+     * reach that negation. A {@literal False} goal below which there is no negation (the right side of an implication
+     * goal {@code A -> FALSE}) is only removed: {@code -I} would give {@code - A}, not the goal, so the next round
+     * reaches the implication with {@code ->I} instead.
      */
     private void attainFalseGoal() {
-        if (goals.size() > 1 && goals.getLast().getValue().equals(ConstantModal.FALSE)) {
+        if (goals.size() > 1 && goals.getLast().getValue().equals(ConstantModal.FALSE)
+                && goals.get(goals.size() - 2).getValue() instanceof NegationModal) {
             ModalNotI cla = new ModalNotI();
             if (cla.isValid(proof)) {
                 cla.apply(proof);

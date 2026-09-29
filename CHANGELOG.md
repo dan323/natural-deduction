@@ -11,7 +11,8 @@ The project has never been versioned or tagged, since it was not meant for publi
 ### Added
 - A solver for `intuitionistic`: `POST /logic/intuitionistic/solve` runs the classical goal-directed solver without
   proof by contradiction or `-E`, trying each side of a disjunction goal in turn; `done=false` means it found no proof
-  (always for `p | -p`, and for some intuitionistic theorems too), and the UI shows Solve for it (#185)
+  (always for `p | -p`, and for some intuitionistic theorems too), and the UI shows Solve for it; the classical and
+  modal solvers no longer loop forever on goals like `(- p) -> (p -> FALSE)` (#191 fixed) (#185)
 - First-order logic with equality (`first-order`): terms, predicates, `=`, `forall`/`exists` and a hand-written parser
   (#179); natural deduction with the rules `∀I`, `∀E`, `∃I`, `∃E`, `=I` and `=E` (#180); served over REST with 20
   actions, a new `TERM` parameter kind and an exercise catalog, without a solver (#181); offered in the UI with ∀, ∃
