@@ -13,9 +13,10 @@ The project has never been versioned or tagged, since it was not meant for publi
   proof by contradiction or `-E`, trying case splits, each side of a disjunction goal, `->E` backwards and ex falso
   instead; it solves every intuitionistic exercise, `done=false` means it found no proof (always for `p | -p`, and for
   some intuitionistic theorems too), and the UI shows Solve for it; the classical and modal solvers no longer loop
-  forever on goals like `(- p) -> (p -> FALSE)` (#191 fixed) (#185); a solver for `modal-next-until`
-  (`POST /logic/modal-next-until/solve`, Solve in the UI), which solves every exercise except the one that needs `Ind`
-  (#196)
+  forever on goals like `(- p) -> (p -> FALSE)` (#191 fixed) (#185)
+- A solver for `modal-next-until` (`POST /logic/modal-next-until/solve`, Solve in the UI), which solves every exercise
+  except the one that needs `Ind`; the modal solver no longer crashes on relation goals or after a De Morgan step, and
+  no longer writes an `FI` line that cannot be replayed when refuting the right side of a disjunction (#196)
 - First-order logic with equality (`first-order`): terms, predicates, `=`, `forall`/`exists` and a hand-written parser
   (#179); natural deduction with the rules `∀I`, `∀E`, `∃I`, `∃E`, `=I` and `=E` (#180); served over REST with 20
   actions, a new `TERM` parameter kind and an exercise catalog, without a solver (#181); offered in the UI with ∀, ∃

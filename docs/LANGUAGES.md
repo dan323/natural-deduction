@@ -339,7 +339,7 @@ the group exercises under "Group theory".
 | **Operators**  | ∧, ∨, ¬, →  | as classical     | classical + □, ◇                            | modal + X, U                                                            | classical + ∀, ∃, =, predicates and functions         |
 | **Actions**    | 14          | 13 (no ¬E)       | 14 classical + 6 modal                      | the 20 modal + 8 (`XI`, `XE`, `Succ`, `UI1`, `UI2`, `UE`, `U<>`, `Ind`) | 14 classical + 6 (`∀I`, `∀E`, `∃I`, `∃E`, `=I`, `=E`) |
 | **States**     | none        | none             | named states, `<=` reflexive and transitive | `s0`, `s0+1`, ...: discrete time                                        | none                                                  |
-| **Solver**     | yes         | no               | yes                                         | yes, without `Ind`                                                      | no                                                    |
+| **Solver**     | yes         | yes              | yes                                         | yes, without `Ind`                                                      | no                                                    |
 | **Logic name** | `classical` | `intuitionistic` | `modal`                                     | `modal-next-until`                                                      | `first-order`                                         |
 
 ## Implementation Details

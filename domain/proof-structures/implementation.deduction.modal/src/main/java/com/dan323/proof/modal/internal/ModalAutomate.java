@@ -655,9 +655,9 @@ public class ModalAutomate {
     private void updateGoal() {
         if (goals.getLast().getValue().equals(ConstantModal.FALSE)) {
             lastGoalFalse();
-        } else {
+        } else if (goals.getLast().getValue() instanceof ModalLogicalOperation goal) {
+            // A relation goal (s0 <= s1) has no subgoals: only the premises and the elimination rules can reach it
             var state = goals.getLast().getKey();
-            ModalLogicalOperation goal = (ModalLogicalOperation) goals.getLast().getValue();
             switch (goal) {
                 case ConjunctionModal conj -> updateGoalConjunction(conj, state);
                 case ImplicationModal imp -> updateGoalImplication(imp, state);

@@ -294,8 +294,10 @@ public final class ModalNextUntilAutomate extends ModalAutomate {
      */
     @Override
     protected void goalRemoved() {
-        while (!attempts.isEmpty() && goalCount() <= attempts.peek().before().goals().size()) {
+        Attempt innermost = attempts.peek();
+        if (innermost != null && innermost.before().goals().size() >= goalCount()) {
             attempts.pop();
+            goalRemoved();
         }
     }
 
@@ -306,11 +308,12 @@ public final class ModalNextUntilAutomate extends ModalAutomate {
      */
     @Override
     protected boolean stalled() {
-        while (!attempts.isEmpty()) {
-            Attempt failed = attempts.pop();
-            restore(failed.before());
-            if (!failed.remaining().isEmpty()) {
-                start(failed.before(), failed.remaining());
+        for (Attempt failed = attempts.poll(); failed != null; failed = attempts.poll()) {
+            State before = failed.before();
+            restore(before);
+            List<List<Map.Entry<String, ModalOperation>>> remaining = failed.remaining();
+            if (!remaining.isEmpty()) {
+                start(before, remaining);
                 return true;
             }
         }

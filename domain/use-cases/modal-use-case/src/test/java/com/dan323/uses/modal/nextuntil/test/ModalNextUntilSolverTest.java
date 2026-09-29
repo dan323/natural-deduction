@@ -108,6 +108,25 @@ class ModalNextUntilSolverTest {
                 .map(proof -> DynamicTest.dynamicTest(proof.goal(), () -> assertNotSolved(proof)));
     }
 
+    @TestFactory
+    Stream<DynamicTest> theSharedModalRulesDoNotBreakTheSolver() {
+        return Stream.of(
+                        // DeMorgan on a negated <> that is not the last line
+                        start(List.of("- (<> p)", "p -> q"), "- r"),
+                        // ModalOrE2: the right side of the disjunction is refuted
+                        start(List.of("q", "(r | q) & (- q)"), "(r | r) U (p U (r U r))"),
+                        // A relation goal
+                        start(List.of(), "s0 <= s0+1"))
+                .map(proof -> DynamicTest.dynamicTest(proof.goal(), () -> {
+                    var solved = assertTimeoutPreemptively(Duration.ofSeconds(5), () -> solver.perform(proof));
+                    assertEquals(proof.steps(), solved.steps().subList(0, proof.steps().size()), proof.goal());
+                    // Whatever the solver found replays through the transformer
+                    var replayed = transformer.from(solved);
+                    assertEquals(solved.isDone(), replayed.isDone(), proof.goal());
+                    assertEquals(solved, transformer.fromProof(replayed));
+                }));
+    }
+
     private void assertSolves(ProofDto proof) {
         var solved = assertTimeoutPreemptively(Duration.ofSeconds(5), () -> solver.perform(proof));
         assertTrue(solved.isDone(), proof.goal() + ": done");

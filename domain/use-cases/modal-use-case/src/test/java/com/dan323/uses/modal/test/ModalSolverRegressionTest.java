@@ -28,7 +28,8 @@ import static org.junit.jupiter.api.Assertions.*;
  * The modal solver must keep producing exactly the proofs it produced before #191 was fixed. The expected proofs in
  * {@code modal-solver-proofs.txt} were written by {@code ModalAutomate} before that fix with
  * {@code -DwriteSolverProofs=true}; each block is the goal, the premises (all in {@code s0}) and the proof the solver
- * left, finished or not.
+ * left, finished or not. The only changes are the {@code FI} lines of {@code ModalOrE2}, which cited the disjunction
+ * instead of the negation (so the proof did not replay) until that was fixed in #196.
  */
 class ModalSolverRegressionTest {
 

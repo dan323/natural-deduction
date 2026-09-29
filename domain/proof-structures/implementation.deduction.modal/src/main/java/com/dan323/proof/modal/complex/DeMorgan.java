@@ -34,12 +34,13 @@ public final class DeMorgan extends CompositionRule {
 
     @Override
     public void apply(ModalNaturalDeduction pf) {
+        int k = pf.getSteps().size();
         String newState = pf.newState();
         NegationModal operation = (NegationModal) pf.getSteps().get(i - 1).getStep();
         (new ModalAssume(new LessEqual(pf.getSteps().get(i - 1).getState(), newState))).apply(pf);
         (new ModalAssume(((Sometime)operation.getElement()).getElement(), newState)).apply(pf);
-        (new ModalDiaI(i + 2, i + 1)).apply(pf);
-        (new ModalFI(i + 3, i)).apply(pf);
+        (new ModalDiaI(k + 2, k + 1)).apply(pf);
+        (new ModalFI(k + 3, i)).apply(pf);
         (new ModalNotI()).apply(pf);
         (new ModalBoxI()).apply(pf);
     }
