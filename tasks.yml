@@ -161,7 +161,7 @@ projects:
     branch: task/171-11-2-first-order-natural-deduction-backen-814a3e
     pr_url: https://github.com/dan323/natural-deduction/pull/180
     date: '2026-09-27'
-I     pr_announced: true
+    pr_announced: true
   - id: 848c15
     description: '#172: 11.3 Serve `"first-order"` (backend)'
     status: done
@@ -188,6 +188,7 @@ I     pr_announced: true
     branch: task/174-11-5-first-order-logic-in-the-ui-frontend-a63058
     pr_url: https://github.com/dan323/natural-deduction/pull/183
     date: '2026-09-28'
+    pr_announced: true
   - id: c9b7a1
     description: '#175: 11.6 Start from a theory (frontend)'
     status: pending
