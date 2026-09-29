@@ -68,7 +68,7 @@ jacoco-report-aggregate/implementation.deduction.modal,com.dan323.proof.modal,Mo
 jacoco-report-aggregate/implementation.deduction.modal,com.dan323.proof.modal,ModalCopy,18,46,2,2,2,7,3,5,1,5
 jacoco-report-aggregate/implementation.deduction.modal,com.dan323.proof.modal.internal,ModalNextUntilAutomate,28,746,16,93,3,115,17,71,1,32
 jacoco-report-aggregate/implementation.deduction.modal,com.dan323.proof.modal.internal,ModalAutomate.State,0,18,0,0,0,1,0,1,0,1
-jacoco-report-aggregate/implementation.deduction.modal,com.dan323.proof.modal.internal,ModalAutomate,140,2159,47,241,9,315,39,171,0,63
+jacoco-report-aggregate/implementation.deduction.modal,com.dan323.proof.modal.internal,ModalAutomate,140,2163,47,241,9,317,39,171,0,63
 jacoco-report-aggregate/implementation.deduction.modal,com.dan323.proof.modal.internal,ModalNextUntilAutomate.Attempt,0,9,0,0,0,1,0,1,0,1
 jacoco-report-aggregate/implementation.deduction.modal,com.dan323.proof.modal.proof,ModalNaturalDeduction,2,175,3,21,1,40,3,20,0,11
 jacoco-report-aggregate/implementation.deduction.modal,com.dan323.proof.modal.proof,ProofStepModal,3,31,1,1,1,9,1,4,0,4
