@@ -294,10 +294,12 @@ public final class ModalNextUntilAutomate extends ModalAutomate {
      */
     @Override
     protected void goalRemoved() {
-<span class="fc bfc" id="L297" title="All 4 branches covered.">        while (!attempts.isEmpty() &amp;&amp; goalCount() &lt;= attempts.peek().before().goals().size()) {</span>
-<span class="fc" id="L298">            attempts.pop();</span>
+<span class="fc" id="L297">        Attempt innermost = attempts.peek();</span>
+<span class="fc bfc" id="L298" title="All 4 branches covered.">        if (innermost != null &amp;&amp; innermost.before().goals().size() &gt;= goalCount()) {</span>
+<span class="fc" id="L299">            attempts.pop();</span>
+<span class="fc" id="L300">            goalRemoved();</span>
         }
-<span class="fc" id="L300">    }</span>
+<span class="fc" id="L302">    }</span>
 
     /**
      * The innermost attempt failed: remove its steps and try the next way to reach its goal. When every way failed,
@@ -306,18 +308,19 @@ public final class ModalNextUntilAutomate extends ModalAutomate {
      */
     @Override
     protected boolean stalled() {
-<span class="fc bfc" id="L309" title="All 2 branches covered.">        while (!attempts.isEmpty()) {</span>
-<span class="fc" id="L310">            Attempt failed = attempts.pop();</span>
-<span class="fc" id="L311">            restore(failed.before());</span>
-<span class="pc bpc" id="L312" title="1 of 2 branches missed.">            if (!failed.remaining().isEmpty()) {</span>
-<span class="fc" id="L313">                start(failed.before(), failed.remaining());</span>
-<span class="fc" id="L314">                return true;</span>
+<span class="pc bfc" id="L311" title="All 2 branches covered.">        for (Attempt failed = attempts.poll(); failed != null; failed = attempts.poll()) {</span>
+<span class="fc" id="L312">            State before = failed.before();</span>
+<span class="fc" id="L313">            restore(before);</span>
+<span class="fc" id="L314">            List&lt;List&lt;Map.Entry&lt;String, ModalOperation&gt;&gt;&gt; remaining = failed.remaining();</span>
+<span class="pc bpc" id="L315" title="1 of 2 branches missed.">            if (!remaining.isEmpty()) {</span>
+<span class="fc" id="L316">                start(before, remaining);</span>
+<span class="fc" id="L317">                return true;</span>
             }
-<span class="nc" id="L316">        }</span>
-<span class="pc bpc" id="L317" title="1 of 2 branches missed.">        if (!proof().isDone()) {</span>
-<span class="fc" id="L318">            proof().reset();</span>
         }
-<span class="fc" id="L320">        return false;</span>
+<span class="pc bpc" id="L320" title="1 of 2 branches missed.">        if (!proof().isDone()) {</span>
+<span class="fc" id="L321">            proof().reset();</span>
+        }
+<span class="fc" id="L323">        return false;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>

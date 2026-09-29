@@ -655,9 +655,9 @@ public class ModalAutomate {
     private void updateGoal() {
 <span class="fc bfc" id="L656" title="All 2 branches covered.">        if (goals.getLast().getValue().equals(ConstantModal.FALSE)) {</span>
 <span class="fc" id="L657">            lastGoalFalse();</span>
-        } else {
-<span class="fc" id="L659">            var state = goals.getLast().getKey();</span>
-<span class="fc" id="L660">            ModalLogicalOperation goal = (ModalLogicalOperation) goals.getLast().getValue();</span>
+<span class="pc bpc" id="L658" title="1 of 2 branches missed.">        } else if (goals.getLast().getValue() instanceof ModalLogicalOperation goal) {</span>
+            // A relation goal (s0 &lt;= s1) has no subgoals: only the premises and the elimination rules can reach it
+<span class="fc" id="L660">            var state = goals.getLast().getKey();</span>
 <span class="fc bfc" id="L661" title="All 5 branches covered.">            switch (goal) {</span>
 <span class="fc" id="L662">                case ConjunctionModal conj -&gt; updateGoalConjunction(conj, state);</span>
 <span class="fc" id="L663">                case ImplicationModal imp -&gt; updateGoalImplication(imp, state);</span>

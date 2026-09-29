@@ -43,7 +43,7 @@ public final class ModalOrE2 extends CompositionRule {
     public void apply(ModalNaturalDeduction pf) {
 <span class="nc" id="L44">        String state = pf.getSteps().get(a - 1).getState();</span>
 <span class="nc" id="L45">        (new ModalAssume(((BinaryOperation&lt;ModalLogicalOperation&gt;) pf.getSteps().get(a - 1).getStep()).getRight(), state)).apply(pf);</span>
-<span class="nc" id="L46">        (new ModalFI(pf.getSteps().size(), a)).apply(pf);</span>
+<span class="nc" id="L46">        (new ModalFI(pf.getSteps().size(), b)).apply(pf);</span>
 <span class="nc" id="L47">        (new ModalFE(pf.getSteps().size(), ((BinaryOperation&lt;ModalLogicalOperation&gt;) pf.getSteps().get(a - 1).getStep()).getLeft(), state)).apply(pf);</span>
 <span class="nc" id="L48">        (new ModalDeductionTheorem()).apply(pf);</span>
 <span class="nc" id="L49">        (new ModalAssume(((BinaryOperation&lt;ModalLogicalOperation&gt;) pf.getSteps().get(a - 1).getStep()).getLeft(), state)).apply(pf);</span>

@@ -34,14 +34,15 @@ public final class DeMorgan extends CompositionRule {
 
     @Override
     public void apply(ModalNaturalDeduction pf) {
-<span class="fc" id="L37">        String newState = pf.newState();</span>
-<span class="fc" id="L38">        NegationModal operation = (NegationModal) pf.getSteps().get(i - 1).getStep();</span>
-<span class="fc" id="L39">        (new ModalAssume(new LessEqual(pf.getSteps().get(i - 1).getState(), newState))).apply(pf);</span>
-<span class="fc" id="L40">        (new ModalAssume(((Sometime)operation.getElement()).getElement(), newState)).apply(pf);</span>
-<span class="fc" id="L41">        (new ModalDiaI(i + 2, i + 1)).apply(pf);</span>
-<span class="fc" id="L42">        (new ModalFI(i + 3, i)).apply(pf);</span>
-<span class="fc" id="L43">        (new ModalNotI()).apply(pf);</span>
-<span class="fc" id="L44">        (new ModalBoxI()).apply(pf);</span>
-<span class="fc" id="L45">    }</span>
+<span class="fc" id="L37">        int k = pf.getSteps().size();</span>
+<span class="fc" id="L38">        String newState = pf.newState();</span>
+<span class="fc" id="L39">        NegationModal operation = (NegationModal) pf.getSteps().get(i - 1).getStep();</span>
+<span class="fc" id="L40">        (new ModalAssume(new LessEqual(pf.getSteps().get(i - 1).getState(), newState))).apply(pf);</span>
+<span class="fc" id="L41">        (new ModalAssume(((Sometime)operation.getElement()).getElement(), newState)).apply(pf);</span>
+<span class="fc" id="L42">        (new ModalDiaI(k + 2, k + 1)).apply(pf);</span>
+<span class="fc" id="L43">        (new ModalFI(k + 3, i)).apply(pf);</span>
+<span class="fc" id="L44">        (new ModalNotI()).apply(pf);</span>
+<span class="fc" id="L45">        (new ModalBoxI()).apply(pf);</span>
+<span class="fc" id="L46">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>
