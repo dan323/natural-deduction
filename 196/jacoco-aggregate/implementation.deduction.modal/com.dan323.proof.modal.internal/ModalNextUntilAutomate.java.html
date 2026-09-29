@@ -4,6 +4,8 @@ import com.dan323.expressions.base.BinaryOperation;
 import com.dan323.expressions.base.LogicOperation;
 import com.dan323.expressions.base.UnaryOperation;
 import com.dan323.expressions.modal.Always;
+import com.dan323.expressions.modal.ConstantModal;
+import com.dan323.expressions.modal.ImplicationModal;
 import com.dan323.expressions.modal.ModalLogicalOperation;
 import com.dan323.expressions.modal.ModalOperation;
 import com.dan323.expressions.modal.Next;
@@ -21,6 +23,8 @@ import com.dan323.proof.modal.nextuntil.ModalUntilI1;
 import com.dan323.proof.modal.nextuntil.ModalUntilI2;
 import com.dan323.proof.modal.nextuntil.ModalUntilSometime;
 import com.dan323.proof.modal.proof.ProofStepModal;
+import com.dan323.proof.modal.relational.Reflexive;
+import com.dan323.proof.modal.relational.Transitive;
 
 import java.util.AbstractMap;
 import java.util.ArrayDeque;
@@ -47,6 +51,11 @@ import java.util.Optional;
  *     {@code UE} on an {@code A U B}, and {@code Succ} ({@code s &lt;= s+1}, so that {@code []E} and {@code &lt;&gt;I} reach
  *     {@code s+1}) when {@code s+1} is the state of a goal or of a step, the relation is not there yet and some step is
  *     a {@code []} or some goal a {@code &lt;&gt;}.&lt;/li&gt;
+ *     &lt;li&gt;A relation goal {@code s &lt;= t}, where {@code t} is {@code s} or some successor of it, is reached with
+ *     {@code Refl} ({@code t} is {@code s}), {@code Succ} ({@code t} is {@code s+1}) or {@code Trans} (from
+ *     {@code s &lt;= s+1} and {@code s+1 &lt;= t}, which become its subgoals). {@code Refl} and {@code Succ} need a line in
+ *     {@code s}; when there is none, the subgoal {@code A -&gt; A} in {@code s} gives one ({@code A} is the first premise,
+ *     or {@code FALSE} without premises). {@code Trans} also reaches a relation goal from two relation steps.&lt;/li&gt;
  *     &lt;li&gt;An elimination rule, modal or not, is applied only when it adds a step that is not there yet in the same
  *     state (see {@link #isUsefulElimination}).&lt;/li&gt;
  * &lt;/ul&gt;
@@ -54,8 +63,8 @@ import java.util.Optional;
  * induction proves (such as {@code p, [] (p -&gt; X p) ⊢ [] p}) is left unproved.
  *
  * &lt;p&gt;It always stops. No step or goal is ever more successors away from its base state
- * ({@code s0+3} is 3 away from {@code s0}) than there are {@code X} and {@code U} in the premises and the goal (or
- * one, if there are none); and the proof and the goals together are kept below {@link #STEPS_PER_SYMBOL} times the size of the premises and
+ * ({@code s0+3} is 3 away from {@code s0}) than there are {@code X} and {@code U} in the premises and the goal, or than
+ * the furthest state a relation among them names (or one, if that is less); and the proof and the goals together are kept below {@link #STEPS_PER_SYMBOL} times the size of the premises and
  * the goal, a round that would go further counting as stuck. When it finds no proof, it leaves the proof with its
  * premises only.
  */
@@ -69,58 +78,80 @@ public final class ModalNextUntilAutomate extends ModalAutomate {
     /**
      * An attempt at an Until goal: the state to go back to when it fails, and the subgoals of the ways still to try.
      */
-<span class="fc" id="L72">    private record Attempt(State before, List&lt;List&lt;Map.Entry&lt;String, ModalOperation&gt;&gt;&gt; remaining) {</span>
+<span class="fc" id="L81">    private record Attempt(State before, List&lt;List&lt;Map.Entry&lt;String, ModalOperation&gt;&gt;&gt; remaining) {</span>
     }
 
-<span class="fc" id="L75">    private final Deque&lt;Attempt&gt; attempts = new ArrayDeque&lt;&gt;();</span>
+<span class="fc" id="L84">    private final Deque&lt;Attempt&gt; attempts = new ArrayDeque&lt;&gt;();</span>
     private int maxSize;
     private int maxOffset;
 
     /**
      * A solver keeps its working state in fields: use one instance per proof to solve.
      */
-<span class="fc" id="L82">    public ModalNextUntilAutomate() {</span>
+<span class="fc" id="L91">    public ModalNextUntilAutomate() {</span>
         // Nothing to set up: automate initializes the state
-<span class="fc" id="L84">    }</span>
+<span class="fc" id="L93">    }</span>
 
     @Override
     protected void started() {
-<span class="fc" id="L88">        attempts.clear();</span>
-<span class="fc" id="L89">        int symbols = size(proof().getGoal());</span>
-<span class="fc" id="L90">        int temporal = temporal(proof().getGoal());</span>
-<span class="fc bfc" id="L91" title="All 2 branches covered.">        for (ModalOperation premise : proof().getAssms()) {</span>
-<span class="fc" id="L92">            symbols += size(premise);</span>
-<span class="fc" id="L93">            temporal += temporal(premise);</span>
-<span class="fc" id="L94">        }</span>
-<span class="fc" id="L95">        maxSize = STEPS_PER_SYMBOL * symbols;</span>
-<span class="fc" id="L96">        maxOffset = Math.max(1, temporal);</span>
-<span class="fc" id="L97">    }</span>
+<span class="fc" id="L97">        attempts.clear();</span>
+<span class="fc" id="L98">        int named = offset(proof().getGoal());</span>
+<span class="fc" id="L99">        int symbols = size(proof().getGoal()) + named;</span>
+<span class="fc" id="L100">        int temporal = temporal(proof().getGoal());</span>
+<span class="fc bfc" id="L101" title="All 2 branches covered.">        for (ModalOperation premise : proof().getAssms()) {</span>
+<span class="fc" id="L102">            symbols += size(premise) + offset(premise);</span>
+<span class="fc" id="L103">            temporal += temporal(premise);</span>
+<span class="fc" id="L104">            named = Math.max(named, offset(premise));</span>
+<span class="fc" id="L105">        }</span>
+<span class="fc" id="L106">        maxSize = STEPS_PER_SYMBOL * symbols;</span>
+<span class="fc" id="L107">        maxOffset = Math.max(1, Math.max(temporal, named));</span>
+<span class="fc" id="L108">    }</span>
 
     private static int size(LogicOperation formula) {
-<span class="fc bfc" id="L100" title="All 2 branches covered.">        if (formula instanceof UnaryOperation&lt;?&gt; unary) {</span>
-<span class="fc" id="L101">            return 1 + size(unary.getElement());</span>
-<span class="fc bfc" id="L102" title="All 2 branches covered.">        } else if (formula instanceof BinaryOperation&lt;?&gt; binary) {</span>
-<span class="fc" id="L103">            return 1 + size(binary.getLeft()) + size(binary.getRight());</span>
+<span class="fc bfc" id="L111" title="All 2 branches covered.">        if (formula instanceof UnaryOperation&lt;?&gt; unary) {</span>
+<span class="fc" id="L112">            return 1 + size(unary.getElement());</span>
+<span class="fc bfc" id="L113" title="All 2 branches covered.">        } else if (formula instanceof BinaryOperation&lt;?&gt; binary) {</span>
+<span class="fc" id="L114">            return 1 + size(binary.getLeft()) + size(binary.getRight());</span>
         }
-<span class="fc" id="L105">        return 1;</span>
+<span class="fc" id="L116">        return 1;</span>
     }
 
     /**
      * @return how many {@code X} and {@code U} the formula has
      */
     private static int temporal(LogicOperation formula) {
-<span class="fc bfc" id="L112" title="All 4 branches covered.">        int own = formula instanceof Next || formula instanceof Until ? 1 : 0;</span>
-<span class="fc bfc" id="L113" title="All 2 branches covered.">        if (formula instanceof UnaryOperation&lt;?&gt; unary) {</span>
-<span class="fc" id="L114">            return own + temporal(unary.getElement());</span>
-<span class="fc bfc" id="L115" title="All 2 branches covered.">        } else if (formula instanceof BinaryOperation&lt;?&gt; binary) {</span>
-<span class="fc" id="L116">            return own + temporal(binary.getLeft()) + temporal(binary.getRight());</span>
+<span class="fc bfc" id="L123" title="All 4 branches covered.">        int own = formula instanceof Next || formula instanceof Until ? 1 : 0;</span>
+<span class="fc bfc" id="L124" title="All 2 branches covered.">        if (formula instanceof UnaryOperation&lt;?&gt; unary) {</span>
+<span class="fc" id="L125">            return own + temporal(unary.getElement());</span>
+<span class="fc bfc" id="L126" title="All 2 branches covered.">        } else if (formula instanceof BinaryOperation&lt;?&gt; binary) {</span>
+<span class="fc" id="L127">            return own + temporal(binary.getLeft()) + temporal(binary.getRight());</span>
         }
-<span class="fc" id="L118">        return own;</span>
+<span class="fc" id="L129">        return own;</span>
+    }
+
+    /**
+     * @return how far from its base the furthest state named by a relation is ({@code 2} for {@code s0 &lt;= s0+2}),
+     * 0 for any other formula
+     */
+    private static int offset(ModalOperation formula) {
+<span class="pc bpc" id="L137" title="1 of 2 branches missed.">        if (formula instanceof RelationOperation relation) {</span>
+<span class="nc" id="L138">            return Math.max(stateTerm(relation.getLeft()).map(StateTerm::offset).orElse(0),</span>
+<span class="nc" id="L139">                    stateTerm(relation.getRight()).map(StateTerm::offset).orElse(0));</span>
+        }
+<span class="fc" id="L141">        return 0;</span>
+    }
+
+    private static Optional&lt;StateTerm&gt; stateTerm(String state) {
+        try {
+<span class="nc" id="L146">            return Optional.of(StateTerm.parse(state));</span>
+<span class="nc" id="L147">        } catch (IllegalArgumentException e) {</span>
+<span class="nc" id="L148">            return Optional.empty();</span>
+        }
     }
 
     @Override
     protected boolean withinBounds() {
-<span class="fc bfc" id="L123" title="All 2 branches covered.">        return proof().getSteps().size() + goalCount() &lt;= maxSize;</span>
+<span class="fc bfc" id="L154" title="All 2 branches covered.">        return proof().getSteps().size() + goalCount() &lt;= maxSize;</span>
     }
 
     /**
@@ -128,57 +159,173 @@ public final class ModalNextUntilAutomate extends ModalAutomate {
      */
     private Optional&lt;String&gt; successor(String state) {
         try {
-<span class="fc" id="L131">            var term = StateTerm.parse(state);</span>
-<span class="pc bpc" id="L132" title="1 of 4 branches missed.">            if (term.hasSuccessor() &amp;&amp; term.offset() &lt; maxOffset) {</span>
-<span class="fc" id="L133">                return Optional.of(term.successor().toString());</span>
+<span class="fc" id="L162">            var term = StateTerm.parse(state);</span>
+<span class="pc bpc" id="L163" title="1 of 4 branches missed.">            if (term.hasSuccessor() &amp;&amp; term.offset() &lt; maxOffset) {</span>
+<span class="fc" id="L164">                return Optional.of(term.successor().toString());</span>
             }
-<span class="nc" id="L135">        } catch (IllegalArgumentException e) {</span>
+<span class="nc" id="L166">        } catch (IllegalArgumentException e) {</span>
             // Not a state term: it has no successor
-<span class="fc" id="L137">        }</span>
-<span class="fc" id="L138">        return Optional.empty();</span>
+<span class="fc" id="L168">        }</span>
+<span class="fc" id="L169">        return Optional.empty();</span>
     }
 
     /**
-     * {@code XI} for a goal {@code X A}, and {@code UI1} or {@code UI2} for a goal {@code A U B}, from the valid steps.
+     * {@code XI} for a goal {@code X A}, {@code UI1} or {@code UI2} for a goal {@code A U B}, and {@code Refl},
+     * {@code Succ} or {@code Trans} for a relation goal (see {@link #introRuleForRelation}), from the valid steps.
      */
     @Override
     protected Optional&lt;AbstractModalAction&gt; introRuleForOtherGoal(ModalOperation goal, String state) {
-<span class="fc" id="L146">        Optional&lt;AbstractModalAction&gt; action = Optional.empty();</span>
-<span class="fc bfc" id="L147" title="All 2 branches covered.">        if (goal instanceof Next next) {</span>
-<span class="fc" id="L148">            action = successor(state)</span>
-<span class="fc" id="L149">                    .map(succ -&gt; validStep(next.getElement(), succ))</span>
-<span class="fc bfc" id="L150" title="All 2 branches covered.">                    .filter(line -&gt; line &gt; 0)</span>
-<span class="fc" id="L151">                    .map(ModalNextI::new);</span>
-<span class="fc bfc" id="L152" title="All 2 branches covered.">        } else if (goal instanceof Until until) {</span>
-<span class="fc" id="L153">            int right = validStep(until.getRight(), state);</span>
-<span class="fc bfc" id="L154" title="All 2 branches covered.">            if (right &gt; 0) {</span>
-<span class="fc" id="L155">                action = Optional.of(new ModalUntilI1(right, (ModalLogicalOperation) until.getLeft()));</span>
+<span class="fc" id="L178">        Optional&lt;AbstractModalAction&gt; action = Optional.empty();</span>
+<span class="pc bpc" id="L179" title="1 of 2 branches missed.">        if (goal instanceof LessEqual relation) {</span>
+<span class="nc" id="L180">            action = introRuleForRelation(relation);</span>
+<span class="fc bfc" id="L181" title="All 2 branches covered.">        } else if (goal instanceof Next next) {</span>
+<span class="fc" id="L182">            action = successor(state)</span>
+<span class="fc" id="L183">                    .map(succ -&gt; validStep(next.getElement(), succ))</span>
+<span class="fc bfc" id="L184" title="All 2 branches covered.">                    .filter(line -&gt; line &gt; 0)</span>
+<span class="fc" id="L185">                    .map(ModalNextI::new);</span>
+<span class="fc bfc" id="L186" title="All 2 branches covered.">        } else if (goal instanceof Until until) {</span>
+<span class="fc" id="L187">            int right = validStep(until.getRight(), state);</span>
+<span class="fc bfc" id="L188" title="All 2 branches covered.">            if (right &gt; 0) {</span>
+<span class="fc" id="L189">                action = Optional.of(new ModalUntilI1(right, (ModalLogicalOperation) until.getLeft()));</span>
             } else {
-<span class="fc" id="L157">                int left = validStep(until.getLeft(), state);</span>
-<span class="fc" id="L158">                int next = validStep(new Next(until), state);</span>
-<span class="pc bpc" id="L159" title="1 of 4 branches missed.">                if (left &gt; 0 &amp;&amp; next &gt; 0) {</span>
-<span class="fc" id="L160">                    action = Optional.of(new ModalUntilI2(left, next));</span>
+<span class="fc" id="L191">                int left = validStep(until.getLeft(), state);</span>
+<span class="fc" id="L192">                int next = validStep(new Next(until), state);</span>
+<span class="pc bpc" id="L193" title="1 of 4 branches missed.">                if (left &gt; 0 &amp;&amp; next &gt; 0) {</span>
+<span class="fc" id="L194">                    action = Optional.of(new ModalUntilI2(left, next));</span>
                 }
             }
         }
-<span class="fc" id="L164">        return action.filter(act -&gt; act.isValid(proof()));</span>
+<span class="fc" id="L198">        return action.filter(act -&gt; act.isValid(proof()));</span>
     }
+
+    /**
+     * {@code Refl} ({@code s &lt;= s}) or {@code Succ} ({@code s &lt;= s+1}) on a line in {@code s}, else {@code Trans} on
+     * valid steps {@code s &lt;= m} and {@code m &lt;= t}. Nothing for the proof's own goal once the proof is done (it is a
+     * premise, or an elimination rule gave it).
+     */
+    private Optional&lt;AbstractModalAction&gt; introRuleForRelation(LessEqual goal) {
+<span class="nc bnc" id="L207" title="All 4 branches missed.">        if (goalCount() == 1 &amp;&amp; proof().isDone()) {</span>
+<span class="nc" id="L208">            return Optional.empty();</span>
+        }
+<span class="nc" id="L210">        Optional&lt;AbstractModalAction&gt; action = distance(goal)</span>
+<span class="nc bnc" id="L211" title="All 2 branches missed.">                .filter(distance -&gt; distance &lt;= 1)</span>
+<span class="nc" id="L212">                .flatMap(distance -&gt; {</span>
+<span class="nc" id="L213">                    int line = lineIn(goal.getLeft());</span>
+<span class="nc bnc" id="L214" title="All 2 branches missed.">                    if (line == 0) {</span>
+<span class="nc" id="L215">                        return Optional.empty();</span>
+                    }
+<span class="nc bnc" id="L217" title="All 2 branches missed.">                    return Optional.of(distance == 0 ? new Reflexive(line) : new ModalSuccessor(line));</span>
+                });
+<span class="nc" id="L219">        return action.or(() -&gt; transitivity(goal));</span>
+    }
+
+    private Optional&lt;AbstractModalAction&gt; transitivity(LessEqual goal) {
+<span class="nc" id="L223">        List&lt;ProofStepModal&gt; steps = proof().getSteps();</span>
+<span class="nc bnc" id="L224" title="All 2 branches missed.">        for (int i = 0; i &lt; steps.size(); i++) {</span>
+<span class="nc bnc" id="L225" title="All 4 branches missed.">            if (steps.get(i).isValid() &amp;&amp; steps.get(i).getStep() instanceof LessEqual first</span>
+<span class="nc bnc" id="L226" title="All 2 branches missed.">                    &amp;&amp; first.getLeft().equals(goal.getLeft())) {</span>
+<span class="nc" id="L227">                int second = relationStep(new LessEqual(first.getRight(), goal.getRight()));</span>
+<span class="nc bnc" id="L228" title="All 2 branches missed.">                if (second &gt; 0) {</span>
+<span class="nc" id="L229">                    return Optional.of(new Transitive(i + 1, second));</span>
+                }
+            }
+        }
+<span class="nc" id="L233">        return Optional.empty();</span>
+    }
+
+    /**
+     * How many successors {@code t} is from {@code s} in the goal {@code s &lt;= t}: empty when {@code t} is not
+     * {@code s} or a successor of it.
+     */
+    private static Optional&lt;Integer&gt; distance(LessEqual goal) {
+<span class="nc" id="L241">        var from = stateTerm(goal.getLeft());</span>
+<span class="nc" id="L242">        var to = stateTerm(goal.getRight());</span>
+<span class="nc bnc" id="L243" title="All 6 branches missed.">        if (from.isPresent() &amp;&amp; to.isPresent() &amp;&amp; from.get().base().equals(to.get().base())</span>
+<span class="nc bnc" id="L244" title="All 2 branches missed.">                &amp;&amp; to.get().offset() &gt;= from.get().offset()) {</span>
+<span class="nc" id="L245">            return Optional.of(to.get().offset() - from.get().offset());</span>
+        }
+<span class="nc" id="L247">        return Optional.empty();</span>
+    }
+
+    /**
+     * The 1-based line of a valid formula step in this state, or 0 if there is none.
+     */
+    private int lineIn(String state) {
+<span class="nc" id="L254">        List&lt;ProofStepModal&gt; steps = proof().getSteps();</span>
+<span class="nc bnc" id="L255" title="All 2 branches missed.">        for (int i = 0; i &lt; steps.size(); i++) {</span>
+<span class="nc bnc" id="L256" title="All 4 branches missed.">            if (steps.get(i).isValid() &amp;&amp; steps.get(i).getStep() instanceof ModalLogicalOperation</span>
+<span class="nc bnc" id="L257" title="All 2 branches missed.">                    &amp;&amp; state.equals(steps.get(i).getState())) {</span>
+<span class="nc" id="L258">                return i + 1;</span>
+            }
+        }
+<span class="nc" id="L261">        return 0;</span>
+    }
+
+    /**
+     * The 1-based line of a valid step with this relation, or 0 if there is none.
+     */
+    private int relationStep(RelationOperation relation) {
+<span class="nc" id="L268">        List&lt;ProofStepModal&gt; steps = proof().getSteps();</span>
+<span class="nc bnc" id="L269" title="All 2 branches missed.">        for (int i = 0; i &lt; steps.size(); i++) {</span>
+<span class="nc bnc" id="L270" title="All 4 branches missed.">            if (steps.get(i).isValid() &amp;&amp; steps.get(i).getStep().equals(relation)) {</span>
+<span class="nc" id="L271">                return i + 1;</span>
+            }
+        }
+<span class="nc" id="L274">        return 0;</span>
+    }
+
+    /**
+     * A goal {@code s &lt;= t} with {@code t} two or more successors from {@code s} gets the subgoals {@code s &lt;= s+1}
+     * and {@code s+1 &lt;= t} (those that are not valid steps yet), for {@code Trans}. One with {@code t} at most one
+     * successor away and no line in {@code s} gets the subgoal {@code A -&gt; A} in {@code s}, a line for {@code Refl} or
+     * {@code Succ}. Any other relation goal gets nothing.
+     */
+    @Override
+    protected void updateRelationGoal(RelationOperation goal) {
+<span class="nc bnc" id="L285" title="All 2 branches missed.">        if (goal instanceof LessEqual lessEqual) {</span>
+<span class="nc" id="L286">            distance(lessEqual).ifPresent(distance -&gt; {</span>
+<span class="nc" id="L287">                String from = lessEqual.getLeft();</span>
+<span class="nc bnc" id="L288" title="All 2 branches missed.">                if (distance &gt;= 2) {</span>
+<span class="nc" id="L289">                    String next = StateTerm.parse(from).successor().toString();</span>
+<span class="nc" id="L290">                    pushRelationGoal(new LessEqual(next, lessEqual.getRight()));</span>
+<span class="nc" id="L291">                    pushRelationGoal(new LessEqual(from, next));</span>
+<span class="nc bnc" id="L292" title="All 2 branches missed.">                } else if (lineIn(from) == 0) {</span>
+<span class="nc" id="L293">                    ModalLogicalOperation formula = proof().getAssms().stream()</span>
+<span class="nc" id="L294">                            .filter(ModalLogicalOperation.class::isInstance)</span>
+<span class="nc" id="L295">                            .map(ModalLogicalOperation.class::cast)</span>
+<span class="nc" id="L296">                            .findFirst()</span>
+<span class="nc" id="L297">                            .orElse(ConstantModal.FALSE);</span>
+<span class="nc" id="L298">                    pushGoal(from, new ImplicationModal(formula, formula));</span>
+                }
+<span class="nc" id="L300">            });</span>
+        }
+<span class="nc" id="L302">    }</span>
+
+    /**
+     * A relation subgoal is kept under the state of its left side. No relation step has a state, so only a rule
+     * reaches it.
+     */
+    private void pushRelationGoal(LessEqual goal) {
+<span class="nc bnc" id="L309" title="All 2 branches missed.">        if (relationStep(goal) == 0) {</span>
+<span class="nc" id="L310">            pushGoal(goal.getLeft(), goal);</span>
+        }
+<span class="nc" id="L312">    }</span>
 
     /**
      * The 1-based line of a valid step with this formula in this state, or 0 if there is none.
      */
     private int validStep(ModalOperation formula, String state) {
-<span class="fc" id="L171">        List&lt;ProofStepModal&gt; steps = proof().getSteps();</span>
-<span class="fc bfc" id="L172" title="All 2 branches covered.">        for (int i = 0; i &lt; steps.size(); i++) {</span>
-<span class="pc bpc" id="L173" title="1 of 6 branches missed.">            if (steps.get(i).isValid() &amp;&amp; steps.get(i).getStep().equals(formula) &amp;&amp; state.equals(steps.get(i).getState())) {</span>
-<span class="fc" id="L174">                return i + 1;</span>
+<span class="fc" id="L318">        List&lt;ProofStepModal&gt; steps = proof().getSteps();</span>
+<span class="fc bfc" id="L319" title="All 2 branches covered.">        for (int i = 0; i &lt; steps.size(); i++) {</span>
+<span class="pc bpc" id="L320" title="1 of 6 branches missed.">            if (steps.get(i).isValid() &amp;&amp; steps.get(i).getStep().equals(formula) &amp;&amp; state.equals(steps.get(i).getState())) {</span>
+<span class="fc" id="L321">                return i + 1;</span>
             }
         }
-<span class="fc" id="L177">        return 0;</span>
+<span class="fc" id="L324">        return 0;</span>
     }
 
     private boolean hasValidStep(ModalOperation formula) {
-<span class="pc bpc" id="L181" title="1 of 4 branches missed.">        return proof().getSteps().stream().anyMatch(step -&gt; step.isValid() &amp;&amp; step.getStep().equals(formula));</span>
+<span class="pc bpc" id="L328" title="1 of 4 branches missed.">        return proof().getSteps().stream().anyMatch(step -&gt; step.isValid() &amp;&amp; step.getStep().equals(formula));</span>
     }
 
     /**
@@ -187,14 +334,14 @@ public final class ModalNextUntilAutomate extends ModalAutomate {
      */
     @Override
     protected Optional&lt;AbstractModalAction&gt; elimRuleForOtherStep(int i) {
-<span class="fc" id="L190">        var step = proof().getSteps().get(i);</span>
-<span class="fc" id="L191">        int line = i + 1;</span>
-<span class="pc bpc" id="L192" title="1 of 3 branches missed.">        return (switch (step.getStep()) {</span>
-<span class="fc bfc" id="L193" title="All 2 branches covered.">            case Next ignored when successor(step.getState()).isPresent() -&gt; checkSingleAction(new ModalNextE(line));</span>
-<span class="nc" id="L194">            case Until ignored -&gt; checkSingleAction(new ModalUntilSometime(line))</span>
-<span class="nc" id="L195">                    .or(() -&gt; checkSingleAction(new ModalUntilE(line)));</span>
-<span class="fc" id="L196">            default -&gt; Optional.&lt;AbstractModalAction&gt;empty();</span>
-<span class="fc" id="L197">        }).or(() -&gt; successorRelation(step.getState(), line));</span>
+<span class="fc" id="L337">        var step = proof().getSteps().get(i);</span>
+<span class="fc" id="L338">        int line = i + 1;</span>
+<span class="pc bpc" id="L339" title="1 of 3 branches missed.">        return (switch (step.getStep()) {</span>
+<span class="fc bfc" id="L340" title="All 2 branches covered.">            case Next ignored when successor(step.getState()).isPresent() -&gt; checkSingleAction(new ModalNextE(line));</span>
+<span class="nc" id="L341">            case Until ignored -&gt; checkSingleAction(new ModalUntilSometime(line))</span>
+<span class="nc" id="L342">                    .or(() -&gt; checkSingleAction(new ModalUntilE(line)));</span>
+<span class="fc" id="L343">            default -&gt; Optional.&lt;AbstractModalAction&gt;empty();</span>
+<span class="fc" id="L344">        }).or(() -&gt; successorRelation(step.getState(), line));</span>
     }
 
     /**
@@ -203,14 +350,14 @@ public final class ModalNextUntilAutomate extends ModalAutomate {
      * {@code &lt;&gt;} (for {@code &lt;&gt;I}).
      */
     private Optional&lt;AbstractModalAction&gt; successorRelation(String state, int line) {
-<span class="pc bpc" id="L206" title="1 of 6 branches missed.">        boolean relationsHelp = proof().getSteps().stream().anyMatch(step -&gt; step.isValid() &amp;&amp; step.getStep() instanceof Always)</span>
-<span class="pc bpc" id="L207" title="1 of 2 branches missed.">                || goals().stream().anyMatch(goal -&gt; goal.getValue() instanceof Sometime);</span>
-<span class="fc bfc" id="L208" title="All 2 branches covered.">        if (!relationsHelp) {</span>
-<span class="fc" id="L209">            return Optional.empty();</span>
+<span class="pc bpc" id="L353" title="1 of 6 branches missed.">        boolean relationsHelp = proof().getSteps().stream().anyMatch(step -&gt; step.isValid() &amp;&amp; step.getStep() instanceof Always)</span>
+<span class="pc bpc" id="L354" title="1 of 2 branches missed.">                || goals().stream().anyMatch(goal -&gt; goal.getValue() instanceof Sometime);</span>
+<span class="fc bfc" id="L355" title="All 2 branches covered.">        if (!relationsHelp) {</span>
+<span class="fc" id="L356">            return Optional.empty();</span>
         }
-<span class="fc" id="L211">        return successor(state)</span>
-<span class="fc bfc" id="L212" title="All 4 branches covered.">                .filter(succ -&gt; isInUse(succ) &amp;&amp; !hasValidStep(new LessEqual(state, succ)))</span>
-<span class="fc" id="L213">                .flatMap(succ -&gt; checkSingleAction(new ModalSuccessor(line)));</span>
+<span class="fc" id="L358">        return successor(state)</span>
+<span class="fc bfc" id="L359" title="All 4 branches covered.">                .filter(succ -&gt; isInUse(succ) &amp;&amp; !hasValidStep(new LessEqual(state, succ)))</span>
+<span class="fc" id="L360">                .flatMap(succ -&gt; checkSingleAction(new ModalSuccessor(line)));</span>
     }
 
     /**
@@ -221,40 +368,40 @@ public final class ModalNextUntilAutomate extends ModalAutomate {
      */
     @Override
     protected boolean isUsefulElimination(AbstractModalAction act) {
-<span class="fc" id="L224">        List&lt;ProofStepModal&gt; steps = proof().getSteps();</span>
-<span class="fc" id="L225">        int before = steps.size();</span>
-<span class="fc" id="L226">        act.apply(proof());</span>
-<span class="fc" id="L227">        boolean useful = false;</span>
-<span class="pc bpc" id="L228" title="1 of 4 branches missed.">        for (int i = before; i &lt; steps.size() &amp;&amp; !useful; i++) {</span>
-<span class="fc" id="L229">            var added = steps.get(i);</span>
-<span class="pc bpc" id="L230" title="1 of 4 branches missed.">            useful = added.isValid() &amp;&amp; !isValidBefore(added, before);</span>
+<span class="fc" id="L371">        List&lt;ProofStepModal&gt; steps = proof().getSteps();</span>
+<span class="fc" id="L372">        int before = steps.size();</span>
+<span class="fc" id="L373">        act.apply(proof());</span>
+<span class="fc" id="L374">        boolean useful = false;</span>
+<span class="pc bpc" id="L375" title="1 of 4 branches missed.">        for (int i = before; i &lt; steps.size() &amp;&amp; !useful; i++) {</span>
+<span class="fc" id="L376">            var added = steps.get(i);</span>
+<span class="pc bpc" id="L377" title="1 of 4 branches missed.">            useful = added.isValid() &amp;&amp; !isValidBefore(added, before);</span>
         }
-<span class="fc bfc" id="L232" title="All 2 branches covered.">        while (steps.size() &gt; before) {</span>
-<span class="fc" id="L233">            proof().removeLastStep();</span>
+<span class="fc bfc" id="L379" title="All 2 branches covered.">        while (steps.size() &gt; before) {</span>
+<span class="fc" id="L380">            proof().removeLastStep();</span>
         }
-<span class="fc" id="L235">        return useful;</span>
+<span class="fc" id="L382">        return useful;</span>
     }
 
     private boolean isValidBefore(ProofStepModal added, int before) {
-<span class="fc" id="L239">        List&lt;ProofStepModal&gt; steps = proof().getSteps();</span>
-<span class="fc bfc" id="L240" title="All 2 branches covered.">        for (int i = 0; i &lt; before; i++) {</span>
-<span class="fc" id="L241">            var step = steps.get(i);</span>
-<span class="pc bpc" id="L242" title="1 of 6 branches missed.">            if (step.isValid() &amp;&amp; step.getStep().equals(added.getStep()) &amp;&amp; Objects.equals(step.getState(), added.getState())) {</span>
-<span class="fc" id="L243">                return true;</span>
+<span class="fc" id="L386">        List&lt;ProofStepModal&gt; steps = proof().getSteps();</span>
+<span class="fc bfc" id="L387" title="All 2 branches covered.">        for (int i = 0; i &lt; before; i++) {</span>
+<span class="fc" id="L388">            var step = steps.get(i);</span>
+<span class="pc bpc" id="L389" title="1 of 6 branches missed.">            if (step.isValid() &amp;&amp; step.getStep().equals(added.getStep()) &amp;&amp; Objects.equals(step.getState(), added.getState())) {</span>
+<span class="fc" id="L390">                return true;</span>
             }
         }
-<span class="fc" id="L246">        return false;</span>
+<span class="fc" id="L393">        return false;</span>
     }
 
     /**
      * Whether a goal or a valid step is in {@code state}, or a valid relation step names it.
      */
     private boolean isInUse(String state) {
-<span class="fc" id="L253">        boolean inGoal = goals().stream().anyMatch(goal -&gt; state.equals(goal.getKey()));</span>
-<span class="pc bpc" id="L254" title="1 of 2 branches missed.">        return inGoal || proof().getSteps().stream()</span>
-<span class="fc" id="L255">                .filter(ProofStepModal::isValid)</span>
-<span class="fc bfc" id="L256" title="All 6 branches covered.">                .anyMatch(step -&gt; state.equals(step.getState()) || step.getStep() instanceof RelationOperation relation</span>
-<span class="pc bpc" id="L257" title="2 of 4 branches missed.">                        &amp;&amp; (state.equals(relation.getLeft()) || state.equals(relation.getRight())));</span>
+<span class="fc" id="L400">        boolean inGoal = goals().stream().anyMatch(goal -&gt; state.equals(goal.getKey()));</span>
+<span class="pc bpc" id="L401" title="1 of 2 branches missed.">        return inGoal || proof().getSteps().stream()</span>
+<span class="fc" id="L402">                .filter(ProofStepModal::isValid)</span>
+<span class="fc bfc" id="L403" title="All 6 branches covered.">                .anyMatch(step -&gt; state.equals(step.getState()) || step.getStep() instanceof RelationOperation relation</span>
+<span class="pc bpc" id="L404" title="2 of 4 branches missed.">                        &amp;&amp; (state.equals(relation.getLeft()) || state.equals(relation.getRight())));</span>
     }
 
     /**
@@ -263,30 +410,30 @@ public final class ModalNextUntilAutomate extends ModalAutomate {
      */
     @Override
     protected boolean updateOtherGoal(ModalLogicalOperation goal, String state) {
-<span class="fc bfc" id="L266" title="All 2 branches covered.">        if (goal instanceof Next next) {</span>
-<span class="fc" id="L267">            successor(state).ifPresent(succ -&gt; pushGoal(succ, next.getElement()));</span>
-<span class="fc" id="L268">            return true;</span>
-<span class="fc bfc" id="L269" title="All 2 branches covered.">        } else if (goal instanceof Until until) {</span>
-<span class="fc" id="L270">            List&lt;List&lt;Map.Entry&lt;String, ModalOperation&gt;&gt;&gt; alternatives = new ArrayList&lt;&gt;();</span>
-<span class="fc" id="L271">            alternatives.add(List.of(entry(state, until.getRight())));</span>
-<span class="pc bpc" id="L272" title="1 of 2 branches missed.">            if (successor(state).isPresent()) {</span>
+<span class="fc bfc" id="L413" title="All 2 branches covered.">        if (goal instanceof Next next) {</span>
+<span class="fc" id="L414">            successor(state).ifPresent(succ -&gt; pushGoal(succ, next.getElement()));</span>
+<span class="fc" id="L415">            return true;</span>
+<span class="fc bfc" id="L416" title="All 2 branches covered.">        } else if (goal instanceof Until until) {</span>
+<span class="fc" id="L417">            List&lt;List&lt;Map.Entry&lt;String, ModalOperation&gt;&gt;&gt; alternatives = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L418">            alternatives.add(List.of(entry(state, until.getRight())));</span>
+<span class="pc bpc" id="L419" title="1 of 2 branches missed.">            if (successor(state).isPresent()) {</span>
                 // Pushed in order, so A is reached first, then X (A U B)
-<span class="fc" id="L274">                alternatives.add(List.of(entry(state, new Next(until)), entry(state, until.getLeft())));</span>
+<span class="fc" id="L421">                alternatives.add(List.of(entry(state, new Next(until)), entry(state, until.getLeft())));</span>
             }
-<span class="fc" id="L276">            start(state(), alternatives);</span>
-<span class="fc" id="L277">            return true;</span>
+<span class="fc" id="L423">            start(state(), alternatives);</span>
+<span class="fc" id="L424">            return true;</span>
         }
-<span class="fc" id="L279">        return false;</span>
+<span class="fc" id="L426">        return false;</span>
     }
 
     private static Map.Entry&lt;String, ModalOperation&gt; entry(String state, ModalOperation formula) {
-<span class="fc" id="L283">        return new AbstractMap.SimpleEntry&lt;&gt;(state, formula);</span>
+<span class="fc" id="L430">        return new AbstractMap.SimpleEntry&lt;&gt;(state, formula);</span>
     }
 
     private void start(State before, List&lt;List&lt;Map.Entry&lt;String, ModalOperation&gt;&gt;&gt; alternatives) {
-<span class="fc" id="L287">        attempts.push(new Attempt(before, alternatives.subList(1, alternatives.size())));</span>
-<span class="fc" id="L288">        alternatives.getFirst().forEach(goal -&gt; pushGoal(goal.getKey(), goal.getValue()));</span>
-<span class="fc" id="L289">    }</span>
+<span class="fc" id="L434">        attempts.push(new Attempt(before, alternatives.subList(1, alternatives.size())));</span>
+<span class="fc" id="L435">        alternatives.getFirst().forEach(goal -&gt; pushGoal(goal.getKey(), goal.getValue()));</span>
+<span class="fc" id="L436">    }</span>
 
     /**
      * The subgoals of an attempt were reached, so it succeeded: there is no going back on it anymore. Its subgoals
@@ -294,12 +441,12 @@ public final class ModalNextUntilAutomate extends ModalAutomate {
      */
     @Override
     protected void goalRemoved() {
-<span class="fc" id="L297">        Attempt innermost = attempts.peek();</span>
-<span class="fc bfc" id="L298" title="All 4 branches covered.">        if (innermost != null &amp;&amp; innermost.before().goals().size() &gt;= goalCount()) {</span>
-<span class="fc" id="L299">            attempts.pop();</span>
-<span class="fc" id="L300">            goalRemoved();</span>
+<span class="fc" id="L444">        Attempt innermost = attempts.peek();</span>
+<span class="fc bfc" id="L445" title="All 4 branches covered.">        if (innermost != null &amp;&amp; innermost.before().goals().size() &gt;= goalCount()) {</span>
+<span class="fc" id="L446">            attempts.pop();</span>
+<span class="fc" id="L447">            goalRemoved();</span>
         }
-<span class="fc" id="L302">    }</span>
+<span class="fc" id="L449">    }</span>
 
     /**
      * The innermost attempt failed: remove its steps and try the next way to reach its goal. When every way failed,
@@ -308,19 +455,19 @@ public final class ModalNextUntilAutomate extends ModalAutomate {
      */
     @Override
     protected boolean stalled() {
-<span class="pc bfc" id="L311" title="All 2 branches covered.">        for (Attempt failed = attempts.poll(); failed != null; failed = attempts.poll()) {</span>
-<span class="fc" id="L312">            State before = failed.before();</span>
-<span class="fc" id="L313">            restore(before);</span>
-<span class="fc" id="L314">            List&lt;List&lt;Map.Entry&lt;String, ModalOperation&gt;&gt;&gt; remaining = failed.remaining();</span>
-<span class="pc bpc" id="L315" title="1 of 2 branches missed.">            if (!remaining.isEmpty()) {</span>
-<span class="fc" id="L316">                start(before, remaining);</span>
-<span class="fc" id="L317">                return true;</span>
+<span class="pc bfc" id="L458" title="All 2 branches covered.">        for (Attempt failed = attempts.poll(); failed != null; failed = attempts.poll()) {</span>
+<span class="fc" id="L459">            State before = failed.before();</span>
+<span class="fc" id="L460">            restore(before);</span>
+<span class="fc" id="L461">            List&lt;List&lt;Map.Entry&lt;String, ModalOperation&gt;&gt;&gt; remaining = failed.remaining();</span>
+<span class="pc bpc" id="L462" title="1 of 2 branches missed.">            if (!remaining.isEmpty()) {</span>
+<span class="fc" id="L463">                start(before, remaining);</span>
+<span class="fc" id="L464">                return true;</span>
             }
         }
-<span class="pc bpc" id="L320" title="1 of 2 branches missed.">        if (!proof().isDone()) {</span>
-<span class="fc" id="L321">            proof().reset();</span>
+<span class="pc bpc" id="L467" title="1 of 2 branches missed.">        if (!proof().isDone()) {</span>
+<span class="fc" id="L468">            proof().reset();</span>
         }
-<span class="fc" id="L323">        return false;</span>
+<span class="fc" id="L470">        return false;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>
