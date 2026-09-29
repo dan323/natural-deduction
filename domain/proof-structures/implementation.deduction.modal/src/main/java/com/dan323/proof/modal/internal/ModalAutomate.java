@@ -164,6 +164,15 @@ public class ModalAutomate {
     }
 
     /**
+     * Push subgoals for a relation goal ({@code s0 <= s1}) that no introduction rule reaches.
+     *
+     * @param goal the last goal
+     */
+    protected void updateRelationGoal(RelationOperation goal) {
+        // A relation goal has no subgoals by default: only the premises and the elimination rules can reach it
+    }
+
+    /**
      * Called after the last goal was removed from the stack because it was reached.
      */
     protected void goalRemoved() {
@@ -656,8 +665,9 @@ public class ModalAutomate {
     private void updateGoal() {
         if (goals.getLast().getValue().equals(ConstantModal.FALSE)) {
             lastGoalFalse();
+        } else if (goals.getLast().getValue() instanceof RelationOperation relation) {
+            updateRelationGoal(relation);
         } else if (goals.getLast().getValue() instanceof ModalLogicalOperation goal) {
-            // A relation goal (s0 <= s1) has no subgoals: only the premises and the elimination rules can reach it
             var state = goals.getLast().getKey();
             switch (goal) {
                 case ConjunctionModal conj -> updateGoalConjunction(conj, state);

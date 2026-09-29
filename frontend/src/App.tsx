@@ -325,7 +325,7 @@ function App() {
     const requestedProofId = proofIdRef.current;
     const requestedStart = userStartedRef.current;
     setIsRestoring(true);
-    replayProof(saved.proof.logic, saved.proof, (result) => {
+    void replayProof(saved.proof.logic, saved.proof, (result) => {
       if (!active) return;
       setIsRestoring(false);
       if (proofIdRef.current !== requestedProofId) return;
@@ -384,11 +384,11 @@ function App() {
     setExercisesOf({ logic: requested, state: { kind: 'loading' } });
     const settle = (state: ExercisesState) =>
       setExercisesOf((previous) => (previous?.logic === requested ? { logic: requested, state } : previous));
-    fetchExercises(
+    void fetchExercises(
       requested,
       (exercises) => {
         settle({ kind: 'loaded', exercises });
-        fetchTheories(requested).then((theories) => setExercisesOf((previous) => (
+        void fetchTheories(requested).then((theories) => setExercisesOf((previous) => (
           previous?.logic === requested && previous.state.kind === 'loaded' && previous.state.exercises === exercises
             ? { logic: requested, state: { kind: 'loaded', exercises, theories } }
             : previous)));
@@ -407,7 +407,7 @@ function App() {
       assmsLevel: 0,
       extraParameters: premiseParameters(premise, proofLogic),
     }));
-    replayProof(proofLogic, { steps: steps, logic: proofLogic, goal: goal }, (result) => resolve(result.proof
+    void replayProof(proofLogic, { steps: steps, logic: proofLogic, goal: goal }, (result) => resolve(result.proof
       ? { proof: result.proof }
       : { error: result.message || 'Could not start the proof.' }));
   });
@@ -545,7 +545,7 @@ function App() {
   // the dialog was closed is dropped.
   const handleLoadText = (text: string, proofLogic: string) => new Promise<string | null>((resolve) => {
     const session = dialogSessionRef.current;
-    loadProofFromText(proofLogic, text, (result) => {
+    void loadProofFromText(proofLogic, text, (result) => {
       if (dialogSessionRef.current !== session) {
         resolve(null);
       } else if (result.success && result.proof) {
@@ -578,7 +578,7 @@ function App() {
     setUndoError('');
     setIsUndoing(true);
     const requestedProofId = proofIdRef.current;
-    undoLastStep(logic, proof, (result) => {
+    void undoLastStep(logic, proof, (result) => {
       setIsUndoing(false);
       // New Proof stays enabled while an undo is in flight, and it bumps `proofIdRef`. If that happened, this
       // response is about a proof that no longer exists on screen; applying it (or reporting its error) would

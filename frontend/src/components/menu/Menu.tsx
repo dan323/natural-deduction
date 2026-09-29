@@ -144,7 +144,7 @@ const Menu: FC<MenuProps> = ({ logic, onColorChange, setProof, proof, ref, onNew
 
     // Only the logic matters: refetching on every proof or colour change rescans the backend.
     useEffect(() => {
-        fetchActions(
+        void fetchActions(
             logic,
             fetchedActions => {
                 setActions(fetchedActions);
@@ -216,7 +216,7 @@ const Menu: FC<MenuProps> = ({ logic, onColorChange, setProof, proof, ref, onNew
             },
         };
 
-        applyAction(logic, proof, actionDto, (response: ApplyActionResponse) => {
+        void applyAction(logic, proof, actionDto, (response: ApplyActionResponse) => {
             setIsLoading(false);
             if (response.success && response.proof) {
                 setProof(response.proof);
@@ -239,7 +239,7 @@ const Menu: FC<MenuProps> = ({ logic, onColorChange, setProof, proof, ref, onNew
         setNotice('');
         setIsSolving(true);
 
-        solveProof(logic, proof, (response: ApplyActionResponse) => {
+        void solveProof(logic, proof, (response: ApplyActionResponse) => {
             setIsSolving(false);
             const solved = response.success ? response.proof : undefined;
             if (solved && solved.done !== true && solved.steps.length <= premiseCount(solved.steps)) {

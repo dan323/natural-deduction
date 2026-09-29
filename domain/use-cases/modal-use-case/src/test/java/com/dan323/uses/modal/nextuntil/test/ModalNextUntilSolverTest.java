@@ -103,6 +103,45 @@ class ModalNextUntilSolverTest {
     }
 
     @TestFactory
+    Stream<DynamicTest> relationGoalsAreSolved() {
+        return Stream.of(
+                        // Succ on the premise
+                        start(List.of("p"), "s0 <= s0+1"),
+                        // Refl on the premise
+                        start(List.of("p"), "s0 <= s0"),
+                        // Succ twice, the second on a line in s0+1 that p -> p gives, then Trans
+                        start(List.of("p"), "s0 <= s0+2"),
+                        start(List.of("p"), "s0 <= s0+1+1"),
+                        start(List.of("[] p", "X q"), "s0 <= s0+3"),
+                        // No premise: FALSE -> FALSE gives the line for Succ
+                        start(List.of(), "s0 <= s0+1"),
+                        start(List.of(), "s0 <= s0+2"),
+                        // Only relations: Trans on the premises
+                        startRelations(List.of("s0 <= s1", "s1 <= s2"), "s0 <= s2"))
+                .map(proof -> DynamicTest.dynamicTest(proof.goal(), () -> {
+                    var solved = assertTimeoutPreemptively(Duration.ofSeconds(5), () -> solver.perform(proof));
+                    assertTrue(solved.isDone(), proof.goal() + ": done");
+                    assertEquals(proof.steps(), solved.steps().subList(0, proof.steps().size()), proof.goal() + ": the premises stay");
+                    var replayed = transformer.from(solved);
+                    assertTrue(replayed.isDone(), proof.goal() + ": replays and is done");
+                    assertEquals(solved, transformer.fromProof(replayed));
+                }));
+    }
+
+    private static ProofDto startRelations(List<String> premises, String goal) {
+        var steps = premises.stream().map(premise -> new StepDto(premise, "Ass", 0, Map.<String, String>of())).toList();
+        return new ProofDto(steps, LOGIC, goal);
+    }
+
+    @TestFactory
+    Stream<DynamicTest> unprovableRelationGoalsEndUnsolved() {
+        return Stream.of(
+                        start(List.of("p"), "s0+1 <= s0"),
+                        start(List.of("p"), "s0 <= s1"))
+                .map(proof -> DynamicTest.dynamicTest(proof.goal(), () -> assertNotSolved(proof)));
+    }
+
+    @TestFactory
     Stream<DynamicTest> unprovableGoalsEndUnsolved() {
         return Stream.of(
                         start(List.of("X p"), "p"),
