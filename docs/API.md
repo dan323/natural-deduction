@@ -29,23 +29,23 @@ order, the inputs the action needs.
 
 The first two are from `/logic/classical/actions`, the last from `/logic/modal/actions`.
 
-| Param kind   | Meaning                                | Where it goes in `POST /logic/{logic}/action` |
-|--------------|----------------------------------------|-----------------------------------------------|
-| `INT`        | a 1-based line number of the proof     | the next entry of `actionDto.sources`         |
-| `EXPRESSION` | a formula                              | `actionDto.extraParameters.expression`        |
-| `STATE`      | a state (world) name, modal logic only | `actionDto.extraParameters.state`             |
-| `TERM`       | a term (`a`, `f(x, e)`), first-order only | `actionDto.extraParameters.term`           |
+| Param kind   | Meaning                                   | Where it goes in `POST /logic/{logic}/action` |
+|--------------|-------------------------------------------|-----------------------------------------------|
+| `INT`        | a 1-based line number of the proof        | the next entry of `actionDto.sources`         |
+| `EXPRESSION` | a formula                                 | `actionDto.extraParameters.expression`        |
+| `STATE`      | a state (world) name, modal logic only    | `actionDto.extraParameters.state`             |
+| `TERM`       | a term (`a`, `f(x, e)`), first-order only | `actionDto.extraParameters.term`              |
 
 The other fields only help a client to present the action. They are optional: a logic that does not provide them
 sends `null` (`[]` for `paramLabels`), and a client falls back to `name` and to a generic label per param kind.
 
-| Field         | Meaning                                                                                                          |
-|---------------|------------------------------------------------------------------------------------------------------------------|
-| `label`       | human name of the rule, e.g. `Modus ponens`                                                                      |
+| Field         | Meaning                                                                                                                |
+|---------------|------------------------------------------------------------------------------------------------------------------------|
+| `label`       | human name of the rule, e.g. `Modus ponens`                                                                            |
 | `symbol`      | how the rule is written in a proof, e.g. `→E`. It is the rule text of a step (`->E [1, 2]`) as the frontend renders it |
-| `category`    | `INTRODUCTION`, `ELIMINATION` or `OTHER`, for grouping                                                           |
-| `description` | one sentence saying what the rule does, without a final full stop                                                |
-| `paramLabels` | one label per entry of `params`, in the same order (for `INT` params, the order of `actionDto.sources`), or empty |
+| `category`    | `INTRODUCTION`, `ELIMINATION` or `OTHER`, for grouping                                                                 |
+| `description` | one sentence saying what the rule does, without a final full stop                                                      |
+| `paramLabels` | one label per entry of `params`, in the same order (for `INT` params, the order of `actionDto.sources`), or empty      |
 
 The order of the `INT` params matters: `MP` needs the implication first and the antecedent second.
 
@@ -251,14 +251,14 @@ change.
 - Steps have no `extraParameters`. `GET /logic/first-order/actions` lists 20 actions: the 14 shared rules under their
   modal names (`Ass`, `|I1`, `->E`, ...; the classical names are accepted too), then:
 
-  | name | params          | rule text      | what it does                                                                        |
-  |------|-----------------|----------------|-------------------------------------------------------------------------------------|
-  | `∀I` | INT, EXPR       | `∀I [i]`       | from `A[x:=a]`, derive the target `forall x. A`; `a` is free in no premise, no open assumption and not in the target |
-  | `∀E` | INT, TERM       | `∀E [i]`       | from `forall x. A` and a term `t`, derive `A[x:=t]`                                  |
-  | `∃I` | INT, EXPR       | `∃I [i]`       | from `A[x:=t]` for some term `t`, derive the target `exists x. A`                    |
-  | `∃E` | INT             | `∃E [i, j-k]`  | from `exists x. A`, close the last assumption `A[x:=a]` (`a` fresh), whose subproof ends on `C`, and derive `C` |
-  | `=I` | TERM            | `=I`           | derive `t = t`                                                                       |
-  | `=E` | INT, INT, EXPR  | `=E [i, j]`    | from `s = t` (line `i`) and `A` (line `j`), derive the target: `A` with some `s` replaced by `t` |
+  | name | params         | rule text     | what it does                                                                                                         |
+  |------|----------------|---------------|----------------------------------------------------------------------------------------------------------------------|
+  | `∀I` | INT, EXPR      | `∀I [i]`      | from `A[x:=a]`, derive the target `forall x. A`; `a` is free in no premise, no open assumption and not in the target |
+  | `∀E` | INT, TERM      | `∀E [i]`      | from `forall x. A` and a term `t`, derive `A[x:=t]`                                                                  |
+  | `∃I` | INT, EXPR      | `∃I [i]`      | from `A[x:=t]` for some term `t`, derive the target `exists x. A`                                                    |
+  | `∃E` | INT            | `∃E [i, j-k]` | from `exists x. A`, close the last assumption `A[x:=a]` (`a` fresh), whose subproof ends on `C`, and derive `C`      |
+  | `=I` | TERM           | `=I`          | derive `t = t`                                                                                                       |
+  | `=E` | INT, INT, EXPR | `=E [i, j]`   | from `s = t` (line `i`) and `A` (line `j`), derive the target: `A` with some `s` replaced by `t`                     |
 
 - A term that does not parse, or a missing one (`=I needs a term`), is a `400`; a generalization that breaks its side
   condition (`∀I` on a name free in a premise) is a `202`. The term of a `∀E` step is not written in the proof: the

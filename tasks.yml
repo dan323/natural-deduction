@@ -191,14 +191,21 @@ projects:
     pr_announced: true
   - id: c9b7a1
     description: '#175: 11.6 Start from a theory (frontend)'
-    status: pending
+    status: done
     issue_number: 175
     issue_url: https://github.com/dan323/natural-deduction/issues/175
+    branch: task/175-11-6-start-from-a-theory-frontend-f09187
+    pr_url: https://github.com/dan323/natural-deduction/pull/184
+    date: '2026-09-29'
+    pr_announced: true
   - id: b985d9
     description: '#176: 12.1 Intuitionistic solver (backend + one flag)'
-    status: pending
+    status: done
     issue_number: 176
     issue_url: https://github.com/dan323/natural-deduction/issues/176
+    branch: task/176-12-1-intuitionistic-solver-backend-one-fl-40df71
+    pr_url: https://github.com/dan323/natural-deduction/pull/185
+    date: '2026-09-29'
   - id: '912998'
     description: '#177: 12.2 modal-next-until solver (backend + one flag)'
     status: pending
@@ -209,3 +216,10 @@ projects:
     status: pending
     issue_number: 178
     issue_url: https://github.com/dan323/natural-deduction/issues/178
+  - id: 'e5cd8a'
+    description: '#191: Goal-directed solvers loop forever when an implication goal has FALSE on the right'
+    status: skipped
+    issue_number: 191
+    issue_url: https://github.com/dan323/natural-deduction/issues/191
+    reason: fixed in PR #185
+    date: '2026-09-29'

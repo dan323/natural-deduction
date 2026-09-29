@@ -215,7 +215,7 @@ frontend in; the image runs as a non-root user and has a health check on `/actua
 │ │ Spring  │ │
 │ │ Boot    │ │
 │ └────┬────┘ │
-│      │       │
+│      │      │
 │ ┌────▼────┐ │
 │ │Frontend │ │
 │ │(Static) │ │

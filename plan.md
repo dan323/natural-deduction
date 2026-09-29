@@ -8,7 +8,8 @@ for the logics that have none).
 
 PRs 1-11 are merged; their steps are removed from this file (the issues and PRs below keep the details, and
 `CHANGELOG.md` lists what they changed). PR 12 (solvers for intuitionistic, modal-next-until and first-order logic) is
-pending: 12.1-12.3 are open as issues #176-#178.
+pending: 12.1-12.3 are open as issues #176-#178. PR 13 (a responsive, modern UI) is pending: 13.1-13.4 are open as
+issues #186-#189.
 
 Merged so far:
 - PRs 1-6 (UI audit fixes): 1-3, 4.1, 5.1, 5.2 and 5.4 as #124-#128, #130 and #131; 4.2 and 5.3 folded into #127 and
@@ -58,6 +59,10 @@ solvers, it starts from the premises (`proof.reset()`). `classical` and `modal` 
   `A U B` in `s+1`) up to a depth bound; elimination with `XE`, `UE` and `U<>`. It does not use `Ind`, because
   induction needs an invariant, so a goal that only `Ind` can prove ends with `done=false`.
   `ModalNextUntilNaturalDeduction.automate()` runs it, and `hasSolver` becomes true in the transformer and in `LOGICS`.
+- Algorithm: the strategy above is a starting point. Searching online for a published proof-search algorithm for
+  this logic is allowed, and one may be adapted in its place if it fits better, as long as it keeps the constraints
+  of the shared context (only the logic's own rules, replays through `Transformer.from`, starts from the premises,
+  stops before the timeout). Name the source in the PR description.
 - Tests: every `modal-next-until` exercise whose reference solution has no `Ind` step is solved, replays and is done in
   `s0`. An `Ind` exercise ends with `done=false` before the timeout. `ModalFreshStateTest` and the `modal` solver tests
   are unchanged. `RestServiceIT`: `/logic/modal-next-until/solve` answers 200.
@@ -71,10 +76,70 @@ solvers, it starts from the premises (`proof.reset()`). `classical` and `modal` 
   - `=I`, and `=E` limited to symmetry and transitivity chains.
 
   `FirstOrderNaturalDeduction.automate()` runs it, and `hasSolver` becomes true in the transformer and in `LOGICS`.
+- Algorithm: the strategy above is a starting point. Searching online for a published proof-search algorithm for
+  this logic is allowed, and one may be adapted in its place if it fits better, as long as it keeps the constraints
+  of the shared context (only the logic's own rules, replays through `Transformer.from`, starts from the premises,
+  stops before the timeout). Name the source in the PR description.
 - Tests: every pure (non-group) first-order exercise is solved, replays and is done. The group exercises are not
   required. A goal the solver cannot prove ends with `done=false` before the timeout. `RestServiceIT`:
   `/logic/first-order/solve` answers 200.
 - Done when: Solve finishes `forall x. P(x) ⊢ exists x. P(x)` and the pure first-order exercises in the UI.
+
+---
+
+## PR 13: A responsive, modern UI
+
+Frontend only, with no behaviour changes: every existing Jest test keeps passing, with only class-name selectors
+updated. 13.1 is independent; 13.3 and 13.4 build on the tokens of 13.2.
+
+**13.1 The New Proof dialog fits any window** — pending (issue #186)
+- Change: `.modal` gets `padding: 16px` and `overflow: hidden`; `.modal-content` becomes a flex column with
+  `max-height: calc(100dvh - 32px)`, whose title and `.modal-footer` stay put while only `.modal-body` scrolls
+  (`overflow-y: auto`, `overscroll-behavior: contain`). Today `.modal-content` has neither a max height nor an overflow,
+  so in a short window the Logic select and the Start Proof/Cancel footer are off-screen and cannot be scrolled to.
+  Below 480px wide the dialog is full-screen, the footer buttons stack at full width and the remove-premise buttons are
+  44×44px tap targets. The focus trap is unchanged; a focused field is scrolled into view inside the body.
+- Tests: `NewProofModal.test.tsx`: the footer is not inside the scrolling body; Start Proof and Cancel stay reachable
+  with Tab/Shift+Tab with 20 premises. jsdom does no layout, so a manual check at 360×640, 1280×500 and 1920×1080 with
+  the group theory loaded and the load-text textarea filled.
+- Done when: in a 1280×500 window with the group theory loaded, Start Proof and Cancel are visible without scrolling
+  the page, and the premises scroll inside the dialog.
+
+**13.2 Design tokens and one Button** — pending (issue #187)
+- Change: `index.css` defines `:root` custom properties: a colour palette (primary, surface, border, text, muted,
+  success, danger, warning), radii, a spacing scale, shadows, one UI font stack and one monospace stack for formulas
+  (replacing the Arial of `Menu.css`/`Expressions.css` and the Courier New of the steps). A `components/ui/Button.tsx`
+  on the already installed (and unused) `class-variance-authority`, with variants `primary`/`secondary`/`danger`/`ghost`
+  and sizes `sm`/`md`, replaces the eight copies of the outlined button (`undo-btn`, `copy-text-btn`,
+  `try-example-btn`, `browse-exercises-btn`, `exercise-start-btn`, `exercises-btn`, `exercises-close-btn`,
+  `menu-button-secondary`) and the filled ones (`new-proof-btn`, `submit-btn`, `close-btn`, `menu-button`,
+  `confirm-btn`, `cancel-btn`, `load-text-btn`). Every CSS file uses the tokens instead of hex values. The new look:
+  softer surfaces, 8px radii, subtle shadows, and the header and toolbar merged into one sticky app bar.
+- Tests: `Button.test.tsx` (variants, `disabled`, forwarded props and ref). Existing tests change only where they select
+  by class name. A test that each text/background token pair has a contrast of at least 4.5:1.
+- Done when: `grep -rE '#[0-9a-fA-F]{3,6}' frontend/src --include=*.css` finds colours only in the `:root` token block,
+  and every button in the app is a `Button`.
+
+**13.3 Responsive page layout** — pending (issue #188)
+- Change: at 1024px and wider, the proof and the rule panel sit side by side (proof on the left, `Menu` sticky on the
+  right), so applying a rule does not scroll the proof away; narrower, they stack as now. The proof table sits in an
+  `overflow-x: auto` container, so a long formula scrolls inside it instead of the page. The goal uses
+  `font-size: clamp(1.5rem, 4vw, 2.5rem)`. On phones the toolbar becomes a row of compact buttons and `ExerciseList`
+  puts each Start button under its statement. (Today the frontend has no width `@media` query at all.)
+- Tests: `App.test.tsx`: the proof and the Menu are in the new layout regions, with landmarks and labels unchanged.
+  Manual check at 360, 768, 1280 and 1920px: no horizontal page scroll.
+- Done when: at 360px wide the example proof causes no horizontal page scroll, and at 1280px the rule panel stays in
+  view while scrolling a 30-line proof.
+
+**13.4 Dark mode** — pending (issue #189)
+- Change: a `prefers-color-scheme: dark` set of values for the 13.2 tokens, and a light/dark/system toggle in the app
+  bar that sets `data-theme` on `<html>` and is saved in `localStorage` key `natural-deduction.theme` (unusable storage
+  is ignored, like the other keys). The highlight glow, the subproof rules and the focus ring get dark values that stay
+  distinguishable from each other.
+- Tests: `theme.test.ts` (resolving system/light/dark, storage failure). `App.test.tsx`: the toggle sets `data-theme`.
+  The 13.2 contrast test runs for both palettes.
+- Done when: with the OS in dark mode the whole app (dialog and exercises included) is dark with readable text, and
+  the toggle overrides it.
 
 ---
 
