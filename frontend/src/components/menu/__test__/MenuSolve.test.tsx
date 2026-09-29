@@ -64,7 +64,11 @@ describe('Menu solve button', () => {
 
     test('says so when the solver could not finish, and still shows how far it got', async () => {
         const user = userEvent.setup();
-        const partial: ProofDto = { ...proof, goal: 'Q' };
+        const partial: ProofDto = {
+            ...proof,
+            goal: 'Q',
+            steps: [...proof.steps, { expression: 'P', rule: 'Rep [1]', assmsLevel: 0, extraParameters: {} }],
+        };
         mockSolveProof.mockImplementation((logic, sent, callback) => callback({ success: true, proof: partial, message: '' }));
         render(<Menu {...props} />);
 
@@ -72,6 +76,25 @@ describe('Menu solve button', () => {
 
         expect(props.setProof).toHaveBeenCalledWith(partial);
         expect(screen.getByRole('status')).toHaveTextContent('The solver could not finish the proof');
+    });
+
+    test('keeps the steps on screen when the solver gives up with only the premises', async () => {
+        const user = userEvent.setup();
+        const written: ProofDto = {
+            ...proof,
+            goal: 'Q',
+            steps: [...proof.steps, { expression: 'P', rule: 'Rep [1]', assmsLevel: 0, extraParameters: {} }],
+        };
+        const premisesOnly: ProofDto = { ...written, done: false, steps: proof.steps };
+        mockSolveProof.mockImplementation((logic, sent, callback) => callback({ success: true, proof: premisesOnly, message: '' }));
+        render(<Menu {...props} proof={written} />);
+
+        await clickSolve(user);
+
+        expect(mockSolveProof).toHaveBeenCalledWith('mock-logic', written, expect.any(Function));
+        expect(props.setProof).not.toHaveBeenCalled();
+        expect(screen.getByRole('status')).toHaveTextContent('The solver could not find a proof. Your steps are kept.');
+        expect(screen.queryByRole('alert')).not.toBeInTheDocument();
     });
 
     test('shows the error and leaves the proof alone when the solve fails', async () => {

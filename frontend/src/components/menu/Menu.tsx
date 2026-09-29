@@ -5,6 +5,7 @@ import './Menu.css';
 import GlowingInput from '../input/GlowingInput';
 import { ProofDto, ActionDto, ActionDescriptor, ActionCategory, ApplyActionResponse, ParamKind } from '../../types';
 import { hasSolver, logicName } from '../../constant';
+import { premiseCount } from '../../service/utils';
 
 type MenuProps = {
     // The logic of the proof (`proof.logic`): its rules are offered, and Solve only when it has a solver. App remounts the
@@ -240,7 +241,12 @@ const Menu: FC<MenuProps> = ({ logic, onColorChange, setProof, proof, ref, onNew
 
         solveProof(logic, proof, (response: ApplyActionResponse) => {
             setIsSolving(false);
-            if (response.success && response.proof) {
+            const solved = response.success ? response.proof : undefined;
+            if (solved && solved.done !== true && solved.steps.length <= premiseCount(solved.steps)) {
+                // A solver that gives up with nothing to show (modal-next-until, intuitionistic) answers the premises
+                // only: the steps on screen are worth more than that, so they stay.
+                setNotice('The solver could not find a proof. Your steps are kept.');
+            } else if (response.success && response.proof) {
                 setProof(response.proof);
                 glowingColors.forEach((color) => onColorChange(color, -1));
                 setNotice(response.proof.done

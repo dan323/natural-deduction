@@ -9,21 +9,8 @@ import { StepDto, ProofDto, Exercise } from './types';
 import { DEFAULT_LOGIC, INITIAL_STATE, LOGICS, hasStates, logicInfo } from './constant';
 import { fetchExercises, fetchTheories, loadProofFromText, replayProof, undoLastStep } from './service/actions';
 import { markExerciseSolved, readSolvedExercises } from './service/solvedExercises';
-import { isRelationFormula, loadedGoal, loadsBackWithSameGoal, proofToText } from './service/utils';
+import { isRelationFormula, loadedGoal, loadsBackWithSameGoal, premiseCount, proofToText } from './service/utils';
 import { clearSavedProof, readSavedProof, writeSavedProof } from './service/savedProof';
-
-// The steps counted as the proof's premises: a leading run of `Ass` steps at assumption level 0, the shape
-// `handleNewProofSubmit` creates. The backend treats exactly this prefix as the premises when it replays a proof
-// (see `ClassicalProofTransformer.replayProof` / `ProofParser.extractAssumptions`), so it is what "nothing beyond
-// the premises" means for both Undo (nothing left to undo) and New Proof (nothing to lose by discarding it).
-function premiseCount(steps: StepDto[]): number {
-  let count = 0;
-  for (const step of steps) {
-    if (step.assmsLevel !== 0 || step.rule !== 'Ass') break;
-    count++;
-  }
-  return count;
-}
 
 // The `extraParameters` of a premise. In a logic with states the backend (`ModalProofTransformer.initialAssumption`)
 // rejects a premise that is not in the initial state. A relation between states (`s0 <= s1`) is in no state: the
