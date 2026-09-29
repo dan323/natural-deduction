@@ -127,9 +127,11 @@ Defines and implements inference rules for natural deduction.
   - One `Modal*` class per rule (`ModalBoxE`, `ModalDiaI`, ...) and the relational rules `Reflexive` (`Refl`) and
     `Transitive` (`Trans`)
   - `ParseModalAction` - builds a rule from its name; it is the source of truth for the rule names
-  - The automatic solver (`ModalAutomate`)
+  - The automatic solvers (`internal/`): `ModalAutomate`, whose protected hooks let a subclass add rules, and
+    `ModalNextUntilAutomate`, which adds the Next and Until rules (not `Ind`) and undoes a failed attempt at an Until
+    goal
   - `com.dan323.proof.modal.nextuntil`: `ModalNextUntilNaturalDeduction` (successor-aware freshness, the goal must be
-    in `s0`, no solver), the Next and Until rules (`ModalNextI`, `ModalUntilE`, `ModalInduction`, ...) and
+    in `s0`, its solver is `ModalNextUntilAutomate`), the Next and Until rules (`ModalNextI`, `ModalUntilE`, `ModalInduction`, ...) and
     `ParseModalNextUntilAction`
 - **Dependencies**: logic-language/implementation.modal, framework.deduction/
 - **Used By**: modal-use-case/

@@ -330,8 +330,26 @@ class NextUntilRulesTest {
     }
 
     @Test
-    void thereIsNoSolver() {
-        var proof = proof("p");
-        assertThrows(UnsupportedOperationException.class, proof::automate);
+    void theSolverUsesTheNextAndUntilRules() {
+        var proof = new ModalNextUntilNaturalDeduction("s0");
+        proof.initializeProof(List.of(parse("p"), parse("X q")), parse("p U q"));
+
+        proof.automate();
+
+        assertTrue(proof.isDone());
+        var rules = proof.getSteps().stream().map(step -> step.getProof().getNameProof()).toList();
+        assertTrue(rules.containsAll(List.of("XE", "XI", "UI")), rules.toString());
+        assertEquals("s0", proof.getSteps().getLast().getState());
+    }
+
+    @Test
+    void theSolverLeavesAProofItCannotFinishWithItsPremises() {
+        var proof = new ModalNextUntilNaturalDeduction("s0");
+        proof.initializeProof(List.of(parse("p"), parse("[] (p -> (X p))")), parse("[] p"));
+
+        proof.automate();
+
+        assertFalse(proof.isDone(), "only Ind proves it");
+        assertEquals(2, proof.getSteps().size());
     }
 }

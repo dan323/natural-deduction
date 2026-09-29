@@ -44,7 +44,7 @@ class ModalNextUntilUseTest {
         assertEquals(LOGIC, configuration.modalNextUntilActions().getLogicName());
         assertEquals(LOGIC, configuration.modalNextUntilTransformer().logic());
         assertEquals(LOGIC, configuration.modalNextUntilProofParser().logic());
-        assertFalse(configuration.modalNextUntilTransformer().hasSolver());
+        assertTrue(configuration.modalNextUntilTransformer().hasSolver());
         assertTrue(new ModalConfiguration().modalTransformer().hasSolver(), "modal keeps its solver");
     }
 

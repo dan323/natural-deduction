@@ -218,11 +218,20 @@ public class RestServiceIT {
     }
 
     @Test
-    void modalNextUntilHasNoSolver() {
-        var response = restTemplate.exchange(createURLWithPort("/logic/" + NEXT_UNTIL + "/solve"), HttpMethod.POST,
-                new HttpEntity<>(new ProofDto(List.of(), NEXT_UNTIL, "p -> p"), headers), ErrorResponse.class);
-        assertError(HttpStatus.BAD_REQUEST, response);
-        assertEquals("There is no solver for the logic 'modal-next-until'", response.getBody().message());
+    void solveModalNextUntilProof() {
+        var response = solve(NEXT_UNTIL, new ProofDto(List.of(new StepDto("p", "Ass", 0, Map.of("state", "s0")),
+                new StepDto("X q", "Ass", 0, Map.of("state", "s0"))), NEXT_UNTIL, "p U q"));
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        var solved = Objects.requireNonNull(response.getBody());
+        assertTrue(solved.isDone());
+        assertEquals("p U q", last(solved).expression());
+        assertEquals("s0", last(solved).extraParameters().get("state"));
+
+        // Only induction proves it, which the solver does not use: an unfinished proof is still a 200
+        var induction = solve(NEXT_UNTIL, new ProofDto(List.of(new StepDto("p", "Ass", 0, Map.of("state", "s0")),
+                new StepDto("[] (p -> (X p))", "Ass", 0, Map.of("state", "s0"))), NEXT_UNTIL, "[] p"));
+        assertEquals(HttpStatus.OK, induction.getStatusCode());
+        assertFalse(Objects.requireNonNull(induction.getBody()).isDone());
     }
 
     @Test

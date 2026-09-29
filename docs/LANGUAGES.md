@@ -243,6 +243,11 @@ Each rule is sound for that reading. With `Ind` and `U<>`, every axiom of the us
 future-time linear temporal logic (the `X` and `[]` distribution laws, `X - A <-> - X A`, `[] A -> A & X [] A`,
 induction, the Until expansion law and `A U B -> <> B`) is derivable, which is the argument for completeness.
 
+The automatic solver (`ModalNextUntilAutomate`) is the modal one plus `XI`/`XE`, `UI`, `UE`, `U<>` and `Succ`: it
+turns a goal `X A` into `A` in the next state, and tries `B` now, then `A` now and `A U B` in the next state, for a
+goal `A U B`. It does not use `Ind`, so a goal that needs induction is left unproved. See
+[API.md](./API.md#modal-logic-with-next-and-until).
+
 ## First-Order Logic (`first-order`)
 
 ### Overview
@@ -334,7 +339,7 @@ the group exercises under "Group theory".
 | **Operators**  | ∧, ∨, ¬, →  | as classical     | classical + □, ◇                            | modal + X, U                                                            | classical + ∀, ∃, =, predicates and functions         |
 | **Actions**    | 14          | 13 (no ¬E)       | 14 classical + 6 modal                      | the 20 modal + 8 (`XI`, `XE`, `Succ`, `UI1`, `UI2`, `UE`, `U<>`, `Ind`) | 14 classical + 6 (`∀I`, `∀E`, `∃I`, `∃E`, `=I`, `=E`) |
 | **States**     | none        | none             | named states, `<=` reflexive and transitive | `s0`, `s0+1`, ...: discrete time                                        | none                                                  |
-| **Solver**     | yes         | no               | yes                                         | no                                                                      | no                                                    |
+| **Solver**     | yes         | no               | yes                                         | yes, without `Ind`                                                      | no                                                    |
 | **Logic name** | `classical` | `intuitionistic` | `modal`                                     | `modal-next-until`                                                      | `first-order`                                         |
 
 ## Implementation Details

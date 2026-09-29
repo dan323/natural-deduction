@@ -16,9 +16,20 @@ import java.util.concurrent.CancellationException;
 /**
  * Class to execute a Natural deduction in modal logic
  *
+ * <p>It keeps a stack of goals, each one a formula in a state, with the proof's goal in the initial state at the
+ * bottom. Each round it reaches the top goal with an introduction rule if it can, otherwise it applies the elimination
+ * rules it has not applied yet; when neither is possible it pushes subgoals (and assumptions) that make the top goal
+ * easier to reach. It stops when the stack is empty (the proof is done) or when a round changes neither the proof nor
+ * the goals.
+ *
+ * <p>A subclass can add rules for the operators of its own logic through the protected hooks: another introduction
+ * rule for a goal ({@link #introRuleForOtherGoal}), another elimination rule ({@link #elimRuleForOtherStep}), subgoals
+ * for a goal of another shape ({@link #updateOtherGoal}), what to do when a round changes nothing ({@link #stalled()})
+ * and how far the search may go ({@link #withinBounds()}). Their defaults are the behaviour of the modal solver.
+ *
  * @author daniel
  */
-public final class ModalAutomate {
+public class ModalAutomate {
 
     private ModalNaturalDeduction proof;
     private List<Map.Entry<String, ModalOperation>> goals;
@@ -26,6 +37,20 @@ public final class ModalAutomate {
     private Map<Integer, Integer> usedForGoal;
 
     private Map<String, Integer> reflUsed;
+
+    /**
+     * The working state of the solver at some point, to go back to it with {@link #restore(State)}.
+     *
+     * @param steps       the number of steps of the proof
+     * @param goals       the goals, each one a state and a formula
+     * @param actionsDone the elimination rules already applied
+     * @param usedForGoal the steps already used to find a subgoal of {@link ConstantModal#FALSE}
+     * @param reflUsed    the states that {@code Refl} was already applied to
+     */
+    protected record State(int steps, List<Map.Entry<String, ModalOperation>> goals,
+                           List<AbstractModalAction> actionsDone, Map<Integer, Integer> usedForGoal,
+                           Map<String, Integer> reflUsed) {
+    }
 
     /**
      * A solver keeps its working state in fields: use one instance per proof to solve.
@@ -53,6 +78,7 @@ public final class ModalAutomate {
         usedForGoal = new HashMap<>();
         reflUsed = new HashMap<>();
         goals.add(new AbstractMap.SimpleEntry<>(proof.getState0(), proof.getGoal()));
+        started();
 
         var c = true;
         while (c) {
@@ -62,10 +88,132 @@ public final class ModalAutomate {
             c = applyIntroAndElimRules();
             if (c) {
                 updateGoal();
-                // If the state of the proof has not changed, stop. It has failed
-                c = isStateChanged(goalSize, stepsSize);
+                // If the state of the proof has not changed, stop unless the subclass finds a way out. It has failed
+                c = (isStateChanged(goalSize, stepsSize) && withinBounds()) || stalled();
             }
         }
+    }
+
+    /**
+     * Called once the state is initialized, before the first round.
+     */
+    protected void started() {
+        // Nothing to set up by default
+    }
+
+    /**
+     * Called when a round changed neither the proof nor the goals, or went beyond {@link #withinBounds()}.
+     *
+     * @return true to go on with another round (the state must have changed), false (the default) to stop
+     */
+    protected boolean stalled() {
+        return false;
+    }
+
+    /**
+     * Whether the solver may go on: once it returns false, the solver applies no more elimination rules and treats
+     * the round as a stalled one. The default has no bound.
+     */
+    protected boolean withinBounds() {
+        return true;
+    }
+
+    /**
+     * An introduction rule for a goal that none of the modal introduction rules reaches.
+     *
+     * @param goal  the last goal
+     * @param state the state of the last goal
+     * @return a valid rule whose conclusion is the goal in its state, or empty (the default) when there is none
+     */
+    protected Optional<AbstractModalAction> introRuleForOtherGoal(ModalOperation goal, String state) {
+        return Optional.empty();
+    }
+
+    /**
+     * An elimination rule, other than the modal ones, on a valid formula step. Use {@link #checkSingleAction} so that
+     * each rule is applied once.
+     *
+     * @param i the 0-based index of the step
+     * @return a valid rule not applied yet, or empty (the default) when there is none
+     */
+    protected Optional<AbstractModalAction> elimRuleForOtherStep(int i) {
+        return Optional.empty();
+    }
+
+    /**
+     * Whether a valid elimination rule not applied yet is worth applying. The default applies all of them.
+     *
+     * @param act a valid elimination rule
+     * @return true (the default) to apply it
+     */
+    protected boolean isUsefulElimination(AbstractModalAction act) {
+        return true;
+    }
+
+    /**
+     * Push subgoals for a goal that no introduction rule reaches and that is not {@link ConstantModal#FALSE}, a
+     * conjunction, an implication, a negation or a {@code []}.
+     *
+     * @param goal  the last goal
+     * @param state the state of the last goal
+     * @return true if the goal was handled (changing nothing makes the round a stalled one), false (the default) to
+     * go for a contradiction, as the modal solver does
+     */
+    protected boolean updateOtherGoal(ModalLogicalOperation goal, String state) {
+        return false;
+    }
+
+    /**
+     * Called after the last goal was removed from the stack because it was reached.
+     */
+    protected void goalRemoved() {
+        // Nothing to do by default
+    }
+
+    protected final ModalNaturalDeduction proof() {
+        return proof;
+    }
+
+    protected final int goalCount() {
+        return goals.size();
+    }
+
+    /**
+     * @return the goals (each one a state and a formula), from the bottom of the stack to the top
+     */
+    protected final List<Map.Entry<String, ModalOperation>> goals() {
+        return Collections.unmodifiableList(goals);
+    }
+
+    protected final void pushGoal(String state, ModalOperation goal) {
+        goals.add(new AbstractMap.SimpleEntry<>(state, goal));
+    }
+
+    /**
+     * The current state, which later changes of the solver do not modify.
+     */
+    protected final State state() {
+        return new State(proof.getSteps().size(), new ArrayList<>(goals), new ArrayList<>(actionsDone),
+                new HashMap<>(usedForGoal), new HashMap<>(reflUsed));
+    }
+
+    /**
+     * Goes back to an earlier state: the proof loses the steps added since then (it is rebuilt from its premises by
+     * replaying the steps it keeps, so a step that a later rule discharged is valid again) and the goals and the
+     * applied rules are the ones of then.
+     *
+     * @param state a state of the current proof, taken with {@link #state()}
+     */
+    protected final void restore(State state) {
+        List<AbstractModalAction> actions = proof.parse();
+        proof.reset();
+        for (int i = proof.getSteps().size(); i < state.steps(); i++) {
+            actions.get(i).apply(proof);
+        }
+        goals = new ArrayList<>(state.goals());
+        actionsDone = new ArrayList<>(state.actionsDone());
+        usedForGoal = new HashMap<>(state.usedForGoal());
+        reflUsed = new HashMap<>(state.reflUsed());
     }
 
     private static void checkNotInterrupted() {
@@ -103,7 +251,7 @@ public final class ModalAutomate {
                     b = false;
                 }
             } else {
-                b = eliminateRules();
+                b = withinBounds() && eliminateRules();
             }
         }
         return c;
@@ -146,6 +294,7 @@ public final class ModalAutomate {
         attainFalseGoal();
         goals.removeLast();
         usedForGoal.remove(goals.size() + 2);
+        goalRemoved();
     }
 
     /**
@@ -196,7 +345,7 @@ public final class ModalAutomate {
         } else if (goal instanceof Sometime sometime) {
             sol = introRuleForGoalSometime(sometime, state);
         }
-        return sol;
+        return sol.or(() -> introRuleForOtherGoal(goal, state));
     }
 
     /**
@@ -391,7 +540,8 @@ public final class ModalAutomate {
                         .or(() -> checkAdditionOfAndI(k - 1))
                         .or(() -> checkAdditionOfDisjIModPonens(k - 1))
                         .or(() -> checkAdditionOfAlways(k - 1))
-                        .or(() -> checkAdditionOfContraAlw(k - 1));
+                        .or(() -> checkAdditionOfContraAlw(k - 1))
+                        .or(() -> elimRuleForOtherStep(k - 1));
                 if (act.isPresent()) {
                     return act;
                 }
@@ -459,9 +609,9 @@ public final class ModalAutomate {
      * @param act action to be checked for validity
      * @return the action if it valid
      */
-    private Optional<AbstractModalAction> checkSingleAction(AbstractModalAction act) {
+    protected final Optional<AbstractModalAction> checkSingleAction(AbstractModalAction act) {
         var answer = Optional.ofNullable(act)
-                .filter(a -> !actionsDone.contains(a) && a.isValid(proof));
+                .filter(a -> !actionsDone.contains(a) && a.isValid(proof) && isUsefulElimination(a));
         answer.ifPresent(a -> actionsDone.add(a));
         return answer;
     }
@@ -513,7 +663,11 @@ public final class ModalAutomate {
                 case ImplicationModal imp -> updateGoalImplication(imp, state);
                 case NegationModal neg -> updateGoalNegation(neg, state);
                 case Always always -> updateGoalAlways(always, state);
-                case null, default -> updateGoalContradiction(goal, state);
+                case null, default -> {
+                    if (!updateOtherGoal(goal, state)) {
+                        updateGoalContradiction(goal, state);
+                    }
+                }
             }
         }
     }

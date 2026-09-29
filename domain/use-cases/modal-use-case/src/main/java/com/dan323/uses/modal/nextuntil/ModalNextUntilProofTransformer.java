@@ -17,8 +17,7 @@ import java.util.List;
  * {@code A U B}, whose states may be successors ({@code s0+1}) and whose steps may use the Next and Until rules. States
  * are kept the way {@link StateTerm#normalize} writes them, so {@code s0 + 1} is {@code s0+1}.
  * <p>
- * There is no solver: the modal one never uses a Next or Until rule, and it picks fresh states that know nothing of
- * successors.
+ * Its solver is the one of {@link ModalNextUntilNaturalDeduction#automate()}.
  */
 public class ModalNextUntilProofTransformer extends ModalProofTransformer {
 
@@ -31,7 +30,7 @@ public class ModalNextUntilProofTransformer extends ModalProofTransformer {
 
     @Override
     public boolean hasSolver() {
-        return false;
+        return true;
     }
 
     @Override

@@ -115,7 +115,7 @@ Runs the automatic solver on the proof (a `ProofDto`) and returns the resulting 
 - At most as many solves as there are processors (at least 2) run at once, per logic. Another one is answered at once
   with `429` and `{"message": "The solver is busy with other proofs, try again in a moment"}`.
 - An invalid proof is a `400`, as for `/action`.
-- A logic without a solver of its own (`modal-next-until`, `first-order`) answers `400` with
+- A logic without a solver of its own (`first-order`) answers `400` with
   `{"message": "There is no solver for the logic 'first-order'"}`.
 
 ### List the exercises: `GET /logic/{logic}/exercises`
@@ -235,7 +235,15 @@ change.
   accepts a last line in any state whose name is used before, such as `s0+3`.
 - A proof is done when a top-level line is the goal in `s0` (or the goal is a relation): `X p ⊢ p` is not done by
   `p` in `s0+1`. In `modal`, `done` still looks at the formula only.
-- `POST /logic/modal-next-until/solve` is a `400`: the modal solver uses none of the Next and Until rules.
+- `POST /logic/modal-next-until/solve` has a solver of its own: the modal solver plus the Next and Until rules. A goal
+  `X A` in `s` becomes `A` in `s+1`, then `XI`. A goal `A U B` in `s` is reached with `UI` from `B` in `s`, or from `A`
+  and `X (A U B)` in `s`; when neither is at hand it attempts, in this order, to reach `B` in `s`, then `A` in `s` and
+  `A U B` in `s+1` (an attempt that gets stuck has its steps removed). It eliminates with `XE`, `UE`, `U<>` and `Succ`
+  (the last so that `[]E` and `<>I` reach `s+1`). It never uses `Ind`: induction needs an invariant, so a goal that
+  only induction proves, like `p, [] (p -> X p) ⊢ [] p`, answers `200` with `done` false. It starts from the premises,
+  always stops (no state gets more successors than there are `X` and `U` in the premises and goal, and the proof is
+  kept below a size bound), and when it finds no proof it returns the premises only. It solves every exercise whose
+  reference solution does not use `Ind`.
 
 ### First-order logic
 

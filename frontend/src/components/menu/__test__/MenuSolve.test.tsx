@@ -153,11 +153,11 @@ describe('Menu solve button', () => {
         expect(screen.queryByText(/has no automatic solver/)).not.toBeInTheDocument();
     });
 
-    test('is not offered for modal-next-until, whose /solve is a 400', () => {
+    test('is offered for modal-next-until', () => {
         render(<Menu {...props} logic="modal-next-until" proof={{ ...proof, logic: 'modal-next-until' }} />);
 
-        expect(screen.queryByRole('button', { name: /Solve/i })).not.toBeInTheDocument();
-        expect(screen.getByText('Modal with Next and Until logic has no automatic solver.')).toBeInTheDocument();
+        expect(screen.getByRole('button', { name: /Solve/i })).toBeInTheDocument();
+        expect(screen.queryByText(/has no automatic solver/)).not.toBeInTheDocument();
     });
 
     test('is offered for classical logic', () => {
