@@ -9,6 +9,8 @@ The project has never been versioned or tagged, since it was not meant for publi
 ## sep-26
 
 ### Added
+- A solver for `intuitionistic`: `POST /logic/intuitionistic/solve` finds a proof without `-E` or answers
+  `done=false` when the goal is not intuitionistically provable (`p | -p`), and the UI shows Solve for it (#185)
 - First-order logic with equality (`first-order`): terms, predicates, `=`, `forall`/`exists` and a hand-written parser
   (#179); natural deduction with the rules `∀I`, `∀E`, `∃I`, `∃E`, `=I` and `=E` (#180); served over REST with 20
   actions, a new `TERM` parameter kind and an exercise catalog, without a solver (#181); offered in the UI with ∀, ∃
