@@ -26,7 +26,10 @@ import java.util.Deque;
  * &lt;p&gt;It always stops. An attempt is never nested inside an attempt at the same disjunction, and every disjunction it
  * attempts is a subformula of the premises or of the goal, so attempts nest at most that many deep. The proof and
  * the goals together are also kept below a size proportional to the size of the premises and the goal
- * ({@link #STEPS_PER_SYMBOL}); a round that would go further counts as stuck.
+ * ({@link #STEPS_PER_SYMBOL}); a round that would go further counts as stuck. The shared engine needs that bound:
+ * {@code OrE1}/{@code OrE2} leave an identity implication {@code B -&gt; B} among the steps, and {@code -&gt;E} with it and
+ * the newest {@code B} is a new elimination each time (on {@code p | q, - p} with goal {@code r} it would add copies of
+ * {@code q} forever).
  *
  * @author daniel
  */
@@ -40,46 +43,46 @@ public final class IntuitionisticAutomate extends GoalDirectedAutomate {
     /**
      * An attempt at a disjunction: the state to go back to when it fails, and which side is being tried.
      */
-<span class="fc" id="L43">    private record Attempt(DisjunctionClassic disjunction, State before, boolean right) {</span>
+<span class="fc" id="L46">    private record Attempt(DisjunctionClassic disjunction, State before, boolean right) {</span>
     }
 
-<span class="fc" id="L46">    private final Deque&lt;Attempt&gt; attempts = new ArrayDeque&lt;&gt;();</span>
+<span class="fc" id="L49">    private final Deque&lt;Attempt&gt; attempts = new ArrayDeque&lt;&gt;();</span>
     private int maxSize;
 
     /**
      * A solver keeps its working state in fields: use one instance per proof to solve.
      */
-<span class="fc" id="L52">    public IntuitionisticAutomate() {</span>
+<span class="fc" id="L55">    public IntuitionisticAutomate() {</span>
         // Nothing to set up: automate initializes the state
-<span class="fc" id="L54">    }</span>
+<span class="fc" id="L57">    }</span>
 
     @Override
     protected void started() {
-<span class="fc" id="L58">        attempts.clear();</span>
-<span class="fc" id="L59">        int symbols = size(proof().getGoal());</span>
-<span class="fc bfc" id="L60" title="All 2 branches covered.">        for (ClassicalLogicOperation premise : proof().getAssms()) {</span>
-<span class="fc" id="L61">            symbols += size(premise);</span>
-<span class="fc" id="L62">        }</span>
-<span class="fc" id="L63">        maxSize = STEPS_PER_SYMBOL * symbols;</span>
-<span class="fc" id="L64">    }</span>
+<span class="fc" id="L61">        attempts.clear();</span>
+<span class="fc" id="L62">        int symbols = size(proof().getGoal());</span>
+<span class="fc bfc" id="L63" title="All 2 branches covered.">        for (ClassicalLogicOperation premise : proof().getAssms()) {</span>
+<span class="fc" id="L64">            symbols += size(premise);</span>
+<span class="fc" id="L65">        }</span>
+<span class="fc" id="L66">        maxSize = STEPS_PER_SYMBOL * symbols;</span>
+<span class="fc" id="L67">    }</span>
 
     private static int size(LogicOperation formula) {
-<span class="fc bfc" id="L67" title="All 2 branches covered.">        if (formula instanceof UnaryOperation&lt;?&gt; unary) {</span>
-<span class="fc" id="L68">            return 1 + size(unary.getElement());</span>
-<span class="fc bfc" id="L69" title="All 2 branches covered.">        } else if (formula instanceof BinaryOperation&lt;?&gt; binary) {</span>
-<span class="fc" id="L70">            return 1 + size(binary.getLeft()) + size(binary.getRight());</span>
+<span class="fc bfc" id="L70" title="All 2 branches covered.">        if (formula instanceof UnaryOperation&lt;?&gt; unary) {</span>
+<span class="fc" id="L71">            return 1 + size(unary.getElement());</span>
+<span class="fc bfc" id="L72" title="All 2 branches covered.">        } else if (formula instanceof BinaryOperation&lt;?&gt; binary) {</span>
+<span class="fc" id="L73">            return 1 + size(binary.getLeft()) + size(binary.getRight());</span>
         }
-<span class="fc" id="L72">        return 1;</span>
+<span class="fc" id="L75">        return 1;</span>
     }
 
     @Override
     protected boolean eliminatesDoubleNegations() {
-<span class="fc" id="L77">        return false;</span>
+<span class="fc" id="L80">        return false;</span>
     }
 
     @Override
     protected boolean withinBounds() {
-<span class="fc bfc" id="L82" title="All 2 branches covered.">        return proof().getSteps().size() + goalCount() &lt;= maxSize;</span>
+<span class="fc bfc" id="L85" title="All 2 branches covered.">        return proof().getSteps().size() + goalCount() &lt;= maxSize;</span>
     }
 
     /**
@@ -90,11 +93,11 @@ public final class IntuitionisticAutomate extends GoalDirectedAutomate {
      */
     @Override
     protected void updateOtherGoal(ClassicalLogicOperation goal) {
-<span class="pc bpc" id="L93" title="1 of 4 branches missed.">        if (goal instanceof DisjunctionClassic disjunction &amp;&amp; attempts.stream().noneMatch(attempt -&gt; attempt.disjunction().equals(disjunction))) {</span>
-<span class="fc" id="L94">            attempts.push(new Attempt(disjunction, state(), false));</span>
-<span class="fc" id="L95">            pushGoal(disjunction.getLeft());</span>
+<span class="pc bpc" id="L96" title="1 of 4 branches missed.">        if (goal instanceof DisjunctionClassic disjunction &amp;&amp; attempts.stream().noneMatch(attempt -&gt; attempt.disjunction().equals(disjunction))) {</span>
+<span class="fc" id="L97">            attempts.push(new Attempt(disjunction, state(), false));</span>
+<span class="fc" id="L98">            pushGoal(disjunction.getLeft());</span>
         }
-<span class="fc" id="L97">    }</span>
+<span class="fc" id="L100">    }</span>
 
     /**
      * The side of a disjunction that is being attempted was reached, so the attempt succeeded: there is no going back
@@ -102,10 +105,10 @@ public final class IntuitionisticAutomate extends GoalDirectedAutomate {
      */
     @Override
     protected void goalRemoved() {
-<span class="fc bfc" id="L105" title="All 4 branches covered.">        while (!attempts.isEmpty() &amp;&amp; goalCount() &lt;= attempts.peek().before().goals().size()) {</span>
-<span class="fc" id="L106">            attempts.pop();</span>
+<span class="fc bfc" id="L108" title="All 4 branches covered.">        while (!attempts.isEmpty() &amp;&amp; goalCount() &lt;= attempts.peek().before().goals().size()) {</span>
+<span class="fc" id="L109">            attempts.pop();</span>
         }
-<span class="fc" id="L108">    }</span>
+<span class="fc" id="L111">    }</span>
 
     /**
      * The innermost attempt failed: remove its steps and try the right side if it was on the left one. When both
@@ -114,17 +117,17 @@ public final class IntuitionisticAutomate extends GoalDirectedAutomate {
      */
     @Override
     protected boolean stalled() {
-<span class="fc bfc" id="L117" title="All 2 branches covered.">        while (!attempts.isEmpty()) {</span>
-<span class="fc" id="L118">            Attempt failed = attempts.pop();</span>
-<span class="fc" id="L119">            restore(failed.before());</span>
-<span class="fc bfc" id="L120" title="All 2 branches covered.">            if (!failed.right()) {</span>
-<span class="fc" id="L121">                attempts.push(new Attempt(failed.disjunction(), failed.before(), true));</span>
-<span class="fc" id="L122">                pushGoal(failed.disjunction().getRight());</span>
-<span class="fc" id="L123">                return true;</span>
+<span class="fc bfc" id="L120" title="All 2 branches covered.">        while (!attempts.isEmpty()) {</span>
+<span class="fc" id="L121">            Attempt failed = attempts.pop();</span>
+<span class="fc" id="L122">            restore(failed.before());</span>
+<span class="fc bfc" id="L123" title="All 2 branches covered.">            if (!failed.right()) {</span>
+<span class="fc" id="L124">                attempts.push(new Attempt(failed.disjunction(), failed.before(), true));</span>
+<span class="fc" id="L125">                pushGoal(failed.disjunction().getRight());</span>
+<span class="fc" id="L126">                return true;</span>
             }
-<span class="fc" id="L125">        }</span>
-<span class="fc" id="L126">        proof().reset();</span>
-<span class="fc" id="L127">        return false;</span>
+<span class="fc" id="L128">        }</span>
+<span class="fc" id="L129">        proof().reset();</span>
+<span class="fc" id="L130">        return false;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>
