@@ -7,7 +7,7 @@ import NewProofModal from './components/modal/NewProofModal';
 import ExerciseList, { ExercisesState } from './components/exercises/ExerciseList';
 import { StepDto, ProofDto, Exercise } from './types';
 import { DEFAULT_LOGIC, INITIAL_STATE, LOGICS, hasStates, logicInfo } from './constant';
-import { fetchExercises, loadProofFromText, replayProof, undoLastStep } from './service/actions';
+import { fetchExercises, fetchTheories, loadProofFromText, replayProof, undoLastStep } from './service/actions';
 import { markExerciseSolved, readSolvedExercises } from './service/solvedExercises';
 import { isRelationFormula, loadedGoal, loadsBackWithSameGoal, proofToText } from './service/utils';
 import { clearSavedProof, readSavedProof, writeSavedProof } from './service/savedProof';
@@ -388,7 +388,9 @@ function App() {
   // Fetches the exercises the first time they are needed: when the list is opened, or when a proof of an exercise is on
   // screen (also after a reload), since "Next exercise" needs the list. A failed fetch is only tried again when the list
   // is opened again (see `handleToggleExercises`). They are the exercises of the logic on screen, fetched again when it
-  // changes; an answer for a logic that is no longer on screen is dropped.
+  // changes; an answer for a logic that is no longer on screen is dropped. The logic's theories are fetched once the
+  // exercises are in, so that the exercises of a theory (the group axioms) move under its own heading; until then, and
+  // when they cannot be fetched, the list is only by difficulty.
   useEffect(() => {
     if (exercisesState !== null || (!isExercisesOpen && exerciseId === null)) return;
     const requested = logic;
@@ -397,7 +399,13 @@ function App() {
       setExercisesOf((previous) => (previous?.logic === requested ? { logic: requested, state } : previous));
     fetchExercises(
       requested,
-      (exercises) => settle({ kind: 'loaded', exercises }),
+      (exercises) => {
+        settle({ kind: 'loaded', exercises });
+        fetchTheories(requested).then((theories) => setExercisesOf((previous) => (
+          previous?.logic === requested && previous.state.kind === 'loaded' && previous.state.exercises === exercises
+            ? { logic: requested, state: { kind: 'loaded', exercises, theories } }
+            : previous)));
+      },
       (message) => settle({ kind: 'error', message }));
   }, [exercisesState, isExercisesOpen, exerciseId, logic]);
 
@@ -708,6 +716,7 @@ function App() {
         logic={logic}
         onSubmit={handleNewProofSubmit}
         onLoadText={handleLoadText}
+        loadTheories={fetchTheories}
       />
     </div>
   );

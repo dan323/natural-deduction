@@ -1,4 +1,4 @@
-import { ProofDto, ActionDto, ActionDescriptor, ApplyActionResponse, Exercise } from "../types";
+import { ProofDto, ActionDto, ActionDescriptor, ApplyActionResponse, Exercise, Theory } from "../types";
 import { LOGICS } from "../constant";
 
 // Extracts the `message` of an error body ({ "message": "..." }), falling back to the HTTP status.
@@ -72,6 +72,7 @@ function perLogicCache<T>(resource: string) {
 
 const actionsCache = perLogicCache<ActionDescriptor>('actions');
 const exercisesCache = perLogicCache<Exercise>('exercises');
+const theoriesCache = perLogicCache<Theory>('theories');
 
 // Forgets the cached lists of actions. Meant for tests.
 export function clearActionsCache(): void {
@@ -81,6 +82,11 @@ export function clearActionsCache(): void {
 // Forgets the cached lists of exercises. Meant for tests.
 export function clearExercisesCache(): void {
     exercisesCache.clear();
+}
+
+// Forgets the cached lists of theories. Meant for tests.
+export function clearTheoriesCache(): void {
+    theoriesCache.clear();
 }
 
 export async function fetchActions(
@@ -108,6 +114,25 @@ export async function fetchExercises(
     } catch (err) {
         console.error("Error fetching exercises:", err);
         onError?.(err instanceof Error ? err.message : 'Could not load the exercises.');
+    }
+}
+
+function isTheory(value: unknown): value is Theory {
+    const theory = value as Theory | null;
+    return typeof theory?.id === 'string' && typeof theory.name === 'string'
+        && Array.isArray(theory.premises) && theory.premises.every((premise) => typeof premise === 'string');
+}
+
+// The theories of a logic (`GET /logic/{logic}/theories`): named sets of premises, like the group axioms of first-order
+// logic. A logic without any answers an empty list. They only help to fill in premises and to group exercises, so a
+// failed request (or an answer that is not a list of theories) is no theories at all, and is asked again next time.
+// Cached like the actions.
+export async function fetchTheories(logic: string): Promise<Theory[]> {
+    try {
+        const theories = await theoriesCache.load(logic);
+        return theories.every(isTheory) ? theories : [];
+    } catch {
+        return [];
     }
 }
 

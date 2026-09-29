@@ -63,3 +63,11 @@ export type Exercise = {
     goal: string,
     difficulty: Difficulty,
 }
+
+// One theory of `GET /logic/{logic}/theories`: a named set of premises (for first-order logic, `group`: the group
+// axioms). `id` is stable and unique within the logic; the premises are written the way the server prints them.
+export type Theory = {
+    id: string,
+    name: string,
+    premises: Array<string>,
+}

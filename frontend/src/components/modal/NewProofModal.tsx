@@ -3,6 +3,7 @@ import { checkFormula } from '../../service/utils';
 import ConnectiveButtons from '../input/ConnectiveButtons';
 import { syntaxHint } from '../input/connectives';
 import { DEFAULT_LOGIC, LOGICS, logicInfo } from '../../constant';
+import { Theory } from '../../types';
 import './NewProofModal.css';
 
 type NewProofModalProps = {
@@ -21,6 +22,10 @@ type NewProofModalProps = {
   // to null once the proof is loaded, or to the reason it could not be (the backend rejects an unfinished or invalid
   // proof). The dialog only offers loading from text when this is given.
   onLoadText?: (text: string, logic: string) => Promise<string | null>;
+  // The theories of a logic (named premise sets, `GET /logic/{logic}/theories`). When the logic picked has any, the
+  // dialog offers "Premises from theory", which fills in the premises of the one chosen (they stay editable). Without
+  // it, or for a logic with none, there is no picker.
+  loadTheories?: (logic: string) => Promise<Theory[]>;
 };
 
 // A premise row. The id is what identifies the row for React, so that its error follows it when another row is removed.
@@ -52,7 +57,7 @@ function trapTab(event: KeyboardEvent, dialog: HTMLElement) {
   }
 }
 
-const NewProofModal: FC<NewProofModalProps> = ({ isOpen, opener: openerProp, onClose, logic: initialLogic = DEFAULT_LOGIC, onSubmit, onLoadText }) => {
+const NewProofModal: FC<NewProofModalProps> = ({ isOpen, opener: openerProp, onClose, logic: initialLogic = DEFAULT_LOGIC, onSubmit, onLoadText, loadTheories }) => {
   const nextPremiseId = useRef(0);
   const newPremise = (): Premise => ({ id: nextPremiseId.current++, text: '', error: null });
   const [premises, setPremises] = useState<Premise[]>(() => [newPremise()]);
@@ -83,6 +88,9 @@ const NewProofModal: FC<NewProofModalProps> = ({ isOpen, opener: openerProp, onC
   // Bumped by every load, every Start Proof and every close, so that the answer to a request the user walked away from
   // (by closing the dialog, maybe opening it again since) neither closes the dialog nor touches its state.
   const loadAttempt = useRef(0);
+  // The theories of the logic picked, and the one whose premises were filled in last (to say so), if any.
+  const [theories, setTheories] = useState<{ logic: string; theories: Theory[] } | null>(null);
+  const [filledFrom, setFilledFrom] = useState<Theory | null>(null);
 
   // A dialog that was closed opens empty the next time, in the logic of the proof on screen.
   useEffect(() => {
@@ -99,8 +107,20 @@ const NewProofModal: FC<NewProofModalProps> = ({ isOpen, opener: openerProp, onC
     setIsLoading(false);
     setSubmitError(null);
     setIsSubmitting(false);
+    setFilledFrom(null);
     // Only when the dialog opens or closes: a change of `initialLogic` while it is open must not undo the user's choice.
   }, [isOpen]);
+
+  // The theories of the logic picked, while the dialog is open. An answer for a logic that is no longer picked is dropped.
+  useEffect(() => {
+    if (!isOpen || !loadTheories) return;
+    let current = true;
+    loadTheories(logic).then(
+      (loaded) => { if (current) setTheories({ logic, theories: loaded }); },
+      () => { if (current) setTheories({ logic, theories: [] }); });
+    return () => { current = false; };
+  }, [isOpen, logic, loadTheories]);
+  const logicTheories = theories?.logic === logic ? theories.theories : [];
 
   useEffect(() => {
     if (pendingFocus.current === null) return;
@@ -166,6 +186,15 @@ const NewProofModal: FC<NewProofModalProps> = ({ isOpen, opener: openerProp, onC
     setPremises(premises.map((premise, i) => (i === index ? { ...premise, text, error: null } : premise)));
     setSubmitError(null);
   };
+  // "Premises from theory": the theory's premises take the place of the premise rows, one row each, still editable.
+  const handleTheoryChange = (id: string) => {
+    const theory = logicTheories.find((candidate) => candidate.id === id);
+    if (!theory) return;
+    const rows = theory.premises.map((text) => ({ ...newPremise(), text }));
+    setPremises(rows.length > 0 ? rows : [newPremise()]);
+    setFilledFrom(theory);
+    setSubmitError(null);
+  };
   const handleGoalChange = (value: string) => {
     setGoal(value);
     setGoalError(null);
@@ -180,6 +209,7 @@ const NewProofModal: FC<NewProofModalProps> = ({ isOpen, opener: openerProp, onC
     // The instant check depends on the logic too (X and U, successor states), so its errors were about the other one.
     setPremises((current) => current.map((premise) => ({ ...premise, error: null })));
     setGoalError(null);
+    setFilledFrom(null);
   };
 
   const handleSubmit = async () => {
@@ -263,6 +293,28 @@ const NewProofModal: FC<NewProofModalProps> = ({ isOpen, opener: openerProp, onC
           <p id={SYNTAX_HINT_ID} className="syntax-hint modal-syntax-hint">Syntax: {syntaxHint(logic)}</p>
           <fieldset className="plain-group" aria-labelledby="new-proof-premises-label">
             <span id="new-proof-premises-label" className="modal-section-label">Premises:</span>
+            {logicTheories.length > 0 && (
+              <div className="theory-picker">
+                <label htmlFor="modal-theory" className="modal-field-label">Premises from theory:</label>
+                {/* Always back at the placeholder: picking a theory fills in its premises once, and they can be edited. */}
+                <select
+                  id="modal-theory"
+                  className="modal-theory-select"
+                  value=""
+                  onChange={(e) => handleTheoryChange(e.target.value)}
+                  disabled={isSubmitting || isLoading}
+                  aria-describedby="modal-theory-desc"
+                >
+                  <option value="" disabled>Choose a theory…</option>
+                  {logicTheories.map((theory) => <option key={theory.id} value={theory.id}>{theory.name}</option>)}
+                </select>
+                <p id="modal-theory-desc" className="modal-logic-desc" aria-live="polite">
+                  {filledFrom
+                    ? `Filled in the ${filledFrom.premises.length} premises of ${filledFrom.name}; you can still edit them.`
+                    : 'Replaces the premises below with those of the theory.'}
+                </p>
+              </div>
+            )}
             {premises.map((premise, index) => (
               <Fragment key={premise.id}>
                 <div className="premise-row">

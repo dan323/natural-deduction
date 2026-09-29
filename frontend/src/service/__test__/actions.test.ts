@@ -1,4 +1,4 @@
-import { fetchActions, applyAction, solveProof, clearActionsCache, clearExercisesCache, fetchExercises, loadProofFromText } from '../actions';
+import { fetchActions, applyAction, solveProof, clearActionsCache, clearExercisesCache, clearTheoriesCache, fetchExercises, fetchTheories, loadProofFromText } from '../actions';
 import { ProofDto, ActionDto } from '../../types';
 
 const proof: ProofDto = { steps: [], logic: 'classical', goal: 'P' };
@@ -24,6 +24,7 @@ describe('service/actions', () => {
     fetchMock.mockReset();
     clearActionsCache();
     clearExercisesCache();
+    clearTheoriesCache();
     (global as any).fetch = fetchMock;
     consoleError = jest.spyOn(console, 'error').mockImplementation(() => undefined);
   });
@@ -432,6 +433,33 @@ describe('service/actions', () => {
       await fetchExercises('classical', jest.fn(), onError);
 
       expect(onError).toHaveBeenCalledWith('Failed to fetch');
+    });
+  });
+
+  describe('fetchTheories', () => {
+    const GROUP = { id: 'group', name: 'Group', premises: ['forall x. m(e, x) = x & m(x, e) = x'] };
+
+    test('answers the theories of the logic, asking the backend once per logic', async () => {
+      fetchMock.mockImplementation(async (url: string) => jsonResponse(200, url === '/logic/first-order/theories' ? [GROUP] : []));
+
+      expect(await fetchTheories('first-order')).toEqual([GROUP]);
+      expect(await fetchTheories('first-order')).toEqual([GROUP]);
+      expect(await fetchTheories('classical')).toEqual([]);
+      expect(fetchMock).toHaveBeenCalledTimes(2);
+    });
+
+    test('a failed request, or an answer that is not a list of theories, is no theories, and is asked again', async () => {
+      fetchMock.mockResolvedValueOnce(jsonResponse(500, { message: 'Boom' }));
+      expect(await fetchTheories('first-order')).toEqual([]);
+
+      fetchMock.mockResolvedValueOnce(jsonResponse(200, [{ id: 'group', name: 'Group' }]));
+      expect(await fetchTheories('first-order')).toEqual([]);
+      expect(fetchMock).toHaveBeenCalledTimes(2);
+    });
+
+    test('an unknown logic is not asked for', async () => {
+      expect(await fetchTheories('../other')).toEqual([]);
+      expect(fetchMock).not.toHaveBeenCalled();
     });
   });
 });

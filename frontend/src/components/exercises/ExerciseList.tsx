@@ -1,10 +1,15 @@
 import { FC } from 'react';
 import './ExerciseList.css';
-import { Difficulty, Exercise } from '../../types';
+import { Difficulty, Exercise, Theory } from '../../types';
 import { logicName } from '../../constant';
 
 // What the list shows: the exercises while they are being fetched, once they are in, or why they could not be fetched.
-export type ExercisesState = { kind: 'loading' } | { kind: 'loaded', exercises: Exercise[] } | { kind: 'error', message: string };
+// `theories` are the logic's premise sets (`GET /logic/{logic}/theories`), when they could be fetched: an exercise whose
+// premises are exactly those of a theory is listed under that theory's own heading.
+export type ExercisesState =
+    | { kind: 'loading' }
+    | { kind: 'loaded', exercises: Exercise[], theories?: Theory[] }
+    | { kind: 'error', message: string };
 
 type ExerciseListProps = {
     // The logic the exercises are for: the one of the proof on screen (or picked on the empty page).
@@ -30,8 +35,42 @@ const difficultyTitles: Record<Difficulty, string> = {
 };
 const difficulties = Object.keys(difficultyTitles) as Difficulty[];
 
-// The exercises of the logic, grouped by difficulty. A solved exercise says so in text ("Solved"), not by colour alone.
+// Whether the exercise starts from exactly the premises of the theory, in the same order.
+const isFromTheory = (exercise: Exercise, theory: Theory) =>
+    theory.premises.length > 0
+    && exercise.premises.length === theory.premises.length
+    && exercise.premises.every((premise, index) => premise === theory.premises[index]);
+
+// The exercises of the logic, grouped by difficulty; those that start from a theory (the group axioms) come after the
+// others, under the theory's own heading, again by difficulty. A solved exercise says so in text ("Solved"), not by
+// colour alone.
 const ExerciseList: FC<ExerciseListProps> = ({ logic, state, solved, currentId, startingId, startError, onStart, onClose }) => {
+    const renderItems = (group: Exercise[], theory?: Theory) => (
+        <ul className="exercises-group">
+            {group.map((exercise) => (
+                <li key={exercise.id} className="exercise-item">
+                    <div className="exercise-text">
+                        <span className="exercise-title">{exercise.title}</span>
+                        {solved.has(exercise.id) && <span className="exercise-solved">(Solved)</span>}
+                        {exercise.id === currentId && <span className="exercise-current">(Current)</span>}
+                        <code className="exercise-statement" title={theory ? exercise.premises.join(', ') : undefined}>
+                            {theory && `${theory.name} axioms `}
+                            {!theory && exercise.premises.length > 0 ? `${exercise.premises.join(', ')} ` : ''}⊢ {exercise.goal}
+                        </code>
+                    </div>
+                    <button
+                        className="exercise-start-btn"
+                        onClick={() => onStart(exercise)}
+                        disabled={startingId !== null}
+                        aria-label={`Start exercise ${exercise.title}`}
+                    >
+                        {startingId === exercise.id ? 'Starting…' : 'Start'}
+                    </button>
+                </li>
+            ))}
+        </ul>
+    );
+
     const renderBody = () => {
         if (state.kind === 'loading') return <output className="paragraph" aria-live="polite">Loading the exercises…</output>;
         if (state.kind === 'error') {
@@ -39,38 +78,40 @@ const ExerciseList: FC<ExerciseListProps> = ({ logic, state, solved, currentId, 
         }
         if (state.exercises.length === 0) return <p>There are no exercises for this logic yet.</p>;
         const solvedCount = state.exercises.filter((exercise) => solved.has(exercise.id)).length;
+        const theories = state.theories ?? [];
+        const theoryOf = (exercise: Exercise) => theories.find((theory) => isFromTheory(exercise, theory));
+        const plain = state.exercises.filter((exercise) => theoryOf(exercise) === undefined);
         return (
             <>
                 <p className="exercises-progress">Solved {solvedCount} of {state.exercises.length}.</p>
                 {difficulties.map((difficulty) => {
-                    const group = state.exercises.filter((exercise) => exercise.difficulty === difficulty);
+                    const group = plain.filter((exercise) => exercise.difficulty === difficulty);
                     if (group.length === 0) return null;
                     const headingId = `exercises-${difficulty.toLowerCase()}`;
                     return (
                         <section key={difficulty} aria-labelledby={headingId}>
                             <h3 id={headingId} className="exercises-group-title">{difficultyTitles[difficulty]}</h3>
-                            <ul className="exercises-group">
-                                {group.map((exercise) => (
-                                    <li key={exercise.id} className="exercise-item">
-                                        <div className="exercise-text">
-                                            <span className="exercise-title">{exercise.title}</span>
-                                            {solved.has(exercise.id) && <span className="exercise-solved">(Solved)</span>}
-                                            {exercise.id === currentId && <span className="exercise-current">(Current)</span>}
-                                            <code className="exercise-statement">
-                                                {exercise.premises.length > 0 ? `${exercise.premises.join(', ')} ` : ''}⊢ {exercise.goal}
-                                            </code>
-                                        </div>
-                                        <button
-                                            className="exercise-start-btn"
-                                            onClick={() => onStart(exercise)}
-                                            disabled={startingId !== null}
-                                            aria-label={`Start exercise ${exercise.title}`}
-                                        >
-                                            {startingId === exercise.id ? 'Starting…' : 'Start'}
-                                        </button>
-                                    </li>
-                                ))}
-                            </ul>
+                            {renderItems(group)}
+                        </section>
+                    );
+                })}
+                {theories.map((theory) => {
+                    const ofTheory = state.exercises.filter((exercise) => theoryOf(exercise) === theory);
+                    if (ofTheory.length === 0) return null;
+                    const headingId = `exercises-theory-${theory.id}`;
+                    return (
+                        <section key={theory.id} aria-labelledby={headingId}>
+                            <h3 id={headingId} className="exercises-group-title">{theory.name} theory</h3>
+                            {difficulties.map((difficulty) => {
+                                const group = ofTheory.filter((exercise) => exercise.difficulty === difficulty);
+                                if (group.length === 0) return null;
+                                return (
+                                    <div key={difficulty}>
+                                        <h4 className="exercises-subgroup-title">{difficultyTitles[difficulty]}</h4>
+                                        {renderItems(group, theory)}
+                                    </div>
+                                );
+                            })}
                         </section>
                     );
                 })}
