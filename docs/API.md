@@ -186,12 +186,16 @@ shares everything else with `classical`: the formula syntax, the proof and proof
 - `NOTE` sent to `POST /logic/intuitionistic/action` is a `400` (`Rule NOTE is not a rule of intuitionistic logic`).
 - A proof (in a request, or an uploaded file) with a step justified by `-E` is a `400` whose message names that line,
   e.g. the classical proof of `- (- p) ⊢ p`.
-- `POST /logic/intuitionistic/solve` has a solver of its own, which never uses double negation elimination: a complete
-  search in the contraction-free sequent calculus G4ip, translated into the rules `Ass`, `->I`, `->E`, `&I`, `&E1/2`,
-  `|I1/2`, `|E`, `-I`, `FI`, `FE` and `Rep`. It starts from the premises, like the classical solver. The search
-  terminates in principle, and a goal that is not intuitionistically provable (`p | (- p)`, `(- (- p)) -> p`, Peirce's
-  law) comes back with its premises only and `done` false; but it can take exponential time, so a large goal (above all
-  an unprovable one) may hit the solve timeout and get a `422` instead.
+- `POST /logic/intuitionistic/solve` has a solver of its own, which never uses double negation elimination: the
+  classical goal-directed solver without its two classical steps, `-E` and proof by contradiction (assume `- A`, reach
+  `FALSE`, then `-I` and `-E`). Where the classical solver would argue by contradiction for a disjunction `A | B`, it
+  tries to reach `A` (then `|I1`) and, if that gets stuck, removes that attempt's steps and tries `B` (then `|I2`); any
+  other goal it cannot reach by its introduction rule or the elimination rules makes it give up. It starts from the
+  premises, like the classical solver, and always stops (attempts nest at most once per disjunction, and the proof is
+  kept below a size bound). It is not complete: `done` false means it found no proof, which is the answer for every
+  goal that is not intuitionistically provable (`p | (- p)`, `(- (- p)) -> p`, Peirce's law) but also for some that
+  are (e.g. `p | q ⊢ q | p`, `p, - p ⊢ q`, `((p & q) -> r) -> (p -> (q -> r))`). The proof then comes back with its
+  premises only.
 
 ### Modal logic with Next and Until
 

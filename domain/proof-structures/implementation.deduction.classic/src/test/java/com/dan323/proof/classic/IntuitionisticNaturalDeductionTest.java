@@ -69,37 +69,63 @@ class IntuitionisticNaturalDeductionTest {
     }
 
     @Test
-    void casesOnADisjunction() {
-        // p | q, p -> r, q -> r ⊢ r
-        var proof = solve(List.of(new DisjunctionClassic(P, Q), new ImplicationClassic(P, R), new ImplicationClassic(Q, R)), R);
+    void theEliminationRulesAreIntuitionistic() {
+        // p | q, - p ⊢ q: OrE1 is built from Ass, FI, FE, ->I and |E
+        var proof = solve(List.of(new DisjunctionClassic(P, Q), new NegationClassic(P)), Q);
         assertSolvedIntuitionistically(proof);
         assertTrue(proof.parse().stream().anyMatch(action -> action.getAction() == AvailableAction.ORE));
-    }
-
-    @Test
-    void exFalso() {
-        var proof = solve(List.of(P, new NegationClassic(P)), new ConjunctionClassic(Q, R));
-        assertSolvedIntuitionistically(proof);
-        assertTrue(proof.parse().stream().anyMatch(action -> action.getAction() == AvailableAction.FE));
-    }
-
-    @Test
-    void nestedImplicationsOnTheLeft() {
-        // The G4ip rule for (C -> D) -> B: (p -> q) -> r, q ⊢ r
-        var proof = solve(List.of(new ImplicationClassic(new ImplicationClassic(P, Q), R), Q), R);
-        assertSolvedIntuitionistically(proof);
-        // - (- (p | - p)) needs the (C -> D) -> B rule on a negation
-        assertSolvedIntuitionistically(solve(List.of(),
-                new NegationClassic(new NegationClassic(new DisjunctionClassic(P, new NegationClassic(P))))));
-        // (p | q) -> r, (p & q) -> r are unfolded
-        assertSolvedIntuitionistically(solve(List.of(new ImplicationClassic(new DisjunctionClassic(P, Q), R),
-                new ImplicationClassic(new ConjunctionClassic(P, Q), R), Q), R));
-        assertSolvedIntuitionistically(solve(List.of(new ImplicationClassic(new ConjunctionClassic(P, Q), R)),
-                new ImplicationClassic(P, new ImplicationClassic(Q, R))));
-        assertSolvedIntuitionistically(solve(List.of(new NegationClassic(new ConjunctionClassic(P, Q))),
-                new ImplicationClassic(P, new NegationClassic(Q))));
+        // - (p | q) ⊢ (- p) & (- q): DeMorgan is built from Ass, |I, FI and -I
         assertSolvedIntuitionistically(solve(List.of(new NegationClassic(new DisjunctionClassic(P, Q))),
                 new ConjunctionClassic(new NegationClassic(P), new NegationClassic(Q))));
+        // - (- (p | - p)) needs DeMorgan inside the -I subproof
+        assertSolvedIntuitionistically(solve(List.of(),
+                new NegationClassic(new NegationClassic(new DisjunctionClassic(P, new NegationClassic(P))))));
+    }
+
+    @Test
+    void aDisjunctionGoalTriesItsLeftSideFirst() {
+        // (p -> p) | q
+        var proof = solve(List.of(), new DisjunctionClassic(new ImplicationClassic(P, P), Q));
+        assertSolvedIntuitionistically(proof);
+        assertEquals(List.of(AvailableAction.ASSUME, AvailableAction.DT, AvailableAction.ORI1), rules(proof));
+    }
+
+    @Test
+    void aFailedAttemptLeavesNoSteps() {
+        // (p -> q) | (p -> p): the attempt at p -> q assumes p and gets stuck on q, so its assumption is removed
+        var proof = solve(List.of(), new DisjunctionClassic(new ImplicationClassic(P, Q), new ImplicationClassic(P, P)));
+        assertSolvedIntuitionistically(proof);
+        assertEquals(List.of(AvailableAction.ASSUME, AvailableAction.DT, AvailableAction.ORI2), rules(proof));
+        // Nested: r | ((p -> q) | (p -> p))
+        var nested = solve(List.of(), new DisjunctionClassic(R,
+                new DisjunctionClassic(new ImplicationClassic(P, Q), new ImplicationClassic(P, P))));
+        assertSolvedIntuitionistically(nested);
+        assertEquals(List.of(AvailableAction.ASSUME, AvailableAction.DT, AvailableAction.ORI2, AvailableAction.ORI2), rules(nested));
+    }
+
+    @Test
+    void goalsWithoutAnIntroductionRuleAreNotReachedByContradiction() {
+        // Classical logic reaches these by contradiction; without it the solver gives up
+        var exFalso = solve(List.of(P, new NegationClassic(P)), Q);
+        assertFalse(exFalso.isDone());
+        assertEquals(2, exFalso.getSteps().size());
+        var cases = solve(List.of(new DisjunctionClassic(P, Q), new ImplicationClassic(P, R), new ImplicationClassic(Q, R)), R);
+        assertFalse(cases.isDone());
+        assertEquals(3, cases.getSteps().size());
+        assertFalse(solve(List.of(new ImplicationClassic(new ImplicationClassic(P, Q), R), Q), R).isDone());
+    }
+
+    @Test
+    void theSearchIsBounded() {
+        // The goal-directed solver keeps opening subproofs for this one (the classical solver never stops on it):
+        // the size bound stops it
+        var proof = solve(List.of(), new ImplicationClassic(new NegationClassic(P), new ImplicationClassic(P, ConstantClassic.FALSE)));
+        assertFalse(proof.isDone());
+        assertTrue(proof.getSteps().isEmpty());
+    }
+
+    private static List<AvailableAction> rules(NaturalDeduction proof) {
+        return proof.parse().stream().map(action -> action.getAction()).toList();
     }
 
     @Test

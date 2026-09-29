@@ -107,7 +107,8 @@ p           Ass
 ```
 
 A proof that uses `-E` (in a request or in an uploaded file) is refused, and so is the action. The automatic solver
-is its own (`IntuitionisticAutomate`, a search in the sequent calculus G4ip) and never uses `-E`. See
+is its own (`IntuitionisticAutomate`: the classical goal-directed solver without `-E` and without proof by
+contradiction, which tries each side of a disjunction goal in turn); it may leave an intuitionistic theorem unproved. See
 [API.md](./API.md#intuitionistic-logic).
 
 ## Modal Propositional Logic
