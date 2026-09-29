@@ -674,13 +674,15 @@ public class ModalAutomate {
     }
 
     /**
-     * Update the goal list in case the last goal is {@link ConstantModal#FALSE}
+     * Update the goal list in case the last goal is {@link ConstantModal#FALSE}. A line that a De Morgan rule was
+     * already applied to is not used: what it says is in the lines that rule gave, and aiming for what it negates can
+     * be the goal the solver is already trying to prove (the negation assumed for a proof by contradiction).
      */
     private void lastGoalFalse() {
         int j = -1;
         for (int i = 0; i < proof.getSteps().size(); i++) {
             boolean b = true;
-            if (!usedForGoal.containsValue(i) && proof.getSteps().get(i).isValid()) {
+            if (!usedForGoal.containsValue(i) && proof.getSteps().get(i).isValid() && !isDeMorganed(i + 1)) {
                 String state = proof.getSteps().get(i).getState();
                 LogicOperation log = proof.getSteps().get(i).getStep();
                 switch (log) {
@@ -699,6 +701,13 @@ public class ModalAutomate {
             }
         }
         usedForGoal.put(goals.size(), j);
+    }
+
+    /**
+     * Whether {@link ModalDeMorgan} or {@link DeMorgan} was applied to this 1-based line.
+     */
+    private boolean isDeMorganed(int line) {
+        return actionsDone.contains(new ModalDeMorgan(line)) || actionsDone.contains(new DeMorgan(line));
     }
 
     /**

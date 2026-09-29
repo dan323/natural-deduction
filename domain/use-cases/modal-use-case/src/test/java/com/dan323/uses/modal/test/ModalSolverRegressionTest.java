@@ -172,16 +172,29 @@ class ModalSolverRegressionTest {
      */
     @Test
     void theDualOfSometimeIsProved() {
+        assertProved(List.of("- (<> (- p))"), "[] p");
+    }
+
+    /**
+     * The negated goal assumed for a proof by contradiction is split by De Morgan; FALSE must then come from the
+     * lines that gave, not from aiming for the goal itself again.
+     */
+    @Test
+    void aDeMorganedLineIsNotAimedAt() {
+        assertProved(List.of(), "(([] p) -> (<> q)) | (- q)");
+    }
+
+    private static void assertProved(List<String> premises, String goal) {
         var transformer = new ModalProofTransformer();
-        var premise = new StepDto("- (<> (- p))", "Ass", 0, Map.of("state", "s0"));
-        ModalNaturalDeduction proof = transformer.from(new ProofDto(List.of(premise), "modal", "[] p"));
+        var steps = premises.stream().map(premise -> new StepDto(premise, "Ass", 0, Map.of("state", "s0"))).toList();
+        ModalNaturalDeduction proof = transformer.from(new ProofDto(steps, "modal", goal));
         assertTimeoutPreemptively(Duration.ofSeconds(2), proof::automate);
-        assertTrue(proof.isDone());
+        assertTrue(proof.isDone(), goal);
         var last = proof.getSteps().getLast();
-        assertEquals("[] p", last.getStep().toString());
+        assertEquals(goal, last.getStep().toString());
         assertEquals(0, last.getAssumptionLevel());
         assertEquals(proof.getState0(), last.getState());
-        assertTrue(transformer.from(transformer.fromProof(proof)).isDone(), "replays and is done");
+        assertTrue(transformer.from(transformer.fromProof(proof)).isDone(), goal + ": replays and is done");
     }
 
     @TestFactory

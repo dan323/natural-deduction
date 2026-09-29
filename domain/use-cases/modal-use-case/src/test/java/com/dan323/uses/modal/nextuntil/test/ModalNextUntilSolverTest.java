@@ -95,7 +95,10 @@ class ModalNextUntilSolverTest {
                         start(List.of("[] (p -> q)", "[] p"), "[] q"),
                         start(List.of("[] p"), "X (X p)"),
                         // DeMorgan on a negated <> of a negation, then []E and -E
-                        start(List.of("- (<> (- p))"), "[] p"))
+                        start(List.of("- (<> (- p))"), "[] p"),
+                        // By contradiction: the negated goal is split by De Morgan, and FALSE comes from - A, not from
+                        // the negated goal itself
+                        start(List.of(), "(([] p) -> (p U q)) | (- q)"))
                 .map(proof -> DynamicTest.dynamicTest(proof.goal(), () -> assertSolves(proof)));
     }
 
