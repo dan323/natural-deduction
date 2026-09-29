@@ -616,19 +616,20 @@ public class ModalAutomate {
         return answer;
     }
 
+    /**
+     * {@code Refl} on a state is applied once, and again only when the {@code s <= s} step it gave was discharged.
+     * {@link #reflUsed} maps the state to the 0-based index of that step, which is the size of the proof before it is
+     * applied.
+     */
     private Optional<AbstractModalAction> checkReflAction(Reflexive act) {
         int k = act.getStep();
         var state = proof.getSteps().get(k - 1).getState();
-        if (reflUsed.containsKey(state)) {
-            if (!proof.getSteps().get(reflUsed.get(state)).isValid()) {
-                reflUsed.put(state, k);
-                return Optional.of(act);
-            }
-        } else {
-            reflUsed.put(state, k);
-            return Optional.of(act);
+        Integer used = reflUsed.get(state);
+        if (used != null && used < proof.getSteps().size() && proof.getSteps().get(used).isValid()) {
+            return Optional.empty();
         }
-        return Optional.empty();
+        reflUsed.put(state, proof.getSteps().size());
+        return Optional.of(act);
     }
 
     private Optional<AbstractModalAction> checkAdditionOfDisjIModPonens(int i) {

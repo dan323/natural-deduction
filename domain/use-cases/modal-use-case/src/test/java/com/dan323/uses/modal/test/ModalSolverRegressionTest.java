@@ -165,6 +165,25 @@ class ModalSolverRegressionTest {
         }));
     }
 
+    /**
+     * {@code Refl} was applied again and again when the line after its source line was a discharged step (here the
+     * {@code s0 <= s1} that {@code DeMorgan} opens), so the solver never stopped; and {@code DeMorgan} on
+     * {@code - (<> (- p))} gave {@code [] (- (- p))} instead of {@code [] p}.
+     */
+    @Test
+    void theDualOfSometimeIsProved() {
+        var transformer = new ModalProofTransformer();
+        var premise = new StepDto("- (<> (- p))", "Ass", 0, Map.of("state", "s0"));
+        ModalNaturalDeduction proof = transformer.from(new ProofDto(List.of(premise), "modal", "[] p"));
+        assertTimeoutPreemptively(Duration.ofSeconds(2), proof::automate);
+        assertTrue(proof.isDone());
+        var last = proof.getSteps().getLast();
+        assertEquals("[] p", last.getStep().toString());
+        assertEquals(0, last.getAssumptionLevel());
+        assertEquals(proof.getState0(), last.getState());
+        assertTrue(transformer.from(transformer.fromProof(proof)).isDone(), "replays and is done");
+    }
+
     @TestFactory
     Stream<DynamicTest> theSolverGivesTheSameProofs() throws IOException {
         return expectedBlocks().stream().map(block -> DynamicTest.dynamicTest(block.lines().findFirst().orElseThrow(), () -> {

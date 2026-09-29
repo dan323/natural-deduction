@@ -32,16 +32,24 @@ public final class DeMorgan extends CompositionRule {
                 (((Negation<?>) pf.getSteps().get(i - 1).getStep()).getElement() instanceof Sometime);
     }
 
+    /**
+     * From {@code - (<> A)} it derives {@code [] (- A)}, or {@code [] B} when {@code A} is {@code - B}: the
+     * {@code - (- B)} is eliminated with {@code -E} before {@code []I}, so the result has no double negation.
+     */
     @Override
     public void apply(ModalNaturalDeduction pf) {
         int k = pf.getSteps().size();
         String newState = pf.newState();
         NegationModal operation = (NegationModal) pf.getSteps().get(i - 1).getStep();
+        var element = ((Sometime) operation.getElement()).getElement();
         (new ModalAssume(new LessEqual(pf.getSteps().get(i - 1).getState(), newState))).apply(pf);
-        (new ModalAssume(((Sometime)operation.getElement()).getElement(), newState)).apply(pf);
+        (new ModalAssume(element, newState)).apply(pf);
         (new ModalDiaI(k + 2, k + 1)).apply(pf);
         (new ModalFI(k + 3, i)).apply(pf);
         (new ModalNotI()).apply(pf);
+        if (element instanceof NegationModal) {
+            (new ModalNotE(pf.getSteps().size())).apply(pf);
+        }
         (new ModalBoxI()).apply(pf);
     }
 }

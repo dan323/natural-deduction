@@ -93,7 +93,9 @@ class ModalNextUntilSolverTest {
                         start(List.of("p U q", "- q"), "X (p U q)"),
                         // A modal goal, solved as the modal solver does
                         start(List.of("[] (p -> q)", "[] p"), "[] q"),
-                        start(List.of("[] p"), "X (X p)"))
+                        start(List.of("[] p"), "X (X p)"),
+                        // DeMorgan on a negated <> of a negation, then []E and -E
+                        start(List.of("- (<> (- p))"), "[] p"))
                 .map(proof -> DynamicTest.dynamicTest(proof.goal(), () -> assertSolves(proof)));
     }
 
