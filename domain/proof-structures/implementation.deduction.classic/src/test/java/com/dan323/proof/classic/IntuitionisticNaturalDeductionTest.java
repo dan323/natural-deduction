@@ -104,15 +104,49 @@ class IntuitionisticNaturalDeductionTest {
     }
 
     @Test
-    void goalsWithoutAnIntroductionRuleAreNotReachedByContradiction() {
-        // Classical logic reaches these by contradiction; without it the solver gives up
-        var exFalso = solve(List.of(P, new NegationClassic(P)), Q);
-        assertFalse(exFalso.isDone());
-        assertEquals(2, exFalso.getSteps().size());
+    void exFalsoReachesFalseThenUsesFalseElimination() {
+        // p, - p ⊢ q: FALSE by FI, then FE; -I is not applied, since q is no negation
+        var proof = solve(List.of(P, new NegationClassic(P)), Q);
+        assertSolvedIntuitionistically(proof);
+        assertEquals(List.of(AvailableAction.ASSUME, AvailableAction.ASSUME, AvailableAction.FI, AvailableAction.FE), rules(proof));
+        // FALSE ⊢ p & (- q): FE for p, and FALSE copied into the -I subproof for - q
+        assertSolvedIntuitionistically(solve(List.of(ConstantClassic.FALSE),
+                new ConjunctionClassic(P, new NegationClassic(Q))));
+    }
+
+    @Test
+    void backwardsThroughAnImplication() {
+        // (p -> q) -> r, q ⊢ r: reach p -> q, then ->E
+        var proof = solve(List.of(new ImplicationClassic(new ImplicationClassic(P, Q), R), Q), R);
+        assertSolvedIntuitionistically(proof);
+        assertEquals(AvailableAction.MP, rules(proof).getLast());
+        assertEquals(new ImplicationClassic(P, Q), proof.getSteps().get(proof.getSteps().size() - 2).getStep());
+    }
+
+    @Test
+    void aCaseSplitOnADisjunctionStep() {
+        // p | q ⊢ q | p: p -> (q | p) and q -> (q | p), then |E
+        var proof = solve(List.of(new DisjunctionClassic(P, Q)), new DisjunctionClassic(Q, P));
+        assertSolvedIntuitionistically(proof);
+        assertEquals(List.of(AvailableAction.ASSUME, AvailableAction.ASSUME, AvailableAction.ORI2, AvailableAction.DT,
+                AvailableAction.ASSUME, AvailableAction.ORI1, AvailableAction.DT, AvailableAction.ORE), rules(proof));
+        // p | q, p -> r, q -> r ⊢ r: the implications are there already, so |E reaches r at once
         var cases = solve(List.of(new DisjunctionClassic(P, Q), new ImplicationClassic(P, R), new ImplicationClassic(Q, R)), R);
-        assertFalse(cases.isDone());
-        assertEquals(3, cases.getSteps().size());
-        assertFalse(solve(List.of(new ImplicationClassic(new ImplicationClassic(P, Q), R), Q), R).isDone());
+        assertSolvedIntuitionistically(cases);
+        assertEquals(4, cases.getSteps().size());
+        assertEquals(AvailableAction.ORE, rules(cases).getLast());
+    }
+
+    @Test
+    void aFailedStrategyLeavesNoSteps() {
+        // (s -> s) -> ((p -> q) | r) ⊢ (p -> q) | r: the side p -> q assumes p and gets stuck on q, the side r gets
+        // stuck, and going backwards through the premise works; nothing of the failed attempts is left
+        var goal = new DisjunctionClassic(new ImplicationClassic(P, Q), R);
+        var s = new VariableClassic("s");
+        var proof = solve(List.of(new ImplicationClassic(new ImplicationClassic(s, s), goal)), goal);
+        assertSolvedIntuitionistically(proof);
+        assertEquals(List.of(AvailableAction.ASSUME, AvailableAction.ASSUME, AvailableAction.DT, AvailableAction.MP), rules(proof));
+        assertTrue(proof.getSteps().stream().noneMatch(step -> step.getStep().equals(P)), proof::toString);
     }
 
     @Test

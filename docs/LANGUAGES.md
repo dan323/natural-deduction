@@ -108,7 +108,8 @@ p           Ass
 
 A proof that uses `-E` (in a request or in an uploaded file) is refused, and so is the action. The automatic solver
 is its own (`IntuitionisticAutomate`: the classical goal-directed solver without `-E` and without proof by
-contradiction, which tries each side of a disjunction goal in turn); it may leave an intuitionistic theorem unproved. See
+contradiction, which instead tries case splits, each side of a disjunction goal, `->E` backwards and ex falso); it may
+leave an intuitionistic theorem unproved. See
 [API.md](./API.md#intuitionistic-logic).
 
 ## Modal Propositional Logic

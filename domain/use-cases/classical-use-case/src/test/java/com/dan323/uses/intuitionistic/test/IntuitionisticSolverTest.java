@@ -13,7 +13,6 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -21,12 +20,6 @@ import static org.junit.jupiter.api.Assertions.*;
 class IntuitionisticSolverTest {
 
     private static final Duration TIMEOUT = Duration.ofSeconds(10);
-
-    /**
-     * Exercises the solver does not finish: the goal-directed algorithm reaches a variable only with a rule for it,
-     * and without proof by contradiction it has none that does a case analysis on {@code p | q} or uses {@code FE}.
-     */
-    private static final Set<String> UNSOLVED_EXERCISES = Set.of("or-commutes", "ex-falso");
 
     private final IntuitionisticProofTransformer transformer = new IntuitionisticProofTransformer();
     private final LogicalSolver<?, ?, ?, ?> solver = new LogicalSolver<>(transformer, TIMEOUT);
@@ -36,26 +29,18 @@ class IntuitionisticSolverTest {
         return new ProofDto(steps, "intuitionistic", goal);
     }
 
-    private static Stream<Exercise> exercises(boolean solved) {
-        return new IntuitionisticExercises().exercises().stream()
-                .filter(exercise -> UNSOLVED_EXERCISES.contains(exercise.id()) != solved);
+    private static Stream<Exercise> exercises() {
+        return new IntuitionisticExercises().exercises().stream();
     }
 
     @TestFactory
     Stream<DynamicTest> everyExerciseIsSolvedWithoutDoubleNegationElimination() {
-        return exercises(true).map(exercise -> DynamicTest.dynamicTest(exercise.id(), () -> assertSolves(exercise)));
-    }
-
-    @TestFactory
-    Stream<DynamicTest> theUnsolvedExercisesStopWithTheirPremises() {
-        assertEquals(UNSOLVED_EXERCISES.size(), exercises(false).count());
-        return exercises(false).map(exercise -> DynamicTest.dynamicTest(exercise.id(),
-                () -> assertNotSolved(start(exercise.premises(), exercise.goal()))));
+        return exercises().map(exercise -> DynamicTest.dynamicTest(exercise.id(), () -> assertSolves(exercise)));
     }
 
     @TestFactory
     Stream<DynamicTest> theSolverStartsFromThePremises() {
-        return exercises(true)
+        return exercises()
                 .map(exercise -> DynamicTest.dynamicTest(exercise.id(), () -> {
                     // A proof with a detour: the solver drops it and starts again from the premises
                     var steps = new ArrayList<>(start(exercise.premises(), exercise.goal()).steps());
@@ -103,27 +88,38 @@ class IntuitionisticSolverTest {
                         start(List.of("p"), "p"),
                         start(List.of("p", "q"), "p"),
                         start(List.of(), "p -> p"),
-                        start(List.of(), "p -> (q -> p)"))
+                        start(List.of(), "p -> (q -> p)"),
+                        // Ex falso: FALSE is reached, then FE
+                        start(List.of("p", "- p"), "q"),
+                        start(List.of("FALSE"), "p & (- q)"),
+                        start(List.of(), "((- p) | q) -> (p -> q)"),
+                        // Backwards through an implication: its left side is reached, then ->E
+                        start(List.of("(p -> q) -> r", "q"), "r"),
+                        start(List.of(), "((p & q) -> r) -> (p -> (q -> r))"),
+                        start(List.of(), "((p | q) -> r) -> ((p -> r) & (q -> r))"),
+                        // A case split: A -> G and B -> G, then |E
+                        start(List.of("p | q"), "q | p"),
+                        start(List.of("p | q", "p -> r", "q -> r"), "r"),
+                        start(List.of(), "((p -> r) & (q -> r)) -> ((p | q) -> r)"),
+                        start(List.of(), "(p | (q & r)) -> ((p | q) & (p | r))"),
+                        start(List.of(), "((p | q) & (p | r)) -> (p | (q & r))"),
+                        start(List.of(), "((p | q) | r) -> (p | (q | r))"))
                 .map(proof -> DynamicTest.dynamicTest(proof.goal(), () -> assertSolves(proof)));
     }
 
     /**
-     * Intuitionistic theorems the solver gives up on, like the unsolved exercises. The sequent calculus solver that
-     * came before it did prove them.
+     * Intuitionistic theorems the solver gives up on. The sequent calculus solver that came before it did prove them.
+     * Both use a premise twice: {@code - ((- (- p)) -> p)} gives {@code FALSE} only once {@code - p} is known, which
+     * needs ex falso inside the attempt at ex falso, and the other needs {@code ->E} through the same implication
+     * twice. An attempt is never nested in one of the same kind on the same formula, so the solver finds neither.
      */
     @TestFactory
     Stream<DynamicTest> knownLimitations() {
         return Stream.of(
                         start(List.of(), "- (- ((- (- p)) -> p))"),
-                        start(List.of(), "((p | q) -> r) -> ((p -> r) & (q -> r))"),
-                        start(List.of(), "((p -> r) & (q -> r)) -> ((p | q) -> r)"),
-                        start(List.of(), "((p & q) -> r) -> (p -> (q -> r))"),
                         start(List.of(), "((((p -> q) -> p) -> p) -> q) -> q"),
-                        start(List.of(), "(p | (q & r)) -> ((p | q) & (p | r))"),
-                        start(List.of(), "((p | q) & (p | r)) -> (p | (q & r))"),
-                        start(List.of(), "((p | q) | r) -> (p | (q | r))"),
-                        start(List.of(), "((- p) | q) -> (p -> q)"),
-                        start(List.of("FALSE"), "p & (- q)"))
+                        // Not a theorem: the attempts all fail and the size bound stops OrE1's loop (#192)
+                        start(List.of("p | q", "- p"), "r"))
                 .map(proof -> DynamicTest.dynamicTest(proof.goal(), () -> assertNotSolved(proof)));
     }
 

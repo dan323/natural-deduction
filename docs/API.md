@@ -188,14 +188,15 @@ shares everything else with `classical`: the formula syntax, the proof and proof
   e.g. the classical proof of `- (- p) ⊢ p`.
 - `POST /logic/intuitionistic/solve` has a solver of its own, which never uses double negation elimination: the
   classical goal-directed solver without its two classical steps, `-E` and proof by contradiction (assume `- A`, reach
-  `FALSE`, then `-I` and `-E`). Where the classical solver would argue by contradiction for a disjunction `A | B`, it
-  tries to reach `A` (then `|I1`) and, if that gets stuck, removes that attempt's steps and tries `B` (then `|I2`); any
-  other goal it cannot reach by its introduction rule or the elimination rules makes it give up. It starts from the
-  premises, like the classical solver, and always stops (attempts nest at most once per disjunction, and the proof is
-  kept below a size bound). It is not complete: `done` false means it found no proof, which is the answer for every
-  goal that is not intuitionistically provable (`p | (- p)`, `(- (- p)) -> p`, Peirce's law) but also for some that
-  are (e.g. `p | q ⊢ q | p`, `p, - p ⊢ q`, `((p & q) -> r) -> (p -> (q -> r))`). The proof then comes back with its
-  premises only.
+  `FALSE`, then `-I` and `-E`). Where the classical solver would argue by contradiction for a goal `G`, it makes
+  attempts, in this order: a case split on a disjunction `A | B` it has (reach `A -> G` and `B -> G`, then `|E`), each
+  side of a disjunction goal (then `|I1` or `|I2`), backwards through an implication `A -> G` it has (reach `A`, then
+  `->E`), and ex falso (reach `FALSE`, then `FE`). An attempt that gets stuck has its steps removed and the next one is
+  tried; when all get stuck it gives up. It starts from the premises, like the classical solver, and always stops (an
+  attempt never nests inside one of the same kind on the same formula, and the proof is kept below a size bound). It
+  solves every intuitionistic exercise, but it is not complete: `done` false means it found no proof, which is the
+  answer for every goal that is not intuitionistically provable (`p | (- p)`, `(- (- p)) -> p`, Peirce's law) but also
+  for some that are (e.g. `- (- ((- (- p)) -> p))`). The proof then comes back with its premises only.
 
 ### Modal logic with Next and Until
 

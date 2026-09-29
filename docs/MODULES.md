@@ -113,8 +113,9 @@ Defines and implements inference rules for natural deduction.
   - One `Classic*` class per rule (`ClassicAndI`, `ClassicModusPonens`, ...), described by the `AvailableAction` enum
   - `ParseClassicalAction` - builds a rule from its name, sources and expression
   - The automatic solvers (`internal/`): `GoalDirectedAutomate`, the goal-directed engine, and its two subclasses
-    `ClassicalAutomate` (with `-E` and proof by contradiction) and `IntuitionisticAutomate` (without them, trying each
-    side of a disjunction goal and undoing a failed attempt), plus a few composite rules (`complex/`, e.g. De Morgan)
+    `ClassicalAutomate` (with `-E` and proof by contradiction) and `IntuitionisticAutomate` (without them, trying case
+    splits, each side of a disjunction goal, `->E` backwards and ex falso, and undoing a failed attempt), plus a few
+    composite rules (`complex/`, e.g. De Morgan)
 - **Dependencies**: logic-language/implementation, framework.deduction/
 - **Used By**: classical-use-case/
 - **Java Packages**: `com.dan323.classical`, `com.dan323.classical.proof`

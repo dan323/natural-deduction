@@ -24,8 +24,8 @@ import java.util.concurrent.CancellationException;
  *
  * <p>The subclasses decide what differs between the logics: whether double negation elimination ({@code -E}) is one
  * of the elimination rules, what to do with a goal that no introduction rule and no subgoal of its shape can reach
- * ({@link #updateOtherGoal}), what to do when a round changes nothing ({@link #stalled()}) and how far the search may
- * go ({@link #withinBounds()}).
+ * ({@link #updateOtherGoal}), which other rules reach a goal ({@link #reachGoal}), what to do when a round changes
+ * nothing ({@link #stalled()}) and how far the search may go ({@link #withinBounds()}).
  *
  * @author daniel
  */
@@ -116,6 +116,16 @@ abstract class GoalDirectedAutomate {
      */
     protected boolean withinBounds() {
         return true;
+    }
+
+    /**
+     * A rule, other than the introduction rules of the engine, that reaches the goal from the valid steps.
+     *
+     * @param goal the last goal
+     * @return a valid rule whose conclusion is the goal, or null (the default) when there is none
+     */
+    protected ClassicalAction reachGoal(ClassicalLogicOperation goal) {
+        return null;
     }
 
     /**
@@ -289,6 +299,9 @@ abstract class GoalDirectedAutomate {
             sol = introRuleForGoalNegation((NegationClassic) goal);
         } else if (goal.equals(ConstantClassic.FALSE)) {
             sol = introRuleForGoalContradiction();
+        }
+        if (sol == null) {
+            sol = reachGoal(goal);
         }
         return sol;
     }
