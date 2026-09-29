@@ -10,7 +10,7 @@ import com.dan323.proof.generic.proof.ProofStep;
 
 import java.util.List;
 
-public final class NaturalDeduction extends Proof<ClassicalLogicOperation, ProofStep<ClassicalLogicOperation>> {
+public class NaturalDeduction extends Proof<ClassicalLogicOperation, ProofStep<ClassicalLogicOperation>> {
 
     @Override
     public void initializeProof(List<ClassicalLogicOperation> assms, ClassicalLogicOperation goal) {

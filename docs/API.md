@@ -115,8 +115,8 @@ Runs the automatic solver on the proof (a `ProofDto`) and returns the resulting 
 - At most as many solves as there are processors (at least 2) run at once, per logic. Another one is answered at once
   with `429` and `{"message": "The solver is busy with other proofs, try again in a moment"}`.
 - An invalid proof is a `400`, as for `/action`.
-- A logic without a solver of its own (`intuitionistic`, `modal-next-until`, `first-order`) answers `400` with
-  `{"message": "There is no solver for the logic 'intuitionistic'"}`.
+- A logic without a solver of its own (`modal-next-until`, `first-order`) answers `400` with
+  `{"message": "There is no solver for the logic 'first-order'"}`.
 
 ### List the exercises: `GET /logic/{logic}/exercises`
 
@@ -186,8 +186,17 @@ shares everything else with `classical`: the formula syntax, the proof and proof
 - `NOTE` sent to `POST /logic/intuitionistic/action` is a `400` (`Rule NOTE is not a rule of intuitionistic logic`).
 - A proof (in a request, or an uploaded file) with a step justified by `-E` is a `400` whose message names that line,
   e.g. the classical proof of `- (- p) ⊢ p`.
-- `POST /logic/intuitionistic/solve` is a `400`: the classical solver may use double negation elimination, so its
-  proofs are not necessarily intuitionistic.
+- `POST /logic/intuitionistic/solve` has a solver of its own, which never uses double negation elimination: the
+  classical goal-directed solver without its two classical steps, `-E` and proof by contradiction (assume `- A`, reach
+  `FALSE`, then `-I` and `-E`). Where the classical solver would argue by contradiction for a goal `G`, it makes
+  attempts, in this order: a case split on a disjunction `A | B` it has (reach `A -> G` and `B -> G`, then `|E`), each
+  side of a disjunction goal (then `|I1` or `|I2`), backwards through an implication `A -> G` it has (reach `A`, then
+  `->E`), and ex falso (reach `FALSE`, then `FE`). An attempt that gets stuck has its steps removed and the next one is
+  tried; when all get stuck it gives up. It starts from the premises, like the classical solver, and always stops (an
+  attempt never nests inside one of the same kind on the same formula, and the proof is kept below a size bound). It
+  solves every intuitionistic exercise, but it is not complete: `done` false means it found no proof, which is the
+  answer for every goal that is not intuitionistically provable (`p | (- p)`, `(- (- p)) -> p`, Peirce's law) but also
+  for some that are (e.g. `- (- ((- (- p)) -> p))`). The proof then comes back with its premises only.
 
 ### Modal logic with Next and Until
 

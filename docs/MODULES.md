@@ -108,10 +108,14 @@ Defines and implements inference rules for natural deduction.
 #### implementation.deduction.classic/
 - **Purpose**: Classical natural deduction
 - **Key Components**:
-  - `NaturalDeduction` - the classical proof
+  - `NaturalDeduction` - the classical proof; `IntuitionisticNaturalDeduction`, its subclass for intuitionistic logic,
+    only changes the solver
   - One `Classic*` class per rule (`ClassicAndI`, `ClassicModusPonens`, ...), described by the `AvailableAction` enum
   - `ParseClassicalAction` - builds a rule from its name, sources and expression
-  - The automatic solver (`ClassicalAutomate`) and a few composite rules (`complex/`, e.g. De Morgan)
+  - The automatic solvers (`internal/`): `GoalDirectedAutomate`, the goal-directed engine, and its two subclasses
+    `ClassicalAutomate` (with `-E` and proof by contradiction) and `IntuitionisticAutomate` (without them, trying case
+    splits, each side of a disjunction goal, `->E` backwards and ex falso, and undoing a failed attempt), plus a few
+    composite rules (`complex/`, e.g. De Morgan)
 - **Dependencies**: logic-language/implementation, framework.deduction/
 - **Used By**: classical-use-case/
 - **Java Packages**: `com.dan323.classical`, `com.dan323.classical.proof`
@@ -185,9 +189,10 @@ Orchestrates the application logic by combining logic languages and proof struct
 - **Purpose**: Wires classical logic (logic name `classical`) and intuitionistic logic (logic name `intuitionistic`)
 - **Key Components**: `ClassicalProofTransformer`, `ParseClassicalProof`, `ClassicGetActions` (one descriptor per
   `AvailableAction`), `ClassicalExercises` and `ClassicalConfiguration`
-- Intuitionistic logic (package `com.dan323.uses.intuitionistic`) reuses the classical language, proofs and parser:
+- Intuitionistic logic (package `com.dan323.uses.intuitionistic`) reuses the classical language, rules and parser:
   `IntuitionisticConfiguration`, and a transformer, parser and actions that subclass or filter the classical ones to drop
-  double negation elimination (`IntuitionisticRules`), and `IntuitionisticExercises`
+  double negation elimination (`IntuitionisticRules`) and build `IntuitionisticNaturalDeduction`s (whose solver never
+  uses it), and `IntuitionisticExercises`
 - **Dependencies**: logic-language/implementation, proof-structures/implementation.deduction.classic, base-use-case/, model/
 - **Used By**: executable/
 - **Java Packages**: `com.dan323.uses.classical`, `com.dan323.uses.intuitionistic`

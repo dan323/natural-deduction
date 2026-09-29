@@ -1,5 +1,6 @@
 package com.dan323.uses.intuitionistic;
 
+import com.dan323.classical.proof.IntuitionisticNaturalDeduction;
 import com.dan323.classical.proof.NaturalDeduction;
 import com.dan323.uses.classical.ParseClassicalProof;
 
@@ -11,6 +12,11 @@ public class ParseIntuitionisticProof extends ParseClassicalProof {
     @Override
     public String logic() {
         return IntuitionisticRules.LOGIC;
+    }
+
+    @Override
+    public NaturalDeduction getNewProof() {
+        return new IntuitionisticNaturalDeduction();
     }
 
     @Override

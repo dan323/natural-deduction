@@ -1743,7 +1743,7 @@ describe('App', () => {
       window.localStorage.clear();
     });
 
-    test('an intuitionistic proof fetches its own rules, has no ¬E and no Solve, and names its logic next to the goal', async () => {
+    test('an intuitionistic proof fetches its own rules, has no ¬E but Solve, and names its logic next to the goal', async () => {
       mockLogicsBackend();
       const user = userEvent.setup();
       render(<App />);
@@ -1755,8 +1755,8 @@ describe('App', () => {
       expect(JSON.parse(String(replayRequests()[0][1]!.body)).proofDto.logic).toBe('intuitionistic');
       expect(replayRequests()[0][0]).toBe('/logic/intuitionistic/action');
       expect(screen.getByText('in Intuitionistic logic')).toBeInTheDocument();
-      expect(screen.queryByRole('button', { name: 'Solve' })).not.toBeInTheDocument();
-      expect(screen.getByText('Intuitionistic logic has no automatic solver.')).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Solve' })).toBeInTheDocument();
+      expect(screen.queryByText(/has no automatic solver/)).not.toBeInTheDocument();
 
       await user.selectOptions(screen.getByLabelText(/Select Inference Rule:/i), 'Rep');
       await user.type(screen.getByLabelText(/Line number:/i), '1');

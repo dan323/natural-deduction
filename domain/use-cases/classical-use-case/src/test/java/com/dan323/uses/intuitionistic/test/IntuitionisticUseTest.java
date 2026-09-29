@@ -108,10 +108,10 @@ class IntuitionisticUseTest {
     }
 
     @Test
-    void thereIsNoSolver() {
+    void thereIsASolver() {
         var transformer = configuration.intuitionisticTransformer();
         assertEquals("intuitionistic", transformer.logic());
-        assertFalse(transformer.hasSolver());
+        assertTrue(transformer.hasSolver());
         assertTrue(new ClassicalProofTransformer().hasSolver());
     }
 
