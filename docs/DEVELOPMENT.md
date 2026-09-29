@@ -141,7 +141,8 @@ Example: add a new rule to classical logic
    (`AvailableAction`'s rule name, `ParseModalAction.ruleName` and `ParseFirstOrderAction.ruleName`), which
    `SharedRuleNamesTest` checks.
 3. **Add unit tests** next to the existing ones in `src/test/java/com/dan323/proof/classic/`
-4. **Update the automatic solver** (`ClassicalAutomate`) if it should use the rule
+4. **Update the automatic solver** (`ClassicalAutomate`) if the rule brings a new connective: its tableau search and
+   its translation into steps work connective by connective
 
 ### Modifying an Existing Rule
 

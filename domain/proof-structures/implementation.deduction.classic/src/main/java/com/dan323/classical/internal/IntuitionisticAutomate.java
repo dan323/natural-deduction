@@ -1,6 +1,7 @@
 package com.dan323.classical.internal;
 
 import com.dan323.classical.*;
+import com.dan323.classical.internal.ClassicalSteps.Arrow;
 import com.dan323.classical.proof.NaturalDeduction;
 import com.dan323.expressions.classical.*;
 
@@ -12,7 +13,10 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CancellationException;
 import java.util.function.IntSupplier;
-import java.util.function.ToIntFunction;
+
+import static com.dan323.classical.internal.ClassicalSteps.FALSE;
+import static com.dan323.classical.internal.ClassicalSteps.arrow;
+import static com.dan323.classical.internal.ClassicalSteps.checkNotInterrupted;
 
 /**
  * The automatic solver of intuitionistic logic.
@@ -32,10 +36,9 @@ import java.util.function.ToIntFunction;
  */
 public final class IntuitionisticAutomate {
 
-    private static final ClassicalLogicOperation FALSE = ConstantClassic.FALSE;
-
     private final Set<Sequent> unprovable = new HashSet<>();
     private NaturalDeduction proof;
+    private ClassicalSteps steps;
 
     /**
      * A solver keeps its working state in fields: use one instance per proof to solve.
@@ -57,6 +60,7 @@ public final class IntuitionisticAutomate {
     public void automate(NaturalDeduction naturalDeduction) {
         proof = naturalDeduction;
         proof.reset();
+        steps = new ClassicalSteps(proof, "intuitionistic");
         unprovable.clear();
         ClassicalLogicOperation goal = proof.getGoal();
         Derivation derivation = search(distinct(proof.getAssms()), goal);
@@ -68,14 +72,8 @@ public final class IntuitionisticAutomate {
             context.putIfAbsent(proof.getSteps().get(i).getStep(), i + 1);
         }
         int line = derive(context, goal, derivation);
-        if (line != lastLine()) {
+        if (line != steps.lastLine()) {
             new ClassicCopy(line).apply(proof);
-        }
-    }
-
-    private static void checkNotInterrupted() {
-        if (Thread.currentThread().isInterrupted()) {
-            throw new CancellationException("The automatic solver was interrupted");
         }
     }
 
@@ -87,12 +85,6 @@ public final class IntuitionisticAutomate {
      * A sequent {@code gamma ⇒ goal}, as a key of the cache of the sequents that have no proof.
      */
     private record Sequent(Set<ClassicalLogicOperation> gamma, ClassicalLogicOperation goal) {
-    }
-
-    /**
-     * The antecedent and consequent of an implication, or of a negation read as an implication to {@code FALSE}.
-     */
-    private record Arrow(ClassicalLogicOperation antecedent, ClassicalLogicOperation consequent) {
     }
 
     /**
@@ -269,16 +261,6 @@ public final class IntuitionisticAutomate {
         return null;
     }
 
-    private static Arrow arrow(ClassicalLogicOperation formula) {
-        if (formula instanceof ImplicationClassic implication) {
-            return new Arrow(implication.getLeft(), implication.getRight());
-        }
-        if (formula instanceof NegationClassic negation) {
-            return new Arrow(negation.getElement(), FALSE);
-        }
-        return null;
-    }
-
     /**
      * The formula {@code antecedent -> consequent} that the solver derives: {@code - antecedent} when the consequent is
      * {@code FALSE}.
@@ -323,40 +305,40 @@ public final class IntuitionisticAutomate {
     private int derive(Map<ClassicalLogicOperation, Integer> context, ClassicalLogicOperation goal, Derivation derivation) {
         return switch (derivation) {
             case Axiom() -> context.get(goal);
-            case ExFalso() -> apply(new ClassicFE(context.get(FALSE), goal));
+            case ExFalso() -> steps.apply(new ClassicFE(context.get(FALSE), goal));
             case ArrowRight(Derivation body) ->
-                    hypothetical(context, goal, inner -> derive(inner, arrow(goal).consequent(), body));
+                    steps.hypothetical(context, goal, inner -> derive(inner, arrow(goal).consequent(), body));
             case AndRight(Derivation left, Derivation right) -> {
                 var conjunction = (ConjunctionClassic) goal;
                 int leftLine = derive(new HashMap<>(context), conjunction.getLeft(), left);
                 int rightLine = derive(new HashMap<>(context), conjunction.getRight(), right);
-                yield apply(new ClassicAndI(leftLine, rightLine));
+                yield steps.apply(new ClassicAndI(leftLine, rightLine));
             }
             case OrRight1(Derivation left) -> {
                 var disjunction = (DisjunctionClassic) goal;
-                yield apply(new ClassicOrI1(derive(context, disjunction.getLeft(), left), disjunction.getRight()));
+                yield steps.apply(new ClassicOrI1(derive(context, disjunction.getLeft(), left), disjunction.getRight()));
             }
             case OrRight2(Derivation right) -> {
                 var disjunction = (DisjunctionClassic) goal;
-                yield apply(new ClassicOrI2(derive(context, disjunction.getRight(), right), disjunction.getLeft()));
+                yield steps.apply(new ClassicOrI2(derive(context, disjunction.getRight(), right), disjunction.getLeft()));
             }
             case AndLeft(ConjunctionClassic principal, Derivation rest) -> {
                 int line = context.get(principal);
-                addIfAbsent(context, principal.getLeft(), () -> apply(new ClassicAndE1(line)));
-                addIfAbsent(context, principal.getRight(), () -> apply(new ClassicAndE2(line)));
+                addIfAbsent(context, principal.getLeft(), () -> steps.apply(new ClassicAndE1(line)));
+                addIfAbsent(context, principal.getRight(), () -> steps.apply(new ClassicAndE2(line)));
                 yield derive(context, goal, rest);
             }
             case OrLeft(DisjunctionClassic principal, Derivation left, Derivation right) -> {
-                int leftCase = hypothetical(context, new ImplicationClassic(principal.getLeft(), goal),
+                int leftCase = steps.hypothetical(context, new ImplicationClassic(principal.getLeft(), goal),
                         inner -> derive(inner, goal, left));
-                int rightCase = hypothetical(context, new ImplicationClassic(principal.getRight(), goal),
+                int rightCase = steps.hypothetical(context, new ImplicationClassic(principal.getRight(), goal),
                         inner -> derive(inner, goal, right));
-                yield apply(new ClassicOrE(context.get(principal), leftCase, rightCase));
+                yield steps.apply(new ClassicOrE(context.get(principal), leftCase, rightCase));
             }
             case ArrowKnown(ClassicalLogicOperation principal, Derivation rest) -> {
                 var arrow = arrow(principal);
                 addIfAbsent(context, arrow.consequent(),
-                        () -> applyArrow(context.get(principal), context.get(arrow.antecedent())));
+                        () -> steps.applyArrow(context.get(principal), context.get(arrow.antecedent())));
                 yield derive(context, goal, rest);
             }
             case ArrowAnd(ClassicalLogicOperation principal, ClassicalLogicOperation derived, Derivation rest) -> {
@@ -366,10 +348,10 @@ public final class IntuitionisticAutomate {
             case ArrowOr(ClassicalLogicOperation principal, ClassicalLogicOperation left, ClassicalLogicOperation right,
                          Derivation rest) -> {
                 var disjunction = (DisjunctionClassic) arrow(principal).antecedent();
-                addIfAbsent(context, left, () -> hypothetical(context, left, inner ->
-                        applyArrow(inner.get(principal), apply(new ClassicOrI1(inner.get(disjunction.getLeft()), disjunction.getRight())))));
-                addIfAbsent(context, right, () -> hypothetical(context, right, inner ->
-                        applyArrow(inner.get(principal), apply(new ClassicOrI2(inner.get(disjunction.getRight()), disjunction.getLeft())))));
+                addIfAbsent(context, left, () -> steps.hypothetical(context, left, inner ->
+                        steps.applyArrow(inner.get(principal), steps.apply(new ClassicOrI1(inner.get(disjunction.getLeft()), disjunction.getRight())))));
+                addIfAbsent(context, right, () -> steps.hypothetical(context, right, inner ->
+                        steps.applyArrow(inner.get(principal), steps.apply(new ClassicOrI2(inner.get(disjunction.getRight()), disjunction.getLeft())))));
                 yield derive(context, goal, rest);
             }
             case ArrowArrow(ClassicalLogicOperation principal, ClassicalLogicOperation derived, Derivation first,
@@ -379,11 +361,11 @@ public final class IntuitionisticAutomate {
                 var inner = arrow(antecedent);
                 var withDerived = new HashMap<>(context);
                 // D -> B: from D, the antecedent C -> D holds (assume C, repeat D), and so does B
-                addIfAbsent(withDerived, derived, () -> hypothetical(context, derived, outer ->
-                        applyArrow(outer.get(principal), hypothetical(outer, antecedent, deeper -> deeper.get(inner.consequent())))));
+                addIfAbsent(withDerived, derived, () -> steps.hypothetical(context, derived, outer ->
+                        steps.applyArrow(outer.get(principal), steps.hypothetical(outer, antecedent, deeper -> deeper.get(inner.consequent())))));
                 int antecedentLine = derive(withDerived, antecedent, first);
                 var withConsequent = new HashMap<>(context);
-                withConsequent.put(arrow.consequent(), applyArrow(context.get(principal), antecedentLine));
+                withConsequent.put(arrow.consequent(), steps.applyArrow(context.get(principal), antecedentLine));
                 yield derive(withConsequent, goal, rest);
             }
         };
@@ -397,9 +379,9 @@ public final class IntuitionisticAutomate {
                                ClassicalLogicOperation derived) {
         var conjunction = (ConjunctionClassic) arrow(principal).antecedent();
         var innerArrow = arrow(derived).consequent();
-        return hypothetical(context, derived, outer -> hypothetical(outer, innerArrow, inner ->
-                applyArrow(inner.get(principal),
-                        apply(new ClassicAndI(inner.get(conjunction.getLeft()), inner.get(conjunction.getRight()))))));
+        return steps.hypothetical(context, derived, outer -> steps.hypothetical(outer, innerArrow, inner ->
+                steps.applyArrow(inner.get(principal),
+                        steps.apply(new ClassicAndI(inner.get(conjunction.getLeft()), inner.get(conjunction.getRight()))))));
     }
 
     private static void addIfAbsent(Map<ClassicalLogicOperation, Integer> context, ClassicalLogicOperation formula,
@@ -407,49 +389,5 @@ public final class IntuitionisticAutomate {
         if (!context.containsKey(formula)) {
             context.put(formula, line.getAsInt());
         }
-    }
-
-    /**
-     * Proves the implication or negation {@code target} in a subproof: assumes its antecedent, runs {@code body} (which
-     * gives the line of the consequent), repeats the consequent if it is not the last line, and discharges the
-     * assumption with {@code ->I} or {@code -I}, as {@code target} is an implication or a negation.
-     *
-     * @return the line of {@code target}
-     */
-    private int hypothetical(Map<ClassicalLogicOperation, Integer> context, ClassicalLogicOperation target,
-                             ToIntFunction<Map<ClassicalLogicOperation, Integer>> body) {
-        var antecedent = arrow(target).antecedent();
-        var inner = new HashMap<>(context);
-        inner.put(antecedent, apply(new ClassicAssume(antecedent)));
-        int consequent = body.applyAsInt(inner);
-        if (consequent != lastLine()) {
-            apply(new ClassicCopy(consequent));
-        }
-        return apply(target instanceof NegationClassic ? new ClassicNotI() : new ClassicDeductionTheorem());
-    }
-
-    /**
-     * Applies the implication or negation at line {@code arrowLine} to its antecedent at line {@code antecedentLine}:
-     * {@code ->E} or {@code FI}.
-     *
-     * @return the line of the consequent
-     */
-    private int applyArrow(int arrowLine, int antecedentLine) {
-        if (proof.getSteps().get(arrowLine - 1).getStep() instanceof NegationClassic) {
-            return apply(new ClassicFI(antecedentLine, arrowLine));
-        }
-        return apply(new ClassicModusPonens(arrowLine, antecedentLine));
-    }
-
-    private int apply(ClassicalAction action) {
-        if (!action.isValid(proof)) {
-            throw new IllegalStateException("The intuitionistic solver built an invalid step: " + action.getAction());
-        }
-        action.apply(proof);
-        return lastLine();
-    }
-
-    private int lastLine() {
-        return proof.getSteps().size();
     }
 }

@@ -106,12 +106,15 @@ Runs the automatic solver on the proof (a `ProofDto`) and returns the resulting 
 ```
 
 - `done` is the same verdict as in the response of `/action`, derived from the steps by the same rule.
-- A proof the solver cannot finish (unprovable, or beyond what the solver can do) is still a `200`: the proof comes
-  back as far as it got and `done` is `false`.
+- The solvers of `classical`, `intuitionistic` and `modal` (S4) are complete: each searches a sequent calculus for a
+  proof of the goal from the premises and translates it into steps. An unprovable goal is still a `200`: the proof
+  comes back with its premises only and `done` is `false`.
 - The solver is limited by time, because a user triggers it. When it does not finish within the limit (10 seconds by
   default, set with the property `natural-deduction.solve-timeout`, e.g. `natural-deduction.solve-timeout=5s`) the
   solver thread is interrupted and the response is `422` with
-  `{"message": "The solver did not finish within 10 seconds, try solving part of the proof by hand first"}`.
+  `{"message": "The solver did not finish within 10 seconds, try solving part of the proof by hand first"}`. The
+  searches terminate in principle, but they can take exponential time, so a large goal (above all an unprovable one)
+  may get this `422` instead of a `200` with `done` false.
 - At most as many solves as there are processors (at least 2) run at once, per logic. Another one is answered at once
   with `429` and `{"message": "The solver is busy with other proofs, try again in a moment"}`.
 - An invalid proof is a `400`, as for `/action`.

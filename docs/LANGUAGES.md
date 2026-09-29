@@ -342,11 +342,15 @@ the group exercises under "Group theory".
 - Rules: `domain/proof-structures/implementation.deduction.classic/`
 - Use cases: `domain/use-cases/classical-use-case/` (`com.dan323.uses.classical` and `com.dan323.uses.intuitionistic`,
   which filters out `-E`)
+- Solvers: `ClassicalAutomate` searches the sequent calculus G3cp (as a tableau) and `IntuitionisticAutomate` searches
+  G4ip; both translate the sequent proof into natural deduction steps
 
 ### Modal Logic (and Next and Until)
 - Formulas: `domain/logic-language/implementation.modal/` (`ModalLogicParser`, `ModalNextUntilLogicParser`)
 - Rules: `domain/proof-structures/implementation.deduction.modal/` (Next and Until in `com.dan323.proof.modal.nextuntil`)
 - Use cases: `domain/use-cases/modal-use-case/` (`com.dan323.uses.modal` and `com.dan323.uses.modal.nextuntil`)
+- Solver: `ModalAutomate` searches a labelled tableau for S4 (the rules make `<=` reflexive and transitive) and
+  translates it into natural deduction steps; `modal-next-until` has none
 
 ### First-Order Logic
 - Formulas and terms: `domain/logic-language/implementation.firstorder/` (`com.dan323.expressions.firstorder`:

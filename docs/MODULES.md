@@ -112,8 +112,9 @@ Defines and implements inference rules for natural deduction.
     only changes the solver
   - One `Classic*` class per rule (`ClassicAndI`, `ClassicModusPonens`, ...), described by the `AvailableAction` enum
   - `ParseClassicalAction` - builds a rule from its name, sources and expression
-  - The automatic solvers (`ClassicalAutomate`; `IntuitionisticAutomate`, a G4ip search that never uses `-E`) and a few
-    composite rules (`complex/`, e.g. De Morgan)
+  - The automatic solvers, each a sequent-calculus search whose proof is then translated into steps
+    (`ClassicalAutomate`, a G3cp tableau; `IntuitionisticAutomate`, a G4ip search that never uses `-E`; `ClassicalSteps`,
+    their shared step helpers) and a few composite rules (`complex/`, e.g. De Morgan)
 - **Dependencies**: logic-language/implementation, framework.deduction/
 - **Used By**: classical-use-case/
 - **Java Packages**: `com.dan323.classical`, `com.dan323.classical.proof`
@@ -125,7 +126,7 @@ Defines and implements inference rules for natural deduction.
   - One `Modal*` class per rule (`ModalBoxE`, `ModalDiaI`, ...) and the relational rules `Reflexive` (`Refl`) and
     `Transitive` (`Trans`)
   - `ParseModalAction` - builds a rule from its name; it is the source of truth for the rule names
-  - The automatic solver (`ModalAutomate`)
+  - The automatic solver (`ModalAutomate`, a labelled tableau for S4 whose proof is then translated into steps)
   - `com.dan323.proof.modal.nextuntil`: `ModalNextUntilNaturalDeduction` (successor-aware freshness, the goal must be
     in `s0`, no solver), the Next and Until rules (`ModalNextI`, `ModalUntilE`, `ModalInduction`, ...) and
     `ParseModalNextUntilAction`
