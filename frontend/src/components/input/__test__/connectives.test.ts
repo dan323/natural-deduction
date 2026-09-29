@@ -10,6 +10,12 @@ describe('insertAtCursor', () => {
         expect(insertAtCursor('p1', 2, 2, 'X ')).toEqual({ value: 'p1 X ', caret: 5 });
     });
 
+    test('a name ending in a non-ASCII letter or digit counts as a name too', () => {
+        expect(insertAtCursor('Pé', 2, 2, 'forall ')).toEqual({ value: 'Pé forall ', caret: 10 });
+        expect(insertAtCursor('p', 1, 1, 'exists ')).toEqual({ value: 'p exists ', caret: 9 });
+        expect(insertAtCursor('(', 1, 1, 'forall ')).toEqual({ value: '(forall ', caret: 8 });
+    });
+
     test('a word operator gets no extra space at the start, after a space or after a symbol', () => {
         expect(insertAtCursor('', 0, 0, 'X ')).toEqual({ value: 'X ', caret: 2 });
         expect(insertAtCursor('p U ', 4, 4, 'X ')).toEqual({ value: 'p U X ', caret: 6 });
@@ -84,5 +90,24 @@ describe('connectives', () => {
             + 'relations between states: s0 <= s1 (s1 is reachable from s0), s0 = s1 (the same state); '
             + 'X and U only as words of their own (Xp and pUq are names); s0+1 is the state after s0'
         );
+    });
+
+    test('a first-order proof also gets the quantifiers, typed as words, and =, and no modal operators', () => {
+        expect(connectivesFor('first-order').map(({ symbol, ascii, insert }) => [symbol, insert ?? ascii])).toEqual([
+            ['→', '->'], ['∧', '&'], ['∨', '|'], ['¬', '-'], ['∀', 'forall '], ['∃', 'exists '], ['=', ' = '],
+        ]);
+    });
+
+    test('the first-order syntax hint adds the quantifiers, equations, terms and predicates', () => {
+        expect(syntaxHint('first-order')).toBe(
+            '-> implies, & and, | or, - not, forall x. A for all, exists x. A there exists (the body A reaches as far '
+            + 'right as it can), s = t equals; terms are lowercase names and functions f(t, ...), such as m(x, e); '
+            + 'predicates P(t, ...)'
+        );
+    });
+
+    test('a quantifier gets a space in front when a name is right before the caret', () => {
+        expect(insertAtCursor('P(x) & -', 8, 8, 'forall ')).toEqual({ value: 'P(x) & -forall ', caret: 15 });
+        expect(insertAtCursor('p', 1, 1, 'exists ')).toEqual({ value: 'p exists ', caret: 9 });
     });
 });

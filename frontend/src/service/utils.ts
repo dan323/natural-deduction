@@ -1,9 +1,14 @@
 import { ProofDto, StepDto } from "../types";
-import { NEXT_UNTIL_LOGIC } from "../components/input/connectives";
+import { FIRST_ORDER_LOGIC, NEXT_UNTIL_LOGIC } from "../components/input/connectives";
+import { checkFirstOrderFormula } from "./firstOrderSyntax";
 
-// Renders logical operators in a formula (only symbols, never letters, so a variable named E or I is untouched).
+// Renders logical operators in a formula (only symbols, never letters, so a variable named E or I is untouched). The
+// first-order quantifiers are words, but the backend prints them as `forall x. A`, and only they are followed by a
+// variable and a dot, which no other logic has: they become `∀x. A` and `∃x. A`.
 export function renderExpression(expression: string): string {
   return expression
+    .replace(/\bforall\s+(\p{L}[\p{L}\p{N}_]*)\s*\./gu, "∀$1.")  // First-order for all
+    .replace(/\bexists\s+(\p{L}[\p{L}\p{N}_]*)\s*\./gu, "∃$1.")  // First-order there exists
     .replace(/->/g, "→")          // Logical implication
     .replace(/(?<!\d)-(?!\d)/g, "¬")  // Logical negation
     .replace(/&/g, "∧")           // Logical AND
@@ -67,10 +72,12 @@ function checkToken(token: string, state: FormulaState, nextUntil: boolean): str
 // A light syntax check of a formula typed by the user, so that obvious mistakes are reported before they become a
 // proof line. Returns a message describing the first problem, or null when nothing is wrong. It is deliberately
 // conservative: the backend parser stays the source of truth. `logic` is the logic of the proof the formula is for: only
-// `modal-next-until` reads `X`, `U` and successor states such as `s0+1`.
+// `modal-next-until` reads `X`, `U` and successor states such as `s0+1`, and only `first-order` reads quantifiers,
+// predicates and terms (`forall x. P(f(x))`), with a checker of its own that follows its grammar (see `firstOrderSyntax`).
 export function checkFormula(formula: string, logic?: string): string | null {
   const text = formula.trim();
   if (text === '') return 'This field must not be blank.';
+  if (logic === FIRST_ORDER_LOGIC) return checkFirstOrderFormula(text);
 
   const nextUntil = logic === NEXT_UNTIL_LOGIC;
   const state: FormulaState = { depth: 0, expectOperand: true };
@@ -118,8 +125,9 @@ function statePrefix(step: StepDto): string {
 // inside a connective (`p & s0 <= s1`), and such a formula holds in a state. The relations bind tighter than every
 // connective there, so the formula is a relation exactly when, outside parentheses, it has a relation and no connective.
 // In `modal-next-until` (`logic`) the sides may be successor terms (`s0+1 <= s1`), and `X` and `U` as words of their own
-// are connectives too.
+// are connectives too. First-order logic has no states, so its equations (`x = e`) are formulas, not relations.
 export function isRelationFormula(formula: string, logic?: string): boolean {
+  if (logic === FIRST_ORDER_LOGIC) return false;
   const text = withoutEnclosingParentheses(formula.trim());
   const nextUntil = logic === NEXT_UNTIL_LOGIC;
   let depth = 0;

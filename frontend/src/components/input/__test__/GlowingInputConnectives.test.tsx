@@ -160,4 +160,49 @@ describe('GlowingInput expression syntax help', () => {
             expect(screen.queryByRole('button')).not.toBeInTheDocument();
         });
     });
+
+    describe('in a first-order proof', () => {
+        const FIRST_ORDER_BUTTONS = /for all|there exists|equals/;
+
+        test('there are ∀, ∃ and = buttons after the connectives, and the hint describes quantifiers, terms and predicates', () => {
+            const { input } = renderInput(false, { logic: 'first-order' });
+
+            const buttons = screen.getAllByRole('button');
+            expect(buttons.map((button) => button.textContent)).toEqual(['→', '∧', '∨', '¬', '∀', '∃', '=']);
+            expect(buttons.slice(4).map((button) => button.getAttribute('aria-label'))).toEqual([
+                'Insert for all (forall)', 'Insert there exists (exists)', 'Insert equals (=)',
+            ]);
+            expect(input).toHaveAccessibleDescription(expect.stringContaining('forall x. A for all, exists x. A there exists'));
+            expect(screen.queryByRole('button', { name: /necessarily|possibly|next|until/ })).not.toBeInTheDocument();
+        });
+
+        test('∀, ∃ and = type forall, exists and = with the spaces the parser needs', async () => {
+            const user = userEvent.setup();
+            const { input, onInput } = renderInput(false, { logic: 'first-order' });
+
+            await user.click(screen.getByRole('button', { name: 'Insert for all (forall)' }));
+            await user.type(input, 'x. ');
+            await user.click(screen.getByRole('button', { name: 'Insert there exists (exists)' }));
+            await user.type(input, 'y. m(x, y)');
+            await user.click(screen.getByRole('button', { name: 'Insert equals (=)' }));
+            await user.type(input, 'e');
+
+            expect(input).toHaveValue('forall x. exists y. m(x, y) = e');
+            expect(onInput).toHaveBeenLastCalledWith(0, 'forall x. exists y. m(x, y) = e');
+        });
+
+        test.each(['classical', 'intuitionistic', 'modal', 'modal-next-until'])('a %s proof has no ∀, ∃ or = button', (logic) => {
+            renderInput(false, { logic });
+
+            expect(screen.queryByRole('button', { name: FIRST_ORDER_BUTTONS })).not.toBeInTheDocument();
+            expect(screen.queryByText(/forall/)).not.toBeInTheDocument();
+        });
+
+        test('a term input has no hint or buttons', () => {
+            const { input } = renderInput(false, { logic: 'first-order', isExpression: false });
+
+            expect(input).not.toHaveAttribute('aria-describedby');
+            expect(screen.queryByRole('button')).not.toBeInTheDocument();
+        });
+    });
 });

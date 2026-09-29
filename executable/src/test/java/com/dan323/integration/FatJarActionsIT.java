@@ -174,7 +174,7 @@ public class FatJarActionsIT {
         var bundle = get(script.group(1));
         assertEquals(200, bundle.statusCode());
         // the LOGICS entries of constant.ts, whatever quotes the minifier picks
-        for (var logic : List.of("classical", "intuitionistic", "modal", "modal-next-until")) {
+        for (var logic : List.of("classical", "intuitionistic", "modal", "modal-next-until", "first-order")) {
             assertTrue(Pattern.compile("id:([\"'`])" + Pattern.quote(logic) + "\\1").matcher(bundle.body()).find(),
                     "the packaged UI does not offer " + logic);
         }

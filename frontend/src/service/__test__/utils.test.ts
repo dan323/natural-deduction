@@ -11,6 +11,19 @@ describe('renderExpression', () => {
     expect(renderExpression('E -> I')).toBe('E → I');
     expect(renderExpression('-E & I')).toBe('¬E ∧ I');
   });
+
+  test('renders the first-order quantifiers as the backend prints them, forall x. A, as ∀x. A', () => {
+    expect(renderExpression('forall x. P(x)')).toBe('∀x. P(x)');
+    expect(renderExpression('exists y. m(y, e) = y')).toBe('∃y. m(y, e) = y');
+    expect(renderExpression('(forall x. P(x)) -> -(exists x2. -P(x2))')).toBe('(∀x. P(x)) → ¬(∃x2. ¬P(x2))');
+    expect(renderExpression('forall x. forall y. forall z. m(m(x, y), z) = m(x, m(y, z))'))
+      .toBe('∀x. ∀y. ∀z. m(m(x, y), z) = m(x, m(y, z))');
+  });
+
+  test('leaves names that only contain forall or exists alone', () => {
+    expect(renderExpression('forall & exists')).toBe('forall ∧ exists');
+    expect(renderExpression('P(forallx) & xexists')).toBe('P(forallx) ∧ xexists');
+  });
 });
 
 describe('renderRule', () => {
@@ -130,6 +143,100 @@ describe('checkFormula in modal-next-until', () => {
   });
 });
 
+describe('checkFormula in first-order', () => {
+  const FO = 'first-order';
+
+  // The group axioms of the backend's `FirstOrderTheories`, as it prints them.
+  test.each([
+    'forall x. forall y. forall z. m(m(x, y), z) = m(x, m(y, z))',
+    'forall x. m(e, x) = x & m(x, e) = x',
+    'forall x. m(i(x), x) = e & m(x, i(x)) = e',
+  ])('accepts the group axiom %j', (formula) => {
+    expect(checkFormula(formula, FO)).toBeNull();
+  });
+
+  test.each([
+    'forall x. P(x)', 'exists x. P(x)', 'forall x. x = x', 'a = b', 'P(a)', 'p -> q', 'p', 'TRUE', '-FALSE',
+    '(forall x. P(x)) & (forall x. Q(x))', 'forall x. forall y. x = y -> y = x', 'forall x. forall y. R(x, y)',
+    'forall y. (forall x. m(y, x) = x) -> y = e', 'forall x. i(i(x)) = x', '-(exists x. -P(x))', 'exists x.P(x)',
+    '(x) = (f(y))', '(x = y)', 'f(x)', 'P(f(g(x, y)), z)', 'x1_a = x_2', '  forall x.   P(x)  ',
+  ])('accepts %j', (formula) => {
+    expect(checkFormula(formula, FO)).toBeNull();
+  });
+
+  test.each([
+    ['forall x P(x)', /must be followed by a "\."/],
+    ['forall . P(x)', /must be followed by a variable/],
+    ['exists (x). P(x)', /must be followed by a variable/],
+    ['exists P(x)', /must start with a lowercase letter/],
+    ['forall', /must be followed by a variable/],
+    ['forall X. P(X)', /must start with a lowercase letter/],
+    ['forall f(x). P(x)', /must be followed by a "\."/],
+    ['forall x.', /ends with an operator/],
+    ['forall x. forall y.', /ends with an operator/],
+    ['exists x. (P(x)', /Unbalanced/],
+    ['∀x. P(x)', /Type ∀ as "forall"/],
+    ['∃x. P(x)', /Type ∃ as "exists"/],
+  ])('rejects the malformed quantifier in %j', (formula, message) => {
+    expect(checkFormula(formula, FO)).toMatch(message);
+  });
+
+  test.each([
+    ['x = ', /ends with an operator/],
+    ['= x', /missing its left operand/],
+    ['P = Q', /must be terms/],
+    ['x = P', /is not a term/],
+    ['P(x) = y', /must be terms/],
+    ['P(', /ends with an operator/],
+    ['P(x', /Unbalanced/],
+    ['P(x y)', /Expected "," or "\)"/],
+    ['P()', /parenthesis is closed right after/],
+    ['P(x,)', /parenthesis is closed right after/],
+    ['P(x) Q(x)', /Missing operator before "Q"/],
+    ['P(x))', /Unbalanced/],
+    ['p & & q', /Missing an operand between "&" and "&"/],
+    ['x, y', /separates the arguments/],
+    ['P(x) . Q', /only follows the variable/],
+    ['m(x, y) * z = e', /Unexpected symbol "\*"/],
+    ['x * y = e', /Unexpected symbol "\*"/],
+    ['s0 <= s1', /Unexpected symbol "<"/],
+    ['[]p', /Unexpected symbol "\["/],
+  ])('rejects the malformed formula %j', (formula, message) => {
+    expect(checkFormula(formula, FO)).toMatch(message);
+  });
+
+  test('a formula nested too deeply gets a message instead of overflowing the stack', () => {
+    expect(checkFormula('-'.repeat(5000) + 'p', FO)).toMatch(/nested more than 500 levels deep/);
+    expect(checkFormula('('.repeat(5000) + 'p' + ')'.repeat(5000), FO)).toMatch(/nested more than 500 levels deep/);
+    expect(checkFormula('P(' + 'f('.repeat(5000) + 'x' + ')'.repeat(5001), FO)).toMatch(/nested more than 500 levels deep/);
+    expect(checkFormula('-'.repeat(400) + 'p', FO)).toBeNull();
+  });
+
+  test('each further operand of a chain counts as a level, as the backend counts it', () => {
+    for (const operator of [' & ', ' | ', ' -> ']) {
+      expect(checkFormula(Array(500).fill('p').join(operator), FO)).toBeNull();
+      expect(checkFormula(Array(501).fill('p').join(operator), FO)).toMatch(/nested more than 500 levels deep/);
+    }
+    expect(checkFormula(Array(600).fill('P(x)').join(' & '), FO)).toMatch(/nested more than 500 levels deep/);
+  });
+
+  test('names and whitespace are read as the backend (Java char-based) tokenizer reads them', () => {
+    expect(checkFormula('P(x2, y_1)', FO)).toBeNull();
+    expect(checkFormula('P(é) &\tQ(x) | R', FO)).toBeNull();
+    expect(checkFormula('P(x²)', FO)).toMatch(/Unexpected symbol "²"/);
+    expect(checkFormula('P(x) & Q', FO)).toMatch(/Unexpected symbol " "/);
+    expect(checkFormula('P(x) & Q', FO)).toMatch(/Unexpected symbol " "/);
+    expect(checkFormula('P(\u{1D465})', FO)).toMatch(/Unexpected symbol "\u{1D465}"/u);
+    expect(checkFormula('P(x\u{1D465})', FO)).toMatch(/Unexpected symbol "\u{1D465}"/u);
+  });
+
+  test.each(['forall x. P(x)', 'exists x. P(x)', 'P(x)', 'forall x. x = x'])('the other logics refuse %j', (formula) => {
+    expect(checkFormula(formula)).not.toBeNull();
+    expect(checkFormula(formula, 'classical')).not.toBeNull();
+    expect(checkFormula(formula, 'modal')).not.toBeNull();
+  });
+});
+
 describe('proofToText', () => {
   test('writes each step as ProofStep.toString() does: 3 spaces per level, the expression, 11 spaces, the rule', () => {
     const text = proofToText({
@@ -148,6 +255,33 @@ describe('proofToText', () => {
       '   Q           Ass',
       '   P           Rep [1]',
       'Q -> P           ->I [2-3]',
+    ]);
+  });
+
+  test('a first-order proof is written in the plain layout, as the FirstOrderProofParser of the backend reads it', () => {
+    const text = proofToText({
+      steps: [
+        { expression: 'exists x. forall y. R(x, y)', rule: 'Ass', assmsLevel: 0, extraParameters: {} },
+        { expression: 'forall y. R(a, y)', rule: 'Ass', assmsLevel: 1, extraParameters: {} },
+        { expression: 'R(a, b)', rule: '∀E [2]', assmsLevel: 1, extraParameters: {} },
+        { expression: 'exists x. R(x, b)', rule: '∃I [3]', assmsLevel: 1, extraParameters: {} },
+        { expression: 'exists x. R(x, b)', rule: '∃E [1, 2-4]', assmsLevel: 0, extraParameters: {} },
+        { expression: 'forall y. exists x. R(x, y)', rule: '∀I [5]', assmsLevel: 0, extraParameters: {} },
+        { expression: 'b = b', rule: '=I', assmsLevel: 0, extraParameters: {} },
+      ],
+      logic: 'first-order',
+      goal: 'forall y. exists x. R(x, y)',
+    });
+
+    // The reference solution of the backend's `exists-forall-swap` exercise, and an `=I` line, which has no lines.
+    expect(text.split('\n')).toEqual([
+      'exists x. forall y. R(x, y)           Ass',
+      '   forall y. R(a, y)           Ass',
+      '   R(a, b)           ∀E [2]',
+      '   exists x. R(x, b)           ∃I [3]',
+      'exists x. R(x, b)           ∃E [1, 2-4]',
+      'forall y. exists x. R(x, y)           ∀I [5]',
+      'b = b           =I',
     ]);
   });
 
@@ -232,6 +366,13 @@ describe('isRelationFormula in modal-next-until', () => {
 
   test('in modal logic a state may be called X', () => {
     expect(isRelationFormula('X <= s1', 'modal')).toBe(true);
+  });
+});
+
+describe('isRelationFormula in first-order', () => {
+  test('an equation is a formula, since first-order logic has no states', () => {
+    expect(isRelationFormula('x = e', 'first-order')).toBe(false);
+    expect(isRelationFormula('(m(x, e) = x)', 'first-order')).toBe(false);
   });
 });
 

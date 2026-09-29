@@ -30,8 +30,9 @@ export type ApplyActionResponse = {
     status?: number,
 }
 
-// The kind of input an action needs; the names are those of the backend's ParamKind.
-export type ParamKind = 'INT' | 'EXPRESSION' | 'STATE';
+// The kind of input an action needs; the names are those of the backend's ParamKind. A TERM (first-order `∀E`, `=I`)
+// is sent in `extraParameters.term`, as a STATE is in `extraParameters.state`.
+export type ParamKind = 'INT' | 'EXPRESSION' | 'STATE' | 'TERM';
 
 // How the backend groups a rule; the names are those of its ActionCategory.
 export type ActionCategory = 'INTRODUCTION' | 'ELIMINATION' | 'OTHER';

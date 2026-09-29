@@ -34,6 +34,7 @@ const inputLabels: Record<ParamKind, string> = {
     INT: 'Line number:',
     EXPRESSION: 'Expression:',
     STATE: 'State:',
+    TERM: 'Term:',
 };
 
 // The order of the groups of the list of rules.
@@ -81,6 +82,7 @@ const Menu: FC<MenuProps> = ({ logic, onColorChange, setProof, proof, ref, onNew
     const [picks, setPicks] = useState<number[]>([]);
     const [expression, setExpression] = useState<string>("");
     const [state, setState] = useState<string>("");
+    const [term, setTerm] = useState<string>("");
     const [errorMessage, setErrorMessage] = useState<string>('');
     const [notice, setNotice] = useState<string>('');
     const [isLoading, setIsLoading] = useState(false);
@@ -116,6 +118,7 @@ const Menu: FC<MenuProps> = ({ logic, onColorChange, setProof, proof, ref, onNew
         setPicks([]);
         setExpression('');
         setState('');
+        setTerm('');
     };
 
     const onInput = (index: number, input: number | string | null) => {
@@ -131,6 +134,8 @@ const Menu: FC<MenuProps> = ({ logic, onColorChange, setProof, proof, ref, onNew
             });
         } else if (params[index] === 'STATE') {
             setState(input);
+        } else if (params[index] === 'TERM') {
+            setTerm(input);
         } else {
             setExpression(input);
         }
@@ -162,12 +167,18 @@ const Menu: FC<MenuProps> = ({ logic, onColorChange, setProof, proof, ref, onNew
         return lineCount === 0 ? 'The proof has no lines yet.' : `The proof has lines 1 to ${lineCount}.`;
     };
 
+    // The text of a STATE, TERM or EXPRESSION input (an action has at most one of each).
+    const textOf = (kind: ParamKind) => {
+        if (kind === 'STATE') return state;
+        return kind === 'TERM' ? term : expression;
+    };
+
     const inputsComplete = params.every((kind, index) => {
         if (kind === 'INT') {
             const sourceIndex = sourceIndexOf(params, index);
             return sources[sourceIndex] != null && lineError(sourceIndex) === undefined;
         }
-        return (kind === 'STATE' ? state : expression).trim() !== '';
+        return textOf(kind).trim() !== '';
     });
     const canApply = !done && selectedDescriptor !== undefined && inputsComplete;
 
@@ -197,7 +208,11 @@ const Menu: FC<MenuProps> = ({ logic, onColorChange, setProof, proof, ref, onNew
         const actionDto: ActionDto = {
             name: selectedAction,
             sources: sources.filter((line): line is number => line !== null),
-            extraParameters: selectedDescriptor?.params.includes('STATE') ? { expression, state } : { expression }
+            extraParameters: {
+                expression,
+                ...(params.includes('STATE') ? { state } : {}),
+                ...(params.includes('TERM') ? { term } : {}),
+            },
         };
 
         applyAction(logic, proof, actionDto, (response: ApplyActionResponse) => {
@@ -210,6 +225,7 @@ const Menu: FC<MenuProps> = ({ logic, onColorChange, setProof, proof, ref, onNew
                 setPicks([]);
                 setExpression('');
                 setState('');
+                setTerm('');
                 setInputsKey(key => key + 1);
             } else {
                 setErrorMessage(rejectionMessage(response, selectedDescriptor));
