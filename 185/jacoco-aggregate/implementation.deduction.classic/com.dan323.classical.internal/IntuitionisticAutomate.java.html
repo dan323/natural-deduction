@@ -18,8 +18,9 @@ import java.util.function.ToIntFunction;
  * The automatic solver of intuitionistic logic.
  *
  * &lt;p&gt;It first looks for a proof of the sequent {@code premises ⇒ goal} in Dyckhoff's contraction-free sequent calculus
- * G4ip, which is complete for intuitionistic propositional logic and whose backward search always terminates: every
- * rule replaces its principal formula by smaller ones (in the multiset ordering of G4ip's weights). A negation
+ * G4ip, which is complete for intuitionistic propositional logic and whose backward search terminates: every rule
+ * replaces its principal formula by smaller ones (in the multiset ordering of G4ip's weights). The search can still take
+ * exponential time, so a large goal (above all an unprovable one) may run into the caller's solve timeout. A negation
  * {@code - A} is read as {@code A -&gt; FALSE}; {@code TRUE} has no rule of its own (natural deduction cannot introduce it),
  * so it is treated as an atom.
  *
@@ -31,17 +32,17 @@ import java.util.function.ToIntFunction;
  */
 public final class IntuitionisticAutomate {
 
-<span class="fc" id="L34">    private static final ClassicalLogicOperation FALSE = ConstantClassic.FALSE;</span>
+<span class="fc" id="L35">    private static final ClassicalLogicOperation FALSE = ConstantClassic.FALSE;</span>
 
-<span class="fc" id="L36">    private final Set&lt;Sequent&gt; unprovable = new HashSet&lt;&gt;();</span>
+<span class="fc" id="L37">    private final Set&lt;Sequent&gt; unprovable = new HashSet&lt;&gt;();</span>
     private NaturalDeduction proof;
 
     /**
      * A solver keeps its working state in fields: use one instance per proof to solve.
      */
-<span class="fc" id="L42">    public IntuitionisticAutomate() {</span>
+<span class="fc" id="L43">    public IntuitionisticAutomate() {</span>
         // Nothing to set up: automate initializes the state
-<span class="fc" id="L44">    }</span>
+<span class="fc" id="L45">    }</span>
 
     /**
      * Restarts the proof from its premises and finishes it if the goal follows from them intuitionistically. Otherwise
@@ -54,29 +55,29 @@ public final class IntuitionisticAutomate {
      * @throws CancellationException if the calling thread is interrupted
      */
     public void automate(NaturalDeduction naturalDeduction) {
-<span class="fc" id="L57">        proof = naturalDeduction;</span>
-<span class="fc" id="L58">        proof.reset();</span>
-<span class="fc" id="L59">        unprovable.clear();</span>
-<span class="fc" id="L60">        ClassicalLogicOperation goal = proof.getGoal();</span>
-<span class="fc" id="L61">        Derivation derivation = search(distinct(proof.getAssms()), goal);</span>
-<span class="fc bfc" id="L62" title="All 2 branches covered.">        if (derivation == null) {</span>
-<span class="fc" id="L63">            return;</span>
+<span class="fc" id="L58">        proof = naturalDeduction;</span>
+<span class="fc" id="L59">        proof.reset();</span>
+<span class="fc" id="L60">        unprovable.clear();</span>
+<span class="fc" id="L61">        ClassicalLogicOperation goal = proof.getGoal();</span>
+<span class="fc" id="L62">        Derivation derivation = search(distinct(proof.getAssms()), goal);</span>
+<span class="fc bfc" id="L63" title="All 2 branches covered.">        if (derivation == null) {</span>
+<span class="fc" id="L64">            return;</span>
         }
-<span class="fc" id="L65">        Map&lt;ClassicalLogicOperation, Integer&gt; context = new HashMap&lt;&gt;();</span>
-<span class="fc bfc" id="L66" title="All 2 branches covered.">        for (int i = 0; i &lt; proof.getSteps().size(); i++) {</span>
-<span class="fc" id="L67">            context.putIfAbsent(proof.getSteps().get(i).getStep(), i + 1);</span>
+<span class="fc" id="L66">        Map&lt;ClassicalLogicOperation, Integer&gt; context = new HashMap&lt;&gt;();</span>
+<span class="fc bfc" id="L67" title="All 2 branches covered.">        for (int i = 0; i &lt; proof.getSteps().size(); i++) {</span>
+<span class="fc" id="L68">            context.putIfAbsent(proof.getSteps().get(i).getStep(), i + 1);</span>
         }
-<span class="fc" id="L69">        int line = derive(context, goal, derivation);</span>
-<span class="fc bfc" id="L70" title="All 2 branches covered.">        if (line != lastLine()) {</span>
-<span class="fc" id="L71">            new ClassicCopy(line).apply(proof);</span>
+<span class="fc" id="L70">        int line = derive(context, goal, derivation);</span>
+<span class="fc bfc" id="L71" title="All 2 branches covered.">        if (line != lastLine()) {</span>
+<span class="fc" id="L72">            new ClassicCopy(line).apply(proof);</span>
         }
-<span class="fc" id="L73">    }</span>
+<span class="fc" id="L74">    }</span>
 
     private static void checkNotInterrupted() {
-<span class="fc bfc" id="L76" title="All 2 branches covered.">        if (Thread.currentThread().isInterrupted()) {</span>
-<span class="fc" id="L77">            throw new CancellationException(&quot;The automatic solver was interrupted&quot;);</span>
+<span class="fc bfc" id="L77" title="All 2 branches covered.">        if (Thread.currentThread().isInterrupted()) {</span>
+<span class="fc" id="L78">            throw new CancellationException(&quot;The automatic solver was interrupted&quot;);</span>
         }
-<span class="fc" id="L79">    }</span>
+<span class="fc" id="L80">    }</span>
 
     // ------------------------------------------------------------------------------------------------------------
     // Search in G4ip
@@ -85,13 +86,13 @@ public final class IntuitionisticAutomate {
     /**
      * A sequent {@code gamma ⇒ goal}, as a key of the cache of the sequents that have no proof.
      */
-<span class="fc" id="L88">    private record Sequent(Set&lt;ClassicalLogicOperation&gt; gamma, ClassicalLogicOperation goal) {</span>
+<span class="fc" id="L89">    private record Sequent(Set&lt;ClassicalLogicOperation&gt; gamma, ClassicalLogicOperation goal) {</span>
     }
 
     /**
      * The antecedent and consequent of an implication, or of a negation read as an implication to {@code FALSE}.
      */
-<span class="fc" id="L94">    private record Arrow(ClassicalLogicOperation antecedent, ClassicalLogicOperation consequent) {</span>
+<span class="fc" id="L95">    private record Arrow(ClassicalLogicOperation antecedent, ClassicalLogicOperation consequent) {</span>
     }
 
     /**
@@ -109,37 +110,37 @@ public final class IntuitionisticAutomate {
     }
 
     /** The goal is an implication or a negation: assume its antecedent. */
-<span class="fc" id="L112">    private record ArrowRight(Derivation body) implements Derivation {</span>
+<span class="fc" id="L113">    private record ArrowRight(Derivation body) implements Derivation {</span>
     }
 
-<span class="fc" id="L115">    private record AndRight(Derivation left, Derivation right) implements Derivation {</span>
+<span class="fc" id="L116">    private record AndRight(Derivation left, Derivation right) implements Derivation {</span>
     }
 
-<span class="nc" id="L118">    private record OrRight1(Derivation left) implements Derivation {</span>
+<span class="nc" id="L119">    private record OrRight1(Derivation left) implements Derivation {</span>
     }
 
-<span class="fc" id="L121">    private record OrRight2(Derivation right) implements Derivation {</span>
+<span class="fc" id="L122">    private record OrRight2(Derivation right) implements Derivation {</span>
     }
 
     /** Split the conjunction {@code principal}. */
-<span class="nc" id="L125">    private record AndLeft(ConjunctionClassic principal, Derivation rest) implements Derivation {</span>
+<span class="nc" id="L126">    private record AndLeft(ConjunctionClassic principal, Derivation rest) implements Derivation {</span>
     }
 
     /** Cases on the disjunction {@code principal}. */
-<span class="fc" id="L129">    private record OrLeft(DisjunctionClassic principal, Derivation left, Derivation right) implements Derivation {</span>
+<span class="fc" id="L130">    private record OrLeft(DisjunctionClassic principal, Derivation left, Derivation right) implements Derivation {</span>
     }
 
     /** {@code principal} is {@code X -&gt; B} and {@code X} is in the context: add {@code B}. */
-<span class="fc" id="L133">    private record ArrowKnown(ClassicalLogicOperation principal, Derivation rest) implements Derivation {</span>
+<span class="fc" id="L134">    private record ArrowKnown(ClassicalLogicOperation principal, Derivation rest) implements Derivation {</span>
     }
 
     /** {@code principal} is {@code (C &amp; D) -&gt; B}: add {@code derived}, {@code C -&gt; (D -&gt; B)}. */
-<span class="fc" id="L137">    private record ArrowAnd(ClassicalLogicOperation principal, ClassicalLogicOperation derived,</span>
+<span class="fc" id="L138">    private record ArrowAnd(ClassicalLogicOperation principal, ClassicalLogicOperation derived,</span>
                             Derivation rest) implements Derivation {
     }
 
     /** {@code principal} is {@code (C | D) -&gt; B}: add {@code left}, {@code C -&gt; B}, and {@code right}, {@code D -&gt; B}. */
-<span class="fc" id="L142">    private record ArrowOr(ClassicalLogicOperation principal, ClassicalLogicOperation left,</span>
+<span class="fc" id="L143">    private record ArrowOr(ClassicalLogicOperation principal, ClassicalLogicOperation left,</span>
                            ClassicalLogicOperation right, Derivation rest) implements Derivation {
     }
 
@@ -147,135 +148,135 @@ public final class IntuitionisticAutomate {
      * {@code principal} is {@code (C -&gt; D) -&gt; B}: with {@code derived}, {@code D -&gt; B}, prove {@code C -&gt; D}
      * ({@code first}), then go on with {@code B} ({@code rest}).
      */
-<span class="fc" id="L150">    private record ArrowArrow(ClassicalLogicOperation principal, ClassicalLogicOperation derived,</span>
+<span class="fc" id="L151">    private record ArrowArrow(ClassicalLogicOperation principal, ClassicalLogicOperation derived,</span>
                               Derivation first, Derivation rest) implements Derivation {
     }
 
     private Derivation search(List&lt;ClassicalLogicOperation&gt; gamma, ClassicalLogicOperation goal) {
-<span class="fc" id="L155">        checkNotInterrupted();</span>
-<span class="fc" id="L156">        var sequent = new Sequent(Set.copyOf(gamma), goal);</span>
-<span class="pc bpc" id="L157" title="1 of 2 branches missed.">        if (unprovable.contains(sequent)) {</span>
-<span class="nc" id="L158">            return null;</span>
+<span class="fc" id="L156">        checkNotInterrupted();</span>
+<span class="fc" id="L157">        var sequent = new Sequent(Set.copyOf(gamma), goal);</span>
+<span class="pc bpc" id="L158" title="1 of 2 branches missed.">        if (unprovable.contains(sequent)) {</span>
+<span class="nc" id="L159">            return null;</span>
         }
-<span class="fc" id="L160">        Derivation derivation = searchRules(gamma, goal);</span>
-<span class="fc bfc" id="L161" title="All 2 branches covered.">        if (derivation == null) {</span>
-<span class="fc" id="L162">            unprovable.add(sequent);</span>
+<span class="fc" id="L161">        Derivation derivation = searchRules(gamma, goal);</span>
+<span class="fc bfc" id="L162" title="All 2 branches covered.">        if (derivation == null) {</span>
+<span class="fc" id="L163">            unprovable.add(sequent);</span>
         }
-<span class="fc" id="L164">        return derivation;</span>
+<span class="fc" id="L165">        return derivation;</span>
     }
 
     private Derivation searchRules(List&lt;ClassicalLogicOperation&gt; gamma, ClassicalLogicOperation goal) {
-<span class="fc bfc" id="L168" title="All 2 branches covered.">        if (gamma.contains(goal)) {</span>
-<span class="fc" id="L169">            return new Axiom();</span>
+<span class="fc bfc" id="L169" title="All 2 branches covered.">        if (gamma.contains(goal)) {</span>
+<span class="fc" id="L170">            return new Axiom();</span>
         }
-<span class="fc bfc" id="L171" title="All 2 branches covered.">        if (gamma.contains(FALSE)) {</span>
-<span class="fc" id="L172">            return new ExFalso();</span>
+<span class="fc bfc" id="L172" title="All 2 branches covered.">        if (gamma.contains(FALSE)) {</span>
+<span class="fc" id="L173">            return new ExFalso();</span>
         }
-<span class="fc" id="L174">        Arrow goalArrow = arrow(goal);</span>
-<span class="fc bfc" id="L175" title="All 2 branches covered.">        if (goalArrow != null) {</span>
-<span class="fc" id="L176">            Derivation body = search(with(gamma, null, goalArrow.antecedent()), goalArrow.consequent());</span>
-<span class="fc bfc" id="L177" title="All 2 branches covered.">            return body == null ? null : new ArrowRight(body);</span>
+<span class="fc" id="L175">        Arrow goalArrow = arrow(goal);</span>
+<span class="fc bfc" id="L176" title="All 2 branches covered.">        if (goalArrow != null) {</span>
+<span class="fc" id="L177">            Derivation body = search(with(gamma, null, goalArrow.antecedent()), goalArrow.consequent());</span>
+<span class="fc bfc" id="L178" title="All 2 branches covered.">            return body == null ? null : new ArrowRight(body);</span>
         }
-<span class="fc bfc" id="L179" title="All 2 branches covered.">        if (goal instanceof ConjunctionClassic conjunction) {</span>
-<span class="fc" id="L180">            Derivation left = search(gamma, conjunction.getLeft());</span>
-<span class="pc bpc" id="L181" title="1 of 2 branches missed.">            Derivation right = left == null ? null : search(gamma, conjunction.getRight());</span>
-<span class="pc bpc" id="L182" title="1 of 2 branches missed.">            return right == null ? null : new AndRight(left, right);</span>
+<span class="fc bfc" id="L180" title="All 2 branches covered.">        if (goal instanceof ConjunctionClassic conjunction) {</span>
+<span class="fc" id="L181">            Derivation left = search(gamma, conjunction.getLeft());</span>
+<span class="pc bpc" id="L182" title="1 of 2 branches missed.">            Derivation right = left == null ? null : search(gamma, conjunction.getRight());</span>
+<span class="pc bpc" id="L183" title="1 of 2 branches missed.">            return right == null ? null : new AndRight(left, right);</span>
         }
-<span class="fc bfc" id="L184" title="All 2 branches covered.">        for (ClassicalLogicOperation formula : gamma) {</span>
-<span class="fc" id="L185">            Invertible invertible = invertibleLeft(gamma, formula, goal);</span>
-<span class="fc bfc" id="L186" title="All 2 branches covered.">            if (invertible.applies()) {</span>
-<span class="fc" id="L187">                return invertible.derivation();</span>
+<span class="fc bfc" id="L185" title="All 2 branches covered.">        for (ClassicalLogicOperation formula : gamma) {</span>
+<span class="fc" id="L186">            Invertible invertible = invertibleLeft(gamma, formula, goal);</span>
+<span class="fc bfc" id="L187" title="All 2 branches covered.">            if (invertible.applies()) {</span>
+<span class="fc" id="L188">                return invertible.derivation();</span>
             }
-<span class="fc" id="L189">        }</span>
-<span class="fc" id="L190">        return searchNonInvertible(gamma, goal);</span>
+<span class="fc" id="L190">        }</span>
+<span class="fc" id="L191">        return searchNonInvertible(gamma, goal);</span>
     }
 
     /**
      * The result of trying an invertible left rule: when it applies, its derivation (null when the sequent has no
      * proof, which is then final because the rule is invertible).
      */
-<span class="fc" id="L197">    private record Invertible(boolean applies, Derivation derivation) {</span>
-<span class="fc" id="L198">        private static final Invertible NOT_APPLICABLE = new Invertible(false, null);</span>
+<span class="fc" id="L198">    private record Invertible(boolean applies, Derivation derivation) {</span>
+<span class="fc" id="L199">        private static final Invertible NOT_APPLICABLE = new Invertible(false, null);</span>
 
         private static Invertible of(Derivation derivation) {
-<span class="fc" id="L201">            return new Invertible(true, derivation);</span>
+<span class="fc" id="L202">            return new Invertible(true, derivation);</span>
         }
     }
 
     private Invertible invertibleLeft(List&lt;ClassicalLogicOperation&gt; gamma, ClassicalLogicOperation formula, ClassicalLogicOperation goal) {
-<span class="pc bpc" id="L206" title="1 of 2 branches missed.">        if (formula instanceof ConjunctionClassic conjunction) {</span>
-<span class="nc" id="L207">            Derivation rest = search(with(gamma, formula, conjunction.getLeft(), conjunction.getRight()), goal);</span>
-<span class="nc bnc" id="L208" title="All 2 branches missed.">            return Invertible.of(rest == null ? null : new AndLeft(conjunction, rest));</span>
+<span class="pc bpc" id="L207" title="1 of 2 branches missed.">        if (formula instanceof ConjunctionClassic conjunction) {</span>
+<span class="nc" id="L208">            Derivation rest = search(with(gamma, formula, conjunction.getLeft(), conjunction.getRight()), goal);</span>
+<span class="nc bnc" id="L209" title="All 2 branches missed.">            return Invertible.of(rest == null ? null : new AndLeft(conjunction, rest));</span>
         }
-<span class="fc bfc" id="L210" title="All 2 branches covered.">        if (formula instanceof DisjunctionClassic disjunction) {</span>
-<span class="fc" id="L211">            Derivation left = search(with(gamma, formula, disjunction.getLeft()), goal);</span>
-<span class="pc bpc" id="L212" title="1 of 2 branches missed.">            Derivation right = left == null ? null : search(with(gamma, formula, disjunction.getRight()), goal);</span>
-<span class="pc bpc" id="L213" title="1 of 2 branches missed.">            return Invertible.of(right == null ? null : new OrLeft(disjunction, left, right));</span>
+<span class="fc bfc" id="L211" title="All 2 branches covered.">        if (formula instanceof DisjunctionClassic disjunction) {</span>
+<span class="fc" id="L212">            Derivation left = search(with(gamma, formula, disjunction.getLeft()), goal);</span>
+<span class="pc bpc" id="L213" title="1 of 2 branches missed.">            Derivation right = left == null ? null : search(with(gamma, formula, disjunction.getRight()), goal);</span>
+<span class="pc bpc" id="L214" title="1 of 2 branches missed.">            return Invertible.of(right == null ? null : new OrLeft(disjunction, left, right));</span>
         }
-<span class="fc" id="L215">        Arrow arrow = arrow(formula);</span>
-<span class="fc bfc" id="L216" title="All 2 branches covered.">        if (arrow == null) {</span>
-<span class="fc" id="L217">            return Invertible.NOT_APPLICABLE;</span>
+<span class="fc" id="L216">        Arrow arrow = arrow(formula);</span>
+<span class="fc bfc" id="L217" title="All 2 branches covered.">        if (arrow == null) {</span>
+<span class="fc" id="L218">            return Invertible.NOT_APPLICABLE;</span>
         }
-<span class="fc" id="L219">        ClassicalLogicOperation antecedent = arrow.antecedent();</span>
-<span class="fc" id="L220">        ClassicalLogicOperation consequent = arrow.consequent();</span>
-<span class="fc bfc" id="L221" title="All 2 branches covered.">        if (antecedent.equals(FALSE)) {</span>
+<span class="fc" id="L220">        ClassicalLogicOperation antecedent = arrow.antecedent();</span>
+<span class="fc" id="L221">        ClassicalLogicOperation consequent = arrow.consequent();</span>
+<span class="fc bfc" id="L222" title="All 2 branches covered.">        if (antecedent.equals(FALSE)) {</span>
             // FALSE -&gt; B says nothing
-<span class="fc" id="L223">            return Invertible.of(search(with(gamma, formula), goal));</span>
+<span class="fc" id="L224">            return Invertible.of(search(with(gamma, formula), goal));</span>
         }
-<span class="fc bfc" id="L225" title="All 2 branches covered.">        if (gamma.contains(antecedent)) {</span>
-<span class="fc" id="L226">            Derivation rest = search(with(gamma, formula, consequent), goal);</span>
-<span class="pc bpc" id="L227" title="1 of 2 branches missed.">            return Invertible.of(rest == null ? null : new ArrowKnown(formula, rest));</span>
+<span class="fc bfc" id="L226" title="All 2 branches covered.">        if (gamma.contains(antecedent)) {</span>
+<span class="fc" id="L227">            Derivation rest = search(with(gamma, formula, consequent), goal);</span>
+<span class="pc bpc" id="L228" title="1 of 2 branches missed.">            return Invertible.of(rest == null ? null : new ArrowKnown(formula, rest));</span>
         }
-<span class="fc bfc" id="L229" title="All 2 branches covered.">        if (antecedent instanceof ConjunctionClassic conjunction) {</span>
-<span class="fc" id="L230">            var derived = arrowOf(conjunction.getLeft(), arrowOf(conjunction.getRight(), consequent));</span>
-<span class="fc" id="L231">            Derivation rest = search(with(gamma, formula, derived), goal);</span>
-<span class="pc bpc" id="L232" title="1 of 2 branches missed.">            return Invertible.of(rest == null ? null : new ArrowAnd(formula, derived, rest));</span>
+<span class="fc bfc" id="L230" title="All 2 branches covered.">        if (antecedent instanceof ConjunctionClassic conjunction) {</span>
+<span class="fc" id="L231">            var derived = arrowOf(conjunction.getLeft(), arrowOf(conjunction.getRight(), consequent));</span>
+<span class="fc" id="L232">            Derivation rest = search(with(gamma, formula, derived), goal);</span>
+<span class="pc bpc" id="L233" title="1 of 2 branches missed.">            return Invertible.of(rest == null ? null : new ArrowAnd(formula, derived, rest));</span>
         }
-<span class="fc bfc" id="L234" title="All 2 branches covered.">        if (antecedent instanceof DisjunctionClassic disjunction) {</span>
-<span class="fc" id="L235">            var left = arrowOf(disjunction.getLeft(), consequent);</span>
-<span class="fc" id="L236">            var right = arrowOf(disjunction.getRight(), consequent);</span>
-<span class="fc" id="L237">            Derivation rest = search(with(gamma, formula, left, right), goal);</span>
-<span class="pc bpc" id="L238" title="1 of 2 branches missed.">            return Invertible.of(rest == null ? null : new ArrowOr(formula, left, right, rest));</span>
+<span class="fc bfc" id="L235" title="All 2 branches covered.">        if (antecedent instanceof DisjunctionClassic disjunction) {</span>
+<span class="fc" id="L236">            var left = arrowOf(disjunction.getLeft(), consequent);</span>
+<span class="fc" id="L237">            var right = arrowOf(disjunction.getRight(), consequent);</span>
+<span class="fc" id="L238">            Derivation rest = search(with(gamma, formula, left, right), goal);</span>
+<span class="pc bpc" id="L239" title="1 of 2 branches missed.">            return Invertible.of(rest == null ? null : new ArrowOr(formula, left, right, rest));</span>
         }
-<span class="fc" id="L240">        return Invertible.NOT_APPLICABLE;</span>
+<span class="fc" id="L241">        return Invertible.NOT_APPLICABLE;</span>
     }
 
     private Derivation searchNonInvertible(List&lt;ClassicalLogicOperation&gt; gamma, ClassicalLogicOperation goal) {
-<span class="fc bfc" id="L244" title="All 2 branches covered.">        if (goal instanceof DisjunctionClassic disjunction) {</span>
-<span class="fc" id="L245">            Derivation left = search(gamma, disjunction.getLeft());</span>
-<span class="pc bpc" id="L246" title="1 of 2 branches missed.">            if (left != null) {</span>
-<span class="nc" id="L247">                return new OrRight1(left);</span>
+<span class="fc bfc" id="L245" title="All 2 branches covered.">        if (goal instanceof DisjunctionClassic disjunction) {</span>
+<span class="fc" id="L246">            Derivation left = search(gamma, disjunction.getLeft());</span>
+<span class="pc bpc" id="L247" title="1 of 2 branches missed.">            if (left != null) {</span>
+<span class="nc" id="L248">                return new OrRight1(left);</span>
             }
-<span class="fc" id="L249">            Derivation right = search(gamma, disjunction.getRight());</span>
-<span class="fc bfc" id="L250" title="All 2 branches covered.">            if (right != null) {</span>
-<span class="fc" id="L251">                return new OrRight2(right);</span>
+<span class="fc" id="L250">            Derivation right = search(gamma, disjunction.getRight());</span>
+<span class="fc bfc" id="L251" title="All 2 branches covered.">            if (right != null) {</span>
+<span class="fc" id="L252">                return new OrRight2(right);</span>
             }
         }
-<span class="fc bfc" id="L254" title="All 2 branches covered.">        for (ClassicalLogicOperation formula : gamma) {</span>
-<span class="fc" id="L255">            Arrow arrow = arrow(formula);</span>
-<span class="fc bfc" id="L256" title="All 2 branches covered.">            Arrow inner = arrow == null ? null : arrow(arrow.antecedent());</span>
-<span class="fc bfc" id="L257" title="All 2 branches covered.">            if (inner != null) {</span>
-<span class="fc" id="L258">                var derived = arrowOf(inner.consequent(), arrow.consequent());</span>
-<span class="fc" id="L259">                Derivation first = search(with(gamma, formula, derived), arrow.antecedent());</span>
-<span class="fc bfc" id="L260" title="All 2 branches covered.">                if (first != null) {</span>
-<span class="fc" id="L261">                    Derivation rest = search(with(gamma, formula, arrow.consequent()), goal);</span>
-<span class="pc bpc" id="L262" title="1 of 2 branches missed.">                    if (rest != null) {</span>
-<span class="fc" id="L263">                        return new ArrowArrow(formula, derived, first, rest);</span>
+<span class="fc bfc" id="L255" title="All 2 branches covered.">        for (ClassicalLogicOperation formula : gamma) {</span>
+<span class="fc" id="L256">            Arrow arrow = arrow(formula);</span>
+<span class="fc bfc" id="L257" title="All 2 branches covered.">            Arrow inner = arrow == null ? null : arrow(arrow.antecedent());</span>
+<span class="fc bfc" id="L258" title="All 2 branches covered.">            if (inner != null) {</span>
+<span class="fc" id="L259">                var derived = arrowOf(inner.consequent(), arrow.consequent());</span>
+<span class="fc" id="L260">                Derivation first = search(with(gamma, formula, derived), arrow.antecedent());</span>
+<span class="fc bfc" id="L261" title="All 2 branches covered.">                if (first != null) {</span>
+<span class="fc" id="L262">                    Derivation rest = search(with(gamma, formula, arrow.consequent()), goal);</span>
+<span class="pc bpc" id="L263" title="1 of 2 branches missed.">                    if (rest != null) {</span>
+<span class="fc" id="L264">                        return new ArrowArrow(formula, derived, first, rest);</span>
                     }
                 }
             }
-<span class="fc" id="L267">        }</span>
-<span class="fc" id="L268">        return null;</span>
+<span class="fc" id="L268">        }</span>
+<span class="fc" id="L269">        return null;</span>
     }
 
     private static Arrow arrow(ClassicalLogicOperation formula) {
-<span class="fc bfc" id="L272" title="All 2 branches covered.">        if (formula instanceof ImplicationClassic implication) {</span>
-<span class="fc" id="L273">            return new Arrow(implication.getLeft(), implication.getRight());</span>
+<span class="fc bfc" id="L273" title="All 2 branches covered.">        if (formula instanceof ImplicationClassic implication) {</span>
+<span class="fc" id="L274">            return new Arrow(implication.getLeft(), implication.getRight());</span>
         }
-<span class="fc bfc" id="L275" title="All 2 branches covered.">        if (formula instanceof NegationClassic negation) {</span>
-<span class="fc" id="L276">            return new Arrow(negation.getElement(), FALSE);</span>
+<span class="fc bfc" id="L276" title="All 2 branches covered.">        if (formula instanceof NegationClassic negation) {</span>
+<span class="fc" id="L277">            return new Arrow(negation.getElement(), FALSE);</span>
         }
-<span class="fc" id="L278">        return null;</span>
+<span class="fc" id="L279">        return null;</span>
     }
 
     /**
@@ -283,11 +284,11 @@ public final class IntuitionisticAutomate {
      * {@code FALSE}.
      */
     private static ClassicalLogicOperation arrowOf(ClassicalLogicOperation antecedent, ClassicalLogicOperation consequent) {
-<span class="fc bfc" id="L286" title="All 2 branches covered.">        return consequent.equals(FALSE) ? new NegationClassic(antecedent) : new ImplicationClassic(antecedent, consequent);</span>
+<span class="fc bfc" id="L287" title="All 2 branches covered.">        return consequent.equals(FALSE) ? new NegationClassic(antecedent) : new ImplicationClassic(antecedent, consequent);</span>
     }
 
     private static List&lt;ClassicalLogicOperation&gt; distinct(List&lt;ClassicalLogicOperation&gt; formulas) {
-<span class="fc" id="L290">        return with(List.of(), null, formulas.toArray(ClassicalLogicOperation[]::new));</span>
+<span class="fc" id="L291">        return with(List.of(), null, formulas.toArray(ClassicalLogicOperation[]::new));</span>
     }
 
     /**
@@ -296,16 +297,16 @@ public final class IntuitionisticAutomate {
      */
     private static List&lt;ClassicalLogicOperation&gt; with(List&lt;ClassicalLogicOperation&gt; gamma, ClassicalLogicOperation removed,
                                                       ClassicalLogicOperation... added) {
-<span class="fc" id="L299">        var result = new ArrayList&lt;&gt;(gamma);</span>
-<span class="fc bfc" id="L300" title="All 2 branches covered.">        if (removed != null) {</span>
-<span class="fc" id="L301">            result.remove(removed);</span>
+<span class="fc" id="L300">        var result = new ArrayList&lt;&gt;(gamma);</span>
+<span class="fc bfc" id="L301" title="All 2 branches covered.">        if (removed != null) {</span>
+<span class="fc" id="L302">            result.remove(removed);</span>
         }
-<span class="fc bfc" id="L303" title="All 2 branches covered.">        for (ClassicalLogicOperation formula : added) {</span>
-<span class="pc bpc" id="L304" title="1 of 2 branches missed.">            if (!result.contains(formula)) {</span>
-<span class="fc" id="L305">                result.add(formula);</span>
+<span class="fc bfc" id="L304" title="All 2 branches covered.">        for (ClassicalLogicOperation formula : added) {</span>
+<span class="pc bpc" id="L305" title="1 of 2 branches missed.">            if (!result.contains(formula)) {</span>
+<span class="fc" id="L306">                result.add(formula);</span>
             }
         }
-<span class="fc" id="L308">        return result;</span>
+<span class="fc" id="L309">        return result;</span>
     }
 
     // ------------------------------------------------------------------------------------------------------------
@@ -320,70 +321,70 @@ public final class IntuitionisticAutomate {
      * @return the line of {@code goal}, in the current scope
      */
     private int derive(Map&lt;ClassicalLogicOperation, Integer&gt; context, ClassicalLogicOperation goal, Derivation derivation) {
-<span class="pc bpc" id="L323" title="2 of 12 branches missed.">        return switch (derivation) {</span>
-<span class="fc" id="L324">            case Axiom() -&gt; context.get(goal);</span>
-<span class="fc" id="L325">            case ExFalso() -&gt; apply(new ClassicFE(context.get(FALSE), goal));</span>
-<span class="fc" id="L326">            case ArrowRight(Derivation body) -&gt;</span>
-<span class="fc" id="L327">                    hypothetical(context, goal, inner -&gt; derive(inner, arrow(goal).consequent(), body));</span>
-<span class="fc" id="L328">            case AndRight(Derivation left, Derivation right) -&gt; {</span>
-<span class="fc" id="L329">                var conjunction = (ConjunctionClassic) goal;</span>
-<span class="fc" id="L330">                int leftLine = derive(new HashMap&lt;&gt;(context), conjunction.getLeft(), left);</span>
-<span class="fc" id="L331">                int rightLine = derive(new HashMap&lt;&gt;(context), conjunction.getRight(), right);</span>
-<span class="fc" id="L332">                yield apply(new ClassicAndI(leftLine, rightLine));</span>
+<span class="pc bpc" id="L324" title="2 of 12 branches missed.">        return switch (derivation) {</span>
+<span class="fc" id="L325">            case Axiom() -&gt; context.get(goal);</span>
+<span class="fc" id="L326">            case ExFalso() -&gt; apply(new ClassicFE(context.get(FALSE), goal));</span>
+<span class="fc" id="L327">            case ArrowRight(Derivation body) -&gt;</span>
+<span class="fc" id="L328">                    hypothetical(context, goal, inner -&gt; derive(inner, arrow(goal).consequent(), body));</span>
+<span class="fc" id="L329">            case AndRight(Derivation left, Derivation right) -&gt; {</span>
+<span class="fc" id="L330">                var conjunction = (ConjunctionClassic) goal;</span>
+<span class="fc" id="L331">                int leftLine = derive(new HashMap&lt;&gt;(context), conjunction.getLeft(), left);</span>
+<span class="fc" id="L332">                int rightLine = derive(new HashMap&lt;&gt;(context), conjunction.getRight(), right);</span>
+<span class="fc" id="L333">                yield apply(new ClassicAndI(leftLine, rightLine));</span>
             }
-<span class="nc" id="L334">            case OrRight1(Derivation left) -&gt; {</span>
-<span class="nc" id="L335">                var disjunction = (DisjunctionClassic) goal;</span>
-<span class="nc" id="L336">                yield apply(new ClassicOrI1(derive(context, disjunction.getLeft(), left), disjunction.getRight()));</span>
+<span class="nc" id="L335">            case OrRight1(Derivation left) -&gt; {</span>
+<span class="nc" id="L336">                var disjunction = (DisjunctionClassic) goal;</span>
+<span class="nc" id="L337">                yield apply(new ClassicOrI1(derive(context, disjunction.getLeft(), left), disjunction.getRight()));</span>
             }
-<span class="fc" id="L338">            case OrRight2(Derivation right) -&gt; {</span>
-<span class="fc" id="L339">                var disjunction = (DisjunctionClassic) goal;</span>
-<span class="fc" id="L340">                yield apply(new ClassicOrI2(derive(context, disjunction.getRight(), right), disjunction.getLeft()));</span>
+<span class="fc" id="L339">            case OrRight2(Derivation right) -&gt; {</span>
+<span class="fc" id="L340">                var disjunction = (DisjunctionClassic) goal;</span>
+<span class="fc" id="L341">                yield apply(new ClassicOrI2(derive(context, disjunction.getRight(), right), disjunction.getLeft()));</span>
             }
-<span class="nc" id="L342">            case AndLeft(ConjunctionClassic principal, Derivation rest) -&gt; {</span>
-<span class="nc" id="L343">                int line = context.get(principal);</span>
-<span class="nc" id="L344">                addIfAbsent(context, principal.getLeft(), () -&gt; apply(new ClassicAndE1(line)));</span>
-<span class="nc" id="L345">                addIfAbsent(context, principal.getRight(), () -&gt; apply(new ClassicAndE2(line)));</span>
-<span class="nc" id="L346">                yield derive(context, goal, rest);</span>
+<span class="nc" id="L343">            case AndLeft(ConjunctionClassic principal, Derivation rest) -&gt; {</span>
+<span class="nc" id="L344">                int line = context.get(principal);</span>
+<span class="nc" id="L345">                addIfAbsent(context, principal.getLeft(), () -&gt; apply(new ClassicAndE1(line)));</span>
+<span class="nc" id="L346">                addIfAbsent(context, principal.getRight(), () -&gt; apply(new ClassicAndE2(line)));</span>
+<span class="nc" id="L347">                yield derive(context, goal, rest);</span>
             }
-<span class="fc" id="L348">            case OrLeft(DisjunctionClassic principal, Derivation left, Derivation right) -&gt; {</span>
-<span class="fc" id="L349">                int leftCase = hypothetical(context, new ImplicationClassic(principal.getLeft(), goal),</span>
-<span class="fc" id="L350">                        inner -&gt; derive(inner, goal, left));</span>
-<span class="fc" id="L351">                int rightCase = hypothetical(context, new ImplicationClassic(principal.getRight(), goal),</span>
-<span class="fc" id="L352">                        inner -&gt; derive(inner, goal, right));</span>
-<span class="fc" id="L353">                yield apply(new ClassicOrE(context.get(principal), leftCase, rightCase));</span>
+<span class="fc" id="L349">            case OrLeft(DisjunctionClassic principal, Derivation left, Derivation right) -&gt; {</span>
+<span class="fc" id="L350">                int leftCase = hypothetical(context, new ImplicationClassic(principal.getLeft(), goal),</span>
+<span class="fc" id="L351">                        inner -&gt; derive(inner, goal, left));</span>
+<span class="fc" id="L352">                int rightCase = hypothetical(context, new ImplicationClassic(principal.getRight(), goal),</span>
+<span class="fc" id="L353">                        inner -&gt; derive(inner, goal, right));</span>
+<span class="fc" id="L354">                yield apply(new ClassicOrE(context.get(principal), leftCase, rightCase));</span>
             }
-<span class="fc" id="L355">            case ArrowKnown(ClassicalLogicOperation principal, Derivation rest) -&gt; {</span>
-<span class="fc" id="L356">                var arrow = arrow(principal);</span>
-<span class="fc" id="L357">                addIfAbsent(context, arrow.consequent(),</span>
-<span class="fc" id="L358">                        () -&gt; applyArrow(context.get(principal), context.get(arrow.antecedent())));</span>
-<span class="fc" id="L359">                yield derive(context, goal, rest);</span>
+<span class="fc" id="L356">            case ArrowKnown(ClassicalLogicOperation principal, Derivation rest) -&gt; {</span>
+<span class="fc" id="L357">                var arrow = arrow(principal);</span>
+<span class="fc" id="L358">                addIfAbsent(context, arrow.consequent(),</span>
+<span class="fc" id="L359">                        () -&gt; applyArrow(context.get(principal), context.get(arrow.antecedent())));</span>
+<span class="fc" id="L360">                yield derive(context, goal, rest);</span>
             }
-<span class="fc" id="L361">            case ArrowAnd(ClassicalLogicOperation principal, ClassicalLogicOperation derived, Derivation rest) -&gt; {</span>
-<span class="fc" id="L362">                addIfAbsent(context, derived, () -&gt; deriveArrowAnd(context, principal, derived));</span>
-<span class="fc" id="L363">                yield derive(context, goal, rest);</span>
+<span class="fc" id="L362">            case ArrowAnd(ClassicalLogicOperation principal, ClassicalLogicOperation derived, Derivation rest) -&gt; {</span>
+<span class="fc" id="L363">                addIfAbsent(context, derived, () -&gt; deriveArrowAnd(context, principal, derived));</span>
+<span class="fc" id="L364">                yield derive(context, goal, rest);</span>
             }
-<span class="fc" id="L365">            case ArrowOr(ClassicalLogicOperation principal, ClassicalLogicOperation left, ClassicalLogicOperation right,</span>
-<span class="fc" id="L366">                         Derivation rest) -&gt; {</span>
-<span class="fc" id="L367">                var disjunction = (DisjunctionClassic) arrow(principal).antecedent();</span>
-<span class="fc" id="L368">                addIfAbsent(context, left, () -&gt; hypothetical(context, left, inner -&gt;</span>
-<span class="fc" id="L369">                        applyArrow(inner.get(principal), apply(new ClassicOrI1(inner.get(disjunction.getLeft()), disjunction.getRight())))));</span>
-<span class="fc" id="L370">                addIfAbsent(context, right, () -&gt; hypothetical(context, right, inner -&gt;</span>
-<span class="fc" id="L371">                        applyArrow(inner.get(principal), apply(new ClassicOrI2(inner.get(disjunction.getRight()), disjunction.getLeft())))));</span>
-<span class="fc" id="L372">                yield derive(context, goal, rest);</span>
+<span class="fc" id="L366">            case ArrowOr(ClassicalLogicOperation principal, ClassicalLogicOperation left, ClassicalLogicOperation right,</span>
+<span class="fc" id="L367">                         Derivation rest) -&gt; {</span>
+<span class="fc" id="L368">                var disjunction = (DisjunctionClassic) arrow(principal).antecedent();</span>
+<span class="fc" id="L369">                addIfAbsent(context, left, () -&gt; hypothetical(context, left, inner -&gt;</span>
+<span class="fc" id="L370">                        applyArrow(inner.get(principal), apply(new ClassicOrI1(inner.get(disjunction.getLeft()), disjunction.getRight())))));</span>
+<span class="fc" id="L371">                addIfAbsent(context, right, () -&gt; hypothetical(context, right, inner -&gt;</span>
+<span class="fc" id="L372">                        applyArrow(inner.get(principal), apply(new ClassicOrI2(inner.get(disjunction.getRight()), disjunction.getLeft())))));</span>
+<span class="fc" id="L373">                yield derive(context, goal, rest);</span>
             }
-<span class="fc" id="L374">            case ArrowArrow(ClassicalLogicOperation principal, ClassicalLogicOperation derived, Derivation first,</span>
-<span class="fc" id="L375">                            Derivation rest) -&gt; {</span>
-<span class="fc" id="L376">                var arrow = arrow(principal);</span>
-<span class="fc" id="L377">                var antecedent = arrow.antecedent();</span>
-<span class="fc" id="L378">                var inner = arrow(antecedent);</span>
-<span class="fc" id="L379">                var withDerived = new HashMap&lt;&gt;(context);</span>
+<span class="fc" id="L375">            case ArrowArrow(ClassicalLogicOperation principal, ClassicalLogicOperation derived, Derivation first,</span>
+<span class="fc" id="L376">                            Derivation rest) -&gt; {</span>
+<span class="fc" id="L377">                var arrow = arrow(principal);</span>
+<span class="fc" id="L378">                var antecedent = arrow.antecedent();</span>
+<span class="fc" id="L379">                var inner = arrow(antecedent);</span>
+<span class="fc" id="L380">                var withDerived = new HashMap&lt;&gt;(context);</span>
                 // D -&gt; B: from D, the antecedent C -&gt; D holds (assume C, repeat D), and so does B
-<span class="fc" id="L381">                addIfAbsent(withDerived, derived, () -&gt; hypothetical(context, derived, outer -&gt;</span>
-<span class="fc" id="L382">                        applyArrow(outer.get(principal), hypothetical(outer, antecedent, deeper -&gt; deeper.get(inner.consequent())))));</span>
-<span class="fc" id="L383">                int antecedentLine = derive(withDerived, antecedent, first);</span>
-<span class="fc" id="L384">                var withConsequent = new HashMap&lt;&gt;(context);</span>
-<span class="fc" id="L385">                withConsequent.put(arrow.consequent(), applyArrow(context.get(principal), antecedentLine));</span>
-<span class="fc" id="L386">                yield derive(withConsequent, goal, rest);</span>
+<span class="fc" id="L382">                addIfAbsent(withDerived, derived, () -&gt; hypothetical(context, derived, outer -&gt;</span>
+<span class="fc" id="L383">                        applyArrow(outer.get(principal), hypothetical(outer, antecedent, deeper -&gt; deeper.get(inner.consequent())))));</span>
+<span class="fc" id="L384">                int antecedentLine = derive(withDerived, antecedent, first);</span>
+<span class="fc" id="L385">                var withConsequent = new HashMap&lt;&gt;(context);</span>
+<span class="fc" id="L386">                withConsequent.put(arrow.consequent(), applyArrow(context.get(principal), antecedentLine));</span>
+<span class="fc" id="L387">                yield derive(withConsequent, goal, rest);</span>
             }
         };
     }
@@ -394,19 +395,19 @@ public final class IntuitionisticAutomate {
      */
     private int deriveArrowAnd(Map&lt;ClassicalLogicOperation, Integer&gt; context, ClassicalLogicOperation principal,
                                ClassicalLogicOperation derived) {
-<span class="fc" id="L397">        var conjunction = (ConjunctionClassic) arrow(principal).antecedent();</span>
-<span class="fc" id="L398">        var innerArrow = arrow(derived).consequent();</span>
-<span class="fc" id="L399">        return hypothetical(context, derived, outer -&gt; hypothetical(outer, innerArrow, inner -&gt;</span>
-<span class="fc" id="L400">                applyArrow(inner.get(principal),</span>
-<span class="fc" id="L401">                        apply(new ClassicAndI(inner.get(conjunction.getLeft()), inner.get(conjunction.getRight()))))));</span>
+<span class="fc" id="L398">        var conjunction = (ConjunctionClassic) arrow(principal).antecedent();</span>
+<span class="fc" id="L399">        var innerArrow = arrow(derived).consequent();</span>
+<span class="fc" id="L400">        return hypothetical(context, derived, outer -&gt; hypothetical(outer, innerArrow, inner -&gt;</span>
+<span class="fc" id="L401">                applyArrow(inner.get(principal),</span>
+<span class="fc" id="L402">                        apply(new ClassicAndI(inner.get(conjunction.getLeft()), inner.get(conjunction.getRight()))))));</span>
     }
 
     private static void addIfAbsent(Map&lt;ClassicalLogicOperation, Integer&gt; context, ClassicalLogicOperation formula,
                                     IntSupplier line) {
-<span class="pc bpc" id="L406" title="1 of 2 branches missed.">        if (!context.containsKey(formula)) {</span>
-<span class="fc" id="L407">            context.put(formula, line.getAsInt());</span>
+<span class="pc bpc" id="L407" title="1 of 2 branches missed.">        if (!context.containsKey(formula)) {</span>
+<span class="fc" id="L408">            context.put(formula, line.getAsInt());</span>
         }
-<span class="fc" id="L409">    }</span>
+<span class="fc" id="L410">    }</span>
 
     /**
      * Proves the implication or negation {@code target} in a subproof: assumes its antecedent, runs {@code body} (which
@@ -417,14 +418,14 @@ public final class IntuitionisticAutomate {
      */
     private int hypothetical(Map&lt;ClassicalLogicOperation, Integer&gt; context, ClassicalLogicOperation target,
                              ToIntFunction&lt;Map&lt;ClassicalLogicOperation, Integer&gt;&gt; body) {
-<span class="fc" id="L420">        var antecedent = arrow(target).antecedent();</span>
-<span class="fc" id="L421">        var inner = new HashMap&lt;&gt;(context);</span>
-<span class="fc" id="L422">        inner.put(antecedent, apply(new ClassicAssume(antecedent)));</span>
-<span class="fc" id="L423">        int consequent = body.applyAsInt(inner);</span>
-<span class="fc bfc" id="L424" title="All 2 branches covered.">        if (consequent != lastLine()) {</span>
-<span class="fc" id="L425">            apply(new ClassicCopy(consequent));</span>
+<span class="fc" id="L421">        var antecedent = arrow(target).antecedent();</span>
+<span class="fc" id="L422">        var inner = new HashMap&lt;&gt;(context);</span>
+<span class="fc" id="L423">        inner.put(antecedent, apply(new ClassicAssume(antecedent)));</span>
+<span class="fc" id="L424">        int consequent = body.applyAsInt(inner);</span>
+<span class="fc bfc" id="L425" title="All 2 branches covered.">        if (consequent != lastLine()) {</span>
+<span class="fc" id="L426">            apply(new ClassicCopy(consequent));</span>
         }
-<span class="fc bfc" id="L427" title="All 2 branches covered.">        return apply(target instanceof NegationClassic ? new ClassicNotI() : new ClassicDeductionTheorem());</span>
+<span class="fc bfc" id="L428" title="All 2 branches covered.">        return apply(target instanceof NegationClassic ? new ClassicNotI() : new ClassicDeductionTheorem());</span>
     }
 
     /**
@@ -434,22 +435,22 @@ public final class IntuitionisticAutomate {
      * @return the line of the consequent
      */
     private int applyArrow(int arrowLine, int antecedentLine) {
-<span class="fc bfc" id="L437" title="All 2 branches covered.">        if (proof.getSteps().get(arrowLine - 1).getStep() instanceof NegationClassic) {</span>
-<span class="fc" id="L438">            return apply(new ClassicFI(antecedentLine, arrowLine));</span>
+<span class="fc bfc" id="L438" title="All 2 branches covered.">        if (proof.getSteps().get(arrowLine - 1).getStep() instanceof NegationClassic) {</span>
+<span class="fc" id="L439">            return apply(new ClassicFI(antecedentLine, arrowLine));</span>
         }
-<span class="fc" id="L440">        return apply(new ClassicModusPonens(arrowLine, antecedentLine));</span>
+<span class="fc" id="L441">        return apply(new ClassicModusPonens(arrowLine, antecedentLine));</span>
     }
 
     private int apply(ClassicalAction action) {
-<span class="pc bpc" id="L444" title="1 of 2 branches missed.">        if (!action.isValid(proof)) {</span>
-<span class="nc" id="L445">            throw new IllegalStateException(&quot;The intuitionistic solver built an invalid step: &quot; + action.getAction());</span>
+<span class="pc bpc" id="L445" title="1 of 2 branches missed.">        if (!action.isValid(proof)) {</span>
+<span class="nc" id="L446">            throw new IllegalStateException(&quot;The intuitionistic solver built an invalid step: &quot; + action.getAction());</span>
         }
-<span class="fc" id="L447">        action.apply(proof);</span>
-<span class="fc" id="L448">        return lastLine();</span>
+<span class="fc" id="L448">        action.apply(proof);</span>
+<span class="fc" id="L449">        return lastLine();</span>
     }
 
     private int lastLine() {
-<span class="fc" id="L452">        return proof.getSteps().size();</span>
+<span class="fc" id="L453">        return proof.getSteps().size();</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>
