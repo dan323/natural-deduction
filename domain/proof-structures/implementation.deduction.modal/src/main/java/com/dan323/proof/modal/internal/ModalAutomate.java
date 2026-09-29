@@ -704,10 +704,14 @@ public class ModalAutomate {
     }
 
     /**
-     * Whether {@link ModalDeMorgan} or {@link DeMorgan} was applied to this 1-based line.
+     * Whether {@link ModalDeMorgan} or {@link DeMorgan} was applied to this 1-based line. Both are recorded in
+     * {@link #actionsDone} by {@link #checkSingleAction} (see {@link #lookForElimRules}); the modal
+     * {@code complex.DeMorgan} is an {@link AbstractModalAction}, unlike the classical class of the same name.
      */
     private boolean isDeMorganed(int line) {
-        return actionsDone.contains(new ModalDeMorgan(line)) || actionsDone.contains(new DeMorgan(line));
+        AbstractModalAction modalDeMorgan = new ModalDeMorgan(line);
+        AbstractModalAction deMorgan = new DeMorgan(line);
+        return actionsDone.contains(modalDeMorgan) || actionsDone.contains(deMorgan);
     }
 
     /**

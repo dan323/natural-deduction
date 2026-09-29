@@ -184,6 +184,15 @@ class ModalSolverRegressionTest {
         assertProved(List.of(), "(([] p) -> (<> q)) | (- q)");
     }
 
+    /**
+     * Like {@link #aDeMorganedLineIsNotAimedAt()}, for a {@code - (<> A)} line that {@code DeMorgan} turned into
+     * {@code [] (- A)}: without skipping it the solver aims for {@code <> q} again and does not finish.
+     */
+    @Test
+    void aLineDeMorganedIntoAlwaysIsNotAimedAt() {
+        assertProved(List.of(), "(<> q) | (([] p) -> ([] (- q)))");
+    }
+
     private static void assertProved(List<String> premises, String goal) {
         var transformer = new ModalProofTransformer();
         var steps = premises.stream().map(premise -> new StepDto(premise, "Ass", 0, Map.of("state", "s0"))).toList();
