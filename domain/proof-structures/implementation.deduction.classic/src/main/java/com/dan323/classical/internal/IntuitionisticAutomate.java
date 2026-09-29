@@ -18,8 +18,9 @@ import java.util.function.ToIntFunction;
  * The automatic solver of intuitionistic logic.
  *
  * <p>It first looks for a proof of the sequent {@code premises ⇒ goal} in Dyckhoff's contraction-free sequent calculus
- * G4ip, which is complete for intuitionistic propositional logic and whose backward search always terminates: every
- * rule replaces its principal formula by smaller ones (in the multiset ordering of G4ip's weights). A negation
+ * G4ip, which is complete for intuitionistic propositional logic and whose backward search terminates: every rule
+ * replaces its principal formula by smaller ones (in the multiset ordering of G4ip's weights). The search can still take
+ * exponential time, so a large goal (above all an unprovable one) may run into the caller's solve timeout. A negation
  * {@code - A} is read as {@code A -> FALSE}; {@code TRUE} has no rule of its own (natural deduction cannot introduce it),
  * so it is treated as an atom.
  *

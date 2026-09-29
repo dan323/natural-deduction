@@ -188,9 +188,10 @@ shares everything else with `classical`: the formula syntax, the proof and proof
   e.g. the classical proof of `- (- p) ⊢ p`.
 - `POST /logic/intuitionistic/solve` has a solver of its own, which never uses double negation elimination: a complete
   search in the contraction-free sequent calculus G4ip, translated into the rules `Ass`, `->I`, `->E`, `&I`, `&E1/2`,
-  `|I1/2`, `|E`, `-I`, `FI`, `FE` and `Rep`. It starts from the premises, like the classical solver, and it always
-  terminates: a goal that is not intuitionistically provable (`p | (- p)`, `(- (- p)) -> p`, Peirce's law) comes back
-  with its premises only and `done` false.
+  `|I1/2`, `|E`, `-I`, `FI`, `FE` and `Rep`. It starts from the premises, like the classical solver. The search
+  terminates in principle, and a goal that is not intuitionistically provable (`p | (- p)`, `(- (- p)) -> p`, Peirce's
+  law) comes back with its premises only and `done` false; but it can take exponential time, so a large goal (above all
+  an unprovable one) may hit the solve timeout and get a `422` instead.
 
 ### Modal logic with Next and Until
 
