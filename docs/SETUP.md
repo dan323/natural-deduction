@@ -175,7 +175,7 @@ logic selectors offer (the first one is the default):
 ```typescript
 export const LOGICS: readonly LogicInfo[] = [
     { id: 'classical', name: 'Classical', description: '...', hasSolver: true },
-    { id: 'intuitionistic', name: 'Intuitionistic', description: '...', hasSolver: false },
+    { id: 'intuitionistic', name: 'Intuitionistic', description: '...', hasSolver: true },
     { id: 'modal', name: 'Modal', description: '...', hasSolver: true },
     { id: 'modal-next-until', name: 'Modal with Next and Until', description: '...', hasSolver: false },
     { id: 'first-order', name: 'First-order', description: '...', hasSolver: false },

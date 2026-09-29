@@ -139,11 +139,18 @@ describe('Menu solve button', () => {
     });
 
     test('is not offered for a logic without a solver, which says so instead', () => {
-        render(<Menu {...props} logic="intuitionistic" proof={{ ...proof, logic: 'intuitionistic' }} />);
+        render(<Menu {...props} logic="first-order" proof={{ ...proof, logic: 'first-order' }} />);
 
         expect(screen.queryByRole('button', { name: /Solve/i })).not.toBeInTheDocument();
-        expect(screen.getByText('Intuitionistic logic has no automatic solver.')).toBeInTheDocument();
+        expect(screen.getByText('First-order logic has no automatic solver.')).toBeInTheDocument();
         expect(screen.getByRole('button', { name: /Apply Rule/i })).toBeInTheDocument();
+    });
+
+    test('is offered for intuitionistic logic', () => {
+        render(<Menu {...props} logic="intuitionistic" proof={{ ...proof, logic: 'intuitionistic' }} />);
+
+        expect(screen.getByRole('button', { name: /Solve/i })).toBeInTheDocument();
+        expect(screen.queryByText(/has no automatic solver/)).not.toBeInTheDocument();
     });
 
     test('is not offered for modal-next-until, whose /solve is a 400', () => {

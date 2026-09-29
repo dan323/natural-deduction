@@ -686,11 +686,19 @@ public class RestServiceIT {
     }
 
     @Test
-    void intuitionisticHasNoSolver() {
-        var response = restTemplate.exchange(createURLWithPort("/logic/intuitionistic/solve"), HttpMethod.POST,
-                new HttpEntity<>(new ProofDto(List.of(), "intuitionistic", "p -> p"), headers), ErrorResponse.class);
-        assertError(HttpStatus.BAD_REQUEST, response);
-        assertEquals("There is no solver for the logic 'intuitionistic'", response.getBody().message());
+    void solveIntuitionisticProof() {
+        var response = solve("intuitionistic", new ProofDto(List.of(new StepDto("p | q", "Ass", 0, Map.of()),
+                new StepDto("- p", "Ass", 0, Map.of())), "intuitionistic", "q"));
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        var solved = Objects.requireNonNull(response.getBody());
+        assertTrue(solved.isDone());
+        assertEquals("q", solved.steps().get(solved.steps().size() - 1).expression());
+        assertTrue(solved.steps().stream().noneMatch(step -> step.rule().startsWith("-E")));
+
+        // Excluded middle is not intuitionistic: an unfinished proof is still a 200
+        var unprovable = solve("intuitionistic", new ProofDto(List.of(), "intuitionistic", "p | (- p)"));
+        assertEquals(HttpStatus.OK, unprovable.getStatusCode());
+        assertFalse(Objects.requireNonNull(unprovable.getBody()).isDone());
     }
 
     @Test

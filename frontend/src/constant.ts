@@ -19,8 +19,8 @@ export const LOGICS: readonly LogicInfo[] = [
     {
         id: 'intuitionistic',
         name: 'Intuitionistic',
-        description: 'Classical logic without double negation elimination (¬E), so p does not follow from ¬¬p. There is no solver.',
-        hasSolver: false,
+        description: 'Classical logic without double negation elimination (¬E), so p does not follow from ¬¬p. Its solver never uses ¬E.',
+        hasSolver: true,
     },
     {
         id: 'modal',

@@ -115,8 +115,8 @@ Runs the automatic solver on the proof (a `ProofDto`) and returns the resulting 
 - At most as many solves as there are processors (at least 2) run at once, per logic. Another one is answered at once
   with `429` and `{"message": "The solver is busy with other proofs, try again in a moment"}`.
 - An invalid proof is a `400`, as for `/action`.
-- A logic without a solver of its own (`intuitionistic`, `modal-next-until`, `first-order`) answers `400` with
-  `{"message": "There is no solver for the logic 'intuitionistic'"}`.
+- A logic without a solver of its own (`modal-next-until`, `first-order`) answers `400` with
+  `{"message": "There is no solver for the logic 'first-order'"}`.
 
 ### List the exercises: `GET /logic/{logic}/exercises`
 
@@ -186,8 +186,11 @@ shares everything else with `classical`: the formula syntax, the proof and proof
 - `NOTE` sent to `POST /logic/intuitionistic/action` is a `400` (`Rule NOTE is not a rule of intuitionistic logic`).
 - A proof (in a request, or an uploaded file) with a step justified by `-E` is a `400` whose message names that line,
   e.g. the classical proof of `- (- p) ⊢ p`.
-- `POST /logic/intuitionistic/solve` is a `400`: the classical solver may use double negation elimination, so its
-  proofs are not necessarily intuitionistic.
+- `POST /logic/intuitionistic/solve` has a solver of its own, which never uses double negation elimination: a complete
+  search in the contraction-free sequent calculus G4ip, translated into the rules `Ass`, `->I`, `->E`, `&I`, `&E1/2`,
+  `|I1/2`, `|E`, `-I`, `FI`, `FE` and `Rep`. It starts from the premises, like the classical solver, and it always
+  terminates: a goal that is not intuitionistically provable (`p | (- p)`, `(- (- p)) -> p`, Peirce's law) comes back
+  with its premises only and `done` false.
 
 ### Modal logic with Next and Until
 

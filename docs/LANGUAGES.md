@@ -106,8 +106,9 @@ p           Ass
 - (- p)           -I [2-3]
 ```
 
-A proof that uses `-E` (in a request or in an uploaded file) is refused, and so is the action. There is no automatic
-solver: the classical one may use `-E`. See [API.md](./API.md#intuitionistic-logic).
+A proof that uses `-E` (in a request or in an uploaded file) is refused, and so is the action. The automatic solver
+is its own (`IntuitionisticAutomate`, a search in the sequent calculus G4ip) and never uses `-E`. See
+[API.md](./API.md#intuitionistic-logic).
 
 ## Modal Propositional Logic
 

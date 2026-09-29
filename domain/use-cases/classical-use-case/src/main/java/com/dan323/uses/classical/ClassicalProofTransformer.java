@@ -37,8 +37,15 @@ public class ClassicalProofTransformer implements Transformer<ClassicalLogicOper
         }
     }
 
-    private static NaturalDeduction replayProof(ProofDto proof) {
-        NaturalDeduction nd = new NaturalDeduction();
+    /**
+     * The empty proof that {@link #from(ProofDto)} replays the steps into.
+     */
+    protected NaturalDeduction newProof() {
+        return new NaturalDeduction();
+    }
+
+    private NaturalDeduction replayProof(ProofDto proof) {
+        NaturalDeduction nd = newProof();
         List<ClassicalLogicOperation> assmsLst = new ArrayList<>();
         boolean assms = true;
         if (proof.steps().isEmpty()) {
