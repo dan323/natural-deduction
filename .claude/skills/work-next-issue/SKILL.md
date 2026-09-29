@@ -3,12 +3,14 @@ name: work-next-issue
 description: >
   Process the next open GitHub issue in this repo end-to-end: sync open
   issues into a task-agent tasks.yml, run task-agent to open a PR for
-  the top pending one, then run an independent reviewer/fixer loop
-  against the PR (this repo has no Copilot review, so review-fix-loop
-  stands in for copilot-review-fixer). Use when the user says "work
+  the top pending one, add its CHANGELOG.md entry, then run an
+  independent reviewer/fixer loop against the PR (this repo has no
+  Copilot review, so review-fix-loop stands in for
+  copilot-review-fixer). Use when the user says "work
   on the next issue", "pick up the next task", "do the next thing in
   plan.md", "process the next issue", or similar. Composes
-  sync-issues -> task-agent -> review-fix-loop via the workflow skill
+  sync-issues -> task-agent -> changelog-entry -> review-fix-loop via
+  the workflow skill
   against ../../workflows/work-next-issue.yaml. This repo has no
   GitHub Projects board, so this is the board-free counterpart of the
   auto-board-task plugin skill.
@@ -41,7 +43,7 @@ working directory). Relay the workflow runner's per-step status block as-is.
 - Use the `Agent` tool to invoke the `workflow` skill — it must run inline via
   `Skill` so the runner's subagent spawns work correctly (same reason
   `auto-board-task` gives for this rule).
-- Call `sync-issues`, `task-agent`, or `review-fix-loop` directly — the
+- Call `sync-issues`, `task-agent`, `changelog-entry` or `review-fix-loop` directly — the
   composition through the workflow file is the point.
 - Substitute `copilot-review-fixer` back in — this repo has no Copilot review
   enabled; `review-fix-loop` is the intended replacement.

@@ -31,6 +31,8 @@ npm run build                 # outputs to frontend/build (NOT dist)
 
 CI (`.github/workflows/`) has no lint step. Run the full Maven `verify` and `npm run typecheck` + `npm test` locally before pushing.
 
+Every PR adds one bullet to `CHANGELOG.md`, under the current month's release (`## sep-26`) and its Added/Changed/Fixed/Removed heading, ending with the PR number. The `work-next-issue` workflow does this with the `changelog-entry` skill (`.claude/skills/changelog-entry`). `plan.md` keeps only the pending steps; the finished ones live in the issues, the PRs and the changelog.
+
 ## Architecture
 
 **Backend layering** (`domain/` is framework-agnostic except the use-case config classes, which are Spring `@Configuration`s):

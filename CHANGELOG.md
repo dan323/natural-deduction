@@ -9,6 +9,16 @@ The project has never been versioned or tagged, since it was not meant for publi
 ## sep-26
 
 ### Added
+- First-order logic with equality (`first-order`): terms, predicates, `=`, `forall`/`exists` and a hand-written parser
+  (#179); natural deduction with the rules `∀I`, `∀E`, `∃I`, `∃E`, `=I` and `=E` (#180); served over REST with 20
+  actions, a new `TERM` parameter kind and an exercise catalog, without a solver (#181); offered in the UI with ∀, ∃
+  and = buttons, term inputs and its own formula check (#183)
+- Theories: `GET /logic/{logic}/theories` lists named premise sets; `first-order` has `group`, with six group
+  exercises (#182). The New Proof dialog has a "Premises from theory" picker, and the exercise list shows the group
+  exercises under "Group theory" (#184)
+- The Maven build of `executable` builds the frontend (frontend-maven-plugin) and embeds it in the jar, and
+  `FatJarActionsIT` checks that the jar serves the current UI (#180)
+- The `work-next-issue` workflow adds a `CHANGELOG.md` entry to every PR it opens (`changelog-entry` skill)
 - `modal-next-until`: modal logic over discrete time with Next (`X`) and strong Until (`U`), successor states (`s0+1`),
   the rules `XI`, `XE`, `Succ`, `UI`, `UE`, `U<>` and `Ind`, and 9 exercises (#163); offered in the UI with X and U
   buttons and help (#164)
@@ -41,6 +51,14 @@ The project has never been versioned or tagged, since it was not meant for publi
 - Non-root user and `HEALTHCHECK` in the Dockerfile (#107)
 
 ### Changed
+- Dependencies updated: Spring Boot 3.5.16 to 4.1.1 (Spring 7.0.9), springdoc 3.1.1, Mockito 5.24.0, SLF4J 2.0.20,
+  TypeScript 6.0.3, Vite 8.3.1, jest-dom 7, Node 24 in CI and newer artifact and Docker actions;
+  `application.properties` is removed, since its properties no longer exist in Boot 4 (#168)
+- Sonar fixes without behaviour changes: request URLs built only from the ids in `LOGICS`, semantic `<output>`,
+  `<fieldset>` and `<dialog>` elements (#167); pinned `actions-gh-pages`, a regex-free range parser in `ProofViewer`
+  and a smaller `App` (#169)
+- The prose docs and `plan.md` brought up to date with first-order logic, theories and the embedded UI; the finished
+  steps are removed from `plan.md`
 - UI accessibility: visible focus, 4.5:1 contrast, a focus trap in the modal dialog and quieter confetti (#126); the
   rule form and the New Proof dialog are reset and validated (#124)
 - The prose docs brought up to date with the four logics, the exercises and the rules as the tool implements them

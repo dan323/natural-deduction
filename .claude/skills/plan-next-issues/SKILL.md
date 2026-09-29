@@ -100,8 +100,8 @@ plan.md updated: <yes/no — which sections>
 
 ## Rules
 
-- Never invent scope plan.md explicitly excludes (currently: other logics in the
-  UI, and the solver) without the user overriding it via `scope=`.
+- Never invent scope plan.md explicitly excludes (its **Out of scope** line; currently
+  the solver, except PR 12) without the user overriding it via `scope=`.
 - Never file an issue or edit plan.md before Step 4's approval — this skill's
   read/audit phases (1-3) are safe to run freely, its write phases (5-6) are not.
 - Keep proposals PR-sized (one focused change), matching the granularity already

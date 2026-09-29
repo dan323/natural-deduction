@@ -48,8 +48,11 @@ The Natural Deduction project follows a **plugin-based architecture** with clear
   - Rule selection (built from the action descriptors of the backend) and application
   - A logic selector (in the New Proof dialog and on the empty page) offering the logics of `LOGICS` in `constant.ts`: classical, intuitionistic, modal, modal with Next and Until, and first-order; everything logic-specific (rules, exercises, formula help) follows the logic of the proof on screen
   - A Solve button that asks the backend's automatic solver to finish the proof, for the logics that have one
+  - A "Premises from theory" picker in the New Proof dialog, for a logic whose `GET theories` is not empty
+    (first-order: Group); the chosen theory's premises stay editable
   - Undo, "Copy proof as text" and "Load from text" (a finished proof in the proof-text layout)
-  - An exercise list (`ExerciseList`, from `GET exercises`) grouped by difficulty, with a "Solved n of m" counter, a "(Solved)" marker per exercise and a "Next exercise" button; starting an exercise over a proof with more than its premises asks for confirmation before discarding it (again, if the proof changed while the exercise was being checked by the backend); an exercise answer arriving after the user asked for another proof is dropped, and so is a rule or solver answer arriving after its proof was replaced, so it can never be shown or marked solved as another exercise
+  - An exercise list (`ExerciseList`, from `GET exercises`) grouped by difficulty (the exercises whose premises are
+    exactly a theory's go under that theory's own heading, e.g. "Group theory"), with a "Solved n of m" counter, a "(Solved)" marker per exercise and a "Next exercise" button; starting an exercise over a proof with more than its premises asks for confirmation before discarding it (again, if the proof changed while the exercise was being checked by the backend); an exercise answer arriving after the user asked for another proof is dropped, and so is a rule or solver answer arriving after its proof was replaced, so it can never be shown or marked solved as another exercise
   - Browser storage: the proof on screen is kept in `sessionStorage` under `natural-deduction.proof` (goal, steps, logic and the `exerciseId` it was started from, if any) so it survives a reload; the solved exercises are kept in `localStorage` under `natural-deduction.solved-exercises`, as a list of exercise ids per logic. Storage that cannot be used is ignored
 
 ### 2. REST API Layer
@@ -59,6 +62,7 @@ The Natural Deduction project follows a **plugin-based architecture** with clear
 - **Endpoints** (all under `/logic/{logic}`, see [API.md](./API.md)):
   - `GET actions`: the rules the logic offers, as typed descriptors
   - `GET exercises`: the logic's exercises (without their solutions)
+  - `GET theories`: the logic's theories, named sets of premises (first-order logic has `group`)
   - `POST action`: apply a rule to a proof
   - `POST solve`: run the automatic solver (with a timeout)
   - `POST proof`: parse an uploaded proof file
@@ -88,8 +92,11 @@ These provide concrete implementations:
 
 - **logic-language/implementation** - Classical propositional logic (also used by intuitionistic logic)
 - **logic-language/implementation.modal** - Modal propositional logic, and its Next and Until extension
+- **logic-language/implementation.firstorder** - First-order logic with equality (terms, predicates, quantifiers)
 - **proof-structures/implementation.deduction.classic** - Classical deduction rules
 - **proof-structures/implementation.deduction.modal** - Modal deduction rules, and the Next and Until rules
+- **proof-structures/implementation.deduction.firstorder** - First-order deduction rules (the shared rules plus the
+  quantifier and equality rules)
 
 ### Use Cases
 Apply the logical systems to solve problems:
@@ -97,6 +104,7 @@ Apply the logical systems to solve problems:
 - **base-use-case** - Common functionality
 - **classical-use-case** - Wires `classical`, and `intuitionistic` as a filter on it (every rule but double negation elimination)
 - **modal-use-case** - Wires `modal`, and `modal-next-until` as an extension of it (more rules and connectives)
+- **first-order-use-case** - Wires `first-order`, with its exercises and the `group` theory
 - **model** - Data models
 
 ## Component Interaction Flow
@@ -114,7 +122,7 @@ Use Case (domain/use-cases)
                 ├─→ Rule Framework
                 │
                 └─→ Specific Logic Implementation
-                        (classical or modal)
+                        (classical, modal or first-order)
         ↓
 Response (JSON via REST)
         ↓
@@ -128,7 +136,7 @@ Frontend Display
 **Purpose**: Establish contracts for logical expressions
 
 ### Logic Implementations
-**Concrete Classes**: Classical and modal logic term implementations
+**Concrete Classes**: Classical, modal and first-order logic term implementations
 **Purpose**: Provide actual implementations of logical operators and parsing
 
 ### Deduction Framework (proof-structures)
@@ -136,7 +144,7 @@ Frontend Display
 **Purpose**: Establish contracts for proof rules
 
 ### Deduction Implementations
-**Concrete Classes**: Classical and modal deduction rules
+**Concrete Classes**: Classical, modal and first-order deduction rules
 **Purpose**: Implement actual proof rules for each logical system
 
 ## Data Flow for Proof Verification
@@ -164,12 +172,12 @@ Input: Formula String
 ## Key Design Patterns
 
 ### 1. Strategy Pattern
-Different logic implementations (classical, intuitionistic, modal, modal-next-until) are interchangeable strategies.
+Different logic implementations (classical, intuitionistic, modal, modal-next-until, first-order) are interchangeable strategies.
 
 ### 2. Registry by Dependency Injection
 Each logic exposes a `Transformer`, a `ProofParser` and a `LogicalGetActions` bean, and may expose a `LogicalExercises`
-bean; `ActionsUseCaseConfiguration` collects them into maps keyed by logic name, and the `{logic}` path segment selects
-the entry.
+and a `LogicalTheories` bean; `ActionsUseCaseConfiguration` collects them into maps keyed by logic name, and the
+`{logic}` path segment selects the entry.
 
 ### 3. Template Method Pattern
 Framework classes define the structure of algorithms, implementations fill in specific steps.
@@ -185,8 +193,8 @@ To add a new logical system:
 2. Add a proof module (bind `proof-structures/framework.deduction` to the language: a proof class, one class per
    rule, a parser of rule names and, optionally, an automatic solver)
 3. Add a use-case module exposing the `Transformer`, `ProofParser` and `LogicalGetActions` beans (and optionally a
-   `LogicalExercises` catalog) and a `*Configuration`. A logic can also reuse another one's modules and filter its rules
-   (like `intuitionistic`) or extend them (like `modal-next-until`)
+   `LogicalExercises` catalog and a `LogicalTheories` list) and a `*Configuration`. A logic can also reuse another
+   one's modules and filter its rules (like `intuitionistic`) or extend them (like `modal-next-until`)
 4. Import that configuration in `executable/.../ApplicationConfiguration` (no new controller is needed)
 5. Extend the frontend if it should use the new logic (add it to `LOGICS` in `constant.ts`)
 
@@ -194,8 +202,8 @@ See [Development Guide](./DEVELOPMENT.md) for detailed instructions.
 
 ## Deployment Architecture
 
-The application is containerized using Docker (the image only contains the jar, so the frontend must be embedded in it
-before packaging; the image runs as a non-root user and has a health check on `/actuator/health`):
+The application is containerized using Docker (the image only contains the jar, which the Maven build embeds the
+frontend in; the image runs as a non-root user and has a health check on `/actuator/health`):
 
 ```
 ┌─────────────┐

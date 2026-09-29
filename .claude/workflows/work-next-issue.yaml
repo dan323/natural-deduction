@@ -8,14 +8,16 @@
 #                          issues whose task is freshly done get a PR-link comment.
 #   2. task-agent         — pick the first pending task, clone, do the work, open
 #                          a PR, mark status: done with pr_url.
-#   3. review-fix-loop    — independent reviewer + independent fixer loop against
+#   3. changelog-entry    — add the PR's line to CHANGELOG.md on its branch, so
+#                          the reviewer sees it with the rest of the diff.
+#   4. review-fix-loop    — independent reviewer + independent fixer loop against
 #                          the new PR (replaces copilot-review-fixer; this repo
 #                          has no Copilot review configured).
 #
 # See ../skills/work-next-issue/SKILL.md for the user-facing entry point.
 
 name: work-next-issue
-description: Pick up the next pending GitHub issue in this repo, open a PR via task-agent, then review and fix it independently of Copilot.
+description: Pick up the next pending GitHub issue in this repo, open a PR via task-agent, add its CHANGELOG entry, then review and fix it independently of Copilot.
 category: automation
 
 inputs:
@@ -47,11 +49,20 @@ steps:
     args:
       tasks: ${{ inputs.tasks }}
 
-  - id: review-fix
-    skill: review-fix-loop
-    description: Independently review and fix the new PR (no Copilot dependency).
+  - id: changelog
+    skill: changelog-entry
+    description: Add the PR's entry to CHANGELOG.md on its branch.
+    inline: true          # a small edit, commit and push in the task-agent clone
     args:
       pr_url: ${{ steps.run-task.output.pr_url }}
       repo: ${{ steps.run-task.output.repo }}
       branch: ${{ steps.run-task.output.branch }}
+
+  - id: review-fix
+    skill: review-fix-loop
+    description: Independently review and fix the new PR, CHANGELOG entry included (no Copilot dependency).
+    args:
+      pr_url: ${{ steps.changelog.output.pr_url }}
+      repo: ${{ steps.changelog.output.repo }}
+      branch: ${{ steps.changelog.output.branch }}
       max_rounds: ${{ inputs.max_review_rounds }}

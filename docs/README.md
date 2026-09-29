@@ -1,6 +1,6 @@
 # Natural Deduction - Documentation
 
-Welcome to the Natural Deduction project documentation. This project implements a system for [natural deduction](https://en.wikipedia.org/wiki/Natural_deduction) with support for classical, intuitionistic and modal propositional logic.
+Welcome to the Natural Deduction project documentation. This project implements a system for [natural deduction](https://en.wikipedia.org/wiki/Natural_deduction) with support for classical, intuitionistic and modal propositional logic and first-order logic with equality.
 
 ## Quick Navigation
 
@@ -23,12 +23,13 @@ Natural deduction is a type of proof system that uses rules of inference to esta
 
 ### Supported Logical Systems
 
-This project supports four logics, each served under its own name (`/logic/{logic}/...`):
+This project supports five logics, each served under its own name (`/logic/{logic}/...`):
 
 1. **Classical Propositional Logic** (`classical`) - Standard propositional calculus with classical rules
 2. **Intuitionistic Propositional Logic** (`intuitionistic`) - Classical logic without double negation elimination
 3. **Modal Propositional Logic** (`modal`) - Extends classical logic with modal operators (necessity, possibility) using labeled states
 4. **Modal Logic with Next and Until** (`modal-next-until`) - Modal logic over discrete time, with Next and Until
+5. **First-Order Logic** (`first-order`) - Predicates, function symbols, equality and the quantifiers ∀ and ∃
 
 ## Getting Started
 
@@ -37,13 +38,13 @@ For detailed setup instructions, see [Setup & Installation](./SETUP.md).
 ### Quick Start
 
 ```bash
-# Build the project
+# Build the project (also builds the frontend and embeds it in the jar)
 mvn clean install
 
-# Run the executable
+# Run the executable: the API and the UI on http://localhost:8080
 java -jar executable/target/executable-0.1-SNAPSHOT.jar
 
-# Start the frontend dev server (proxies /logic to the backend on :8080)
+# Optional, for UI work: start the frontend dev server (proxies /logic to the backend on :8080)
 cd frontend
 npm ci
 npm start
@@ -68,8 +69,8 @@ See [Project Modules](./MODULES.md) for more details.
 - 🧠 **Pluggable Logic Systems** - Easily add support for new logical systems
 - 🏗️ **Framework-based Architecture** - Separation between framework and implementations
 - 📊 **Natural Deduction Rules** - Comprehensive rule implementations for every logic
-- 🌐 **REST API** - HTTP API to list the rules and the exercises, apply a rule, upload a proof and run the automatic solver
-- 🎓 **Exercises** - A catalog of exercises per logic, from easy to hard, with the solved ones remembered in the browser
+- 🌐 **REST API** - HTTP API to list the rules, the exercises and the theories (named premise sets), apply a rule, upload a proof and run the automatic solver
+- 🎓 **Exercises** - A catalog of exercises per logic, from easy to hard (first-order logic includes group theory), with the solved ones remembered in the browser
 - 💻 **Web UI** - Interactive interface for building and verifying proofs
 - ✅ **Comprehensive Tests** - High code coverage with unit and integration tests
 

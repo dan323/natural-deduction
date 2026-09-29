@@ -1,482 +1,32 @@
-# UI improvement plan
+# Improvement plan
 
-Based on a live audit of the UI (UX, accessibility, performance, functional bugs), a read of `frontend/src`, and checks
-against the running backend. Out of scope: changes to the solver, except in PR 12 (solvers for the logics that have
-none). PRs 9 and 10 brought intuitionistic, modal and a new `modal-next-until` logic to the UI.
+The plan for the remaining work on the proof assistant. It started from a live audit of the UI (UX, accessibility,
+performance, functional bugs) and grew into new logics. Out of scope: changes to the solver, except in PR 12 (solvers
+for the logics that have none).
 
-Defaults taken for the open questions (change them and the affected steps move): the descriptor DTO **is** extended
-(additively), formula input help is a **hint plus connective buttons** (no Unicode parsing), and **Phase 1 goes first**.
+## Status (2026-09-29)
 
-## Status (2026-09-27)
+PRs 1-11 are merged; their steps are removed from this file (the issues and PRs below keep the details, and
+`CHANGELOG.md` lists what they changed). PR 12 (solvers for intuitionistic, modal-next-until and first-order logic) is
+pending: 12.1-12.3 are open as issues #176-#178.
 
-PRs 1-10 are merged. PR 11 (first-order logic with equality and group theory) is in progress: 11.1 (#170) is merged
-as #179, 11.2 (#171) as #180, 11.3 (#172) as #181, 11.4 (#173) as #182, 11.5 (#174) and 11.6 (#175) are done, one per step. PR 12 (solvers for intuitionistic, modal-next-until and first-order logic) is pending:
-12.1-12.3 are open as issues #176-#178; 12.3 comes after PR 11.
-
-PRs 1-6 are merged: 1-3, 4.1, 5.1, 5.2 and 5.4 as #124-#128, #130 and #131; 4.2 and 5.3 folded into #127 and #129;
-5.5 (#122) as #138, 5.6 (#123) as #137, 6.1 (#132) as #135 and 6.2 (#133) as #134.
-PRs 7-9 are merged: 7.1 (#139) as #151, 7.2 (#140) as #153, 7.3 (#141) as #156, 8.1 (#142) as #152, 8.2 (#143) as #157,
-9.1 (#144) as #155, 9.2 (#145) as #158. PR 10 is merged: 10.1 (#146) as #154, 10.2 (#147) as #160, 10.3 (#148)
-as #159, 10.4 (#149) as #162, and 10.5 (#150) as #163 (backend) and #164 (frontend). 10.5 was redesigned as a
-`modal-next-until` logic (Next and Until); its first attempt, PR #161, was closed unmerged.
-
-Merged outside the plan: #165 (every logic accepts both the classical and the modal name of the 14 shared rules, e.g.
-`MP`/`->E`), #166, #167 and #169 (Sonar fixes without behaviour changes, docs brought up to date), and #168
-(pipeline, backend and frontend dependency bumps).
-
-## Audit summary
-
-The core flow works (start proof, pick rule, enter lines, apply), but the UI uses little of what the model knows:
-
-- The dropdown shows enum names (`ASSUME`, `ORI1`, `NOTE`, `FE`); the table shows `->E [1, 2]` for the same rule.
-- Both line inputs are labelled "Line number:" although the order matters (`MP 2,1` fails, `MP 1,2` works).
-- A failure never says why ("Rule DT cannot be applied").
-- State leaks between proofs; invalid input is only caught by the backend ("Line -1 does not exist" for `a`, `1.5`, empty).
-- Backend: `ASSUME` with an empty expression is a 500; an unparsable one returns `Cannot build action 'ASSUME': null`.
-- Accessibility: weak or missing focus rings, contrast 3.5-4:1 on the blue buttons, green button and empty-state text,
-  modal without focus trap, proof completion shown only by colour and confetti, cited lines highlighted on mouse hover only.
-- The table shows `→ ∧ ∨ ¬`, the inputs accept only `-> & | !`, and nothing says so.
-
-Findings I checked and rejected: "no error/loading feedback" (`Menu.tsx` has both) and "Apply Rule uses aria-disabled
-only" (it also sets `disabled`, `Menu.tsx:183-184`). All Lighthouse timings (LCP 9.8 s, score 61) are Vite dev-server
-artefacts; re-measure on the production build. The dev server that ran was Vite 6.4.1 while `package.json` says
-`^8.3.0`: run `npm ci` before starting.
+Merged so far:
+- PRs 1-6 (UI audit fixes): 1-3, 4.1, 5.1, 5.2 and 5.4 as #124-#128, #130 and #131; 4.2 and 5.3 folded into #127 and
+  #129; 5.5 (#122) as #138, 5.6 (#123) as #137, 6.1 (#132) as #135 and 6.2 (#133) as #134.
+- PRs 7-9 (backend-checked proofs, exercises, intuitionistic logic): 7.1 (#139) as #151, 7.2 (#140) as #153, 7.3 (#141)
+  as #156, 8.1 (#142) as #152, 8.2 (#143) as #157, 9.1 (#144) as #155, 9.2 (#145) as #158.
+- PR 10 (modal logic in the UI): 10.1 (#146) as #154, 10.2 (#147) as #160, 10.3 (#148) as #159, 10.4 (#149) as #162,
+  and 10.5 (#150), the `modal-next-until` logic, as #163 (backend) and #164 (frontend).
+- PR 11 (first-order logic with equality and group theory): 11.1 (#170) as #179, 11.2 (#171) as #180, 11.3 (#172) as
+  #181, 11.4 (#173) as #182, 11.5 (#174) as #183 and 11.6 (#175) as #184.
+- Outside the plan: #165 (every logic accepts both the classical and the modal name of the 14 shared rules), #166,
+  #167 and #169 (Sonar fixes, docs brought up to date) and #168 (pipeline, backend and frontend dependency bumps).
 
 ## How each step is written
 
 Every step lists: **Change** (what and where), **Tests** (what to add or update), **Done when** (observable result).
-Every PR must pass `npm run typecheck`, `npm test`, and, if it touches Java, `mvn -B verify`, locally before pushing.
-
----
-
-## PR 1: Reset and validate the rule form (frontend only) — done (#124)
-
-**1.1 Reset the Menu per proof**
-- Change: in `App.tsx` add a `proofId` counter, bumped in `handleNewProofSubmit`, and render `<Menu key={proofId} …>`.
-  That clears the selected rule, `GlowingInput` values, error, and notice. `onColorChange` glow is already cleared by
-  `setColorMapping(new Map())`.
-- Tests: `App.test.tsx`: select a rule, type inputs, start a new proof, expect rule and inputs empty and no alert.
-- Done when: starting a second proof shows "-- Choose a rule --" and no stale error.
-
-**1.2 Clear inputs after a successful apply**
-- Change: `Menu.tsx` bumps a local `formKey` (used as `key` on the input container) and resets `sources/expression/state`
-  on success. Keep the selected rule (students often apply the same rule again). Failure keeps the inputs.
-- Tests: `Menu.test.tsx`: success clears inputs and keeps the rule; failure keeps both.
-- Done when: pressing Apply twice cannot add the same step twice by accident.
-
-**1.3 Client-side validation of line numbers**
-- Change: `GlowingInput.tsx`: for `shouldGlow` inputs accept only `^\d+$`, otherwise set `aria-invalid="true"` and an
-  `aria-describedby` message ("Enter a whole line number"); pass `undefined`/NaN, not `-1`, to `onInput`. `Menu.tsx`
-  gets `stepCount = proof.steps.length` and flags values `< 1` or `> stepCount` ("The proof has N lines").
-- Change: `Menu.tsx` computes `canApply` (rule chosen, every INT param valid, every EXPRESSION/STATE param non-blank) and
-  uses it for `disabled`. Add a visible hint next to the disabled button ("Choose a rule", "Fill in all inputs").
-- Tests: extend `MenuInputs.test.tsx` and `GlowingInputKinds.test.tsx` (invalid text, `0`, out of range, blank
-  expression, Apply disabled/enabled). Backend is never called with `-1` (assert on the mocked `fetch` body).
-- Done when: "Line -1 does not exist" can no longer be produced from the UI.
-
-**1.4 New Proof modal validation and reset**
-- Change: `NewProofModal.tsx`: reset `premises/goal` when it opens; before submit run a light syntax check
-  (`service/utils.ts: checkFormula`: allowed characters, balanced parentheses, no dangling operator, not blank) and
-  keep the modal open with an inline `role="alert"` message per field. Mark Goal `required`; explain the disabled
-  Start Proof ("A goal is required"). After removing a premise, move focus to the neighbouring premise input.
-- Note: the check is deliberately conservative; the backend stays the source of truth (a later optional step is a
-  `POST /logic/{logic}/expression` parse endpoint so the modal can use the real parser).
-- Tests: `NewProofModal.test.tsx` (`p ->`, `q &&`, unbalanced, blank goal, reopen resets, remove-premise focus);
-  `utils.test.ts` for `checkFormula`.
-- Done when: `p ->` never becomes a proof line.
-
-**1.5 Small cleanups**
-- Remove the duplicate empty-state text (keep the `App.tsx` one, drop the `Menu.tsx` paragraph).
-- Fetch the action list once: module-level cache in `service/actions.ts` (promise keyed by logic) so StrictMode's
-  double mount does not double-request; keep the `onError` path.
-- Tests: `actions.test.ts` (second call does not refetch; a failed fetch is not cached).
-
----
-
-## PR 2: Backend error hygiene (Java) — done (#125)
-
-**2.1 Empty expression is a 400, not a 500**
-- Investigate first: reproduce `ASSUME` with `expression: ""` and read the stack in the backend log (`buildAction`
-  in `LogicalApplyAction.java:36-42` only wraps exceptions during action construction, so the 500 comes from a
-  different point, probably a non-`RuntimeException` or a failure inside `isValid`/`apply`).
-- Change: validate a blank expression for actions that need one and throw `InvalidActionException("… needs an expression")`.
-- Tests: `ActionsUseCasesTest` / `ClassicalUseTest` (blank and whitespace-only expression -> `InvalidActionException`),
-  `RestServiceIT` (400 with a message, not 500).
-
-**2.2 No `null` in messages**
-- Change: `LogicalApplyAction.java:40` builds the message from `e.getMessage()`; when it is null or blank use a
-  fallback ("the expression could not be parsed"). Same for `ProofParser` paths if they share the pattern.
-- Tests: the existing `assertEquals("Cannot build action 'Action1': No such action", …)` keeps passing; add a case
-  with a null message.
-
----
-
-## PR 3: Accessibility basics (CSS + small TSX) — done (#126)
-
-**3.1 Focus and contrast**
-- Change: replace every `outline: none` (`App.css:33`, `glowing.css:22`, `Menu.css:42,73,126`, `NewProofModal.css:66`)
-  with a shared `:focus-visible { outline: 3px solid #0b5ed7; outline-offset: 2px }`; delete the inline
-  `boxShadow: 'none'` in `GlowingInput.tsx` and drive the glow through a CSS custom property
-  (`--glow-color`, as `StepViewer` already does) so focus and glow stay distinct.
-- Change: darken `#007bff` -> `#0b5ed7`/`#0056b3`, `#28a745` -> `#1e7e34`, empty-state `#888` -> `#595959`,
-  "+ Add Premise" text to `#0056b3`. Verify each pair >= 4.5:1.
-- Done when: keyboard tabbing shows a visible ring on every control; a contrast check on the listed pairs passes.
-
-**3.2 Modal as a real dialog**
-- Change: `NewProofModal.tsx` uses `<dialog>` opened with `showModal()` (built-in focus trap, `Esc`, inert background)
-  or, if jsdom support is a problem, a manual Tab trap plus `inert` on the app root. Keep return-focus behaviour.
-- Tests: Tab from the last control wraps to the first; Esc closes; focus returns to New Proof.
-
-**3.3 Confetti**
-- Change: `Goal.tsx`: `aria-hidden="true"` on `.celebration`; `goal.css`: wrap the animation in
-  `@media (prefers-reduced-motion: no-preference)`.
-
----
-
-## PR 4: Rules that speak the model's language (backend + frontend together)
-
-**4.1 Extend the descriptor, additively** — done (#127)
-- Change (backend): `ActionDescriptorDto` (`domain/use-cases/model`) gains optional `label`, `symbol`, `category`
-  (`INTRODUCTION` / `ELIMINATION` / `OTHER`), `description`, `paramLabels` (same length as `params`). Keep the
-  existing `of(name, params…)` factory (modal keeps working with empty fields; `ModalGetActions` untouched for now).
-  Fill them in `ClassicGetActions` in the same `switch` that already forces each rule to be described, e.g.:
-  `MP -> "Modus ponens", "→E", ELIMINATION, "From A → B and A, derive B", ["Implication (A → B)", "Antecedent (A)"]`.
-  Update `docs/API.md` (the actions section) and `ModelTest`, `ClassicalUseTest`.
-- Change (frontend): `types.d.ts` gets the optional fields; `Menu.tsx` renders `<optgroup>` per category with
-  `label (symbol)`, shows `description` under the select (`aria-describedby`), and uses `paramLabels[index]` for the
-  input label with the current generic labels as fallback. `renderRule` in `utils.ts` and the descriptor `symbol` must
-  produce the same name so a rule has one name in the dropdown and in the Rule column (derive one from the other or
-  test that they agree).
-- Tests: backend: every `AvailableAction` has a non-blank label, description and `paramLabels.size() == params.size()`.
-  Frontend: grouped options, description text, per-input labels, fallback when fields are absent.
-- Done when: choosing MP shows "Modus ponens (→E)", "From A → B and A, derive B", and inputs "Implication (A → B)" /
-  "Antecedent (A)".
-
-**4.2 Say why a rule did not apply** — done, folded into #127
-- Change (first cut, frontend only): on a 202 failure append the descriptor's `description` to the message
-  ("Rule MP cannot be applied to lines [2, 1]. MP needs A → B on the first line and A on the second.").
-- Later, if wanted: a structured reason from the domain (`isValid` returning why) is a larger backend change.
-
----
-
-## PR 5: Working on the proof itself
-
-Order inside this PR series: 5.1, 5.3, 5.2, 5.4, 5.5, 5.6 (one small PR each).
-
-**5.1 Click a row to fill a line input** (`ProofViewer.tsx`, `StepViewer.tsx`, `App.tsx`, `Menu.tsx`) — done (#128)
-- Rows become focusable (`tabIndex=0`, Enter/Space activates); activating a row writes its number into the next empty
-  INT input and triggers the existing glow. Fixes hover-only highlighting: `onFocus`/`onBlur` call the same handlers
-  as mouse enter/leave. Needs lifting the "selected line" callback from `Menu` to `App` (the glow map already lives there).
-- Tests: click and keyboard fill the first, then the second input; hover/focus highlight the cited rows.
-
-**5.2 Show proof structure** (`StepViewer.tsx`, `Expressions.css`) — done (#130)
-- Replace tab characters in `<pre>` with CSS indentation and a left rule per open subproof; line number becomes
-  `<th scope="row">`; add a visually hidden "assumption level N"; mark discharged steps (the model `disable()`s them,
-  check whether the DTO exposes that before promising it).
-
-**5.3 Completion state** (`Goal.tsx`, `Menu.tsx`, `App.tsx`) — done, folded into #129
-- When `proof.done`: a `role="status"` line "Proof complete" (also for the Solve path, which already has a notice),
-  goal gets a text/icon marker not only green/red, rule controls are disabled, New Proof is offered. Confetti stays decoration.
-- Tests: `Goal.test.tsx`, `Menu.test.tsx` for the done state.
-
-**5.4 Undo and confirm** (`App.tsx`) — done (#131)
-- "Undo last step" resends the proof without its last step; safe because the server is stateless and replays the
-  steps (check the discharge case: `DT`/`NOTI` mark earlier steps disabled, which is derived on replay, so this holds,
-  but add a test against the real backend replay in `RestServiceIT` or a component test with a fixture).
-- Confirm before "New Proof" replaces a proof that has more than its premises.
-
-**5.5 Formula input help** (`NewProofModal.tsx`, `GlowingInput.tsx`) — done (#138, issue #122)
-- Persistent syntax hint ("-> implies, & and, | or, ! not") and buttons that insert the connective at the cursor,
-  labelled with the symbol shown in the table. Placeholders on expression inputs.
-
-**5.6 Empty state** (`App.tsx`) — done (#137, issue #123)
-- Single message, three-step "how it works", and a "Try an example" button that loads `p → q`, `p` with goal `q`.
-
----
-
-## PR 6.1: Expose the proof text protocol in the UI — done (#135, issue #132)
-
-- Change: the backend's `POST/GET /logic/{logic}/proof` text format (the fixed-indent `->I [1-2]` layout documented in
-  `CLAUDE.md`) has zero frontend caller — `service/actions.ts` never calls it. Add a "Copy proof as text" action
-  (fetches/renders it) and a "Load from text" input in `NewProofModal.tsx` or a new small panel, reusing the existing
-  text layout the backend already parses.
-- Tests: `actions.test.ts` for the new fetch calls; a component test round-tripping a small proof through copy →
-  paste → load.
-- Done when: a user can export the current proof as text and re-load it without going through the REST
-  action-by-action flow.
-
----
-
-## PR 6.2: Text equivalent for cited-line highlighting — done (#134, issue #133)
-
-- Change: the "glow" that marks lines cited by the currently-focused rule inputs (`StepViewer.tsx`, added in PR 5.1)
-  is color/box-shadow only (`glowStyle`/`--glow-color`). Add a visually-hidden text cue (e.g. `aria-describedby` or
-  a `sr-only` span, "cited by current input") so screen-reader users get the same signal sighted users get from the
-  glow.
-- Tests: `StepViewer.test.tsx` — glowing row exposes the hidden text; non-glowing rows don't.
-- Done when: a screen reader announces which row is cited without relying on color.
-
----
-
-## PR 7: Backend-checked proofs
-
-**7.1 Check a new proof's formulas with the backend before showing it** — done (#151, issue #139)
-- Change: `NewProofModal` keeps `checkFormula` as the instant check, but on submit `App.handleNewProofSubmit` sends the
-  premises-only proof (premises + goal) through the existing `replayProof` (`service/actions.ts`, the path Undo uses;
-  the transformers parse the goal and every step). A rejection keeps the dialog open with the backend's message; success
-  shows the proof as the backend returned it. "Try an example" goes through the same path. No new endpoint, no backend
-  change. Answers the drift risk of 1.4 without the parse endpoint that step mentioned.
-- Tests: `App.test.tsx`: a formula `checkFormula` accepts but the mocked backend rejects keeps the dialog open with the
-  message; an accepted proof is the one the backend returned; a late answer after Cancel is ignored.
-- Done when: a formula the backend cannot parse never becomes a proof line.
-
-**7.2 Keep the proof across a page reload** (`App.tsx`) — done (#153, issue #140)
-- Change: nothing in `frontend/src` uses storage today, so a reload loses the proof. Save the current `ProofDto` to
-  `sessionStorage` on every change (read and write wrapped in try/catch); on mount, restore it through `replayProof`
-  so the backend re-checks it and gives back `done`. A rejected or corrupt saved proof falls back to the empty state with
-  a notice. New Proof and "Try an example" overwrite it.
-- Tests: `App.test.tsx`: a saved proof is restored and replayed; a corrupt or rejected one shows the empty state; a
-  storage that throws is ignored; a new proof replaces the saved one.
-- Done when: reloading mid-proof shows the same proof with the same done state.
-
-**7.3 "Load from text" accepts only finished proofs, through `POST .../proof`** — done (#156, issue #141)
-- Change: "Load from text" posts the text to `POST /logic/{logic}/proof`, which already takes the last line as the goal,
-  the leading `Ass` lines as the premises, and rejects a proof that does not end at the top level or has a step that does
-  not follow. Remove the dialog's goal field, `parseProofText` and the replay-based `loadProofFromText` (keep
-  `proofToText`). The copy notice no longer asks the user to note the goal; for a proof that is not done it says the text
-  only loads back once the proof is finished. `CLAUDE.md` "Text protocols": drop the `parseProofText` note, say the UI
-  loads text through this endpoint.
-- Tests: `actions.test.ts` (the POST call, error handling); `NewProofModal.test.tsx` (no goal field, error shown for an
-  unfinished proof); `App.test.tsx` (a finished proof round-trips copy → load; an unfinished one is rejected);
-  remove the `parseProofText` tests from `utils.test.ts`.
-- Done when: pasting a finished proof rebuilds it with its goal and nothing else to type; an unfinished or invalid one
-  says why it cannot load.
-
----
-
-## PR 8: Exercises
-
-**8.1 An exercise catalog per logic (backend)** — done (#152, issue #142)
-- Change: `GET /logic/{logic}/exercises` returns `ExerciseDto(id, title, premises, goal, difficulty)` from a per-logic
-  bean, collected into a map by `logic()` like the other use-case beans. The classical set has about 12 exercises from
-  easy to hard (MP chains, ∧/∨ elimination, →I, ¬I, `--p ⊢ p`, `⊢ p | -p`). Each exercise keeps a reference solution in
-  the proof-text layout, which is never sent to the client. Update `docs/API.md`.
-- Tests: a unit test runs every reference solution through `ProofParser`: it parses, its premises and last line equal
-  the exercise's, and it is done. `RestServiceIT`: 200 with the list, 404 for an unknown logic.
-- Done when: every listed exercise is provable, and a test fails if one is not.
-
-**8.2 Exercises in the UI (frontend)** — done (#157, issue #143)
-- Change: an "Exercises" list, reachable from the empty state and the toolbar, grouped by difficulty. "Start" opens the
-  exercise through the 7.1 path (backend-checked). Solved exercises are recorded in `localStorage` (wrapped in try/catch)
-  and shown with a text marker, not colour alone. When a proof started from an exercise is done, the completion notice
-  offers "Next exercise".
-- Tests: `actions.test.ts` (fetch and cache); `App.test.tsx`: starting an exercise shows its premises and goal;
-  finishing it marks it solved, which survives a remount; "Next exercise" starts the next one.
-- Done when: a student can work through the list and see which exercises they have solved.
-
----
-
-## PR 9: Intuitionistic logic
-
-**9.1 Intuitionistic propositional logic (backend)** — done (#155, issue #144)
-- Investigate first: intuitionistic = classical without double negation elimination (`NOTE`, `ClassicNotE`, "¬E");
-  `FE` (ex falso) stays. Choose between a thin `implementation.deduction.intuitionistic` / `intuitionistic-use-case` pair
-  reusing the classical language and rule classes with its own `NaturalDeduction` subclass and action enum without
-  `NOTE`, or a rule filter on the classical use case; keep the no-default `switch` guarantee of `ClassicGetActions`.
-  Check whether `automate()` uses `NOTE`; if so `POST /logic/intuitionistic/solve` answers 400 "no solver for this
-  logic" instead of producing a classical proof.
-- Change: register `"intuitionistic"` (`Transformer`, `ProofParser`, `LogicalGetActions` without `NOTE`) through a
-  `*Configuration` imported in `ApplicationConfiguration`, with the `module-info` exports/requires. Update `docs/API.md`,
-  add `/logic/intuitionistic/actions` to the `OnMaster.yml` smoke test, and add an intuitionistic exercise set (8.1).
-- Tests: the actions have no `NOTE`, and `NOTE` sent as an action is a 400; the proof of `--p ⊢ p` does not replay
-  under intuitionistic but does under classical; `RestServiceIT` for the endpoints and the solve answer.
-- Done when: `GET /logic/intuitionistic/actions` lists every classical rule except ¬E, and a classical-only proof is
-  rejected.
-
-**9.2 Pick the logic in the UI (frontend)** — done (#158, issue #145)
-- Change: `LOGIC` in `constant.ts` becomes the list of logics the UI supports (classical, intuitionistic; modal stays
-  backend-only). The New Proof dialog gets a logic selector and the current logic is shown next to the goal. Everything
-  that uses `LOGIC` (`Menu`, `actions.ts`, 7.2's saved proof, 8.2's list) reads it from `proof.logic` instead.
-- Tests: an intuitionistic proof fetches its own rules (no ¬E); switching logic resets the Menu; a restored proof
-  keeps its logic; the exercise list follows the logic.
-- Done when: a student can do the same exercise in both logics and see that `--p ⊢ p` only works classically.
-
----
-
-## PR 10: Modal logic in the UI
-
-The backend is complete (`/logic/modal/actions|action|solve|proof`); the UI has pieces already (`Menu` renders `STATE`
-inputs and sends `extraParameters.state`, `renderExpression` shows `[]`/`<>` as □/◇) but cannot run a modal proof yet.
-
-**10.1 Describe the modal rules (backend)** — done (#154, issue #146)
-- Change: `AvailableModalAction` builds its descriptors with `ActionDescriptorDto.of(name, params)` only, so the modal
-  rules have no `label`, `symbol`, `category`, `description` or `paramLabels` (PR 4.1 left `ModalGetActions` alone).
-  Fill them for all 20 rules as `ClassicGetActions` does, in a form that fails to compile or fails a test when a rule is
-  added without a description (e.g. `□I` "Box introduction", `◇E`, `Refl`, `Trans`, and `STATE` param labels such as
-  "State (e.g. s1)"). Symbols must agree with `renderRule` on the rule strings the modal steps carry (`[]I`, `-E`, ...).
-  Update `docs/API.md`.
-- Tests: every modal descriptor has a non-blank label and description and `paramLabels.size() == params.size()`; the
-  existing test that every entry builds an action keeps passing.
-- Done when: `GET /logic/modal/actions` describes each rule as the classical endpoint does.
-
-**10.2 States in modal proofs (frontend)** — done (#160, issue #147)
-- Change: `ModalProofTransformer.initialAssumption` rejects a premise whose `extraParameters.state` is not the initial
-  state `s0`, and `handleNewProofSubmit` sends `{}`. For a modal proof, premises get `{ state: 's0' }` (investigate
-  first what relation premises such as `s0 <= s1` need; `initialAssumption` only checks logical formulas). `StepViewer`
-  shows each step's state (`extraParameters.state`) in its own column, with a header and text, not colour alone;
-  `proofToText` / the text protocol keep working for modal (check `ModalProofParser`'s line format for the state).
-- Tests: `App.test.tsx` / `StepViewer.test.tsx`: a modal proof's premises carry `s0`; the state column shows each step's
-  state and is absent for classical proofs; an Apply with a `STATE` input round-trips against a mocked modal backend.
-- Done when: a modal proof started in the UI survives its first action, and every row says which state it is in.
-
-**10.3 Modal formula help (frontend)** — done (#159, issue #148)
-- Change: the #138 hint and connective buttons cover only `→ ∧ ∨ ¬`. For a modal proof add `□` (`[]`) and `◇` (`<>`)
-  buttons and hint entries, and explain relation formulas (`s0 <= s1`, `s0 = s1`) in the hint. `checkFormula` already
-  knows these tokens; add tests for them. Note: `Until` (`U`) exists in the model but `ModalLogicParser` has no operator
-  for it, so it cannot be typed in `"modal"`; leave it out of the help. (Since 10.5, `"modal-next-until"` has its own
-  `X` and `U` buttons and hint entries.)
-- Tests: `GlowingInputConnectives.test.tsx` / `NewProofModal.test.tsx`: modal buttons appear only for modal proofs and
-  insert `[]`/`<>`; `utils.test.ts`: `checkFormula` on `[]p -> p`, `<>(p & q)`, `s0 <= s1`, and a dangling `[]`.
-- Done when: every modal formula can be typed with the buttons, and the hint lists every operator the parser accepts.
-
-**10.4 Offer modal logic in the selector (frontend + exercises)** — done (#162, issue #149)
-- Change: add `"modal"` to the logics of 9.2's selector once 10.1-10.3 are in; add a modal exercise set to 8.1's
-  catalog (e.g. `[]p ⊢ p` with `Refl`, `[]p ⊢ [][]p` with `Trans`, `p ⊢ <>p`), each with a reference solution checked by
-  the same `ProofParser` test. Extend the `OnMaster.yml` smoke test only if it does not already cover modal actions (it
-  does today).
-- Tests: `App.test.tsx`: choosing modal fetches the modal rules, shows the state column and modal buttons; the modal
-  exercise list loads; backend: the modal reference solutions replay.
-- Done when: a student can pick modal logic, start a modal exercise and finish it in the UI.
-
-**10.5 A `modal-next-until` logic: modal logic with Next and Until (backend, then UI)** — done (#163 backend, #164 frontend; issue #150)
-- Idea: keep `"modal"` as it is and add a new logic, `ModalNextUntil` (URL key `"modal-next-until"`), that is modal
-  logic over discrete states with two new operators: Next `X` (`s: X P` iff `s+1: P`, where `s+1` is the successor
-  state of `s`) and Until `U`. A first attempt (PR #161, closed) gave `U` a strong-until meaning over `<=` alone; without
-  a next state the natural Until rules are unsound there, so Next is needed. `Until` (`expressions/modal/Until.java`,
-  printed `A U B`) already exists in the formula model; `X` needs a new unary formula class.
-- Outcome: built as planned below. States are successor terms (`s0`, `s0+1`, ...) that the backend normalizes; the
-  rules are `XI`, `XE`, `Succ`, `UI` (`UI1`/`UI2`), `UE`, `U<>` and an induction rule `Ind`; there is no solver
-  (`/solve` answers 400); `isDone()` requires the goal in `s0`; `"modal"` is unchanged (`ModalFreshStateTest`). The
-  investigation notes below are kept as the design record.
-- Semantics (as investigated): states form a discrete order, every state `s` has a successor `s+1`,
-  `s <= s+1`, and `<=` is the reflexive-transitive closure of the successor, so `□`/`◇`/`Refl`/`Trans` keep their meaning.
-  `s: A U B` iff for some `k >= 0`, `s+k: B` and `s+j: A` for every `j < k` (strong until).
-- Investigate first:
-  - How a successor state is named and related: state terms such as `s0+1`, or a successor relation formula next to
-    `<=`/`=` (e.g. `s1 = s0+1`), and how that fits `ModalProofParser`'s `sN:` line prefix and `extraParameters.state`.
-  - Rules. Next: `XI` (from `P` at `s+1` derive `X P` at `s`) and `XE` (from `X P` at `s` derive `P` at `s+1`), plus
-    `s <= s+1`. Until by the expansion law `A U B <-> B | (A & X(A U B))`: `UI1` (from `B` at `s`), `UI2` (from `A` and
-    `X(A U B)` at `s`), `UE` by cases into `B` or `A & X(A U B)` at `s`, and `A U B` at `s` gives `◇B` at `s`. Decide
-    whether an induction rule is needed and say which rules are sound and whether the set is complete.
-  - Reuse from closed PR #161: the standalone-word tokenizer for `U` (so `TRUE`, `Up`, `pUq` stay names), the same for
-    `X`; the rule-reader hook on `ModalNaturalDeduction`; the protected hooks on `ModalProofTransformer`/`ModalProofParser`;
-    `ActionInput` for descriptors; operator precedences (`X` with the unary operators, `U` between them and `&`).
-  - Whether `automate()` copes with `X`/`U`; if not, `POST /logic/modal-next-until/solve` answers 400 "no solver".
-- Change (backend): the new logic as an extension of the modal modules (per the investigation) with `Transformer`,
-  `ProofParser`, `LogicalGetActions` (10.1-style descriptions) and a `*Configuration` imported in
-  `ApplicationConfiguration`; `module-info` exports/requires; an exercise catalog with replayed reference solutions;
-  `docs/API.md`; `CLAUDE.md`; the `OnMaster.yml` smoke test gets `/logic/modal-next-until/actions`. `"modal"` behaves
-  exactly as before.
-- Change (frontend, after 10.3 and 10.4): `"modal-next-until"` in `LOGICS` (with states); `X` and `U` connective buttons
-  and hint entries for that logic only; `checkFormula` accepts them; successor states wherever the UI shows or takes a
-  state.
-- Tests: the parser round-trips `X p`, `p U q` and their precedence; `"modal"` still rejects the new rules; each Next and
-  Until rule's valid and invalid cases (including a wrong successor state); a small proof using `X` and `U` replays
-  through `ProofParser`; the exercise solutions replay; `RestServiceIT` for the new logic's endpoints; frontend: the
-  `X`/`U` buttons show only for `modal-next-until`.
-- Done when: `/logic/modal-next-until/...` proves formulas with `X P` and `A U B` from the REST API and the UI, and
-  `/logic/modal/...` behaves exactly as before.
-
----
-
-## PR 11: First-order logic with equality (and group theory)
-
-A new logic, `"first-order"`: function symbols, predicates, `=`, `∀`/`∃`, and group theory as a set of premises. No
-solver (`hasSolver` false, `/solve` answers 400), so the solver stays out of scope.
-
-Syntax defaults (change them and the steps move): `forall x. A` / `exists x. A` (reserved words, shown `∀x.`/`∃x.`, the
-body reaches as far right as it can, parentheses limit it). Terms: a lowercase identifier (variable or constant)
-or a function application `f(t, ...)`. There is no infix notation: a binary operation such as the group product is a
-function symbol the user names, as predicates are (`m(x, y)`). Atoms: `t = s` or a predicate `P(t, ...)`; a bare
-identifier used as a formula is a 0-ary predicate, so `p -> q` still parses. A free name in a premise (such as `e`) acts
-as a constant. Formulas are equal up to renaming of bound variables (`∀x.P(x)` equals `∀y.P(y)`), which `isDone()`
-relies on.
-
-**11.1 First-order language (backend)** — done (#179, issue #170)
-- Investigate first: javaluator cannot parse binders or function symbols that are not declared up front; confirm this,
-  and if it holds, write a small hand-written parser instead.
-- Change: a new `domain/logic-language/implementation.firstorder` module with term classes (variable, function
-  application), `Equals` and a predicate atom, connectives that implement the framework's
-  `Conjunction`/`Implication`/`Negation`/... (so the generic rule bases apply), `Forall`/`Exists`, and the parser.
-  It also provides `freeVariables()`, capture-avoiding `substitute(var, term)`, `equals`/`hashCode` up to renaming of
-  bound variables, and a `toString()` that the parser reads back. The `module-info` exports the package.
-- Tests: parse/print round-trip, including the precedence of `=`, the connectives and quantifier scope
-  (`forall x. P(x) & Q` scopes over the conjunction); bad input (`P(`, `forall . P`, `x = `); substitution avoids
-  capture (`(forall y. x = y)[x:=y]` renames `y`); alpha-equivalent formulas are equal and hash the same.
-- Done when: the group axioms parse and print back unchanged, and substitution is capture-free.
-
-**11.2 First-order natural deduction (backend)** — done (issue #171)
-- Change: a new `implementation.deduction.firstorder` module with `FirstOrderNaturalDeduction` (`automate()`
-  unsupported), the 14 shared propositional rules bound to the new language (as the `Modal*` classes are), a
-  `ParseFirstOrderAction` for the rule strings, and `ProofStep.toString()` in the usual text layout (no state prefix).
-  The new rules:
-  - `∀E`: line i plus a term t, gives `A[x:=t]`.
-  - `∀I`: line i plus the target `forall x. A`. It holds if line i is `A[x:=a]` for a name `a` that is free in no
-    premise, no open assumption, and not in the target.
-  - `∃I`: line i plus the target `exists x. A`. It holds if line i is `A[x:=t]` for some term t.
-  - `∃E`: line i `exists x. A` and a subproof that opens with `A[x:=a]` and closes on C, with `a` fresh (not in the ∃
-    formula, C, the premises, or any assumption open outside the subproof). It discharges the subproof as `<>E` does.
-  - `=I`: a term t, gives `t = t`.
-  - `=E`: line i `s = t`, line j `A`, plus a target that must be `A` with some occurrences of `s` replaced by `t`.
-- Tests: valid and invalid cases for each new rule, including `∀I` on a name that is free in a premise or an open
-  assumption, `∃E` with a name that is not fresh or that escapes into C, `=E` with a target that is not a substitution
-  instance, and capture cases; a small proof (`forall x. P(x) ⊢ exists x. P(x)`) replays through `parse()`.
-- Done when: that proof and `a = b, P(a) ⊢ P(b)` are done, and each forbidden generalization is rejected.
-
-**11.3 Serve `"first-order"` (backend)** — done (issue #172)
-- Change: a new `first-order-use-case` module with a `Transformer`, a `ProofParser` and a `LogicalGetActions` with
-  10.1-style descriptions (`∀I` "For-all introduction", ...), and a `FirstOrderConfiguration` imported in
-  `ApplicationConfiguration`. A new `ParamKind` `TERM`, sent in `extraParameters.term`, is needed for `∀E`/`=I` (an
-  additive change); the targets are `EXPRESSION` params. Add a pure first-order exercise set with replayed reference
-  solutions (quantifier swaps, `∀`/`∧` distribution, symmetry and transitivity of `=`), add
-  `/logic/first-order/actions` to the `OnMaster.yml` smoke test, and update `docs/API.md` and `CLAUDE.md`.
-- Tests: every descriptor has a non-blank label and description and `paramLabels.size() == params.size()`; a `TERM`
-  param round-trips; `FirstOrderExercisesTest` replays every solution; `RestServiceIT` covers actions, action, proof
-  text and `/solve` → 400; the other logics are unchanged.
-- Done when: `/logic/first-order/...` proves `forall x. P(x) ⊢ exists x. P(x)` over REST.
-
-**11.4 Group theory: premise sets and exercises (backend)** — done (#182, issue #173)
-- Change: a `LogicalTheories` catalog behind a new `GET /logic/{logic}/theories` endpoint. Each theory is
-  `{id, name, premises}`; a known logic without one answers `[]`, as exercises do. `first-order` gets `group`:
-  - `forall x. forall y. forall z. m(m(x, y), z) = m(x, m(y, z))`
-  - `forall x. m(e, x) = x & m(x, e) = x`
-  - `forall x. m(i(x), x) = e & m(x, i(x)) = e`
-
-  Add a group exercise set built on those premises, with reference solutions, ordered by difficulty: uniqueness of the
-  identity, left cancellation, `forall x. i(i(x)) = x`, uniqueness of inverses,
-  `forall x. forall y. i(m(x, y)) = m(i(y), i(x))`, and (hard) that `forall x. m(x, x) = e` implies commutativity. Update
-  `docs/API.md`.
-- Tests: the premises of each theory parse; every group solution replays and is done; `RestServiceIT` covers
-  `/theories`, including `[]` for classical and 404 for an unknown logic.
-- Done when: `GET /logic/first-order/theories` returns the group axioms, and the group exercises are served.
-
-**11.5 First-order logic in the UI (frontend)** — done (issue #174)
-- Change: add `"first-order"` to `LOGICS` with `hasSolver: false`; `Menu` renders `TERM` inputs;
-  `checkFormula`/`isRelationFormula` learn the first-order syntax, for that logic only; `renderExpression` shows
-  `∀`/`∃`; `connectives.ts` adds `∀`, `∃` and `=` buttons and hint entries, for that logic only. `proofToText`
-  should work unchanged; check that it does.
-- Tests: `utils.test.ts`: `checkFormula` on the group axioms and on malformed quantifiers, and `forall` is refused in
-  classical; `GlowingInputConnectives.test.tsx`: the new buttons appear only for `first-order`;
-  `AppFirstOrder.test.tsx`: an `∀E` with a term round-trips against a mocked backend.
-- Done when: a student can pick first-order logic and finish `forall x. P(x) ⊢ exists x. P(x)` in the UI.
-
-**11.6 Start from a theory (frontend)** — done (issue #175)
-- Change: for a logic whose `/theories` is not empty, the New Proof dialog gets a "Premises from theory" picker.
-  Choosing Group fills in the premises, which stay editable. The exercise list shows the group exercises under their
-  own heading.
-- Tests: `NewProofModal.test.tsx`: the picker is hidden for classical, filling it inserts the three axioms, and they
-  can be edited before Start Proof.
-- Done when: a student can start "Group axioms ⊢ `forall x. i(i(x)) = x`" in two clicks and prove it.
+Every PR must pass `npm run typecheck`, `npm test`, and, if it touches Java, `mvn -B verify`, locally before pushing,
+and adds its entry to `CHANGELOG.md`.
 
 ---
 
@@ -513,35 +63,36 @@ solvers, it starts from the premises (`proof.reset()`). `classical` and `modal` 
   are unchanged. `RestServiceIT`: `/logic/modal-next-until/solve` answers 200.
 - Done when: Solve appears for modal-next-until and finishes its non-induction exercises.
 
-**12.3 First-order solver (backend + one flag; after PR 11)** — pending (issue #178)
+**12.3 First-order solver (backend + one flag)** — pending (issue #178)
 - Change: a best-effort `FirstOrderAutomate` (first-order logic is undecidable, so it can fail, and it ends with
   `done=false` when it does). It combines the classical propositional strategy with:
   - `∀I` or `∃E` with a fresh name when the goal or an assumption calls for it;
   - `∀E` or `∃I` instantiated with the terms already in the proof, up to a bounded term depth;
   - `=I`, and `=E` limited to symmetry and transitivity chains.
 
-  `FirstOrderNaturalDeduction.automate()` runs it, and `hasSolver` becomes true in the transformer and in `LOGICS`
-  (PR 11 ships with `hasSolver: false`).
-- Tests: every pure first-order exercise from 11.3 is solved, replays and is done. The group exercises are not
+  `FirstOrderNaturalDeduction.automate()` runs it, and `hasSolver` becomes true in the transformer and in `LOGICS`.
+- Tests: every pure (non-group) first-order exercise is solved, replays and is done. The group exercises are not
   required. A goal the solver cannot prove ends with `done=false` before the timeout. `RestServiceIT`:
   `/logic/first-order/solve` answers 200.
 - Done when: Solve finishes `forall x. P(x) ⊢ exists x. P(x)` and the pure first-order exercises in the UI.
 
 ---
 
-## Verification after all PRs
+## Verification
 
-- Jest tests next to each touched component as listed; `npm run typecheck`; `mvn -B verify` for PRs 2 and 4.
-- Production build: `npm run build`, embed into `executable/src/main/resources/public/`, run the jar, then re-run the
-  site audit and Lighthouse there. Only then judge performance.
-- Manual pass with the keyboard only and with a screen reader on: new proof, MP 1,2 to completion, an error, Undo.
+- Jest tests next to each touched component; `npm run typecheck`; `mvn -B verify` for anything in Java.
+- Performance is judged on the production build only: `mvn clean install` embeds the UI in the jar; run the jar and
+  measure there (Vite dev-server timings are not meaningful).
+- A manual pass with the keyboard only and with a screen reader on after UI changes: new proof, a rule to completion,
+  an error, Undo, Solve.
 
-## Risks
+## Risks and open ideas
 
-- PR 4 changes a REST payload shape: additive fields only, and `docs/API.md` must change in the same PR.
-- The client-side formula check can drift from the real parser: keep it conservative, or add the parse endpoint.
-- `<dialog>` under jsdom (Jest 30) has partial support; be ready to fall back to a manual focus trap.
-- The Rule column renames rules in the display only; the `[1-2, 4]` range text that `ProofViewer` regex-parses must not change.
-- PR 11: equational proofs get long when every `=E` means typing the full target formula. If this hurts, a follow-up
-  could have `=E` compute the target from a chosen occurrence. The first-order `checkFormula` can drift from the Java
-  parser; keep it conservative.
+- A solver must never emit a rule its logic does not offer (e.g. `-E` in intuitionistic logic), or its result will not
+  replay; the replay tests in each step are what guard this.
+- A solver that loops makes its PIT mutants time out; keep the depth bounds explicit and see the PIT notes in
+  `CLAUDE.md`.
+- The client-side formula checks (`checkFormula`, `checkFirstOrderFormula`) can drift from the Java parsers: keep them
+  conservative.
+- First-order equational proofs get long when every `=E` means typing the full target formula. A possible follow-up:
+  `=E` computes the target from a chosen occurrence.

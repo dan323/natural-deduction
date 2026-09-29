@@ -8,8 +8,9 @@ This guide covers building, configuring, and running the Natural Deduction proje
 
 - **Java**: JDK 21 or higher
 - **Maven**: 3.6.3 or higher
-- **Node.js**: 22.12 or higher (for frontend)
-- **npm**: 7.x or higher (for frontend)
+- **Node.js**: 22.12 or higher, only for working on the frontend with `npm` (the Maven build downloads its own Node,
+  `node.version` in `executable/pom.xml`)
+- **npm**: 7.x or higher (for frontend development)
 - **Git**: For cloning the repository
 
 ### Installation Verification
@@ -46,6 +47,8 @@ This will:
 - Download all dependencies
 - Compile all modules
 - Run unit tests
+- Build the frontend (`executable` downloads Node into `executable/target/node`, runs `npm ci --ignore-scripts` and
+  `npm run build` in `frontend/`) and embed it in the jar as `classpath:/public/`
 - Package the jars, including the Spring Boot fat jar
 - Run the integration tests (`*IT.java`), one of which boots the fat jar on a free port
 - Create code coverage reports
@@ -84,26 +87,22 @@ npm run build
 This creates the production build in `frontend/build/` (not `dist/`). `npm run typecheck` type-checks the code, which
 `vite build` does not.
 
-**Embedding it in the jar**: the jar serves the UI only if the build is copied into
-`executable/src/main/resources/public/` (gitignored) before the backend is packaged. This is what CI does before
-publishing the Docker image:
+**Embedding it in the jar**: you do not need to do anything. `mvn install` / `mvn verify` build `frontend/` in the
+`executable` module (frontend-maven-plugin, in `generate-resources`) and package `frontend/build` as
+`classpath:/public/`, so the jar always ships the UI of the checkout. `target/classes/public` is emptied first, so no
+file of an older UI is left behind, even without `clean`. `FatJarActionsIT.theFatJarServesTheCurrentUi` checks that
+the packaged jar's bundle offers every logic.
 
-```powershell
-cd ..   # back to the repository root (the build above ran in frontend/)
-New-Item -ItemType Directory -Force executable/src/main/resources/public | Out-Null
-Remove-Item -Recurse -Force executable/src/main/resources/public/*   # drop the files of an earlier build
-cp -r frontend/build/* executable/src/main/resources/public/
-mvn clean install
-```
-
-Without this, the jar serves only the REST API. Always package with `clean` (`executable/target/classes` keeps the old
-`public/` files otherwise), and stop a running jar first, since the build cannot replace it while it runs.
+To skip the frontend build (e.g. for a backend-only change), pass `-Dskip.installnodenpm -Dskip.npm`: the jar then
+packages whatever `frontend/build` holds (no UI if there is none) and that test is skipped. The old hand-copied
+`executable/src/main/resources/public/` is gitignored and excluded from the jar. Stop a running jar before
+rebuilding, since the build cannot replace it while it runs.
 
 ## Running the Application
 
 ### Option 1: Run the Executable JAR (Recommended)
 
-The JAR file serves the REST API and, if the frontend was embedded before packaging (see above), the UI:
+The JAR file serves the REST API and the UI embedded by the build (see above):
 
 ```powershell
 java -jar executable/target/executable-0.1-SNAPSHOT.jar
@@ -112,7 +111,7 @@ java -jar executable/target/executable-0.1-SNAPSHOT.jar
 The application listens on port 8080 (`--server.port=9090` changes it).
 
 **Access the application**:
-- Frontend: http://localhost:8080 (when embedded in the jar)
+- Frontend: http://localhost:8080
 - REST API: http://localhost:8080/logic/{logic}/... (see [API.md](./API.md))
 - Health check: http://localhost:8080/actuator/health
 
@@ -140,15 +139,14 @@ so start the backend jar first (or `mvn spring-boot:run -pl executable`) and use
 
 ### Backend Configuration
 
-Main configuration file: `executable/src/main/resources/application.properties`. It only enables the actuator
-`beans` and `info` endpoints (only `health` is exposed over HTTP by default), so everything else uses Spring Boot's
-defaults. Any property can be overridden on the command line, e.g. `--server.port=9090`.
+There is no `application.properties`: everything uses Spring Boot's defaults (only the actuator `health` endpoint is
+exposed over HTTP). Any property can be set on the command line, e.g. `--server.port=9090`.
 
 The one application-specific property:
 
-| Property | Default | Meaning |
-|----------|---------|---------|
-| `natural-deduction.solve-timeout` | `10s` | How long `POST /logic/{logic}/solve` may run before it is answered with a 422 (`5s`, `PT5S`, ...) |
+| Property                          | Default | Meaning                                                                                           |
+|-----------------------------------|---------|---------------------------------------------------------------------------------------------------|
+| `natural-deduction.solve-timeout` | `10s`   | How long `POST /logic/{logic}/solve` may run before it is answered with a 422 (`5s`, `PT5S`, ...) |
 
 ### Frontend Configuration
 
@@ -180,6 +178,7 @@ export const LOGICS: readonly LogicInfo[] = [
     { id: 'intuitionistic', name: 'Intuitionistic', description: '...', hasSolver: false },
     { id: 'modal', name: 'Modal', description: '...', hasSolver: true },
     { id: 'modal-next-until', name: 'Modal with Next and Until', description: '...', hasSolver: false },
+    { id: 'first-order', name: 'First-order', description: '...', hasSolver: false },
 ];
 ```
 
@@ -226,7 +225,8 @@ npx jest src/components/menu
 
 ## Docker Deployment
 
-The `Dockerfile` only copies `executable/target/*.jar`, so build the jar first (with the frontend embedded, see above).
+The `Dockerfile` only copies `executable/target/*.jar`, so build the jar first (`mvn clean install`, which embeds
+the frontend).
 
 ### Build Docker Image
 
@@ -247,7 +247,7 @@ The image runs as an unprivileged user and has a `HEALTHCHECK` on `/actuator/hea
 ### Published image
 
 On every push to `master`, the "Publish Docker image" workflow (`OnMaster.yml`) type-checks and tests the frontend,
-embeds it, runs `mvn verify`, builds the image from that jar, smoke-tests it (the actions endpoint of every logic, the UI, the non-root user)
+runs `mvn verify` (which embeds it), builds the image from that jar, smoke-tests it (the actions endpoint of every logic, the UI, the non-root user)
 and only then pushes it to Docker Hub as `dan323/natural-deduction`.
 
 ## Code Quality Analysis
@@ -274,6 +274,12 @@ View report: Open `jacoco-natural-deduction/target/site/jacoco/index.html` in br
 mvn test-compile org.pitest:pitest-maven:mutationCoverage -pl domain/logic-language/framework
 ```
 
+For the whole project, as CI does, skip the frontend build (PIT is skipped in `executable` anyway):
+
+```powershell
+mvn -B test-compile org.pitest:pitest-maven:mutationCoverage -Dskip.installnodenpm -Dskip.npm
+```
+
 The PIT settings (`threads`, `timeoutConstant`, `timeoutFactor`) are in the root `pom.xml`. Mutants that loop forever (mostly in the automatic solvers) end as `TIMED_OUT`, which counts as detected; the timeout is kept short so they are cut off quickly. Reports are written to `target/pit-reports` of each module.
 
 ## Troubleshooting
@@ -291,11 +297,12 @@ The PIT settings (`threads`, `timeoutConstant`, `timeoutFactor`) are in the root
 ### Runtime Issues
 
 **Issue**: Port 8080 already in use
-- **Solution**: Kill process using the port or change port in `application.properties`
+- **Solution**: Kill process using the port or start on another one with `--server.port=9090`
 - **PowerShell**: `Get-Process -Id (Get-NetTCPConnection -LocalPort 8080).OwningProcess | Stop-Process`
 
 **Issue**: "Frontend not found" when accessing http://localhost:8080
-- **Solution**: The jar only serves the UI if the frontend build was copied into `executable/src/main/resources/public/` before packaging (see Frontend Setup), then rebuild: `mvn clean install`
+- **Solution**: The jar was built with `-Dskip.installnodenpm -Dskip.npm` and there was no `frontend/build`. Rebuild
+  without those flags: `mvn clean install`
 
 **Issue**: Frontend cannot connect to API
 - **Solution**: Check backend is running on port 8080

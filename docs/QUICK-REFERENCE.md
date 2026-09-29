@@ -43,6 +43,11 @@ mvn clean install -pl domain/logic-language/framework
 mvn clean install -DskipTests
 ```
 
+### Skip the Frontend Build
+```powershell
+mvn clean install -Dskip.installnodenpm -Dskip.npm   # the jar then has no UI (or the last frontend/build)
+```
+
 ### Build and Dependencies
 ```powershell
 mvn clean install -amd -pl domain/logic-language/framework
@@ -130,11 +135,13 @@ curl http://localhost:8080/logic/classical/actions
 curl http://localhost:8080/logic/intuitionistic/actions
 curl http://localhost:8080/logic/modal/actions
 curl http://localhost:8080/logic/modal-next-until/actions
+curl http://localhost:8080/logic/first-order/actions
 ```
 
-### List the Exercises
+### List the Exercises and Theories
 ```powershell
 curl http://localhost:8080/logic/classical/exercises
+curl http://localhost:8080/logic/first-order/theories   # the group axioms
 ```
 
 ### Solve a Proof Automatically
@@ -207,13 +214,9 @@ mvn clean -DskipTests install
 ```
 
 ### Rebuild Frontend Assets
+The Maven build of `executable` builds `frontend/` and embeds it, so rebuilding the jar is enough (stop a running jar
+first):
 ```powershell
-cd frontend
-npm run build
-New-Item -ItemType Directory -Force ../executable/src/main/resources/public | Out-Null
-Remove-Item -Recurse -Force ../executable/src/main/resources/public/*   # drop the files of an earlier build
-cp -r build/* ../executable/src/main/resources/public/
-cd ..
 mvn clean install
 ```
 
@@ -240,7 +243,6 @@ mvn clean install
 | `frontend/vite.config.ts` | Vite config, incl. the `/logic` dev proxy |
 | `Dockerfile` | Image of the jar (non-root, health check) |
 | `.github/workflows/` | CI: `CompileAndTest.yml`, `frontend.yml`, `OnMaster.yml` (Docker publish), `OnMerge.yml` |
-| `executable/src/main/resources/application.properties` | Spring Boot config |
 
 ## Useful Links
 
@@ -251,7 +253,9 @@ mvn clean install
 | http://localhost:8080/actuator/health | Health check |
 | http://localhost:8080/logic/classical/actions | Classical logic actions |
 | http://localhost:8080/logic/modal/actions | Modal logic actions |
+| http://localhost:8080/logic/first-order/actions | First-order logic actions |
 | http://localhost:8080/logic/classical/exercises | Classical logic exercises |
+| http://localhost:8080/logic/first-order/theories | First-order theories (group axioms) |
 | [GitHub](https://github.com/dan323/natural-deduction) | Repository |
 | [SonarCloud](https://sonarcloud.io/project/overview?id=natural-deduction) | Code quality |
 
@@ -294,20 +298,20 @@ $env:NODE_HOME = "C:\nodejs"
 - **Java**: 21
 - **Spring Boot**: 4.1.1
 - **Maven**: 3.6.3+
-- **Node.js**: 22.12+
+- **Node.js**: 22.12+ for `npm` (the Maven build downloads Node 24)
 - **React**: 19
-- **TypeScript**: 5.9
+- **TypeScript**: 6
 
 ## Common Issues & Solutions
 
-| Issue | Solution |
-|-------|----------|
-| Tests fail after pulling | `mvn clean install` |
-| Port 8080 in use | Kill process or change port |
-| Frontend can't connect | Ensure backend running on 8080 (the dev server proxies `/logic` there) |
-| Jar serves no UI | Copy `frontend/build/*` into `executable/src/main/resources/public/` and rebuild |
-| npm install errors | Delete node_modules and run `npm ci` |
-| Maven build fails | Check Java version is 21+ |
+| Issue                    | Solution                                                                 |
+|--------------------------|--------------------------------------------------------------------------|
+| Tests fail after pulling | `mvn clean install`                                                      |
+| Port 8080 in use         | Kill process or change port                                              |
+| Frontend can't connect   | Ensure backend running on 8080 (the dev server proxies `/logic` there)   |
+| Jar serves no UI         | Rebuild without `-Dskip.installnodenpm -Dskip.npm` (`mvn clean install`) |
+| npm install errors       | Delete node_modules and run `npm ci`                                     |
+| Maven build fails        | Check Java version is 21+                                                |
 
 ## Performance Tips
 

@@ -63,7 +63,8 @@ To add support for a new logical system (e.g., a temporal or relevance logic), f
 another one with fewer rules does not need new modules: `intuitionistic` is classical logic filtered by
 `AvailableAction.isIntuitionistic()` (package `com.dan323.uses.intuitionistic` in `classical-use-case`). One with more
 rules or connectives can subclass the existing one: `modal-next-until` extends modal logic (packages `nextuntil` in the
-modal modules).
+modal modules). A logic with a new language gets its own three modules, as `first-order` does
+(`implementation.firstorder`, `implementation.deduction.firstorder`, `first-order-use-case`).
 
 ### Step 1: Create the Modules
 
@@ -85,7 +86,8 @@ The code of `classical` and `modal` is the reference; in short:
 3. **Use case** (`domain/use-cases/<logic>-use-case`): expose three Spring beans, keyed by the logic name (`"classical"`,
    `"modal"`): a `Transformer` (DTO to domain proof and back, by replaying every step), a `ProofParser` (text file to
    proof) and a `LogicalGetActions` (the descriptors of the actions, see `ActionDescriptorDto`), and optionally a
-   `LogicalExercises` catalog (`GET .../exercises`). Add a `*Configuration` that declares them.
+   `LogicalExercises` catalog (`GET .../exercises`) and a `LogicalTheories` list (`GET .../theories`). Add a
+   `*Configuration` that declares them.
 4. **Wire it** in `executable/.../ApplicationConfiguration` by importing that configuration. No new controller is
    needed: `ControllerInterface` serves every logic under `/logic/{logic}/...`.
 
@@ -95,7 +97,7 @@ need a `requires`.
 ### Step 6: Update Dependencies
 
 Add the use-case module to `<modules>` in `domain/use-cases/pom.xml`, and depend on it from `executable/pom.xml`
-(next to `classical-use-case` and `modal-use-case`), so that it is on the jar's classpath.
+(next to `classical-use-case`, `modal-use-case` and `first-order-use-case`), so that it is on the jar's classpath.
 
 ### Step 7: Add Tests
 
@@ -103,7 +105,7 @@ Test each layer as the existing logics do (see `ClassicAndTest` in `implementati
 `modal-use-case`) and add the new logic to the integration tests in `executable/src/test/java`. `RestServiceIT` checks
 the `/logic/{logic}/...` endpoints of every logic, and `FatJarActionsIT` checks the action lists from the packaged
 jar. Each exercise needs a reference solution, which a test replays (`ClassicalExercisesTest`, `ModalExercisesTest`,
-...). Add the new logic to the Docker smoke test in `OnMaster.yml` too. If the rule list of the new logic is an enum, add a test that every entry builds
+`FirstOrderExercisesTest`, ...). Add the new logic to the Docker smoke test in `OnMaster.yml` too. If the rule list of the new logic is an enum, add a test that every entry builds
 an action, as `modal-use-case` does for `AvailableModalAction`.
 
 ### Step 8: Frontend Support (if needed)
@@ -134,8 +136,10 @@ Example: add a new rule to classical logic
    proof file) and to the `switch` in `ClassicGetActions` in `classical-use-case`, which lists its inputs (`INT`,
    `EXPRESSION`). That `switch` has no default branch, so the build fails until it is described, and so does the one
    of `AvailableAction.isIntuitionistic()`, which decides whether intuitionistic logic has the rule. For modal logic add
-   a value to `AvailableModalAction` and to `ParseModalAction`. A rule that both logics share keeps both names
-   (`AvailableAction`'s rule name and `ParseModalAction.ruleName`), which `SharedRuleNamesTest` checks.
+   a value to `AvailableModalAction` and to `ParseModalAction`, and for first-order logic to
+   `AvailableFirstOrderAction` and `ParseFirstOrderAction`. A rule that the logics share keeps both names
+   (`AvailableAction`'s rule name, `ParseModalAction.ruleName` and `ParseFirstOrderAction.ruleName`), which
+   `SharedRuleNamesTest` checks.
 3. **Add unit tests** next to the existing ones in `src/test/java/com/dan323/proof/classic/`
 4. **Update the automatic solver** (`ClassicalAutomate`) if it should use the rule
 
@@ -177,7 +181,8 @@ Use JUnit 6 and Mockito. Rules are tested against real proofs (see `ClassicAndTe
 - `RestServiceIT` - the REST API on a random port
 - `RestSolveTimeoutIT` - the 422 answer of a solve that does not finish, with a test-only logic
 - `NoExerciseCatalogContextTest` (a unit test) - the application still starts, and answers `[]` for the exercises, when no logic has an exercise catalog
-- `FatJarActionsIT` - starts the packaged fat jar and checks the action lists and the solver; only works through `mvn verify`
+- `FatJarActionsIT` - starts the packaged fat jar and checks the action lists, the solver and that it serves the
+  current UI (every logic of `LOGICS`); only works through `mvn verify`
 
 `SpringVersionAlignmentTest` (a unit test) fails when `spring.version` in the root pom no longer matches the Spring
 version managed by the Spring Boot parent of `executable`; bump both together.

@@ -10,15 +10,18 @@ natural-deduction (root pom.xml)
 │   ├── logic-language/
 │   │   ├── framework/
 │   │   ├── implementation/
-│   │   └── implementation.modal/
+│   │   ├── implementation.modal/
+│   │   └── implementation.firstorder/
 │   ├── proof-structures/
 │   │   ├── framework.deduction/
 │   │   ├── implementation.deduction.classic/
-│   │   └── implementation.deduction.modal/
+│   │   ├── implementation.deduction.modal/
+│   │   └── implementation.deduction.firstorder/
 │   └── use-cases/
 │       ├── base-use-case/
 │       ├── classical-use-case/
 │       ├── modal-use-case/
+│       ├── first-order-use-case/
 │       └── model/
 ├── executable/
 ├── rest/
@@ -67,6 +70,23 @@ Defines how logical formulas are represented and parsed.
 - **Java Packages**: `com.dan323.expressions` (parser), `com.dan323.expressions.modal`, `com.dan323.expressions.relation`
 - **Example Formula**: `[](A -> B) & <>(A & -B)`
 
+#### implementation.firstorder/
+- **Purpose**: First-order logic with equality
+- **Key Components**:
+  - Terms: `Term`, `VariableTerm` and `FunctionApplication` (no infix operators: a binary operation is a function
+    symbol, `m(x, y)`)
+  - Formulas: `FirstOrderOperation`, `Predicate`, `Equals`, the connectives `ConjunctionFirstOrder`,
+    `DisjunctionFirstOrder`, `ImplicationFirstOrder`, `NegationFirstOrder`, `ConstantFirstOrder`, and the quantifiers
+    `Forall` / `Exists` (`Quantifier`)
+  - `freeVariables()` and capture-avoiding `substitute(var, term)`; `equals`/`hashCode` up to renaming of bound
+    variables (`Alpha` compares canonical forms)
+  - `FirstOrderParser`, a hand-written recursive-descent parser (javaluator cannot read binders or undeclared function
+    symbols), and `Printer`; `toString()` prints `forall x. A`, which the parser reads back
+- **Dependencies**: framework/
+- **Used By**: implementation.deduction.firstorder/, first-order-use-case/
+- **Java Package**: `com.dan323.expressions.firstorder`
+- **Example Formula**: `forall x. exists y. m(x, y) = e`
+
 ### proof-structures/
 
 Defines and implements inference rules for natural deduction.
@@ -112,6 +132,21 @@ Defines and implements inference rules for natural deduction.
 - **Java Packages**: `com.dan323.proof.modal`, `com.dan323.proof.modal.proof`, `com.dan323.proof.modal.relational`,
   `com.dan323.proof.modal.nextuntil`
 
+#### implementation.deduction.firstorder/
+- **Purpose**: First-order natural deduction
+- **Key Components**:
+  - `FirstOrderNaturalDeduction` - the first-order proof, with plain `ProofStep`s (no states); `automate()` throws
+    `UnsupportedOperationException`
+  - One `FirstOrder*` class per shared rule (`FirstOrderAndI`, `FirstOrderModusPonens`, ...) and the rules
+    `FirstOrderForallI`/`ForallE`, `FirstOrderExistsI`/`ExistsE` and `FirstOrderEqualsI`/`EqualsE`
+  - `Instances` - the side conditions: whether a formula is an instance `A[x:=t]` of another (and for which `t`), and
+    whether it is another with some `s` replaced by `t`; both rename bound variables, so capture is refused
+  - `ParseFirstOrderAction` - builds a rule from its name (the shared rules under either name, `ruleName`), parses
+    terms (`parseTerm`) and reads `=I`, which has no lines
+- **Dependencies**: logic-language/implementation.firstorder, framework.deduction/
+- **Used By**: first-order-use-case/
+- **Java Packages**: `com.dan323.proof.firstorder`, `com.dan323.proof.firstorder.proof`
+
 ### use-cases/
 
 Orchestrates the application logic by combining logic languages and proof structures.
@@ -121,8 +156,9 @@ Orchestrates the application logic by combining logic languages and proof struct
 - **Key Classes**:
   - `ProofDto` (`steps`, `logic`, `goal`; serialized with a derived `done`), `StepDto`, `ActionDto`
   - `ActionDescriptorDto` (`name`, `params`, and `label`, `symbol`, `category`, `description`, `paramLabels` to present
-    it), `ParamKind` (`INT`, `EXPRESSION`, `STATE`) and `ActionCategory`: what `GET /logic/{logic}/actions` returns
+    it), `ParamKind` (`INT`, `EXPRESSION`, `STATE`, `TERM`) and `ActionCategory`: what `GET /logic/{logic}/actions` returns
   - `ExerciseDto` and `Difficulty` (`EASY`, `MEDIUM`, `HARD`): what `GET /logic/{logic}/exercises` returns
+  - `TheoryDto` (`id`, `name`, `premises`): what `GET /logic/{logic}/theories` returns
 - **Dependencies**: None
 - **Used By**: All use cases and REST API
 - **Java Package**: `com.dan323.model`
@@ -130,18 +166,19 @@ Orchestrates the application logic by combining logic languages and proof struct
 #### base-use-case/
 - **Purpose**: Logic-independent use cases
 - **Key Components**:
-  - `ActionsUseCases` - list the actions and the exercises, apply an action, solve, parse a proof file; `ApplyResult`
+  - `ActionsUseCases` - list the actions, the exercises and the theories, apply an action, solve, parse a proof file; `ApplyResult`
     carries `done`
   - `Transformer` (DTO <-> domain, by replaying the steps), `ProofParser` (proof file to proof),
     `LogicalGetActions` - the three pieces each logic provides; `LogicalExercises` and `Exercise` - the optional
-    exercise catalog, each exercise with a reference solution that is never sent to clients
+    exercise catalog, each exercise with a reference solution that is never sent to clients; `LogicalTheories` - the
+    optional list of theories (named premise sets)
   - `ActionExpression` - reads the `expression` of an action, the same way for every logic
   - `LogicalApplyAction`, and `LogicalSolver` (runs `Proof.automate()` with a timeout and a cap on concurrent solves)
   - `UnknownLogicException`, `InvalidProofException`, `InvalidActionException`, `NoSolverException`,
     `SolveTimeoutException`, `SolverBusyException`, which the REST layer maps to statuses
   - `ActionsUseCaseConfiguration` (Spring) - collects the beans of every logic by logic name
 - **Dependencies**: logic-language/framework, proof-structures/framework.deduction, model/, Spring
-- **Used By**: classical-use-case/, modal-use-case/, rest/framework
+- **Used By**: classical-use-case/, modal-use-case/, first-order-use-case/, rest/framework
 - **Java Packages**: `com.dan323.uses`, `com.dan323.uses.internal`
 
 #### classical-use-case/
@@ -166,6 +203,17 @@ Orchestrates the application logic by combining logic languages and proof struct
   `ModalNextUntilExercises`
 - **Java Packages**: `com.dan323.uses.modal`, `com.dan323.uses.modal.nextuntil`
 
+#### first-order-use-case/
+- **Purpose**: Wires first-order logic (logic name `first-order`)
+- **Key Components**: `FirstOrderProofTransformer`, `FirstOrderProofParser`, `FirstOrderGetActions` and
+  `AvailableFirstOrderAction` (20 actions: the 14 shared rules under their modal names plus `∀I`, `∀E`, `∃I`, `∃E`,
+  `=I`, `=E`; `∀E` and `=I` take a `TERM`), `FirstOrderExercises`, `FirstOrderTheories` (the `group` theory) and
+  `FirstOrderConfiguration`. No solver (`hasSolver()` is false)
+- **Dependencies**: logic-language/implementation.firstorder, proof-structures/implementation.deduction.firstorder,
+  base-use-case/, model/
+- **Used By**: executable/
+- **Java Package**: `com.dan323.uses.firstorder`
+
 ## REST and Executable Modules
 
 ### rest/
@@ -176,7 +224,7 @@ REST API contracts and models.
 - **Purpose**: The REST controller and its error handling
 - **Key Components**:
   - `ControllerInterface` - the only controller; serves every logic under
-    `/logic/{logic}/actions|exercises|action|solve|proof`
+    `/logic/{logic}/actions|exercises|theories|action|solve|proof`
   - `RestExceptionHandler` - turns every failure into an `ErrorResponse` (404 unknown logic, 400 invalid proof or
     action or no solver, 422 solver timeout, 429 solver busy, 500 otherwise)
 - **Dependencies**: Spring Framework, base-use-case/, rest/model/
@@ -201,13 +249,17 @@ The Spring Boot application that ties everything together.
 - **Key Components**:
   - `Application` (Spring Boot entry point), `ApplicationConfiguration` (imports the configuration of every logic and
     scans the controller), `WebConfig` (serves `classpath:/public/`)
-  - Integration tests (`*IT.java`, run by `mvn verify`), including one that boots the packaged fat jar, and the unit
+  - Integration tests (`*IT.java`, run by `mvn verify`), including one that boots the packaged fat jar and checks
+    that it serves the current UI, and the unit
     tests `SpringVersionAlignmentTest` and `SharedRuleNamesTest` (the classical and modal names of the shared rules agree)
 - **Dependencies**: All domain modules, rest/, Spring Boot
 - **Java Package**: `com.dan323.main`
-- **Endpoints**: `/logic/{logic}/actions|exercises|action|solve|proof` for the logics `classical`, `intuitionistic`,
-  `modal` and `modal-next-until`, see
-  [API.md](./API.md); `/actuator/health`; the built frontend as static files, if it was embedded (see [SETUP.md](./SETUP.md))
+- **Endpoints**: `/logic/{logic}/actions|exercises|theories|action|solve|proof` for the logics `classical`,
+  `intuitionistic`, `modal`, `modal-next-until` and `first-order`, see [API.md](./API.md); `/actuator/health`; the
+  built frontend as static files (see [SETUP.md](./SETUP.md))
+- **Frontend build**: frontend-maven-plugin downloads Node into `target/node`, runs `npm ci --ignore-scripts` and
+  `npm run build` in `../frontend` during `generate-resources`, and packages `frontend/build` as `classpath:/public/`
+  (`-Dskip.installnodenpm -Dskip.npm` skips it)
 
 ## Frontend Module
 
@@ -223,7 +275,8 @@ React-based user interface.
   - `Goal`, `NewProofModal` (with "Load from text"), `ExerciseList`, the connective buttons and syntax help, and
     `service/actions.ts` (the calls to `/logic/{logic}/...`)
 - **Logic**: picked in the New Proof dialog (or on the empty page) from `LOGICS` in `src/constant.ts` (classical,
-  intuitionistic, modal, modal-next-until)
+  intuitionistic, modal, modal-next-until, first-order); `service/firstOrderSyntax.ts` checks first-order formulas
+  as the backend parser does
 - **Location**: `frontend/src/`
 - **Build**: `npm run build`
 - **Type check**: `npm run typecheck`
@@ -257,11 +310,17 @@ executable/
       │       └─→ domain/logic-language/implementation/
       │           └─→ domain/logic-language/framework/
       └─→ domain/use-cases/modal-use-case/
-          └─→ domain/logic-language/implementation.modal/
+      │   └─→ domain/logic-language/implementation.modal/
+      │   │   └─→ domain/logic-language/framework/
+      │   └─→ domain/proof-structures/implementation.deduction.modal/
+      │       └─→ domain/proof-structures/framework.deduction/
+      │       └─→ domain/logic-language/implementation.modal/
+      └─→ domain/use-cases/first-order-use-case/
+          └─→ domain/logic-language/implementation.firstorder/
           │   └─→ domain/logic-language/framework/
-          └─→ domain/proof-structures/implementation.deduction.modal/
+          └─→ domain/proof-structures/implementation.deduction.firstorder/
               └─→ domain/proof-structures/framework.deduction/
-              └─→ domain/logic-language/implementation.modal/
+              └─→ domain/logic-language/implementation.firstorder/
 ```
 
 ## Building Specific Modules

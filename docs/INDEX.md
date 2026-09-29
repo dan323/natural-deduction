@@ -15,7 +15,7 @@ Learn about the architecture and design:
 
 1. **[docs/ARCHITECTURE.md](./ARCHITECTURE.md)** - System design, layered architecture, and plugin structure
 2. **[docs/MODULES.md](./MODULES.md)** - Detailed descriptions of each module and their dependencies
-3. **[docs/LANGUAGES.md](./LANGUAGES.md)** - The classical, intuitionistic and modal logics and their rules
+3. **[docs/LANGUAGES.md](./LANGUAGES.md)** - The classical, intuitionistic, modal and first-order logics and their rules
 
 ## Development
 
@@ -80,7 +80,8 @@ docs/README.md
   │
   ├─→ LANGUAGES.md [What logic systems are supported]
   │   ├─→ Classical and intuitionistic propositional logic rules
-  │   └─→ Modal logic rules, and Next and Until
+  │   ├─→ Modal logic rules, and Next and Until
+  │   └─→ First-order logic rules (quantifiers and equality)
   │
   └─→ DEVELOPMENT.md [How to extend it]
       ├─→ Adding new logical systems
@@ -89,7 +90,7 @@ docs/README.md
       └─→ Testing best practices
   
   └─→ API.md [How to use the REST API]
-      ├─→ actions / exercises / action / solve / proof (per logic)
+      ├─→ actions / exercises / theories / action / solve / proof (per logic)
       ├─→ Error responses
       └─→ Health check
 ```
@@ -114,6 +115,7 @@ docs/README.md
 - **Intuitionistic Logic**: Classical logic without double negation elimination
 - **Modal Logic**: Extends classical with □ (necessity) and ◇ (possibility)
 - **Modal Logic with Next and Until**: Modal logic over discrete time
+- **First-Order Logic**: Predicates, functions, equality and the quantifiers ∀ and ∃
 - See: [LANGUAGES.md](./LANGUAGES.md)
 
 ### Natural Deduction Rules
@@ -124,13 +126,13 @@ docs/README.md
 
 ## Technical Stack
 
-| Layer    | Technology                  | Documentation                      |
-|----------|-----------------------------|------------------------------------|
+| Layer    | Technology                 | Documentation                      |
+|----------|----------------------------|------------------------------------|
 | Backend  | Java 21, Spring Boot 4.1.1 | [SETUP.md](./SETUP.md)             |
-| Frontend | React 19, TypeScript, Vite  | [SETUP.md](./SETUP.md)             |
-| Build    | Maven                       | [SETUP.md](./SETUP.md)             |
-| Testing  | JUnit 6, Jest, PIT          | [SETUP.md](./SETUP.md)             |
-| Quality  | SonarCloud, JaCoCo          | [DEVELOPMENT.md](./DEVELOPMENT.md) |
+| Frontend | React 19, TypeScript, Vite | [SETUP.md](./SETUP.md)             |
+| Build    | Maven                      | [SETUP.md](./SETUP.md)             |
+| Testing  | JUnit 6, Jest, PIT         | [SETUP.md](./SETUP.md)             |
+| Quality  | SonarCloud, JaCoCo         | [DEVELOPMENT.md](./DEVELOPMENT.md) |
 
 ## Frequently Asked Questions
 
@@ -176,6 +178,7 @@ When updating documentation:
 - [Propositional Calculus](https://en.wikipedia.org/wiki/Propositional_calculus)
 - [Modal Logic](https://en.wikipedia.org/wiki/Modal_logic)
 - [Kripke Semantics](https://en.wikipedia.org/wiki/Kripke_semantics)
+- [First-Order Logic](https://en.wikipedia.org/wiki/First-order_logic)
 - [GitHub Repository](https://github.com/dan323/natural-deduction)
 
 ## Last Updated

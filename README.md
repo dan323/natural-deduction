@@ -1,7 +1,7 @@
 # Natural Deduction
 
-A system for [natural deduction](https://en.wikipedia.org/wiki/Natural_deduction) supporting classical, intuitionistic and modal propositional logic, with
-exercises and an automatic solver.
+A system for [natural deduction](https://en.wikipedia.org/wiki/Natural_deduction) supporting classical, intuitionistic and modal propositional logic and
+first-order logic with equality, with exercises and an automatic solver.
 
 ## Status
 
@@ -22,9 +22,9 @@ java -jar executable/target/executable-0.1-SNAPSHOT.jar
 # Access at http://localhost:8080
 ```
 
-The jar serves the REST API (`/logic/{logic}/...`, see [docs/API.md](./docs/API.md)). It only serves the web UI if the
-frontend was built into it first (see [Setup & Installation](./docs/SETUP.md)); the published Docker image
-(`dan323/natural-deduction`) always includes it:
+The jar serves the REST API (`/logic/{logic}/...`, see [docs/API.md](./docs/API.md)) and the web UI: the Maven build
+downloads its own Node, builds `frontend/` and embeds it (see [Setup & Installation](./docs/SETUP.md)). The published
+Docker image (`dan323/natural-deduction`) is built from that jar:
 
 ```bash
 docker run -p 8080:8080 dan323/natural-deduction
@@ -37,6 +37,8 @@ docker run -p 8080:8080 dan323/natural-deduction
 - **Modal Propositional Logic** (`modal`) - Extends classical logic with modal operators (necessity □, possibility ◇)
   over states reachable by a reflexive and transitive relation
 - **Modal Logic with Next and Until** (`modal-next-until`) - Modal logic over discrete time, with Next `X` and Until `U`
+- **First-Order Logic** (`first-order`) - Predicates, function symbols, equality and the quantifiers ∀ and ∃, with a
+  premise set for group theory
 
 Every logic has a catalog of exercises; classical and modal logic also have an automatic solver.
 
