@@ -1,7 +1,7 @@
 import { act, cleanup, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import App from '../App';
-import { clearActionsCache, clearExercisesCache } from '../service/actions';
+import { clearActionsCache, clearExercisesCache, clearTheoriesCache } from '../service/actions';
 import { ActionDescriptor, Exercise } from '../types';
 
 function jsonResponse(status: number, body: unknown): Response {
@@ -16,6 +16,7 @@ describe('App', () => {
   beforeEach(() => {
     fetchMock.mockReset();
     clearActionsCache();
+    clearTheoriesCache();
     (global as any).fetch = fetchMock;
     // The proof on screen is saved in sessionStorage, which jsdom keeps from one test to the next.
     window.sessionStorage.clear();

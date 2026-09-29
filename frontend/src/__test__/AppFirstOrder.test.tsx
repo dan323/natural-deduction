@@ -1,8 +1,8 @@
 import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import App from '../App';
-import { clearActionsCache } from '../service/actions';
-import { ActionDescriptor, ProofDto, StepDto } from '../types';
+import { clearActionsCache, clearExercisesCache, clearTheoriesCache } from '../service/actions';
+import { ActionDescriptor, Exercise, ProofDto, StepDto, Theory } from '../types';
 import { jsonResponse, requestsTo as requestsToPath } from './statesBackend';
 
 // A first-order proof, `forall x. P(x) ⊢ exists x. P(x)`, is started and finished as a user would, against a mocked
@@ -22,6 +22,18 @@ const EQUALS_I: ActionDescriptor = {
 };
 
 const PREMISE = 'forall x. P(x)';
+
+// The `group` theory as `FirstOrderTheories` serves it, and two exercises: one of the group theory, one not.
+const GROUP_AXIOMS = [
+  'forall x. forall y. forall z. m(m(x, y), z) = m(x, m(y, z))',
+  'forall x. m(e, x) = x & m(x, e) = x',
+  'forall x. m(i(x), x) = e & m(x, i(x)) = e',
+];
+const THEORIES: Theory[] = [{ id: 'group', name: 'Group', premises: GROUP_AXIOMS }];
+const EXERCISES: Exercise[] = [
+  { id: 'forall-to-exists', title: 'All to some', premises: [PREMISE], goal: 'exists x. P(x)', difficulty: 'EASY' },
+  { id: 'group-double-inverse', title: 'The inverse of the inverse', premises: GROUP_AXIOMS, goal: 'forall x. i(i(x)) = x', difficulty: 'MEDIUM' },
+];
 const GOAL = 'exists x. P(x)';
 
 type ActionBody = { proofDto: ProofDto, actionDto: { name: string, sources: number[], extraParameters: Record<string, string> } };
@@ -31,7 +43,8 @@ type ActionBody = { proofDto: ProofDto, actionDto: { name: string, sources: numb
 function mockFirstOrderBackend(fetchMock: jest.Mock) {
   fetchMock.mockImplementation(async (url: string, init?: RequestInit) => {
     if (url.endsWith('/actions')) return jsonResponse(200, [FORALL_E, EXISTS_I, EQUALS_I]);
-    if (url.endsWith('/exercises')) return jsonResponse(200, []);
+    if (url.endsWith('/exercises')) return jsonResponse(200, EXERCISES);
+    if (url.endsWith('/theories')) return jsonResponse(200, THEORIES);
     const { proofDto, actionDto } = JSON.parse(init!.body as string) as ActionBody;
     const withStep = (expression: string, rule: string) => {
       const steps: StepDto[] = [...proofDto.steps, { expression, rule, assmsLevel: 0, extraParameters: {} }];
@@ -55,6 +68,8 @@ describe('App with a first-order proof', () => {
   beforeEach(() => {
     fetchMock.mockReset();
     clearActionsCache();
+    clearExercisesCache();
+    clearTheoriesCache();
     (global as any).fetch = fetchMock;
     window.sessionStorage.clear();
     mockFirstOrderBackend(fetchMock);
@@ -156,5 +171,41 @@ describe('App with a first-order proof', () => {
     await waitFor(() => expect(screen.getAllByRole('row')).toHaveLength(3));
     expect(ruleRequests()[0].actionDto).toEqual({ name: '=I', sources: [], extraParameters: { expression: '', term: 'm(a, e)' } });
     expect(expressionCells()).toEqual(['∀x. P(x)', 'm(a, e) = m(a, e)']);
+  });
+
+  test('New Proof fills in the group axioms from the theory picker, and they can be edited before Start Proof', async () => {
+    const user = userEvent.setup();
+    render(<App />);
+    await user.selectOptions(screen.getByLabelText('Logic:'), 'first-order');
+    await user.click(screen.getByRole('button', { name: /Start a new proof/i }));
+    const dialog = await screen.findByRole('dialog');
+
+    await user.selectOptions(await within(dialog).findByLabelText('Premises from theory:'), 'Group');
+    expect(within(dialog).getAllByPlaceholderText(/^Premise \d$/).map((input) => (input as HTMLInputElement).value)).toEqual(GROUP_AXIOMS);
+    await user.click(within(dialog).getByRole('button', { name: 'Remove premise 1' }));
+    await user.type(within(dialog).getByPlaceholderText('Enter the goal expression'), 'forall x. m(e, x) = x');
+    await user.click(within(dialog).getByText('Start Proof'));
+
+    await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
+    const [replay] = requestsTo('/logic/first-order/action');
+    expect(replay.proofDto.steps.map((step: StepDto) => step.expression)).toEqual(GROUP_AXIOMS.slice(1));
+  });
+
+  test('the group exercises have their own heading, and one starts from the group axioms in two clicks', async () => {
+    const user = userEvent.setup();
+    render(<App />);
+    await user.selectOptions(screen.getByLabelText('Logic:'), 'first-order');
+
+    await user.click(screen.getByRole('button', { name: 'Exercises' }));
+    const group = await screen.findByRole('region', { name: 'Group theory' });
+    expect(within(group).getByText('Group axioms ⊢ forall x. i(i(x)) = x')).toBeInTheDocument();
+    expect(within(screen.getByRole('region', { name: 'Easy' })).getByText('All to some')).toBeInTheDocument();
+    await user.click(within(group).getByRole('button', { name: 'Start exercise The inverse of the inverse' }));
+
+    await waitFor(() => expect(document.querySelector('.current-exercise')).toHaveTextContent('Exercise: The inverse of the inverse'));
+    expect(expressionCells()).toHaveLength(3);
+    const [replay] = requestsTo('/logic/first-order/action');
+    expect(replay.proofDto.goal).toBe('forall x. i(i(x)) = x');
+    expect(replay.proofDto.steps.map((step: StepDto) => step.expression)).toEqual(GROUP_AXIOMS);
   });
 });

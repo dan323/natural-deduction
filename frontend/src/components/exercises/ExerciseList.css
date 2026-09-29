@@ -37,6 +37,12 @@
   color: #333;
 }
 
+.exercises-subgroup-title {
+  margin: 12px 0 6px;
+  font-size: 1rem;
+  color: #333;
+}
+
 .exercises-group {
   margin: 0;
   padding: 0;

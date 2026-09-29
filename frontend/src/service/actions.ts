@@ -1,4 +1,4 @@
-import { ProofDto, ActionDto, ActionDescriptor, ApplyActionResponse, Exercise } from "../types";
+import { ProofDto, ActionDto, ActionDescriptor, ApplyActionResponse, Exercise, Theory } from "../types";
 import { LOGICS } from "../constant";
 
 // Extracts the `message` of an error body ({ "message": "..." }), falling back to the HTTP status.
@@ -37,7 +37,9 @@ function logicUrl(logic: string, endpoint: string): string {
 // A list the server answers for `GET /logic/{logic}/{resource}` never changes while it runs, so every consumer shares
 // one request per logic (the Menu is remounted for each new proof, and mounted twice in development). A failed request
 // is dropped, so that the next call tries again.
-function perLogicCache<T>(resource: string) {
+// `isItem`, when given, checks every item of the answer: an answer with an item that fails it is refused like a failed
+// request, so it is not cached.
+function perLogicCache<T>(resource: string, isItem?: (value: unknown) => value is T) {
     const cache = new Map<string, Promise<T[]>>();
 
     const request = async (logic: string): Promise<T[]> => {
@@ -46,7 +48,7 @@ function perLogicCache<T>(resource: string) {
             throw new Error(await errorMessage(response));
         }
         const body: unknown = await response.json();
-        if (!Array.isArray(body)) {
+        if (!Array.isArray(body) || (isItem !== undefined && !body.every(isItem))) {
             throw new TypeError(`The server did not answer with a list of ${resource}.`);
         }
         return body as T[];
@@ -70,8 +72,15 @@ function perLogicCache<T>(resource: string) {
     return { load, clear: () => cache.clear() };
 }
 
+function isTheory(value: unknown): value is Theory {
+    const theory = value as Theory | null;
+    return typeof theory?.id === 'string' && typeof theory.name === 'string'
+        && Array.isArray(theory.premises) && theory.premises.every((premise) => typeof premise === 'string');
+}
+
 const actionsCache = perLogicCache<ActionDescriptor>('actions');
 const exercisesCache = perLogicCache<Exercise>('exercises');
+const theoriesCache = perLogicCache<Theory>('theories', isTheory);
 
 // Forgets the cached lists of actions. Meant for tests.
 export function clearActionsCache(): void {
@@ -81,6 +90,11 @@ export function clearActionsCache(): void {
 // Forgets the cached lists of exercises. Meant for tests.
 export function clearExercisesCache(): void {
     exercisesCache.clear();
+}
+
+// Forgets the cached lists of theories. Meant for tests.
+export function clearTheoriesCache(): void {
+    theoriesCache.clear();
 }
 
 export async function fetchActions(
@@ -108,6 +122,18 @@ export async function fetchExercises(
     } catch (err) {
         console.error("Error fetching exercises:", err);
         onError?.(err instanceof Error ? err.message : 'Could not load the exercises.');
+    }
+}
+
+// The theories of a logic (`GET /logic/{logic}/theories`): named sets of premises, like the group axioms of first-order
+// logic. A logic without any answers an empty list. They only help to fill in premises and to group exercises, so a
+// failed request (or an answer that is not a list of theories) is no theories at all, and is asked again next time.
+// Cached like the actions.
+export async function fetchTheories(logic: string): Promise<Theory[]> {
+    try {
+        return await theoriesCache.load(logic);
+    } catch {
+        return [];
     }
 }
 

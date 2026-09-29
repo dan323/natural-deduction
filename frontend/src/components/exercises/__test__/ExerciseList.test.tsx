@@ -1,7 +1,7 @@
 import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import ExerciseList, { ExercisesState } from '../ExerciseList';
-import { Exercise } from '../../../types';
+import ExerciseList, { ExercisesState, exercisesInListOrder } from '../ExerciseList';
+import { Exercise, Theory } from '../../../types';
 
 const EXERCISES: Exercise[] = [
   { id: 'mp', title: 'Modus ponens', premises: ['p', 'p -> q'], goal: 'q', difficulty: 'EASY' },
@@ -87,5 +87,63 @@ describe('ExerciseList', () => {
     await userEvent.setup().click(screen.getByRole('button', { name: 'Close exercises' }));
 
     expect(props.onClose).toHaveBeenCalled();
+  });
+
+  test('lists the exercises of a theory under their own heading, after the others', async () => {
+    const axioms = ['forall x. m(e, x) = x & m(x, e) = x', 'forall x. m(i(x), x) = e & m(x, i(x)) = e'];
+    const theories: Theory[] = [{ id: 'group', name: 'Group', premises: axioms }];
+    const exercises: Exercise[] = [
+      { id: 'swap', title: 'Swap', premises: ['forall x. forall y. P(x, y)'], goal: 'forall y. forall x. P(x, y)', difficulty: 'EASY' },
+      { id: 'group-double-inverse', title: 'Double inverse', premises: axioms, goal: 'forall x. i(i(x)) = x', difficulty: 'MEDIUM' },
+      { id: 'group-socks', title: 'Socks and shoes', premises: axioms, goal: 'forall x. forall y. i(m(x, y)) = m(i(y), i(x))', difficulty: 'HARD' },
+      // Only some of the axioms: not an exercise of the theory.
+      { id: 'identity', title: 'Identity', premises: [axioms[0]], goal: 'm(e, e) = e', difficulty: 'MEDIUM' },
+    ];
+    const { props } = renderList({ kind: 'loaded', exercises, theories }, { logic: 'first-order', solved: new Set(['group-socks']) });
+
+    expect(screen.getAllByRole('heading', { level: 3 }).map((heading) => heading.textContent)).toEqual(['Easy', 'Medium', 'Group theory']);
+    const group = within(screen.getByRole('region', { name: 'Group theory' }));
+    expect(group.getAllByRole('heading', { level: 4 }).map((heading) => heading.textContent)).toEqual(['Medium', 'Hard']);
+    expect(group.getByText('Group axioms ⊢ forall x. i(i(x)) = x')).toHaveAttribute('title', axioms.join(', '));
+    expect(group.getByText('(Solved)')).toBeInTheDocument();
+    expect(group.queryByText('Identity')).not.toBeInTheDocument();
+    expect(within(screen.getByRole('region', { name: 'Medium' })).getByText('Identity')).toBeInTheDocument();
+    expect(screen.getByText('Solved 1 of 4.')).toBeInTheDocument();
+
+    await userEvent.setup().click(group.getByRole('button', { name: 'Start exercise Double inverse' }));
+    expect(props.onStart).toHaveBeenCalledWith(exercises[1]);
+  });
+
+  test('without the theories, every exercise is listed by difficulty', () => {
+    const axioms = ['forall x. m(e, x) = x & m(x, e) = x'];
+    renderList({ kind: 'loaded', exercises: [
+      { id: 'group-identity', title: 'Identity', premises: axioms, goal: 'm(e, e) = e', difficulty: 'EASY' },
+    ] }, { logic: 'first-order' });
+
+    expect(screen.getAllByRole('heading', { level: 3 }).map((heading) => heading.textContent)).toEqual(['Easy']);
+    expect(screen.getByText(`${axioms[0]} ⊢ m(e, e) = e`)).toBeInTheDocument();
+  });
+});
+
+describe('exercisesInListOrder', () => {
+  const AXIOMS = ['forall x. m(e, x) = x'];
+  const GROUP: Theory = { id: 'group', name: 'Group', premises: AXIOMS };
+  // In the backend's order: the group exercises sit among the plain ones.
+  const CATALOG: Exercise[] = [
+    { id: 'easy', title: 'Easy', premises: ['p'], goal: 'p', difficulty: 'EASY' },
+    { id: 'medium', title: 'Medium', premises: ['p'], goal: 'p', difficulty: 'MEDIUM' },
+    { id: 'group-easy', title: 'Group easy', premises: AXIOMS, goal: 'm(e, e) = e', difficulty: 'EASY' },
+    { id: 'group-medium', title: 'Group medium', premises: AXIOMS, goal: 'e = e', difficulty: 'MEDIUM' },
+    { id: 'hard', title: 'Hard', premises: [], goal: 'p | (- p)', difficulty: 'HARD' },
+  ];
+
+  test('is the order the list shows: the plain exercises by difficulty, then each theory by difficulty', () => {
+    expect(exercisesInListOrder(CATALOG, [GROUP]).map((exercise) => exercise.id))
+      .toEqual(['easy', 'medium', 'hard', 'group-easy', 'group-medium']);
+  });
+
+  test('without theories is only by difficulty', () => {
+    expect(exercisesInListOrder(CATALOG).map((exercise) => exercise.id))
+      .toEqual(['easy', 'group-easy', 'medium', 'group-medium', 'hard']);
   });
 });

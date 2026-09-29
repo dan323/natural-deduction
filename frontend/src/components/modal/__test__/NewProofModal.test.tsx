@@ -1,5 +1,5 @@
 import { InputHTMLAttributes, useState } from 'react';
-import { act, render, fireEvent, screen, waitFor } from '@testing-library/react';
+import { act, render, fireEvent, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import NewProofModal from '../NewProofModal';
 
@@ -839,5 +839,78 @@ describe('NewProofModal modal-next-until formula help', () => {
     expect(screen.getByLabelText('Goal:')).not.toHaveAttribute('aria-invalid');
     await user.click(screen.getByRole('button', { name: 'Start Proof' }));
     expect(onSubmit).toHaveBeenCalled();
+  });
+});
+
+describe('NewProofModal premises from a theory', () => {
+  // The first-order theories as `GET /logic/first-order/theories` answers them (`FirstOrderTheories.GROUP_AXIOMS`); the
+  // other logics have none.
+  const GROUP_AXIOMS = [
+    'forall x. forall y. forall z. m(m(x, y), z) = m(x, m(y, z))',
+    'forall x. m(e, x) = x & m(x, e) = x',
+    'forall x. m(i(x), x) = e & m(x, i(x)) = e',
+  ];
+  const loadTheories = jest.fn(async (logic: string) => (
+    logic === 'first-order' ? [{ id: 'group', name: 'Group', premises: GROUP_AXIOMS }] : []
+  ));
+  const premiseValues = () => screen.getAllByPlaceholderText(/^Premise \d$/).map((input) => (input as HTMLInputElement).value);
+
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
+  test('is hidden for a logic without theories, like classical', async () => {
+    render(<NewProofModal isOpen={true} onClose={jest.fn()} onSubmit={jest.fn()} loadTheories={loadTheories} />);
+    await waitFor(() => expect(loadTheories).toHaveBeenCalledWith('classical'));
+    expect(screen.queryByLabelText('Premises from theory:')).not.toBeInTheDocument();
+  });
+
+  test('is hidden when the theories cannot be loaded, or the caller offers none', async () => {
+    const failing = jest.fn().mockRejectedValue(new Error('Network down'));
+    const { unmount } = render(<NewProofModal isOpen={true} onClose={jest.fn()} onSubmit={jest.fn()} logic="first-order" loadTheories={failing} />);
+    await waitFor(() => expect(failing).toHaveBeenCalledWith('first-order'));
+    expect(screen.queryByLabelText('Premises from theory:')).not.toBeInTheDocument();
+    unmount();
+
+    render(<NewProofModal isOpen={true} onClose={jest.fn()} onSubmit={jest.fn()} logic="first-order" />);
+    expect(screen.queryByLabelText('Premises from theory:')).not.toBeInTheDocument();
+  });
+
+  test('fills in the group axioms, which can be edited before Start Proof', async () => {
+    const user = userEvent.setup();
+    const onSubmit = jest.fn().mockResolvedValue(null);
+    render(<NewProofModal isOpen={true} onClose={jest.fn()} onSubmit={onSubmit} logic="first-order" loadTheories={loadTheories} />);
+
+    await user.type(screen.getByPlaceholderText('Premise 1'), 'P(a)');
+    await user.selectOptions(await screen.findByLabelText('Premises from theory:'), 'Group');
+
+    expect(premiseValues()).toEqual(GROUP_AXIOMS);
+    expect(screen.getByText('Filled in the 3 premises of Group; you can still edit them.')).toBeInTheDocument();
+    // The picker goes back to its placeholder, so the same theory can be picked again.
+    expect(screen.getByLabelText('Premises from theory:')).toHaveValue('');
+
+    await user.click(screen.getByRole('button', { name: 'Remove premise 1' }));
+    await user.clear(screen.getByPlaceholderText('Premise 1'));
+    await user.type(screen.getByPlaceholderText('Premise 1'), 'forall x. m(e, x) = x');
+    await user.click(screen.getByText('+ Add Premise'));
+    await user.type(screen.getByPlaceholderText('Premise 3'), 'P(e)');
+    await user.type(screen.getByPlaceholderText('Enter the goal expression'), 'forall x. i(i(x)) = x');
+    await user.click(screen.getByText('Start Proof'));
+
+    expect(onSubmit).toHaveBeenCalledWith(
+      ['forall x. m(e, x) = x', GROUP_AXIOMS[2], 'P(e)'], 'forall x. i(i(x)) = x', 'first-order');
+  });
+
+  test('follows the logic picked in the dialog', async () => {
+    const user = userEvent.setup();
+    render(<NewProofModal isOpen={true} onClose={jest.fn()} onSubmit={jest.fn()} loadTheories={loadTheories} />);
+    await waitFor(() => expect(loadTheories).toHaveBeenCalledWith('classical'));
+    expect(screen.queryByLabelText('Premises from theory:')).not.toBeInTheDocument();
+
+    await user.selectOptions(screen.getByLabelText('Logic:'), 'first-order');
+    expect(within(await screen.findByLabelText('Premises from theory:')).getByRole('option', { name: 'Group' })).toBeInTheDocument();
+
+    await user.selectOptions(screen.getByLabelText('Logic:'), 'classical');
+    expect(screen.queryByLabelText('Premises from theory:')).not.toBeInTheDocument();
   });
 });
