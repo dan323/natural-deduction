@@ -454,7 +454,10 @@ describe('service/actions', () => {
 
       fetchMock.mockResolvedValueOnce(jsonResponse(200, [{ id: 'group', name: 'Group' }]));
       expect(await fetchTheories('first-order')).toEqual([]);
-      expect(fetchMock).toHaveBeenCalledTimes(2);
+
+      fetchMock.mockResolvedValueOnce(jsonResponse(200, [GROUP]));
+      expect(await fetchTheories('first-order')).toEqual([GROUP]);
+      expect(fetchMock).toHaveBeenCalledTimes(3);
     });
 
     test('an unknown logic is not asked for', async () => {

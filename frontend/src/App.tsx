@@ -4,7 +4,7 @@ import Proof from './components/proof/ProofViewer';
 import Header from './components/Header';
 import Menu, { MenuHandle } from './components/menu/Menu';
 import NewProofModal from './components/modal/NewProofModal';
-import ExerciseList, { ExercisesState } from './components/exercises/ExerciseList';
+import ExerciseList, { ExercisesState, exercisesInListOrder } from './components/exercises/ExerciseList';
 import { StepDto, ProofDto, Exercise } from './types';
 import { DEFAULT_LOGIC, INITIAL_STATE, LOGICS, hasStates, logicInfo } from './constant';
 import { fetchExercises, fetchTheories, loadProofFromText, replayProof, undoLastStep } from './service/actions';
@@ -543,9 +543,11 @@ function App() {
     exercisesButtonRef.current?.focus();
   };
 
-  const exercises = exercisesState?.kind === 'loaded' ? exercisesState.exercises : [];
+  // In the order the list shows them: by difficulty, with the exercises of a theory after the others (see
+  // `exercisesInListOrder`).
+  const exercises = exercisesState?.kind === 'loaded' ? exercisesInListOrder(exercisesState.exercises, exercisesState.theories) : [];
   const currentExercise = exercises.find((exercise) => exercise.id === exerciseId);
-  // The exercise after the current one in the list (which the backend orders from easy to hard), if any.
+  // The exercise after the current one in the list, if any.
   const nextExercise = currentExercise ? exercises[exercises.indexOf(currentExercise) + 1] : undefined;
   const handleNextExercise = nextExercise
     ? () => requestExercise(nextExercise, exercisesButtonRef.current)

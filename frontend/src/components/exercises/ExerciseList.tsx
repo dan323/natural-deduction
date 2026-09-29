@@ -41,6 +41,27 @@ const isFromTheory = (exercise: Exercise, theory: Theory) =>
     && exercise.premises.length === theory.premises.length
     && exercise.premises.every((premise, index) => premise === theory.premises[index]);
 
+// The exercises as the list groups them: first those that start from no theory, one group per difficulty, then, for each
+// theory, its exercises, again one group per difficulty. Empty groups are left out.
+export const groupExercises = (exercises: Exercise[], theories: Theory[] = []) => {
+    const theoryOf = (exercise: Exercise) => theories.find((theory) => isFromTheory(exercise, theory));
+    const byDifficulty = (of: Exercise[]) => difficulties
+        .map((difficulty) => ({ difficulty, exercises: of.filter((exercise) => exercise.difficulty === difficulty) }))
+        .filter((group) => group.exercises.length > 0);
+    return {
+        plain: byDifficulty(exercises.filter((exercise) => theoryOf(exercise) === undefined)),
+        theories: theories
+            .map((theory) => ({ theory, groups: byDifficulty(exercises.filter((exercise) => theoryOf(exercise) === theory)) }))
+            .filter((entry) => entry.groups.length > 0),
+    };
+};
+
+// The exercises in the order the list shows them (see `groupExercises`), which "Next exercise" follows.
+export const exercisesInListOrder = (exercises: Exercise[], theories?: Theory[]): Exercise[] => {
+    const { plain, theories: ofTheories } = groupExercises(exercises, theories);
+    return [...plain, ...ofTheories.flatMap((entry) => entry.groups)].flatMap((group) => group.exercises);
+};
+
 // The exercises of the logic, grouped by difficulty; those that start from a theory (the group axioms) come after the
 // others, under the theory's own heading, again by difficulty. A solved exercise says so in text ("Solved"), not by
 // colour alone.
@@ -78,15 +99,11 @@ const ExerciseList: FC<ExerciseListProps> = ({ logic, state, solved, currentId, 
         }
         if (state.exercises.length === 0) return <p>There are no exercises for this logic yet.</p>;
         const solvedCount = state.exercises.filter((exercise) => solved.has(exercise.id)).length;
-        const theories = state.theories ?? [];
-        const theoryOf = (exercise: Exercise) => theories.find((theory) => isFromTheory(exercise, theory));
-        const plain = state.exercises.filter((exercise) => theoryOf(exercise) === undefined);
+        const { plain, theories } = groupExercises(state.exercises, state.theories);
         return (
             <>
                 <p className="exercises-progress">Solved {solvedCount} of {state.exercises.length}.</p>
-                {difficulties.map((difficulty) => {
-                    const group = plain.filter((exercise) => exercise.difficulty === difficulty);
-                    if (group.length === 0) return null;
+                {plain.map(({ difficulty, exercises: group }) => {
                     const headingId = `exercises-${difficulty.toLowerCase()}`;
                     return (
                         <section key={difficulty} aria-labelledby={headingId}>
@@ -95,23 +112,17 @@ const ExerciseList: FC<ExerciseListProps> = ({ logic, state, solved, currentId, 
                         </section>
                     );
                 })}
-                {theories.map((theory) => {
-                    const ofTheory = state.exercises.filter((exercise) => theoryOf(exercise) === theory);
-                    if (ofTheory.length === 0) return null;
+                {theories.map(({ theory, groups }) => {
                     const headingId = `exercises-theory-${theory.id}`;
                     return (
                         <section key={theory.id} aria-labelledby={headingId}>
                             <h3 id={headingId} className="exercises-group-title">{theory.name} theory</h3>
-                            {difficulties.map((difficulty) => {
-                                const group = ofTheory.filter((exercise) => exercise.difficulty === difficulty);
-                                if (group.length === 0) return null;
-                                return (
-                                    <div key={difficulty}>
-                                        <h4 className="exercises-subgroup-title">{difficultyTitles[difficulty]}</h4>
-                                        {renderItems(group, theory)}
-                                    </div>
-                                );
-                            })}
+                            {groups.map(({ difficulty, exercises: group }) => (
+                                <div key={difficulty}>
+                                    <h4 className="exercises-subgroup-title">{difficultyTitles[difficulty]}</h4>
+                                    {renderItems(group, theory)}
+                                </div>
+                            ))}
                         </section>
                     );
                 })}

@@ -1,6 +1,6 @@
 import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import ExerciseList, { ExercisesState } from '../ExerciseList';
+import ExerciseList, { ExercisesState, exercisesInListOrder } from '../ExerciseList';
 import { Exercise, Theory } from '../../../types';
 
 const EXERCISES: Exercise[] = [
@@ -122,5 +122,28 @@ describe('ExerciseList', () => {
 
     expect(screen.getAllByRole('heading', { level: 3 }).map((heading) => heading.textContent)).toEqual(['Easy']);
     expect(screen.getByText(`${axioms[0]} ⊢ m(e, e) = e`)).toBeInTheDocument();
+  });
+});
+
+describe('exercisesInListOrder', () => {
+  const AXIOMS = ['forall x. m(e, x) = x'];
+  const GROUP: Theory = { id: 'group', name: 'Group', premises: AXIOMS };
+  // In the backend's order: the group exercises sit among the plain ones.
+  const CATALOG: Exercise[] = [
+    { id: 'easy', title: 'Easy', premises: ['p'], goal: 'p', difficulty: 'EASY' },
+    { id: 'medium', title: 'Medium', premises: ['p'], goal: 'p', difficulty: 'MEDIUM' },
+    { id: 'group-easy', title: 'Group easy', premises: AXIOMS, goal: 'm(e, e) = e', difficulty: 'EASY' },
+    { id: 'group-medium', title: 'Group medium', premises: AXIOMS, goal: 'e = e', difficulty: 'MEDIUM' },
+    { id: 'hard', title: 'Hard', premises: [], goal: 'p | (- p)', difficulty: 'HARD' },
+  ];
+
+  test('is the order the list shows: the plain exercises by difficulty, then each theory by difficulty', () => {
+    expect(exercisesInListOrder(CATALOG, [GROUP]).map((exercise) => exercise.id))
+      .toEqual(['easy', 'medium', 'hard', 'group-easy', 'group-medium']);
+  });
+
+  test('without theories is only by difficulty', () => {
+    expect(exercisesInListOrder(CATALOG).map((exercise) => exercise.id))
+      .toEqual(['easy', 'group-easy', 'medium', 'group-medium', 'hard']);
   });
 });
