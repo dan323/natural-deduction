@@ -32,17 +32,25 @@ public final class DeMorgan extends CompositionRule {
 <span class="fc bfc" id="L32" title="All 2 branches covered.">                (((Negation&lt;?&gt;) pf.getSteps().get(i - 1).getStep()).getElement() instanceof Sometime);</span>
     }
 
+    /**
+     * From {@code - (&lt;&gt; A)} it derives {@code [] (- A)}, or {@code [] B} when {@code A} is {@code - B}: the
+     * {@code - (- B)} is eliminated with {@code -E} before {@code []I}, so the result has no double negation.
+     */
     @Override
     public void apply(ModalNaturalDeduction pf) {
-<span class="fc" id="L37">        int k = pf.getSteps().size();</span>
-<span class="fc" id="L38">        String newState = pf.newState();</span>
-<span class="fc" id="L39">        NegationModal operation = (NegationModal) pf.getSteps().get(i - 1).getStep();</span>
-<span class="fc" id="L40">        (new ModalAssume(new LessEqual(pf.getSteps().get(i - 1).getState(), newState))).apply(pf);</span>
-<span class="fc" id="L41">        (new ModalAssume(((Sometime)operation.getElement()).getElement(), newState)).apply(pf);</span>
-<span class="fc" id="L42">        (new ModalDiaI(k + 2, k + 1)).apply(pf);</span>
-<span class="fc" id="L43">        (new ModalFI(k + 3, i)).apply(pf);</span>
-<span class="fc" id="L44">        (new ModalNotI()).apply(pf);</span>
-<span class="fc" id="L45">        (new ModalBoxI()).apply(pf);</span>
-<span class="fc" id="L46">    }</span>
+<span class="fc" id="L41">        int k = pf.getSteps().size();</span>
+<span class="fc" id="L42">        String newState = pf.newState();</span>
+<span class="fc" id="L43">        NegationModal operation = (NegationModal) pf.getSteps().get(i - 1).getStep();</span>
+<span class="fc" id="L44">        var element = ((Sometime) operation.getElement()).getElement();</span>
+<span class="fc" id="L45">        (new ModalAssume(new LessEqual(pf.getSteps().get(i - 1).getState(), newState))).apply(pf);</span>
+<span class="fc" id="L46">        (new ModalAssume(element, newState)).apply(pf);</span>
+<span class="fc" id="L47">        (new ModalDiaI(k + 2, k + 1)).apply(pf);</span>
+<span class="fc" id="L48">        (new ModalFI(k + 3, i)).apply(pf);</span>
+<span class="fc" id="L49">        (new ModalNotI()).apply(pf);</span>
+<span class="pc bpc" id="L50" title="1 of 2 branches missed.">        if (element instanceof NegationModal) {</span>
+<span class="nc" id="L51">            (new ModalNotE(pf.getSteps().size())).apply(pf);</span>
+        }
+<span class="fc" id="L53">        (new ModalBoxI()).apply(pf);</span>
+<span class="fc" id="L54">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>

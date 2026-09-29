@@ -68,7 +68,7 @@ jacoco-report-aggregate/implementation.deduction.modal,com.dan323.proof.modal,Mo
 jacoco-report-aggregate/implementation.deduction.modal,com.dan323.proof.modal,ModalCopy,18,46,2,2,2,7,3,5,1,5
 jacoco-report-aggregate/implementation.deduction.modal,com.dan323.proof.modal.internal,ModalNextUntilAutomate,28,746,16,93,3,115,17,71,1,32
 jacoco-report-aggregate/implementation.deduction.modal,com.dan323.proof.modal.internal,ModalAutomate.State,0,18,0,0,0,1,0,1,0,1
-jacoco-report-aggregate/implementation.deduction.modal,com.dan323.proof.modal.internal,ModalAutomate,148,2126,43,237,11,314,35,170,0,62
+jacoco-report-aggregate/implementation.deduction.modal,com.dan323.proof.modal.internal,ModalAutomate,138,2135,44,238,9,314,36,170,0,62
 jacoco-report-aggregate/implementation.deduction.modal,com.dan323.proof.modal.internal,ModalNextUntilAutomate.Attempt,0,9,0,0,0,1,0,1,0,1
 jacoco-report-aggregate/implementation.deduction.modal,com.dan323.proof.modal.proof,ModalNaturalDeduction,2,175,3,21,1,40,3,20,0,11
 jacoco-report-aggregate/implementation.deduction.modal,com.dan323.proof.modal.proof,ProofStepModal,3,31,1,1,1,9,1,4,0,4
@@ -88,7 +88,7 @@ jacoco-report-aggregate/implementation.deduction.modal,com.dan323.proof.modal.ne
 jacoco-report-aggregate/implementation.deduction.modal,com.dan323.proof.modal.complex,CompositionRule,5,3,0,0,1,1,1,1,1,1
 jacoco-report-aggregate/implementation.deduction.modal,com.dan323.proof.modal.complex,ModalDeMorgan,7,141,2,8,1,20,3,7,1,4
 jacoco-report-aggregate/implementation.deduction.modal,com.dan323.proof.modal.complex,ContraSometime,0,164,2,12,0,20,2,8,0,3
-jacoco-report-aggregate/implementation.deduction.modal,com.dan323.proof.modal.complex,DeMorgan,5,128,1,9,1,17,2,8,1,4
+jacoco-report-aggregate/implementation.deduction.modal,com.dan323.proof.modal.complex,DeMorgan,13,133,2,10,2,19,3,8,1,4
 jacoco-report-aggregate/implementation.deduction.modal,com.dan323.proof.modal.complex,ModalOrE2,129,69,7,9,11,10,7,6,2,3
 jacoco-report-aggregate/implementation.deduction.modal,com.dan323.proof.modal.complex,ModalOrE1,9,189,2,14,1,20,3,10,1,4
 jacoco-report-aggregate/implementation.deduction.modal,com.dan323.proof.modal.relational,RelationalAction,0,16,0,0,0,3,0,3,0,3
