@@ -46,25 +46,25 @@ class ModalNextUntilSolverTest {
     }
 
     @TestFactory
-    Stream<DynamicTest> everyExerciseWithoutInductionIsSolved() {
+    Stream<DynamicTest> everyExerciseIsSolved() {
         return exercises()
-                .filter(exercise -> !usesInduction(exercise))
                 .map(exercise -> DynamicTest.dynamicTest(exercise.id(),
                         () -> assertSolves(start(exercise.premises(), exercise.goal()))));
     }
 
     @TestFactory
-    Stream<DynamicTest> anExerciseThatNeedsInductionIsNotSolved() {
+    Stream<DynamicTest> anExerciseThatNeedsInductionIsSolvedWithInduction() {
         return exercises()
                 .filter(ModalNextUntilSolverTest::usesInduction)
-                .map(exercise -> DynamicTest.dynamicTest(exercise.id(),
-                        () -> assertNotSolved(start(exercise.premises(), exercise.goal()))));
+                .map(exercise -> DynamicTest.dynamicTest(exercise.id(), () -> {
+                    var solved = assertSolves(start(exercise.premises(), exercise.goal()));
+                    assertTrue(solved.steps().stream().anyMatch(step -> step.rule().startsWith("Ind [")), exercise.id());
+                }));
     }
 
     @TestFactory
     Stream<DynamicTest> theSolverStartsFromThePremises() {
         return exercises()
-                .filter(exercise -> !usesInduction(exercise))
                 .map(exercise -> DynamicTest.dynamicTest(exercise.id(), () -> {
                     // A proof with a detour: the solver drops it and starts again from the premises
                     var begin = start(exercise.premises(), exercise.goal());
@@ -98,7 +98,14 @@ class ModalNextUntilSolverTest {
                         start(List.of("- (<> (- p))"), "[] p"),
                         // By contradiction: the negated goal is split by De Morgan, and FALSE comes from - A, not from
                         // the negated goal itself
-                        start(List.of(), "(([] p) -> (p U q)) | (- q)"))
+                        start(List.of(), "(([] p) -> (p U q)) | (- q)"),
+                        // The witness of an Until (UW, UB, UA) and linearity (Lin): no induction is needed
+                        start(List.of(), "(p U q) -> (p U (q | r))"),
+                        start(List.of(), "(p U q) -> ((p | q) U q)"),
+                        // Time is linear: the witness of <> (X p) is after s0+1 or the same state
+                        start(List.of("<> (X p)"), "X (<> p)"),
+                        // Induction, with a formula of the proof as the invariant (the example of the paper)
+                        start(List.of(), "([] (p -> (X p))) -> (p -> ([] p))"))
                 .map(proof -> DynamicTest.dynamicTest(proof.goal(), () -> assertSolves(proof)));
     }
 
@@ -148,7 +155,9 @@ class ModalNextUntilSolverTest {
                         start(List.of("p"), "X p"),
                         start(List.of("p U q"), "q"),
                         start(List.of("p"), "p U q"),
-                        start(List.of("<> q"), "p U q"))
+                        start(List.of("<> q"), "p U q"),
+                        // The counter-model of the paper: q later, p never
+                        start(List.of(), "(<> q) -> (p U q)"))
                 .map(proof -> DynamicTest.dynamicTest(proof.goal(), () -> assertNotSolved(proof)));
     }
 
@@ -171,7 +180,7 @@ class ModalNextUntilSolverTest {
                 }));
     }
 
-    private void assertSolves(ProofDto proof) {
+    private ProofDto assertSolves(ProofDto proof) {
         var solved = assertTimeoutPreemptively(Duration.ofSeconds(5), () -> solver.perform(proof));
         assertTrue(solved.isDone(), proof.goal() + ": done");
         var last = solved.steps().getLast();
@@ -179,11 +188,11 @@ class ModalNextUntilSolverTest {
         assertEquals(0, last.assmsLevel());
         assertEquals("s0", last.extraParameters().get("state"), proof.goal() + ": in s0");
         assertEquals(proof.steps(), solved.steps().subList(0, proof.steps().size()), proof.goal() + ": the premises stay");
-        solved.steps().forEach(step -> assertFalse(step.rule().startsWith("Ind"), proof.goal() + ": no Ind"));
         // The result replays through the transformer, which reads only the rules of the logic, and is done
         var replayed = transformer.from(solved);
         assertTrue(replayed.isDone(), proof.goal() + ": replays and is done");
         assertEquals(solved, transformer.fromProof(replayed));
+        return solved;
     }
 
     private void assertNotSolved(ProofDto proof) {

@@ -338,18 +338,30 @@ class NextUntilRulesTest {
 
         assertTrue(proof.isDone());
         var rules = proof.getSteps().stream().map(step -> step.getProof().getNameProof()).toList();
-        assertTrue(rules.containsAll(List.of("XE", "XI", "UI")), rules.toString());
+        assertTrue(rules.containsAll(List.of("XE", "-U", "UW", "UB", "UA", "Lin")), rules.toString());
         assertEquals("s0", proof.getSteps().getLast().getState());
     }
 
     @Test
-    void theSolverLeavesAProofItCannotFinishWithItsPremises() {
+    void theSolverUsesInduction() {
         var proof = new ModalNextUntilNaturalDeduction("s0");
         proof.initializeProof(List.of(parse("p"), parse("[] (p -> (X p))")), parse("[] p"));
 
         proof.automate();
 
-        assertFalse(proof.isDone(), "only Ind proves it");
-        assertEquals(2, proof.getSteps().size());
+        assertTrue(proof.isDone());
+        var rules = proof.getSteps().stream().map(step -> step.getProof().getNameProof()).toList();
+        assertTrue(rules.contains("Ind"), rules.toString());
+    }
+
+    @Test
+    void theSolverLeavesAProofItCannotFinishWithItsPremises() {
+        var proof = new ModalNextUntilNaturalDeduction("s0");
+        proof.initializeProof(List.of(parse("p")), parse("X p"));
+
+        proof.automate();
+
+        assertFalse(proof.isDone(), "p need not hold in the next state");
+        assertEquals(1, proof.getSteps().size());
     }
 }

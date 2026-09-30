@@ -18,7 +18,8 @@ import java.util.Optional;
  * valid when {@link #conclusion} finds what to derive, and adds that formula at the current assumption level.
  */
 abstract sealed class NextUntilRule implements ModalAction
-        permits ModalNextI, ModalNextE, ModalUntilI1, ModalUntilI2, ModalUntilE, ModalUntilSometime, ModalInduction {
+        permits ModalNextI, ModalNextE, ModalUntilI1, ModalUntilI2, ModalUntilE, ModalUntilSometime, ModalInduction,
+        ModalUntilWitnessRight, ModalNegatedUntil {
 
     private final String name;
     private final List<Integer> lines;

@@ -4,7 +4,7 @@ import { fetchActions, applyAction, solveProof } from '../../service/actions';
 import './Menu.css';
 import GlowingInput from '../input/GlowingInput';
 import { ProofDto, ActionDto, ActionDescriptor, ActionCategory, ApplyActionResponse, ParamKind } from '../../types';
-import { hasSolver, logicName, solverFailureNotice } from '../../constant';
+import { hasSolver, logicName } from '../../constant';
 import { premiseCount } from '../../service/utils';
 
 type MenuProps = {
@@ -245,13 +245,13 @@ const Menu: FC<MenuProps> = ({ logic, onColorChange, setProof, proof, ref, onNew
             if (solved && solved.done !== true && solved.steps.length <= premiseCount(solved.steps)) {
                 // A solver that gives up with nothing to show (modal-next-until, intuitionistic) answers the premises
                 // only: the steps on screen are worth more than that, so they stay.
-                setNotice(solverFailureNotice(logic, 'The solver could not find a proof. Your steps are kept.'));
+                setNotice('The solver could not find a proof. Your steps are kept.');
             } else if (response.success && response.proof) {
                 setProof(response.proof);
                 glowingColors.forEach((color) => onColorChange(color, -1));
                 setNotice(response.proof.done
                     ? ''
-                    : solverFailureNotice(logic, 'The solver could not finish the proof. Continue from where it stopped.'));
+                    : 'The solver could not finish the proof. Continue from where it stopped.');
             } else {
                 setErrorMessage(response.message || 'The proof could not be solved.');
             }

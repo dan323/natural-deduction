@@ -170,7 +170,7 @@ public class RestServiceIT {
         assertEquals(HttpStatus.OK, response.getStatusCode());
         var actions = Arrays.asList(Objects.requireNonNull(response.getBody()));
         assertEquals(Arrays.asList(modal), actions.subList(0, modal.length));
-        assertEquals(List.of("XI", "XE", "Succ", "UI1", "UI2", "UE", "U<>", "Ind"),
+        assertEquals(List.of("XI", "XE", "Succ", "UI1", "UI2", "UE", "U<>", "Ind", "-U", "UW", "UB", "UA", "Ord", "Eq", "Lin"),
                 actions.subList(modal.length, actions.size()).stream().map(ActionDescriptorDto::name).toList());
         for (var action : actions) {
             assertFalse(action.label().isBlank(), action.name());
@@ -227,11 +227,18 @@ public class RestServiceIT {
         assertEquals("p U q", last(solved).expression());
         assertEquals("s0", last(solved).extraParameters().get("state"));
 
-        // Only induction proves it, which the solver does not use: an unfinished proof is still a 200
+        // Only induction proves it
         var induction = solve(NEXT_UNTIL, new ProofDto(List.of(new StepDto("p", "Ass", 0, Map.of("state", "s0")),
                 new StepDto("[] (p -> (X p))", "Ass", 0, Map.of("state", "s0"))), NEXT_UNTIL, "[] p"));
         assertEquals(HttpStatus.OK, induction.getStatusCode());
-        assertFalse(Objects.requireNonNull(induction.getBody()).isDone());
+        var inductionProof = Objects.requireNonNull(induction.getBody());
+        assertTrue(inductionProof.isDone());
+        assertTrue(inductionProof.steps().stream().anyMatch(step -> step.rule().startsWith("Ind [")));
+
+        // Not a theorem (q may come when p no longer holds): no proof is still a 200
+        var noProof = solve(NEXT_UNTIL, new ProofDto(List.of(new StepDto("<> q", "Ass", 0, Map.of("state", "s0"))), NEXT_UNTIL, "p U q"));
+        assertEquals(HttpStatus.OK, noProof.getStatusCode());
+        assertFalse(Objects.requireNonNull(noProof.getBody()).isDone());
     }
 
     @Test

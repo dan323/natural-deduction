@@ -97,46 +97,6 @@ describe('Menu solve button', () => {
         expect(screen.queryByRole('alert')).not.toBeInTheDocument();
     });
 
-    test('in modal-next-until a Solve without a proof says that it may need induction', async () => {
-        const user = userEvent.setup();
-        const nextUntil: ProofDto = { ...proof, logic: 'modal-next-until', goal: 'Q' };
-        mockSolveProof.mockImplementation((logic, sent, callback) => callback({ success: true, proof: { ...nextUntil, done: false }, message: '' }));
-        render(<Menu {...props} logic="modal-next-until" proof={nextUntil} />);
-
-        await clickSolve(user);
-
-        expect(screen.getByRole('status')).toHaveTextContent(
-            'The solver could not find a proof. Your steps are kept. The proof may need induction (Ind), which the solver cannot use yet.');
-    });
-
-    test('an unfinished modal-next-until proof also says that it may need induction', async () => {
-        const user = userEvent.setup();
-        const nextUntil: ProofDto = { ...proof, logic: 'modal-next-until', goal: 'Q' };
-        const partial: ProofDto = {
-            ...nextUntil,
-            steps: [...proof.steps, { expression: 'P', rule: 'Rep [1]', assmsLevel: 0, extraParameters: {} }],
-        };
-        mockSolveProof.mockImplementation((logic, sent, callback) => callback({ success: true, proof: partial, message: '' }));
-        render(<Menu {...props} logic="modal-next-until" proof={nextUntil} />);
-
-        await clickSolve(user);
-
-        expect(screen.getByRole('status')).toHaveTextContent(
-            'Continue from where it stopped. The proof may need induction (Ind), which the solver cannot use yet.');
-    });
-
-    test('other logics do not mention induction', async () => {
-        const user = userEvent.setup();
-        const modal: ProofDto = { ...proof, logic: 'modal', goal: 'Q' };
-        mockSolveProof.mockImplementation((logic, sent, callback) => callback({ success: true, proof: { ...modal, done: false }, message: '' }));
-        render(<Menu {...props} logic="modal" proof={modal} />);
-
-        await clickSolve(user);
-
-        expect(screen.getByRole('status')).toHaveTextContent('The solver could not find a proof. Your steps are kept.');
-        expect(screen.getByRole('status')).not.toHaveTextContent('induction');
-    });
-
     test('shows the error and leaves the proof alone when the solve fails', async () => {
         const user = userEvent.setup();
         mockSolveProof.mockImplementation((logic, sent, callback) => callback({

@@ -224,8 +224,9 @@ s0: [] q           []I [3-6]
 
 ## Modal Logic with Next and Until (`modal-next-until`)
 
-`modal-next-until` reads modal logic over **discrete time**: every state `s` has a successor `s+1`, and `<=` is the
-reflexive-transitive closure of the successor (`s <= t` when `t` is `s+k` for some `k >= 0`). So `[] A` is "from now
+`modal-next-until` reads modal logic over **discrete, linear time**: every state `s` has a successor `s+1`, and `<=`
+is the reflexive-transitive closure of the successor (`s <= t` when `t` is `s+k` for some `k >= 0`), so of two states
+one comes first or they are the same. So `[] A` is "from now
 on, always" and `<> A` is "now or later", as in linear temporal logic, and two connectives are added:
 
 - **Next**, `X A`: `A` holds in `s+1`.
@@ -236,17 +237,23 @@ reads `X` with the unary connectives and `U` between them and `&` (see `docs/API
 
 Rules (on top of the modal ones): `XI`/`XE` move a formula between `X A` in `s` and `A` in `s+1`; `Succ` gives
 `s <= s+1`; `UI` introduces `A U B` from `B` now, or from `A` now and `X (A U B)`; `UE` unfolds `A U B` into
-`B | (A & X (A U B))`; `U<>` gives `<> B`; `Ind` is induction, from `A` and `[] (A -> X A)` derive `[] A`. The fresh
-state of `[]I`/`<>E` must be a new name (`s0+1` is not fresh), and a proof is done only when the goal is in `s0`.
+`B | (A & X (A U B))`; `U<>` gives `<> B`; `Ind` is induction, from `A` and `[] (A -> X A)` derive `[] A`. The
+rules of linear time come from Bolotov's natural deduction for PLTL: `-U` expands `-(A U B)` into
+`([] (- B)) | ((- B) U ((- A) & (- B)))`; `UW` names the witness of `A U B` in `s`, a new state `t` with `s <= t`, `UB`
+gives `B` in it and `UA` gives `A` in every state from `s` up to, not including, `t`; `Ord` derives a relation (or
+`FALSE`) that the relations above give, `Eq` moves a formula between two states the relations make equal, and `Lin`
+reasons by cases on the order of two states (refute `u <= v`, get `v+1 <= u`). The fresh state of `[]I`/`<>E` and the
+witness of `UW` must be a new name (`s0+1` is not fresh), and a proof is done only when the goal is in `s0`.
 
 Each rule is sound for that reading. With `Ind` and `U<>`, every axiom of the usual complete axiomatization of
 future-time linear temporal logic (the `X` and `[]` distribution laws, `X - A <-> - X A`, `[] A -> A & X [] A`,
 induction, the Until expansion law and `A U B -> <> B`) is derivable, which is the argument for completeness.
 
-The automatic solver (`ModalNextUntilAutomate`) is the modal one plus `XI`/`XE`, `UI`, `UE`, `U<>` and `Succ`: it
-turns a goal `X A` into `A` in the next state, and tries `B` now, then `A` now and `A U B` in the next state, for a
-goal `A U B`. It does not use `Ind`, so a goal that needs induction is left unproved. See
-[API.md](./API.md#modal-logic-with-next-and-until).
+The automatic solver (`LinearTimeAutomate`) is the proof search of Bolotov, Grigoriev and Shangin, *Automated
+Natural Deduction for Propositional Linear-time Temporal Logic* (TIME 2007), for these rules: goal-directed, by
+refutation when a goal is not reached directly, with case splits on the order of states and induction on a formula of
+the proof, and it goes back to its last open choice when one leads nowhere. It proves every exercise, including the one
+that needs `Ind`. See [API.md](./API.md#modal-logic-with-next-and-until).
 
 ## First-Order Logic (`first-order`)
 
@@ -337,9 +344,9 @@ the group exercises under "Group theory".
 | Aspect         | Classical   | Intuitionistic   | Modal                                       | Modal with Next and Until                                               | First-order                                           |
 |----------------|-------------|------------------|---------------------------------------------|-------------------------------------------------------------------------|-------------------------------------------------------|
 | **Operators**  | ∧, ∨, ¬, →  | as classical     | classical + □, ◇                            | modal + X, U                                                            | classical + ∀, ∃, =, predicates and functions         |
-| **Actions**    | 14          | 13 (no ¬E)       | 14 classical + 6 modal                      | the 20 modal + 8 (`XI`, `XE`, `Succ`, `UI1`, `UI2`, `UE`, `U<>`, `Ind`) | 14 classical + 6 (`∀I`, `∀E`, `∃I`, `∃E`, `=I`, `=E`) |
+| **Actions**    | 14          | 13 (no ¬E)       | 14 classical + 6 modal                      | the 20 modal + 15 (`XI`, `XE`, `Succ`, `UI1`, `UI2`, `UE`, `U<>`, `Ind`, `-U`, `UW`, `UB`, `UA`, `Ord`, `Eq`, `Lin`) | 14 classical + 6 (`∀I`, `∀E`, `∃I`, `∃E`, `=I`, `=E`) |
 | **States**     | none        | none             | named states, `<=` reflexive and transitive | `s0`, `s0+1`, ...: discrete time                                        | none                                                  |
-| **Solver**     | yes         | yes              | yes                                         | yes, without `Ind`                                                      | no                                                    |
+| **Solver**     | yes         | yes              | yes                                         | yes                                                                     | no                                                    |
 | **Logic name** | `classical` | `intuitionistic` | `modal`                                     | `modal-next-until`                                                      | `first-order`                                         |
 
 ## Implementation Details

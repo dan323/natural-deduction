@@ -10,6 +10,7 @@ import static com.dan323.model.ActionCategory.INTRODUCTION;
 import static com.dan323.model.ActionCategory.OTHER;
 import static com.dan323.uses.modal.ActionInput.formula;
 import static com.dan323.uses.modal.ActionInput.line;
+import static com.dan323.uses.modal.ActionInput.state;
 
 /**
  * The actions that {@code modal-next-until} adds to those of modal logic ({@code AvailableModalAction}): the names that
@@ -33,7 +34,24 @@ public enum AvailableNextUntilAction {
     UNTIL_SOMETIME(ParseModalNextUntilAction.UNTIL_SOMETIME, "Until reaches its goal", "U◇", ELIMINATION,
             "From A U B in state s, derive ◇B in state s", line("Until (A U B)")),
     INDUCTION(ParseModalNextUntilAction.INDUCTION, "Induction", "Ind", INTRODUCTION,
-            "From A and □(A → X A) in the same state, derive □A", line("Line with A"), line("Step (□(A → X A))"));
+            "From A and □(A → X A) in the same state, derive □A", line("Line with A"), line("Step (□(A → X A))")),
+    NEGATED_UNTIL(ParseModalNextUntilAction.NEGATED_UNTIL, "Negated Until", "¬U", ELIMINATION,
+            "From ¬(A U B) in state s, derive □¬B ∨ (¬B U (¬A ∧ ¬B)) in state s", line("Negated Until (¬(A U B))")),
+    UNTIL_WITNESS(ParseModalNextUntilAction.UNTIL_WITNESS, "Until witness", "UW", ELIMINATION,
+            "From A U B in state s, derive s <= t for a new state t: the state where B is reached",
+            line("Until (A U B)"), state("New state (t)")),
+    UNTIL_WITNESS_RIGHT(ParseModalNextUntilAction.UNTIL_WITNESS_RIGHT, "Until witness reaches B", "UB", ELIMINATION,
+            "From the UW line s <= t of A U B, derive B in state t", line("Witness (UW line)")),
+    UNTIL_WITNESS_LEFT(ParseModalNextUntilAction.UNTIL_WITNESS_LEFT, "Until holds before its witness", "UA", ELIMINATION,
+            "From the UW line s <= t of A U B, derive A in a state k when the relations give s <= k and k+1 <= t",
+            line("Witness (UW line)"), state("State k")),
+    ORDER(ParseModalNextUntilAction.ORDER, "Order", "Ord", OTHER,
+            "Derive u <= v when the relations give it in linear time (s <= s+1, s <= t gives s+1 <= t+1, ...), or FALSE when they contradict each other",
+            formula("Relation (u <= v) or FALSE")),
+    EQUAL(ParseModalNextUntilAction.EQUAL, "Equal states", "Eq", OTHER,
+            "From A in state u, derive A in state v when the relations give u <= v and v <= u", line("Line with A"), state("State v")),
+    LINEARITY(ParseModalNextUntilAction.LINEARITY, "Linearity", "Lin", OTHER,
+            "Close the subproof that assumes u <= v and ends in FALSE, and derive v+1 <= u: time is a line");
 
     private final ActionDescriptorDto descriptor;
 
