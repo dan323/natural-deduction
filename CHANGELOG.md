@@ -14,9 +14,10 @@ The project has never been versioned or tagged, since it was not meant for publi
   instead; it solves every intuitionistic exercise, `done=false` means it found no proof (always for `p | -p`, and for
   some intuitionistic theorems too), and the UI shows Solve for it; the classical and modal solvers no longer loop
   forever on goals like `(- p) -> (p -> FALSE)` (#191 fixed) (#185)
-- A solver for `modal-next-until` (`POST /logic/modal-next-until/solve`, Solve in the UI), which solves every exercise
-  except the one that needs `Ind` (the UI says a proof it does not find may need induction); the modal solver no longer crashes on relation goals or after a De Morgan step, and
-  no longer writes an `FI` line that cannot be replayed when refuting the right side of a disjunction, and it proves
+- Linear time for `modal-next-until`: the rules `-U`, `UW`/`UB`/`UA` (the witness of an Until), `Ord`, `Eq` and `Lin`,
+  and a solver (`POST /logic/modal-next-until/solve`, Solve in the UI) that implements the proof search of Bolotov,
+  Grigoriev and Shangin for PLTL, with induction; it solves every exercise and is checked against the semantics on
+  random formulas; the modal solver no longer crashes on relation goals or after a De Morgan step, and no longer writes an `FI` line that cannot be replayed when refuting the right side of a disjunction, and it proves
   `- (<> (- p)) ⊢ [] p` instead of repeating `Refl` until the timeout, and goals like `(([] p) -> (<> q)) | (- q)`,
   where it aimed for the goal itself again after splitting its negation with De Morgan (#196)
 - First-order logic with equality (`first-order`): terms, predicates, `=`, `forall`/`exists` and a hand-written parser
