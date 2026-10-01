@@ -73,11 +73,14 @@ public final class ModalUntilWitness extends RelationalAction {
 <span class="pc bpc" id="L73" title="1 of 4 branches missed.">        if (!ParseModalNextUntilAction.UNTIL_WITNESS.equals(reason.getNameProof()) || !(step.getStep() instanceof LessEqual relation)) {</span>
 <span class="fc" id="L74">            return Optional.empty();</span>
         }
-<span class="fc" id="L76">        int source = Integer.parseInt(reason.toString().substring(reason.getNameProof().length() + 2, reason.toString().length() - 1).trim());</span>
-<span class="pc bpc" id="L77" title="2 of 4 branches missed.">        if (!RuleUtils.isValidIndexAndProp(pf, source) || !(pf.getSteps().get(source - 1).getStep() instanceof Until until)) {</span>
-<span class="nc" id="L78">            return Optional.empty();</span>
+<span class="pc bpc" id="L76" title="1 of 2 branches missed.">        if (reason.getLines().size() != 1) {</span>
+<span class="nc" id="L77">            return Optional.empty();</span>
         }
-<span class="fc" id="L80">        return Optional.of(new Witness(until, relation.getLeft(), relation.getRight()));</span>
+<span class="fc" id="L79">        int source = reason.getLines().getFirst();</span>
+<span class="pc bpc" id="L80" title="2 of 4 branches missed.">        if (!RuleUtils.isValidIndexAndProp(pf, source) || !(pf.getSteps().get(source - 1).getStep() instanceof Until until)) {</span>
+<span class="nc" id="L81">            return Optional.empty();</span>
+        }
+<span class="fc" id="L83">        return Optional.of(new Witness(until, relation.getLeft(), relation.getRight()));</span>
     }
 
     /**
@@ -85,17 +88,17 @@ public final class ModalUntilWitness extends RelationalAction {
      * @param from  the state {@code s} it holds in
      * @param state the witness {@code t}
      */
-<span class="fc" id="L88">    public record Witness(Until until, String from, String state) {</span>
+<span class="fc" id="L91">    public record Witness(Until until, String from, String state) {</span>
     }
 
     @Override
     public boolean equals(Object o) {
-<span class="pc bpc" id="L93" title="2 of 6 branches missed.">        return o instanceof ModalUntilWitness other &amp;&amp; other.line == line &amp;&amp; Objects.equals(other.state, state);</span>
+<span class="pc bpc" id="L96" title="2 of 6 branches missed.">        return o instanceof ModalUntilWitness other &amp;&amp; other.line == line &amp;&amp; Objects.equals(other.state, state);</span>
     }
 
     @Override
     public int hashCode() {
-<span class="fc" id="L98">        return Objects.hash(getClass(), line, state);</span>
+<span class="fc" id="L101">        return Objects.hash(getClass(), line, state);</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>

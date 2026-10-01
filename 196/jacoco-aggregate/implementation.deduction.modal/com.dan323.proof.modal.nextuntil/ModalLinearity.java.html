@@ -34,8 +34,8 @@ import java.util.Optional;
 <span class="pc bpc" id="L34" title="1 of 4 branches missed.">        if (!&quot;Ass&quot;.equals(first.getProof().getNameProof()) || !(first.getStep() instanceof LessEqual relation)) {</span>
 <span class="fc" id="L35">            return Optional.empty();</span>
         }
-<span class="fc" id="L37">        var right = StateOrder.term(relation.getRight());</span>
-<span class="pc bpc" id="L38" title="3 of 6 branches missed.">        if (right.isEmpty() || !right.get().hasSuccessor() || StateOrder.term(relation.getLeft()).isEmpty()) {</span>
+<span class="fc" id="L37">        var right = StateTerm.tryParse(relation.getRight());</span>
+<span class="pc bpc" id="L38" title="3 of 6 branches missed.">        if (right.isEmpty() || !right.get().hasSuccessor() || StateTerm.tryParse(relation.getLeft()).isEmpty()) {</span>
 <span class="nc" id="L39">            return Optional.empty();</span>
         }
 <span class="fc" id="L41">        return Optional.of(relation);</span>

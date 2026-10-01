@@ -150,34 +150,27 @@ public final class ParseModalNextUntilAction {
     }
 
     private static int[] lines(ProofReason reason) {
-<span class="fc" id="L153">        var text = reason.toString();</span>
-<span class="fc bfc" id="L154" title="All 2 branches covered.">        if (text.equals(reason.getNameProof())) {</span>
-<span class="fc" id="L155">            return new int[0];</span>
-        }
-<span class="fc" id="L157">        return Arrays.stream(text.substring(reason.getNameProof().length() + 2, text.length() - 1).split(&quot;,&quot;))</span>
-<span class="fc" id="L158">                .map(String::trim)</span>
-<span class="fc" id="L159">                .mapToInt(Integer::parseInt)</span>
-<span class="fc" id="L160">                .toArray();</span>
+<span class="fc" id="L153">        return reason.getLines().stream().mapToInt(Integer::intValue).toArray();</span>
     }
 
     private static int[] lines(ProofReason reason, int count) {
-<span class="fc" id="L164">        int[] lines = lines(reason);</span>
-<span class="fc bfc" id="L165" title="All 2 branches covered.">        if (lines.length != count) {</span>
-<span class="fc bfc" id="L166" title="All 2 branches covered.">            throw new IllegalArgumentException(reason.getNameProof() + &quot; takes &quot; + count + (count == 1 ? &quot; line&quot; : &quot; lines&quot;));</span>
+<span class="fc" id="L157">        int[] lines = lines(reason);</span>
+<span class="fc bfc" id="L158" title="All 2 branches covered.">        if (lines.length != count) {</span>
+<span class="fc bfc" id="L159" title="All 2 branches covered.">            throw new IllegalArgumentException(reason.getNameProof() + &quot; takes &quot; + count + (count == 1 ? &quot; line&quot; : &quot; lines&quot;));</span>
         }
-<span class="fc" id="L168">        return lines;</span>
+<span class="fc" id="L161">        return lines;</span>
     }
 
     private static int[] atLeast(ProofReason reason) {
-<span class="fc" id="L172">        int[] lines = lines(reason);</span>
-<span class="fc bfc" id="L173" title="All 2 branches covered.">        if (lines.length == 0) {</span>
-<span class="fc" id="L174">            throw new IllegalArgumentException(reason.getNameProof() + &quot; takes at least one line&quot;);</span>
+<span class="fc" id="L165">        int[] lines = lines(reason);</span>
+<span class="fc bfc" id="L166" title="All 2 branches covered.">        if (lines.length == 0) {</span>
+<span class="fc" id="L167">            throw new IllegalArgumentException(reason.getNameProof() + &quot; takes at least one line&quot;);</span>
         }
-<span class="fc" id="L176">        return lines;</span>
+<span class="fc" id="L169">        return lines;</span>
     }
 
     private static List&lt;Integer&gt; rest(int[] lines) {
-<span class="fc" id="L180">        return Arrays.stream(lines).skip(1).boxed().toList();</span>
+<span class="fc" id="L173">        return Arrays.stream(lines).skip(1).boxed().toList();</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>
