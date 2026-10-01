@@ -287,9 +287,10 @@ change.
   server recovers it from the formula when it replays the proof.
 - `POST /logic/first-order/solve` runs a best-effort proof search, a bounded version of the intercalation calculus of
   Sieg and Byrnes (*Normal natural deduction proofs (in classical logic)*, Studia Logica 60, 1998). It works backwards
-  from the goal with the introduction rules (`∀I` and `∃E` with a new name) and forwards with the elimination rules:
-  `∀E` and `∃I` with the terms already in the proof (no deeper than two function applications), `=I`, and `=E` only
-  for the symmetry and transitivity of `=`; else it proves the goal by contradiction. First-order logic is
+  from the goal with the introduction rules (`∀I` with a new name, `∃I` with the terms already in the proof, `=I`) and
+  forwards with the elimination rules (`∃E` with a new name, `∀E` with the terms already in the proof, `=E` only for
+  the symmetry and transitivity of `=`); the terms it makes up are no deeper than two function applications, the ones
+  written in the premises or the goal are used as they are. Else it proves the goal by contradiction. First-order logic is
   undecidable, so it can miss a proof: when it finds none within its bounds (a budget of goals and of lines looked at,
   counts and not a time limit) it returns the premises only (`200`, `done` false), as for
   `exists x. P(x) ⊢ forall x. P(x)`. It solves every exercise except the group ones that rewrite inside a term

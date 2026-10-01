@@ -84,7 +84,10 @@ class FirstOrderSolverTest {
                         // The drinker paradox: by contradiction, with ∃I on a name the premises do not mention
                         start(List.of(), "exists x. P(x) -> (forall y. P(y))"),
                         // A propositional tautology
-                        start(List.of(), "((p -> q) -> p) -> p"))
+                        start(List.of(), "((p -> q) -> p) -> p"),
+                        // A line that is the goal only up to renaming: the answer is done for the client too
+                        start(List.of("(forall x. P(x)) & Q"), "forall y. P(y)"),
+                        start(List.of("forall x. P(x)"), "forall y. P(y)"))
                 .map(proof -> DynamicTest.dynamicTest(proof.goal(), () -> assertSolves(proof)));
     }
 

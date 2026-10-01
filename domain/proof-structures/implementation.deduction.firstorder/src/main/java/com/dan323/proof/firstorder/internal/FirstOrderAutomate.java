@@ -61,7 +61,10 @@ public final class FirstOrderAutomate {
     static final int CALL_BUDGET = 40_000;
     /** How many lines the closures under eliminations of the whole search may look at. */
     static final long WORK_BUDGET = 3_000_000;
-    /** How deep a term {@code ∀E} and {@code ∃I} use may be: {@code a} is 0, {@code f(a)} is 1. */
+    /**
+     * How deep a term {@code ∀E} and {@code ∃I} use may be: {@code a} is 0, {@code f(a)} is 1. The terms written in the
+     * premises and the goal are used however deep they are.
+     */
     static final int MAX_TERM_DEPTH = 2;
     /** How many terms {@code ∀E} and {@code ∃I} use. */
     static final int MAX_TERMS = 8;
@@ -74,6 +77,8 @@ public final class FirstOrderAutomate {
 
     private final FirstOrderNaturalDeduction proof;
     private final Set<String> initialNames = new HashSet<>();
+    /** The terms written in the premises and the goal: not made by the search, so not bounded by their depth. */
+    private final Set<Term> givenTerms = new HashSet<>();
     private Set<String> usedNames;
     private String defaultName;
     private int calls;
@@ -97,6 +102,8 @@ public final class FirstOrderAutomate {
         }
         proof.getAssms().forEach(premise -> names(premise, initialNames));
         names(goal, initialNames);
+        proof.getAssms().forEach(premise -> terms(premise, Set.of(), givenTerms));
+        terms(goal, Set.of(), givenTerms);
         Map<FirstOrderOperation, Node> premises = new LinkedHashMap<>();
         for (FirstOrderOperation premise : proof.getAssms()) {
             premises.putIfAbsent(premise, new Node(Kind.PREMISE, premise, List.of(), null, null));
@@ -490,13 +497,14 @@ public final class FirstOrderAutomate {
      * @param goal     the goal
      * @param forGoal  whether the terms are for an existential goal (else for the universals among {@code formulas})
      * @return the terms {@code ∀E} and {@code ∃I} use: those free in the goal, then in the lines, up to
-     * {@link #MAX_TERM_DEPTH} and {@link #MAX_TERMS}; a new name when there is none and one is needed
+     * {@link #MAX_TERM_DEPTH} (unless written in the premises or the goal) and {@link #MAX_TERMS}; a new name when
+     * there is none and one is needed
      */
     private List<Term> universe(Set<FirstOrderOperation> formulas, FirstOrderOperation goal, boolean forGoal) {
         Set<Term> terms = new LinkedHashSet<>();
         terms(goal, Set.of(), terms);
         formulas.forEach(formula -> terms(formula, Set.of(), terms));
-        List<Term> universe = terms.stream().filter(term -> depth(term) <= MAX_TERM_DEPTH).limit(MAX_TERMS).toList();
+        List<Term> universe = terms.stream().filter(term -> depth(term) <= MAX_TERM_DEPTH || givenTerms.contains(term)).limit(MAX_TERMS).toList();
         if (universe.isEmpty() && (forGoal || formulas.stream().anyMatch(Forall.class::isInstance))) {
             // The domain is not empty: a name nothing is said about stands for any element
             if (defaultName == null) {

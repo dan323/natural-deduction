@@ -4,6 +4,7 @@ import com.dan323.expressions.firstorder.DisjunctionFirstOrder;
 import com.dan323.expressions.firstorder.Exists;
 import com.dan323.expressions.firstorder.FirstOrderOperation;
 import com.dan323.expressions.firstorder.Forall;
+import com.dan323.expressions.firstorder.VariableTerm;
 import com.dan323.proof.firstorder.*;
 import com.dan323.proof.firstorder.internal.FirstOrderAutomate.Node;
 import com.dan323.proof.firstorder.proof.FirstOrderNaturalDeduction;
@@ -20,6 +21,9 @@ import java.util.Map;
  */
 final class Emitter {
 
+    /** The term of the {@code =I} that rewrites the last line as the goal; any term does. */
+    private static final String SOME_NAME = "a";
+
     private final FirstOrderNaturalDeduction proof;
     /** For each open subproof (the first one is the premises' level), the 1-based line of each formula derived in it. */
     private final Deque<Map<FirstOrderOperation, Integer>> scopes = new ArrayDeque<>();
@@ -34,12 +38,21 @@ final class Emitter {
     }
 
     /**
-     * Writes the derivation and makes its formula the last line.
+     * Writes the derivation and makes its formula the last line, written exactly as the goal.
      *
      * @throws IllegalStateException if a rule does not accept a step of the derivation
      */
     void write(Node root) {
-        last(emit(root));
+        int line = emit(root);
+        FirstOrderOperation goal = proof.getGoal();
+        if (proof.getSteps().get(line - 1).getStep().toString().equals(goal.toString())) {
+            last(line);
+        } else {
+            // The line is the goal only up to renaming of bound variables. A client compares the text of the lines
+            // with the goal, so rewrite it as the goal: =E with a = a leaves it as it is, and its target is the goal
+            apply(new FirstOrderEqualsI(new VariableTerm(SOME_NAME)));
+            apply(new FirstOrderEqualsE(proof.getSteps().size(), line, goal));
+        }
     }
 
     private Integer lookup(FirstOrderOperation formula) {

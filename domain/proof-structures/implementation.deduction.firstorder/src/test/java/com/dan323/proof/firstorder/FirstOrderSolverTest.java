@@ -34,6 +34,8 @@ class FirstOrderSolverTest {
         var proof = solve(goal);
         assertTrue(proof.isDone(), () -> goal + ": done\n" + proof);
         assertEquals(formula(goal.goal()), proof.getSteps().getLast().getStep(), goal + ": the last line is the goal");
+        // Written as the goal, not only equal to it up to renaming: a client compares the texts
+        assertEquals(formula(goal.goal()).toString(), proof.getSteps().getLast().getStep().toString(), goal + ": the last line reads as the goal");
         assertEquals(0, proof.getSteps().getLast().getAssumptionLevel(), goal + ": at the top level");
         for (int i = 0; i < goal.premises().length; i++) {
             assertEquals(formula(goal.premises()[i]), proof.getSteps().get(i).getStep(), goal + ": the premises stay");
@@ -82,7 +84,15 @@ class FirstOrderSolverTest {
                         new Goal("- (exists x. P(x))", "forall x. - P(x)"),
                         new Goal("- (forall x. P(x))", "exists x. - P(x)"),
                         new Goal("exists x. - P(x)", "- (forall x. P(x))"),
-                        new Goal("(forall x. P(x)) | (- (forall x. P(x)))"))
+                        new Goal("(forall x. P(x)) | (- (forall x. P(x)))"),
+                        // The goal only up to renaming of bound variables: in a premise, or derived
+                        new Goal("forall y. P(y)", "forall x. P(x)"),
+                        new Goal("exists a. P(a)", "exists x. P(x)"),
+                        new Goal("forall y. P(y)", "(forall x. P(x)) & Q"),
+                        // Terms written in the premises or the goal are used however deep they are
+                        new Goal("exists x. P(x)", "P(f(f(f(a))))"),
+                        new Goal("P(f(f(f(a))))", "forall x. P(x)"),
+                        new Goal("Q(f(f(f(a))))", "forall x. P(x) -> Q(x)", "P(f(f(f(a))))"))
                 .map(goal -> DynamicTest.dynamicTest(goal.toString(), () -> assertSolves(goal)));
     }
 

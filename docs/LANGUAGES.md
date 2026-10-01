@@ -262,9 +262,9 @@ that needs `Ind`. See [API.md](./API.md#modal-logic-with-next-and-until).
 `first-order` is classical first-order logic with equality. Formulas talk about individuals through **terms**, and
 the quantifiers `∀` and `∃` range over them. There are no states. The automatic solver (`FirstOrderAutomate`) is
 best effort, a bounded version of the intercalation calculus of Sieg and Byrnes (*Normal natural deduction proofs (in
-classical logic)*, Studia Logica 60, 1998): introduction rules backwards from the goal (`∀I` and `∃E` with a new
-name), elimination rules forwards (`∀E` and `∃I` with the terms of the proof, `=E` only for symmetry and
-transitivity), then proof by contradiction. When it finds no proof within its bounds it leaves the premises.
+classical logic)*, Studia Logica 60, 1998): introduction rules backwards from the goal (`∀I` with a new name, `∃I`
+with the terms of the proof, `=I`), elimination rules forwards (`∃E` with a new name, `∀E` with the terms of the
+proof, `=E` only for symmetry and transitivity), then proof by contradiction. When it finds no proof within its bounds it leaves the premises.
 
 ### Syntax
 
