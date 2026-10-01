@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>ModalLinearity.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">jacoco-report-aggregate</a> &gt; <a href="../index.html" class="el_bundle">implementation.deduction.modal</a> &gt; <a href="index.source.html" class="el_package">com.dan323.proof.modal.nextuntil</a> &gt; <span class="el_source">ModalLinearity.java</span></div><h1>ModalLinearity.java</h1><pre class="source lang-java linenums">package com.dan323.proof.modal.nextuntil;
+
+import com.dan323.expressions.base.Constant;
+import com.dan323.expressions.modal.ModalOperation;
+import com.dan323.expressions.relation.LessEqual;
+import com.dan323.expressions.relation.RelationOperation;
+import com.dan323.expressions.relation.StateTerm;
+import com.dan323.proof.generic.RuleUtils;
+import com.dan323.proof.generic.proof.ProofReason;
+import com.dan323.proof.generic.proof.ProofStepSupplier;
+import com.dan323.proof.modal.proof.ModalNaturalDeduction;
+import com.dan323.proof.modal.proof.ProofStepModal;
+import com.dan323.proof.modal.relational.RelationalAction;
+
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+
+/**
+ * Linearity, {@code Lin [i-j]}: close the subproof that assumes {@code u &lt;= v} (line {@code i}) and ends in
+ * {@code FALSE} (line {@code j}), and derive {@code v+1 &lt;= u}. Time is a line, so {@code u} is not after {@code v} or
+ * {@code v} comes before {@code u}; the subproof ruled out the first. Reasoning by cases on the order of two states is
+ * one {@code Lin} per case: assume one order, reach {@code FALSE}, and go on with the other.
+ */
+<span class="fc" id="L25">public final class ModalLinearity extends RelationalAction {</span>
+
+    /** The assumed relation of the innermost subproof, when it can be closed. */
+    private static Optional&lt;LessEqual&gt; assumed(ModalNaturalDeduction pf) {
+<span class="fc" id="L29">        int level = RuleUtils.getLastAssumptionLevel(pf);</span>
+<span class="pc bpc" id="L30" title="1 of 6 branches missed.">        if (level == 0 || !(pf.getSteps().getLast().getStep() instanceof Constant constant) || !constant.isFalsehood()) {</span>
+<span class="fc" id="L31">            return Optional.empty();</span>
+        }
+<span class="fc" id="L33">        var first = pf.getSteps().get(pf.getSteps().size() - RuleUtils.getToLastAssumption(pf, level));</span>
+<span class="pc bpc" id="L34" title="1 of 4 branches missed.">        if (!&quot;Ass&quot;.equals(first.getProof().getNameProof()) || !(first.getStep() instanceof LessEqual relation)) {</span>
+<span class="fc" id="L35">            return Optional.empty();</span>
+        }
+<span class="fc" id="L37">        var right = StateTerm.tryParse(relation.getRight());</span>
+<span class="pc bpc" id="L38" title="3 of 6 branches missed.">        if (right.isEmpty() || !right.get().hasSuccessor() || StateTerm.tryParse(relation.getLeft()).isEmpty()) {</span>
+<span class="nc" id="L39">            return Optional.empty();</span>
+        }
+<span class="fc" id="L41">        return Optional.of(relation);</span>
+    }
+
+    @Override
+    public boolean isValid(ModalNaturalDeduction pf) {
+<span class="fc" id="L46">        return assumed(pf).isPresent();</span>
+    }
+
+    @Override
+    public void applyStepSupplier(ModalNaturalDeduction pf, ProofStepSupplier&lt;ModalOperation, ProofStepModal&gt; supp) {
+<span class="fc" id="L51">        var relation = assumed(pf).orElseThrow();</span>
+<span class="fc" id="L52">        int level = RuleUtils.getLastAssumptionLevel(pf);</span>
+<span class="fc" id="L53">        int length = RuleUtils.disableUntilLastAssumption(pf, level);</span>
+<span class="fc" id="L54">        var range = new ProofReason.Range(pf.getSteps().size() - length + 1, pf.getSteps().size());</span>
+<span class="fc" id="L55">        RelationOperation conclusion = new LessEqual(StateTerm.parse(relation.getRight()).successor().toString(), relation.getLeft());</span>
+<span class="fc" id="L56">        pf.getSteps().add(supp.generateProofStep(level - 1, conclusion,</span>
+<span class="fc" id="L57">                new ProofReason(ParseModalNextUntilAction.LINEARITY, List.of(range), List.of())));</span>
+<span class="fc" id="L58">    }</span>
+
+    @Override
+    public boolean equals(Object o) {
+<span class="fc" id="L62">        return o instanceof ModalLinearity;</span>
+    }
+
+    @Override
+    public int hashCode() {
+<span class="fc" id="L67">        return Objects.hash(getClass());</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>

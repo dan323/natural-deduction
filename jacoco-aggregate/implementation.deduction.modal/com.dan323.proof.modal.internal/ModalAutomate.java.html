@@ -16,6 +16,12 @@ import java.util.concurrent.CancellationException;
 /**
  * Class to execute a Natural deduction in modal logic
  *
+ * &lt;p&gt;It keeps a stack of goals, each one a formula in a state, with the proof's goal in the initial state at the
+ * bottom. Each round it reaches the top goal with an introduction rule if it can, otherwise it applies the elimination
+ * rules it has not applied yet; when neither is possible it pushes subgoals (and assumptions) that make the top goal
+ * easier to reach. It stops when the stack is empty (the proof is done) or when a round changes neither the proof nor
+ * the goals.
+ *
  * @author daniel
  */
 public final class ModalAutomate {
@@ -30,9 +36,9 @@ public final class ModalAutomate {
     /**
      * A solver keeps its working state in fields: use one instance per proof to solve.
      */
-<span class="fc" id="L33">    public ModalAutomate() {</span>
+<span class="fc" id="L39">    public ModalAutomate() {</span>
         // Nothing to set up: automate initializes the state
-<span class="fc" id="L35">    }</span>
+<span class="fc" id="L41">    }</span>
 
     /**
      * Finish the proof if it can be done.
@@ -46,33 +52,33 @@ public final class ModalAutomate {
      */
     public void automate(ModalNaturalDeduction naturalDeduction) {
         // Init state
-<span class="fc" id="L49">        proof = naturalDeduction;</span>
-<span class="fc" id="L50">        proof.reset();</span>
-<span class="fc" id="L51">        goals = new ArrayList&lt;&gt;();</span>
-<span class="fc" id="L52">        actionsDone = new ArrayList&lt;&gt;();</span>
-<span class="fc" id="L53">        usedForGoal = new HashMap&lt;&gt;();</span>
-<span class="fc" id="L54">        reflUsed = new HashMap&lt;&gt;();</span>
-<span class="fc" id="L55">        goals.add(new AbstractMap.SimpleEntry&lt;&gt;(proof.getState0(), proof.getGoal()));</span>
+<span class="fc" id="L55">        proof = naturalDeduction;</span>
+<span class="fc" id="L56">        proof.reset();</span>
+<span class="fc" id="L57">        goals = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L58">        actionsDone = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L59">        usedForGoal = new HashMap&lt;&gt;();</span>
+<span class="fc" id="L60">        reflUsed = new HashMap&lt;&gt;();</span>
+<span class="fc" id="L61">        goals.add(new AbstractMap.SimpleEntry&lt;&gt;(proof.getState0(), proof.getGoal()));</span>
 
-<span class="fc" id="L57">        var c = true;</span>
-<span class="fc bfc" id="L58" title="All 2 branches covered.">        while (c) {</span>
-<span class="fc" id="L59">            checkNotInterrupted();</span>
-<span class="fc" id="L60">            var goalSize = goals.size();</span>
-<span class="fc" id="L61">            var stepsSize = proof.getSteps().size();</span>
-<span class="fc" id="L62">            c = applyIntroAndElimRules();</span>
-<span class="fc bfc" id="L63" title="All 2 branches covered.">            if (c) {</span>
-<span class="fc" id="L64">                updateGoal();</span>
+<span class="fc" id="L63">        var c = true;</span>
+<span class="fc bfc" id="L64" title="All 2 branches covered.">        while (c) {</span>
+<span class="fc" id="L65">            checkNotInterrupted();</span>
+<span class="fc" id="L66">            var goalSize = goals.size();</span>
+<span class="fc" id="L67">            var stepsSize = proof.getSteps().size();</span>
+<span class="fc" id="L68">            c = applyIntroAndElimRules();</span>
+<span class="fc bfc" id="L69" title="All 2 branches covered.">            if (c) {</span>
+<span class="fc" id="L70">                updateGoal();</span>
                 // If the state of the proof has not changed, stop. It has failed
-<span class="fc" id="L66">                c = isStateChanged(goalSize, stepsSize);</span>
+<span class="fc" id="L72">                c = isStateChanged(goalSize, stepsSize);</span>
             }
-<span class="fc" id="L68">        }</span>
-<span class="fc" id="L69">    }</span>
+<span class="fc" id="L74">        }</span>
+<span class="fc" id="L75">    }</span>
 
     private static void checkNotInterrupted() {
-<span class="fc bfc" id="L72" title="All 2 branches covered.">        if (Thread.currentThread().isInterrupted()) {</span>
-<span class="fc" id="L73">            throw new CancellationException(&quot;The automatic solver was interrupted&quot;);</span>
+<span class="fc bfc" id="L78" title="All 2 branches covered.">        if (Thread.currentThread().isInterrupted()) {</span>
+<span class="fc" id="L79">            throw new CancellationException(&quot;The automatic solver was interrupted&quot;);</span>
         }
-<span class="fc" id="L75">    }</span>
+<span class="fc" id="L81">    }</span>
 
     /**
      * Checks if the state of the proof has changed according to previous sizes
@@ -82,7 +88,7 @@ public final class ModalAutomate {
      * @return true iff the number of goals of the proof has more steps
      */
     private boolean isStateChanged(int previousGoalSize, int previousStepSize) {
-<span class="pc bpc" id="L85" title="1 of 4 branches missed.">        return previousGoalSize != goals.size() || previousStepSize != proof.getSteps().size();</span>
+<span class="fc bfc" id="L91" title="All 4 branches covered.">        return previousGoalSize != goals.size() || previousStepSize != proof.getSteps().size();</span>
     }
 
     /**
@@ -91,22 +97,22 @@ public final class ModalAutomate {
      * @return false iff the proof is finished
      */
     private boolean applyIntroAndElimRules() {
-<span class="fc" id="L94">        boolean b = true;</span>
-<span class="fc" id="L95">        boolean c = true;</span>
-<span class="fc bfc" id="L96" title="All 2 branches covered.">        while (b) {</span>
-<span class="fc" id="L97">            checkNotInterrupted();</span>
-<span class="fc" id="L98">            var intro = introRuleForGoal();</span>
-<span class="fc bfc" id="L99" title="All 4 branches covered.">            if (intro.isPresent() || isGoalReached()) {</span>
-<span class="fc" id="L100">                updateGoals(intro.orElse(null));</span>
-<span class="fc bfc" id="L101" title="All 2 branches covered.">                if (goals.isEmpty()) {</span>
-<span class="fc" id="L102">                    c = false;</span>
-<span class="fc" id="L103">                    b = false;</span>
+<span class="fc" id="L100">        boolean b = true;</span>
+<span class="fc" id="L101">        boolean c = true;</span>
+<span class="fc bfc" id="L102" title="All 2 branches covered.">        while (b) {</span>
+<span class="fc" id="L103">            checkNotInterrupted();</span>
+<span class="fc" id="L104">            var intro = introRuleForGoal();</span>
+<span class="fc bfc" id="L105" title="All 4 branches covered.">            if (intro.isPresent() || isGoalReached()) {</span>
+<span class="fc" id="L106">                updateGoals(intro.orElse(null));</span>
+<span class="fc bfc" id="L107" title="All 2 branches covered.">                if (goals.isEmpty()) {</span>
+<span class="fc" id="L108">                    c = false;</span>
+<span class="fc" id="L109">                    b = false;</span>
                 }
             } else {
-<span class="fc" id="L106">                b = eliminateRules();</span>
+<span class="fc" id="L112">                b = eliminateRules();</span>
             }
-<span class="fc" id="L108">        }</span>
-<span class="fc" id="L109">        return c;</span>
+<span class="fc" id="L114">        }</span>
+<span class="fc" id="L115">        return c;</span>
     }
 
     /**
@@ -115,10 +121,10 @@ public final class ModalAutomate {
      * @return true if the last goal is equal to the last statement in the proof
      */
     private boolean isGoalReached() {
-<span class="fc" id="L118">        var lastGoal = goals.getLast();</span>
-<span class="fc bfc" id="L119" title="All 2 branches covered.">        return !proof.getSteps().isEmpty() &amp;&amp;</span>
-<span class="fc bfc" id="L120" title="All 2 branches covered.">                lastGoal.getValue().equals(proof.getSteps().getLast().getStep())</span>
-<span class="pc bpc" id="L121" title="1 of 2 branches missed.">                &amp;&amp; lastGoal.getKey().equals(proof.getSteps().getLast().getState());</span>
+<span class="fc" id="L124">        var lastGoal = goals.getLast();</span>
+<span class="fc bfc" id="L125" title="All 2 branches covered.">        return !proof.getSteps().isEmpty() &amp;&amp;</span>
+<span class="fc bfc" id="L126" title="All 2 branches covered.">                lastGoal.getValue().equals(proof.getSteps().getLast().getStep())</span>
+<span class="pc bpc" id="L127" title="1 of 2 branches missed.">                &amp;&amp; lastGoal.getKey().equals(proof.getSteps().getLast().getState());</span>
     }
 
     /**
@@ -127,11 +133,11 @@ public final class ModalAutomate {
      * @return true iff a rule was found and was applied
      */
     private boolean eliminateRules() {
-<span class="fc" id="L130">        return lookForElimRules()</span>
-<span class="fc" id="L131">                .map(c -&gt; {</span>
-<span class="fc" id="L132">                    c.apply(proof);</span>
-<span class="fc" id="L133">                    return true;</span>
-<span class="fc" id="L134">                }).orElse(false);</span>
+<span class="fc" id="L136">        return lookForElimRules()</span>
+<span class="fc" id="L137">                .map(c -&gt; {</span>
+<span class="fc" id="L138">                    c.apply(proof);</span>
+<span class="fc" id="L139">                    return true;</span>
+<span class="fc" id="L140">                }).orElse(false);</span>
     }
 
     /**
@@ -140,13 +146,13 @@ public final class ModalAutomate {
      * @param intro action that will attain the goal
      */
     private void updateGoals(AbstractModalAction intro) {
-<span class="fc bfc" id="L143" title="All 2 branches covered.">        if (intro != null) {</span>
-<span class="fc" id="L144">            intro.apply(proof);</span>
+<span class="fc bfc" id="L149" title="All 2 branches covered.">        if (intro != null) {</span>
+<span class="fc" id="L150">            intro.apply(proof);</span>
         }
-<span class="fc" id="L146">        attainFalseGoal();</span>
-<span class="fc" id="L147">        goals.removeLast();</span>
-<span class="fc" id="L148">        usedForGoal.remove(goals.size() + 2);</span>
-<span class="fc" id="L149">    }</span>
+<span class="fc" id="L152">        attainFalseGoal();</span>
+<span class="fc" id="L153">        goals.removeLast();</span>
+<span class="fc" id="L154">        usedForGoal.remove(goals.size() + 2);</span>
+<span class="fc" id="L155">    }</span>
 
     /**
      * If the last goal is {@literal False}, the goal below it is a negation and the rule NotI is valid, we use it to
@@ -155,15 +161,15 @@ public final class ModalAutomate {
      * reaches the implication with {@code -&gt;I} instead.
      */
     private void attainFalseGoal() {
-<span class="fc bfc" id="L158" title="All 4 branches covered.">        if (goals.size() &gt; 1 &amp;&amp; goals.getLast().getValue().equals(ConstantModal.FALSE)</span>
-<span class="pc bpc" id="L159" title="1 of 2 branches missed.">                &amp;&amp; goals.get(goals.size() - 2).getValue() instanceof NegationModal) {</span>
-<span class="fc" id="L160">            ModalNotI cla = new ModalNotI();</span>
-<span class="pc bpc" id="L161" title="1 of 2 branches missed.">            if (cla.isValid(proof)) {</span>
-<span class="fc" id="L162">                cla.apply(proof);</span>
-<span class="fc" id="L163">                goals.removeLast();</span>
+<span class="fc bfc" id="L164" title="All 4 branches covered.">        if (goals.size() &gt; 1 &amp;&amp; goals.getLast().getValue().equals(ConstantModal.FALSE)</span>
+<span class="pc bpc" id="L165" title="1 of 2 branches missed.">                &amp;&amp; goals.get(goals.size() - 2).getValue() instanceof NegationModal) {</span>
+<span class="fc" id="L166">            ModalNotI cla = new ModalNotI();</span>
+<span class="pc bpc" id="L167" title="1 of 2 branches missed.">            if (cla.isValid(proof)) {</span>
+<span class="fc" id="L168">                cla.apply(proof);</span>
+<span class="fc" id="L169">                goals.removeLast();</span>
             }
         }
-<span class="fc" id="L166">    }</span>
+<span class="fc" id="L172">    }</span>
 
     /**
      * Check if last goal can be reached with an intro rule
@@ -171,32 +177,32 @@ public final class ModalAutomate {
      * @return the action that must be applied to reach the goal
      */
     private Optional&lt;AbstractModalAction&gt; introRuleForGoal() {
-<span class="fc bfc" id="L174" title="All 2 branches covered.">        if (proof.getSteps().isEmpty()) {</span>
-<span class="fc" id="L175">            return Optional.empty();</span>
+<span class="fc bfc" id="L180" title="All 2 branches covered.">        if (proof.getSteps().isEmpty()) {</span>
+<span class="fc" id="L181">            return Optional.empty();</span>
         }
-<span class="fc" id="L177">        ModalOperation goal = goals.getLast().getValue();</span>
-<span class="fc" id="L178">        String state = goals.getLast().getKey();</span>
-<span class="fc" id="L179">        Optional&lt;AbstractModalAction&gt; copy = copyOfGoal(goal, state);</span>
-<span class="fc bfc" id="L180" title="All 2 branches covered.">        if (copy.isPresent()) {</span>
-<span class="fc" id="L181">            return copy;</span>
+<span class="fc" id="L183">        ModalOperation goal = goals.getLast().getValue();</span>
+<span class="fc" id="L184">        String state = goals.getLast().getKey();</span>
+<span class="fc" id="L185">        Optional&lt;AbstractModalAction&gt; copy = copyOfGoal(goal, state);</span>
+<span class="fc bfc" id="L186" title="All 2 branches covered.">        if (copy.isPresent()) {</span>
+<span class="fc" id="L187">            return copy;</span>
         }
-<span class="fc" id="L183">        Optional&lt;AbstractModalAction&gt; sol = Optional.empty();</span>
-<span class="fc bfc" id="L184" title="All 2 branches covered.">        if (goal instanceof ConjunctionModal conj) {</span>
-<span class="fc" id="L185">            sol = introRuleForGoalConjuntion(conj, state);</span>
-<span class="fc bfc" id="L186" title="All 2 branches covered.">        } else if (goal instanceof ImplicationModal imp) {</span>
-<span class="fc" id="L187">            sol = introRuleForGoalImplication(imp, state);</span>
-<span class="fc bfc" id="L188" title="All 2 branches covered.">        } else if (goal instanceof DisjunctionModal disj) {</span>
-<span class="fc" id="L189">            sol = introRuleForGoalDisjunction(disj, state);</span>
-<span class="fc bfc" id="L190" title="All 2 branches covered.">        } else if (goal instanceof NegationModal neg) {</span>
-<span class="fc" id="L191">            sol = introRuleForGoalNegation(neg, state);</span>
-<span class="fc bfc" id="L192" title="All 2 branches covered.">        } else if (goal.equals(ConstantModal.FALSE)) {</span>
-<span class="fc" id="L193">            sol = introRuleForGoalContradiction();</span>
-<span class="fc bfc" id="L194" title="All 2 branches covered.">        } else if (goal instanceof Always always) {</span>
-<span class="fc" id="L195">            sol = introRuleForGoalAlways(always, state);</span>
-<span class="fc bfc" id="L196" title="All 2 branches covered.">        } else if (goal instanceof Sometime sometime) {</span>
-<span class="fc" id="L197">            sol = introRuleForGoalSometime(sometime, state);</span>
+<span class="fc" id="L189">        Optional&lt;AbstractModalAction&gt; sol = Optional.empty();</span>
+<span class="fc bfc" id="L190" title="All 2 branches covered.">        if (goal instanceof ConjunctionModal conj) {</span>
+<span class="fc" id="L191">            sol = introRuleForGoalConjuntion(conj, state);</span>
+<span class="fc bfc" id="L192" title="All 2 branches covered.">        } else if (goal instanceof ImplicationModal imp) {</span>
+<span class="fc" id="L193">            sol = introRuleForGoalImplication(imp, state);</span>
+<span class="fc bfc" id="L194" title="All 2 branches covered.">        } else if (goal instanceof DisjunctionModal disj) {</span>
+<span class="fc" id="L195">            sol = introRuleForGoalDisjunction(disj, state);</span>
+<span class="fc bfc" id="L196" title="All 2 branches covered.">        } else if (goal instanceof NegationModal neg) {</span>
+<span class="fc" id="L197">            sol = introRuleForGoalNegation(neg, state);</span>
+<span class="fc bfc" id="L198" title="All 2 branches covered.">        } else if (goal.equals(ConstantModal.FALSE)) {</span>
+<span class="fc" id="L199">            sol = introRuleForGoalContradiction();</span>
+<span class="fc bfc" id="L200" title="All 2 branches covered.">        } else if (goal instanceof Always always) {</span>
+<span class="fc" id="L201">            sol = introRuleForGoalAlways(always, state);</span>
+<span class="fc bfc" id="L202" title="All 2 branches covered.">        } else if (goal instanceof Sometime sometime) {</span>
+<span class="fc" id="L203">            sol = introRuleForGoalSometime(sometime, state);</span>
         }
-<span class="fc" id="L199">        return sol;</span>
+<span class="fc" id="L205">        return sol;</span>
     }
 
     /**
@@ -204,58 +210,58 @@ public final class ModalAutomate {
      * line.
      */
     private Optional&lt;AbstractModalAction&gt; copyOfGoal(ModalOperation goal, String state) {
-<span class="fc bfc" id="L207" title="All 2 branches covered.">        for (int i = 0; i &lt; proof.getSteps().size()-1; i++) {</span>
-<span class="fc bfc" id="L208" title="All 2 branches covered.">            if (proof.getSteps().get(i).isValid() &amp;&amp;</span>
-<span class="fc bfc" id="L209" title="All 2 branches covered.">                    goal.equals(proof.getSteps().get(i).getStep()) &amp;&amp;</span>
-<span class="fc bfc" id="L210" title="All 2 branches covered.">                    state.equals(proof.getSteps().get(i).getState()) &amp;&amp;</span>
-<span class="pc bpc" id="L211" title="1 of 2 branches missed.">                    (!goal.equals(proof.getSteps().getLast().getStep()) ||</span>
-<span class="nc bnc" id="L212" title="All 2 branches missed.">                    !(goal.equals(ConstantModal.FALSE) ||</span>
-<span class="nc bnc" id="L213" title="All 2 branches missed.">                            state.equals(proof.getSteps().getLast().getState())))) {</span>
-<span class="fc" id="L214">                return Optional.of(new ModalCopy(i + 1));</span>
+<span class="fc bfc" id="L213" title="All 2 branches covered.">        for (int i = 0; i &lt; proof.getSteps().size()-1; i++) {</span>
+<span class="fc bfc" id="L214" title="All 2 branches covered.">            if (proof.getSteps().get(i).isValid() &amp;&amp;</span>
+<span class="fc bfc" id="L215" title="All 2 branches covered.">                    goal.equals(proof.getSteps().get(i).getStep()) &amp;&amp;</span>
+<span class="fc bfc" id="L216" title="All 2 branches covered.">                    state.equals(proof.getSteps().get(i).getState()) &amp;&amp;</span>
+<span class="pc bpc" id="L217" title="1 of 2 branches missed.">                    (!goal.equals(proof.getSteps().getLast().getStep()) ||</span>
+<span class="nc bnc" id="L218" title="All 2 branches missed.">                    !(goal.equals(ConstantModal.FALSE) ||</span>
+<span class="nc bnc" id="L219" title="All 2 branches missed.">                            state.equals(proof.getSteps().getLast().getState())))) {</span>
+<span class="fc" id="L220">                return Optional.of(new ModalCopy(i + 1));</span>
             }
         }
-<span class="fc" id="L217">        return Optional.empty();</span>
+<span class="fc" id="L223">        return Optional.empty();</span>
     }
 
     private Optional&lt;AbstractModalAction&gt; introRuleForGoalSometime(Sometime sometime, String state) {
-<span class="fc" id="L221">        ModalLogicalOperation element = sometime.getElement();</span>
-<span class="fc" id="L222">        Map&lt;String, Integer&gt; states = new HashMap&lt;&gt;();</span>
-<span class="fc bfc" id="L223" title="All 2 branches covered.">        for (int k = 0; k &lt; proof.getSteps().size(); k++) {</span>
-<span class="fc bfc" id="L224" title="All 4 branches covered.">            if (proof.getSteps().get(k).isValid() &amp;&amp; proof.getSteps().get(k).getStep().equals(element)) {</span>
-<span class="fc" id="L225">                states.put(proof.getSteps().get(k).getState(), k+1);</span>
+<span class="fc" id="L227">        ModalLogicalOperation element = sometime.getElement();</span>
+<span class="fc" id="L228">        Map&lt;String, Integer&gt; states = new HashMap&lt;&gt;();</span>
+<span class="fc bfc" id="L229" title="All 2 branches covered.">        for (int k = 0; k &lt; proof.getSteps().size(); k++) {</span>
+<span class="fc bfc" id="L230" title="All 4 branches covered.">            if (proof.getSteps().get(k).isValid() &amp;&amp; proof.getSteps().get(k).getStep().equals(element)) {</span>
+<span class="fc" id="L231">                states.put(proof.getSteps().get(k).getState(), k+1);</span>
             }
         }
-<span class="fc bfc" id="L228" title="All 2 branches covered.">        for (int k = 0; k &lt; proof.getSteps().size(); k++) {</span>
-<span class="fc bfc" id="L229" title="All 4 branches covered.">            if (proof.getSteps().get(k).isValid() &amp;&amp; proof.getSteps().get(k).getStep() instanceof LessEqual lessEqual</span>
-<span class="pc bpc" id="L230" title="1 of 2 branches missed.">                    &amp;&amp; lessEqual.getLeft().equals(state)) {</span>
-<span class="fc" id="L231">                Integer finalState = states.get(lessEqual.getRight());</span>
-<span class="fc bfc" id="L232" title="All 2 branches covered.">                if (finalState != null) {</span>
-<span class="fc" id="L233">                    return Optional.of(new ModalDiaI(finalState, k+1));</span>
+<span class="fc bfc" id="L234" title="All 2 branches covered.">        for (int k = 0; k &lt; proof.getSteps().size(); k++) {</span>
+<span class="fc bfc" id="L235" title="All 4 branches covered.">            if (proof.getSteps().get(k).isValid() &amp;&amp; proof.getSteps().get(k).getStep() instanceof LessEqual lessEqual</span>
+<span class="pc bpc" id="L236" title="1 of 2 branches missed.">                    &amp;&amp; lessEqual.getLeft().equals(state)) {</span>
+<span class="fc" id="L237">                Integer finalState = states.get(lessEqual.getRight());</span>
+<span class="fc bfc" id="L238" title="All 2 branches covered.">                if (finalState != null) {</span>
+<span class="fc" id="L239">                    return Optional.of(new ModalDiaI(finalState, k+1));</span>
                 }
             }
         }
-<span class="fc" id="L237">        return Optional.empty();</span>
+<span class="fc" id="L243">        return Optional.empty();</span>
     }
 
     private Optional&lt;AbstractModalAction&gt; introRuleForGoalAlways(Always goal, String state) {
-<span class="fc" id="L241">        ModalLogicalOperation element = goal.getElement();</span>
-<span class="fc" id="L242">        int i = 0;</span>
-<span class="fc" id="L243">        int assmsLevel = proof.getSteps().getLast().getAssumptionLevel();</span>
-<span class="fc bfc" id="L244" title="All 4 branches covered.">        while (proof.getSteps().size() - 1 - i &gt;= 0 &amp;&amp; proof.getSteps().get(proof.getSteps().size() - 1 - i).getAssumptionLevel() &gt;= assmsLevel) {</span>
-<span class="fc" id="L245">            i++;</span>
+<span class="fc" id="L247">        ModalLogicalOperation element = goal.getElement();</span>
+<span class="fc" id="L248">        int i = 0;</span>
+<span class="fc" id="L249">        int assmsLevel = proof.getSteps().getLast().getAssumptionLevel();</span>
+<span class="fc bfc" id="L250" title="All 4 branches covered.">        while (proof.getSteps().size() - 1 - i &gt;= 0 &amp;&amp; proof.getSteps().get(proof.getSteps().size() - 1 - i).getAssumptionLevel() &gt;= assmsLevel) {</span>
+<span class="fc" id="L251">            i++;</span>
         }
-<span class="fc bfc" id="L247" title="All 4 branches covered.">        if (proof.getSteps().get(proof.getSteps().size() - i).getStep() instanceof LessEqual lessEqual &amp;&amp; lessEqual.getLeft().equals(state)) {</span>
-<span class="fc" id="L248">            var finalState = lessEqual.getRight();</span>
-<span class="pc bpc" id="L249" title="1 of 2 branches missed.">            for (int k = 0; k &lt; proof.getSteps().size(); k++) {</span>
-<span class="fc bfc" id="L250" title="All 6 branches covered.">                if (proof.getSteps().get(k).isValid() &amp;&amp; proof.getSteps().get(k).getStep().equals(element) &amp;&amp; proof.getSteps().get(k).getState().equals(finalState)) {</span>
-<span class="pc bpc" id="L251" title="3 of 4 branches missed.">                    if (k + 1 &lt; proof.getSteps().size() &amp;&amp; !proof.getSteps().getLast().getStep().equals(proof.getSteps().get(k).getStep())) {</span>
-<span class="nc" id="L252">                        (new ModalCopy(k + 1)).apply(proof);</span>
+<span class="fc bfc" id="L253" title="All 4 branches covered.">        if (proof.getSteps().get(proof.getSteps().size() - i).getStep() instanceof LessEqual lessEqual &amp;&amp; lessEqual.getLeft().equals(state)) {</span>
+<span class="fc" id="L254">            var finalState = lessEqual.getRight();</span>
+<span class="pc bpc" id="L255" title="1 of 2 branches missed.">            for (int k = 0; k &lt; proof.getSteps().size(); k++) {</span>
+<span class="fc bfc" id="L256" title="All 6 branches covered.">                if (proof.getSteps().get(k).isValid() &amp;&amp; proof.getSteps().get(k).getStep().equals(element) &amp;&amp; proof.getSteps().get(k).getState().equals(finalState)) {</span>
+<span class="pc bpc" id="L257" title="3 of 4 branches missed.">                    if (k + 1 &lt; proof.getSteps().size() &amp;&amp; !proof.getSteps().getLast().getStep().equals(proof.getSteps().get(k).getStep())) {</span>
+<span class="nc" id="L258">                        (new ModalCopy(k + 1)).apply(proof);</span>
                     }
-<span class="fc" id="L254">                    return Optional.of(new ModalBoxI());</span>
+<span class="fc" id="L260">                    return Optional.of(new ModalBoxI());</span>
                 }
             }
         }
-<span class="fc" id="L258">        return Optional.empty();</span>
+<span class="fc" id="L264">        return Optional.empty();</span>
     }
 
     /**
@@ -264,18 +270,18 @@ public final class ModalAutomate {
      * @return the action {@link ModalFI} that must be used, if possible
      */
     private Optional&lt;AbstractModalAction&gt; introRuleForGoalContradiction() {
-<span class="fc bfc" id="L267" title="All 2 branches covered.">        for (int i = 0; i &lt; proof.getSteps().size(); i++) {</span>
-<span class="fc bfc" id="L268" title="All 4 branches covered.">            if (proof.getSteps().get(i).isValid() &amp;&amp; proof.getSteps().get(i).getStep() instanceof NegationModal neg) {</span>
-<span class="fc" id="L269">                ModalLogicalOperation element = neg.getElement();</span>
-<span class="fc" id="L270">                var state = proof.getSteps().get(i).getState();</span>
-<span class="fc bfc" id="L271" title="All 2 branches covered.">                for (int j = 0; j &lt; proof.getSteps().size(); j++) {</span>
-<span class="fc bfc" id="L272" title="All 6 branches covered.">                    if (proof.getSteps().get(j).isValid() &amp;&amp; proof.getSteps().get(j).getStep().equals(element) &amp;&amp; proof.getSteps().get(j).getState().equals(state)) {</span>
-<span class="fc" id="L273">                        return Optional.of(new ModalFI(j + 1, i + 1));</span>
+<span class="fc bfc" id="L273" title="All 2 branches covered.">        for (int i = 0; i &lt; proof.getSteps().size(); i++) {</span>
+<span class="fc bfc" id="L274" title="All 4 branches covered.">            if (proof.getSteps().get(i).isValid() &amp;&amp; proof.getSteps().get(i).getStep() instanceof NegationModal neg) {</span>
+<span class="fc" id="L275">                ModalLogicalOperation element = neg.getElement();</span>
+<span class="fc" id="L276">                var state = proof.getSteps().get(i).getState();</span>
+<span class="fc bfc" id="L277" title="All 2 branches covered.">                for (int j = 0; j &lt; proof.getSteps().size(); j++) {</span>
+<span class="fc bfc" id="L278" title="All 6 branches covered.">                    if (proof.getSteps().get(j).isValid() &amp;&amp; proof.getSteps().get(j).getStep().equals(element) &amp;&amp; proof.getSteps().get(j).getState().equals(state)) {</span>
+<span class="fc" id="L279">                        return Optional.of(new ModalFI(j + 1, i + 1));</span>
                     }
                 }
             }
         }
-<span class="fc" id="L278">        return Optional.empty();</span>
+<span class="fc" id="L284">        return Optional.empty();</span>
     }
 
     /**
@@ -284,23 +290,23 @@ public final class ModalAutomate {
      * @return the action {@link ModalNotI} that must be used, if possible
      */
     private Optional&lt;AbstractModalAction&gt; introRuleForGoalNegation(NegationModal goal, String state) {
-<span class="fc" id="L287">        ModalOperation element = goal.getElement();</span>
-<span class="fc" id="L288">        int i = 0;</span>
-<span class="fc" id="L289">        int assmsLevel = proof.getSteps().getLast().getAssumptionLevel();</span>
-<span class="fc bfc" id="L290" title="All 4 branches covered.">        while (proof.getSteps().size() - 1 - i &gt;= 0 &amp;&amp; proof.getSteps().get(proof.getSteps().size() - 1 - i).getAssumptionLevel() &gt;= assmsLevel) {</span>
-<span class="fc" id="L291">            i++;</span>
+<span class="fc" id="L293">        ModalOperation element = goal.getElement();</span>
+<span class="fc" id="L294">        int i = 0;</span>
+<span class="fc" id="L295">        int assmsLevel = proof.getSteps().getLast().getAssumptionLevel();</span>
+<span class="fc bfc" id="L296" title="All 4 branches covered.">        while (proof.getSteps().size() - 1 - i &gt;= 0 &amp;&amp; proof.getSteps().get(proof.getSteps().size() - 1 - i).getAssumptionLevel() &gt;= assmsLevel) {</span>
+<span class="fc" id="L297">            i++;</span>
         }
-<span class="pc bpc" id="L293" title="3 of 4 branches missed.">        if (proof.getSteps().get(proof.getSteps().size() - i).getStep().equals(element) &amp;&amp; proof.getSteps().get(proof.getSteps().size() - i).getState().equals(state)) {</span>
-<span class="nc bnc" id="L294" title="All 2 branches missed.">            for (int k = 0; k &lt; proof.getSteps().size(); k++) {</span>
-<span class="nc bnc" id="L295" title="All 4 branches missed.">                if (proof.getSteps().get(k).isValid() &amp;&amp; proof.getSteps().get(k).getStep().equals(ConstantModal.FALSE)) {</span>
-<span class="nc bnc" id="L296" title="All 2 branches missed.">                    if (k + 1 &lt; proof.getSteps().size()) {</span>
-<span class="nc" id="L297">                        (new ModalCopy(k + 1)).apply(proof);</span>
+<span class="pc bpc" id="L299" title="3 of 4 branches missed.">        if (proof.getSteps().get(proof.getSteps().size() - i).getStep().equals(element) &amp;&amp; proof.getSteps().get(proof.getSteps().size() - i).getState().equals(state)) {</span>
+<span class="nc bnc" id="L300" title="All 2 branches missed.">            for (int k = 0; k &lt; proof.getSteps().size(); k++) {</span>
+<span class="nc bnc" id="L301" title="All 4 branches missed.">                if (proof.getSteps().get(k).isValid() &amp;&amp; proof.getSteps().get(k).getStep().equals(ConstantModal.FALSE)) {</span>
+<span class="nc bnc" id="L302" title="All 2 branches missed.">                    if (k + 1 &lt; proof.getSteps().size()) {</span>
+<span class="nc" id="L303">                        (new ModalCopy(k + 1)).apply(proof);</span>
                     }
-<span class="nc" id="L299">                    return Optional.of(new ModalNotI());</span>
+<span class="nc" id="L305">                    return Optional.of(new ModalNotI());</span>
                 }
             }
         }
-<span class="fc" id="L303">        return Optional.empty();</span>
+<span class="fc" id="L309">        return Optional.empty();</span>
     }
 
     /**
@@ -309,19 +315,19 @@ public final class ModalAutomate {
      * @return the action {@link ModalOrI1} or {@link ModalOrI2} that must be used, if possible
      */
     private Optional&lt;AbstractModalAction&gt; introRuleForGoalDisjunction(DisjunctionModal goal, String state) {
-<span class="fc" id="L312">        ModalLogicalOperation left = goal.getLeft();</span>
-<span class="fc" id="L313">        ModalLogicalOperation right = goal.getRight();</span>
-<span class="fc bfc" id="L314" title="All 2 branches covered.">        for (int k = 0; k &lt; proof.getSteps().size(); k++) {</span>
-<span class="fc bfc" id="L315" title="All 2 branches covered.">            if (proof.getSteps().get(k).isValid()) {</span>
-<span class="pc bpc" id="L316" title="3 of 4 branches missed.">                if (proof.getSteps().get(k).getStep().equals(left) &amp;&amp; proof.getSteps().get(k).getState().equals(state)) {</span>
-<span class="nc" id="L317">                    return Optional.of(new ModalOrI1(k + 1, right));</span>
+<span class="fc" id="L318">        ModalLogicalOperation left = goal.getLeft();</span>
+<span class="fc" id="L319">        ModalLogicalOperation right = goal.getRight();</span>
+<span class="fc bfc" id="L320" title="All 2 branches covered.">        for (int k = 0; k &lt; proof.getSteps().size(); k++) {</span>
+<span class="fc bfc" id="L321" title="All 2 branches covered.">            if (proof.getSteps().get(k).isValid()) {</span>
+<span class="pc bpc" id="L322" title="3 of 4 branches missed.">                if (proof.getSteps().get(k).getStep().equals(left) &amp;&amp; proof.getSteps().get(k).getState().equals(state)) {</span>
+<span class="nc" id="L323">                    return Optional.of(new ModalOrI1(k + 1, right));</span>
                 }
-<span class="pc bpc" id="L319" title="3 of 4 branches missed.">                if (proof.getSteps().get(k).getStep().equals(right) &amp;&amp; proof.getSteps().get(k).getState().equals(state)) {</span>
-<span class="nc" id="L320">                    return Optional.of(new ModalOrI2(k + 1, left));</span>
+<span class="pc bpc" id="L325" title="3 of 4 branches missed.">                if (proof.getSteps().get(k).getStep().equals(right) &amp;&amp; proof.getSteps().get(k).getState().equals(state)) {</span>
+<span class="nc" id="L326">                    return Optional.of(new ModalOrI2(k + 1, left));</span>
                 }
             }
         }
-<span class="fc" id="L324">        return Optional.empty();</span>
+<span class="fc" id="L330">        return Optional.empty();</span>
     }
 
     /**
@@ -330,24 +336,24 @@ public final class ModalAutomate {
      * @return the action {@link ModalAndI} that must be used, if possible
      */
     private Optional&lt;AbstractModalAction&gt; introRuleForGoalConjuntion(ConjunctionModal goal, String state) {
-<span class="fc" id="L333">        ModalLogicalOperation left = goal.getLeft();</span>
-<span class="fc" id="L334">        int a = 0;</span>
-<span class="fc" id="L335">        ModalLogicalOperation right = goal.getRight();</span>
-<span class="fc" id="L336">        int b = 0;</span>
-<span class="fc bfc" id="L337" title="All 2 branches covered.">        for (int i = 0; i &lt; proof.getSteps().size(); i++) {</span>
-<span class="pc bpc" id="L338" title="1 of 2 branches missed.">            if (proof.getSteps().get(i).isValid()) {</span>
-<span class="pc bpc" id="L339" title="1 of 4 branches missed.">                if (left.equals(proof.getSteps().get(i).getStep()) &amp;&amp; state.equals(proof.getSteps().get(i).getState())) {</span>
-<span class="fc" id="L340">                    a = i + 1;</span>
+<span class="fc" id="L339">        ModalLogicalOperation left = goal.getLeft();</span>
+<span class="fc" id="L340">        int a = 0;</span>
+<span class="fc" id="L341">        ModalLogicalOperation right = goal.getRight();</span>
+<span class="fc" id="L342">        int b = 0;</span>
+<span class="fc bfc" id="L343" title="All 2 branches covered.">        for (int i = 0; i &lt; proof.getSteps().size(); i++) {</span>
+<span class="pc bpc" id="L344" title="1 of 2 branches missed.">            if (proof.getSteps().get(i).isValid()) {</span>
+<span class="pc bpc" id="L345" title="1 of 4 branches missed.">                if (left.equals(proof.getSteps().get(i).getStep()) &amp;&amp; state.equals(proof.getSteps().get(i).getState())) {</span>
+<span class="fc" id="L346">                    a = i + 1;</span>
                 }
-<span class="pc bpc" id="L342" title="1 of 4 branches missed.">                if (right.equals(proof.getSteps().get(i).getStep()) &amp;&amp; state.equals(proof.getSteps().get(i).getState())) {</span>
-<span class="fc" id="L343">                    b = i + 1;</span>
+<span class="pc bpc" id="L348" title="1 of 4 branches missed.">                if (right.equals(proof.getSteps().get(i).getStep()) &amp;&amp; state.equals(proof.getSteps().get(i).getState())) {</span>
+<span class="fc" id="L349">                    b = i + 1;</span>
                 }
             }
-<span class="pc bpc" id="L346" title="1 of 4 branches missed.">            if (a &gt; 0 &amp;&amp; b &gt; 0) {</span>
-<span class="fc" id="L347">                return Optional.of(new ModalAndI(a, b));</span>
+<span class="pc bpc" id="L352" title="1 of 4 branches missed.">            if (a &gt; 0 &amp;&amp; b &gt; 0) {</span>
+<span class="fc" id="L353">                return Optional.of(new ModalAndI(a, b));</span>
             }
         }
-<span class="fc" id="L350">        return Optional.empty();</span>
+<span class="fc" id="L356">        return Optional.empty();</span>
     }
 
     /**
@@ -356,101 +362,101 @@ public final class ModalAutomate {
      * @return the action {@link ModalDeductionTheorem} that must be used, if possible
      */
     private Optional&lt;AbstractModalAction&gt; introRuleForGoalImplication(ImplicationModal goal, String state) {
-<span class="fc" id="L359">        ModalLogicalOperation left = (goal).getLeft();</span>
-<span class="fc" id="L360">        ModalLogicalOperation right = (goal).getRight();</span>
-<span class="fc" id="L361">        int i = 0;</span>
-<span class="fc" id="L362">        int assmsLevel = proof.getSteps().getLast().getAssumptionLevel();</span>
-<span class="fc bfc" id="L363" title="All 4 branches covered.">        while (proof.getSteps().size() - 1 - i &gt;= 0 &amp;&amp; proof.getSteps().get(proof.getSteps().size() - 1 - i).getAssumptionLevel() &gt;= assmsLevel) {</span>
-<span class="fc" id="L364">            i++;</span>
+<span class="fc" id="L365">        ModalLogicalOperation left = (goal).getLeft();</span>
+<span class="fc" id="L366">        ModalLogicalOperation right = (goal).getRight();</span>
+<span class="fc" id="L367">        int i = 0;</span>
+<span class="fc" id="L368">        int assmsLevel = proof.getSteps().getLast().getAssumptionLevel();</span>
+<span class="fc bfc" id="L369" title="All 4 branches covered.">        while (proof.getSteps().size() - 1 - i &gt;= 0 &amp;&amp; proof.getSteps().get(proof.getSteps().size() - 1 - i).getAssumptionLevel() &gt;= assmsLevel) {</span>
+<span class="fc" id="L370">            i++;</span>
         }
-<span class="pc bpc" id="L366" title="1 of 4 branches missed.">        if (proof.getSteps().get(proof.getSteps().size() - i).getStep().equals(left) &amp;&amp; proof.getSteps().get(proof.getSteps().size() - i).getState().equals(state)) {</span>
-<span class="pc bpc" id="L367" title="1 of 2 branches missed.">            for (int k = 0; k &lt; proof.getSteps().size(); k++) {</span>
-<span class="pc bpc" id="L368" title="1 of 6 branches missed.">                if (proof.getSteps().get(k).isValid() &amp;&amp; proof.getSteps().get(k).getStep().equals(right) &amp;&amp; proof.getSteps().get(k).getState().equals(state)) {</span>
-<span class="pc bpc" id="L369" title="1 of 4 branches missed.">                    if (k + 1 &lt; proof.getSteps().size() &amp;&amp; !proof.getSteps().getLast().getStep().equals(proof.getSteps().get(k).getStep())) {</span>
-<span class="nc" id="L370">                        (new ModalCopy(k + 1)).apply(proof);</span>
+<span class="pc bpc" id="L372" title="1 of 4 branches missed.">        if (proof.getSteps().get(proof.getSteps().size() - i).getStep().equals(left) &amp;&amp; proof.getSteps().get(proof.getSteps().size() - i).getState().equals(state)) {</span>
+<span class="pc bpc" id="L373" title="1 of 2 branches missed.">            for (int k = 0; k &lt; proof.getSteps().size(); k++) {</span>
+<span class="pc bpc" id="L374" title="1 of 6 branches missed.">                if (proof.getSteps().get(k).isValid() &amp;&amp; proof.getSteps().get(k).getStep().equals(right) &amp;&amp; proof.getSteps().get(k).getState().equals(state)) {</span>
+<span class="pc bpc" id="L375" title="1 of 4 branches missed.">                    if (k + 1 &lt; proof.getSteps().size() &amp;&amp; !proof.getSteps().getLast().getStep().equals(proof.getSteps().get(k).getStep())) {</span>
+<span class="nc" id="L376">                        (new ModalCopy(k + 1)).apply(proof);</span>
                     }
-<span class="fc" id="L372">                    return Optional.of(new ModalDeductionTheorem());</span>
+<span class="fc" id="L378">                    return Optional.of(new ModalDeductionTheorem());</span>
                 }
             }
         }
-<span class="fc" id="L376">        return Optional.empty();</span>
+<span class="fc" id="L382">        return Optional.empty();</span>
     }
 
     private Optional&lt;AbstractModalAction&gt; lookForElimRules() {
-<span class="fc bfc" id="L380" title="All 2 branches covered.">        for (int i = 0; i &lt; proof.getSteps().size(); i++) {</span>
-<span class="fc bfc" id="L381" title="All 4 branches covered.">            if (proof.getSteps().get(i).isValid() &amp;&amp; proof.getSteps().get(i).getStep() instanceof ModalLogicalOperation) {</span>
-<span class="fc" id="L382">                int k = i + 1;</span>
-<span class="fc" id="L383">                var act = Optional.of(new ModalDeMorgan(k))</span>
-<span class="fc" id="L384">                        .flatMap(this::checkSingleAction)</span>
-<span class="fc" id="L385">                        .or(() -&gt; Optional.of(new DeMorgan(k))</span>
-<span class="fc" id="L386">                                .flatMap(this::checkSingleAction))</span>
-<span class="fc" id="L387">                        .or(() -&gt; Optional.of(new ModalNotE(k))</span>
-<span class="fc" id="L388">                                .flatMap(this::checkSingleAction))</span>
-<span class="fc" id="L389">                        .or(() -&gt; Optional.of(new Reflexive(k))</span>
-<span class="fc" id="L390">                                .flatMap(this::checkReflAction))</span>
-<span class="fc" id="L391">                        .or(() -&gt; checkAdditionOfAndI(k - 1))</span>
-<span class="fc" id="L392">                        .or(() -&gt; checkAdditionOfDisjIModPonens(k - 1))</span>
-<span class="fc" id="L393">                        .or(() -&gt; checkAdditionOfAlways(k - 1))</span>
-<span class="fc" id="L394">                        .or(() -&gt; checkAdditionOfContraAlw(k - 1));</span>
-<span class="fc bfc" id="L395" title="All 2 branches covered.">                if (act.isPresent()) {</span>
-<span class="fc" id="L396">                    return act;</span>
+<span class="fc bfc" id="L386" title="All 2 branches covered.">        for (int i = 0; i &lt; proof.getSteps().size(); i++) {</span>
+<span class="fc bfc" id="L387" title="All 4 branches covered.">            if (proof.getSteps().get(i).isValid() &amp;&amp; proof.getSteps().get(i).getStep() instanceof ModalLogicalOperation) {</span>
+<span class="fc" id="L388">                int k = i + 1;</span>
+<span class="fc" id="L389">                var act = Optional.of(new ModalDeMorgan(k))</span>
+<span class="fc" id="L390">                        .flatMap(this::checkSingleAction)</span>
+<span class="fc" id="L391">                        .or(() -&gt; Optional.of(new DeMorgan(k))</span>
+<span class="fc" id="L392">                                .flatMap(this::checkSingleAction))</span>
+<span class="fc" id="L393">                        .or(() -&gt; Optional.of(new ModalNotE(k))</span>
+<span class="fc" id="L394">                                .flatMap(this::checkSingleAction))</span>
+<span class="fc" id="L395">                        .or(() -&gt; Optional.of(new Reflexive(k))</span>
+<span class="fc" id="L396">                                .flatMap(this::checkReflAction))</span>
+<span class="fc" id="L397">                        .or(() -&gt; checkAdditionOfAndI(k - 1))</span>
+<span class="fc" id="L398">                        .or(() -&gt; checkAdditionOfDisjIModPonens(k - 1))</span>
+<span class="fc" id="L399">                        .or(() -&gt; checkAdditionOfAlways(k - 1))</span>
+<span class="fc" id="L400">                        .or(() -&gt; checkAdditionOfContraAlw(k - 1));</span>
+<span class="fc bfc" id="L401" title="All 2 branches covered.">                if (act.isPresent()) {</span>
+<span class="fc" id="L402">                    return act;</span>
                 }
-<span class="pc bpc" id="L398" title="1 of 4 branches missed.">            } else if (proof.getSteps().get(i).isValid() &amp;&amp; proof.getSteps().get(i).getStep() instanceof RelationOperation){</span>
-<span class="fc" id="L399">                var act = checkAdditionOfTrans(i);</span>
-<span class="fc bfc" id="L400" title="All 2 branches covered.">                if (act.isPresent()){</span>
-<span class="fc" id="L401">                    return act;</span>
+<span class="pc bpc" id="L404" title="1 of 4 branches missed.">            } else if (proof.getSteps().get(i).isValid() &amp;&amp; proof.getSteps().get(i).getStep() instanceof RelationOperation){</span>
+<span class="fc" id="L405">                var act = checkAdditionOfTrans(i);</span>
+<span class="fc bfc" id="L406" title="All 2 branches covered.">                if (act.isPresent()){</span>
+<span class="fc" id="L407">                    return act;</span>
                 }
             }
         }
-<span class="fc" id="L405">        return Optional.empty();</span>
+<span class="fc" id="L411">        return Optional.empty();</span>
     }
 
     private Optional&lt;AbstractModalAction&gt; checkAdditionOfContraAlw(int i) {
-<span class="fc bfc" id="L409" title="All 2 branches covered.">        for (int j = 0; j &lt; proof.getSteps().size(); j++) {</span>
-<span class="fc bfc" id="L410" title="All 2 branches covered.">            if (proof.getSteps().get(j).isValid()) {</span>
-<span class="fc" id="L411">                var opt = Optional.of(new ContraSometime(i + 1, j + 1))</span>
-<span class="fc" id="L412">                        .flatMap(this::checkSingleAction);</span>
-<span class="fc bfc" id="L413" title="All 2 branches covered.">                if (opt.isPresent()) {</span>
-<span class="fc" id="L414">                    return opt;</span>
+<span class="fc bfc" id="L415" title="All 2 branches covered.">        for (int j = 0; j &lt; proof.getSteps().size(); j++) {</span>
+<span class="fc bfc" id="L416" title="All 2 branches covered.">            if (proof.getSteps().get(j).isValid()) {</span>
+<span class="fc" id="L417">                var opt = Optional.of(new ContraSometime(i + 1, j + 1))</span>
+<span class="fc" id="L418">                        .flatMap(this::checkSingleAction);</span>
+<span class="fc bfc" id="L419" title="All 2 branches covered.">                if (opt.isPresent()) {</span>
+<span class="fc" id="L420">                    return opt;</span>
                 }
             }
         }
-<span class="fc" id="L418">        return Optional.empty();</span>
+<span class="fc" id="L424">        return Optional.empty();</span>
     }
 
     private Optional&lt;AbstractModalAction&gt; checkAdditionOfTrans(int i) {
-<span class="pc bpc" id="L422" title="1 of 4 branches missed.">        if (proof.getSteps().get(i).getStep() instanceof LessEqual lessEqual &amp;&amp; !lessEqual.getLeft().equals(lessEqual.getRight())) {</span>
-<span class="fc bfc" id="L423" title="All 2 branches covered.">            for (int j = 0; j &lt; proof.getSteps().size(); j++) {</span>
-<span class="fc bfc" id="L424" title="All 6 branches covered.">                if (proof.getSteps().get(j).isValid() &amp;&amp; proof.getSteps().get(j).getStep() instanceof LessEqual lessEqual1 &amp;&amp; !lessEqual1.getLeft().equals(lessEqual1.getRight())) {</span>
-<span class="fc" id="L425">                    var opt = Optional.of(new Transitive(i + 1, j + 1))</span>
-<span class="fc" id="L426">                            .flatMap(this::checkSingleAction);</span>
-<span class="fc bfc" id="L427" title="All 2 branches covered.">                    if (opt.isPresent()) {</span>
-<span class="fc" id="L428">                        return opt;</span>
+<span class="pc bpc" id="L428" title="1 of 4 branches missed.">        if (proof.getSteps().get(i).getStep() instanceof LessEqual lessEqual &amp;&amp; !lessEqual.getLeft().equals(lessEqual.getRight())) {</span>
+<span class="fc bfc" id="L429" title="All 2 branches covered.">            for (int j = 0; j &lt; proof.getSteps().size(); j++) {</span>
+<span class="fc bfc" id="L430" title="All 6 branches covered.">                if (proof.getSteps().get(j).isValid() &amp;&amp; proof.getSteps().get(j).getStep() instanceof LessEqual lessEqual1 &amp;&amp; !lessEqual1.getLeft().equals(lessEqual1.getRight())) {</span>
+<span class="fc" id="L431">                    var opt = Optional.of(new Transitive(i + 1, j + 1))</span>
+<span class="fc" id="L432">                            .flatMap(this::checkSingleAction);</span>
+<span class="fc bfc" id="L433" title="All 2 branches covered.">                    if (opt.isPresent()) {</span>
+<span class="fc" id="L434">                        return opt;</span>
                     }
                 }
             }
         }
-<span class="fc" id="L433">        return Optional.empty();</span>
+<span class="fc" id="L439">        return Optional.empty();</span>
     }
 
     private Optional&lt;AbstractModalAction&gt; checkAdditionOfAlways(int i) {
-<span class="fc bfc" id="L437" title="All 2 branches covered.">        for (int j = 0; j &lt; proof.getSteps().size(); j++) {</span>
-<span class="fc bfc" id="L438" title="All 2 branches covered.">            if (proof.getSteps().get(j).isValid()) {</span>
-<span class="fc" id="L439">                var opt = Optional.of(new ModalBoxE(i + 1, j + 1))</span>
-<span class="fc" id="L440">                        .flatMap(this::checkSingleAction);</span>
-<span class="fc bfc" id="L441" title="All 2 branches covered.">                if (opt.isPresent()) {</span>
-<span class="fc" id="L442">                    return opt;</span>
+<span class="fc bfc" id="L443" title="All 2 branches covered.">        for (int j = 0; j &lt; proof.getSteps().size(); j++) {</span>
+<span class="fc bfc" id="L444" title="All 2 branches covered.">            if (proof.getSteps().get(j).isValid()) {</span>
+<span class="fc" id="L445">                var opt = Optional.of(new ModalBoxE(i + 1, j + 1))</span>
+<span class="fc" id="L446">                        .flatMap(this::checkSingleAction);</span>
+<span class="fc bfc" id="L447" title="All 2 branches covered.">                if (opt.isPresent()) {</span>
+<span class="fc" id="L448">                    return opt;</span>
                 }
             }
         }
-<span class="fc" id="L446">        return Optional.empty();</span>
+<span class="fc" id="L452">        return Optional.empty();</span>
     }
 
     private Optional&lt;AbstractModalAction&gt; checkAdditionOfAndI(int i) {
-<span class="fc" id="L450">        return Optional.of(new ModalAndE1(i + 1))</span>
-<span class="fc" id="L451">                .flatMap(this::checkSingleAction)</span>
-<span class="fc" id="L452">                .or(() -&gt; Optional.of(new ModalAndE2(i + 1))</span>
-<span class="fc" id="L453">                        .flatMap(this::checkSingleAction));</span>
+<span class="fc" id="L456">        return Optional.of(new ModalAndE1(i + 1))</span>
+<span class="fc" id="L457">                .flatMap(this::checkSingleAction)</span>
+<span class="fc" id="L458">                .or(() -&gt; Optional.of(new ModalAndE2(i + 1))</span>
+<span class="fc" id="L459">                        .flatMap(this::checkSingleAction));</span>
     }
 
     /**
@@ -460,91 +466,105 @@ public final class ModalAutomate {
      * @return the action if it valid
      */
     private Optional&lt;AbstractModalAction&gt; checkSingleAction(AbstractModalAction act) {
-<span class="fc" id="L463">        var answer = Optional.ofNullable(act)</span>
-<span class="fc bfc" id="L464" title="All 4 branches covered.">                .filter(a -&gt; !actionsDone.contains(a) &amp;&amp; a.isValid(proof));</span>
-<span class="fc" id="L465">        answer.ifPresent(a -&gt; actionsDone.add(a));</span>
-<span class="fc" id="L466">        return answer;</span>
+<span class="fc" id="L469">        var answer = Optional.ofNullable(act)</span>
+<span class="fc bfc" id="L470" title="All 4 branches covered.">                .filter(a -&gt; !actionsDone.contains(a) &amp;&amp; a.isValid(proof));</span>
+<span class="fc" id="L471">        answer.ifPresent(a -&gt; actionsDone.add(a));</span>
+<span class="fc" id="L472">        return answer;</span>
     }
 
+    /**
+     * {@code Refl} on a state is applied once, and again only when the {@code s &lt;= s} step it gave was discharged.
+     * {@link #reflUsed} maps the state to the 0-based index of that step, which is the size of the proof before it is
+     * applied.
+     */
     private Optional&lt;AbstractModalAction&gt; checkReflAction(Reflexive act) {
-<span class="fc" id="L470">        int k = act.getStep();</span>
-<span class="fc" id="L471">        var state = proof.getSteps().get(k - 1).getState();</span>
-<span class="fc bfc" id="L472" title="All 2 branches covered.">        if (reflUsed.containsKey(state)) {</span>
-<span class="pc bpc" id="L473" title="1 of 2 branches missed.">            if (!proof.getSteps().get(reflUsed.get(state)).isValid()) {</span>
-<span class="nc" id="L474">                reflUsed.put(state, k);</span>
-<span class="nc" id="L475">                return Optional.of(act);</span>
-            }
-        } else {
-<span class="fc" id="L478">            reflUsed.put(state, k);</span>
-<span class="fc" id="L479">            return Optional.of(act);</span>
+<span class="fc" id="L481">        int k = act.getStep();</span>
+<span class="fc" id="L482">        var state = proof.getSteps().get(k - 1).getState();</span>
+<span class="fc" id="L483">        Integer used = reflUsed.get(state);</span>
+<span class="pc bpc" id="L484" title="2 of 6 branches missed.">        if (used != null &amp;&amp; used &lt; proof.getSteps().size() &amp;&amp; proof.getSteps().get(used).isValid()) {</span>
+<span class="fc" id="L485">            return Optional.empty();</span>
         }
-<span class="fc" id="L481">        return Optional.empty();</span>
+<span class="fc" id="L487">        reflUsed.put(state, proof.getSteps().size());</span>
+<span class="fc" id="L488">        return Optional.of(act);</span>
     }
 
     private Optional&lt;AbstractModalAction&gt; checkAdditionOfDisjIModPonens(int i) {
-<span class="fc bfc" id="L485" title="All 2 branches covered.">        for (int j = 0; j &lt; proof.getSteps().size(); j++) {</span>
-<span class="fc bfc" id="L486" title="All 2 branches covered.">            if (proof.getSteps().get(j).isValid()) {</span>
-<span class="fc" id="L487">                int k = j + 1;</span>
-<span class="fc" id="L488">                var act = Optional.of(new ModalModusPonens(i + 1, k))</span>
-<span class="fc" id="L489">                        .flatMap(this::checkSingleAction)</span>
-<span class="fc" id="L490">                        .or(() -&gt; Optional.of(new ModalOrE1(i + 1, k))</span>
-<span class="fc" id="L491">                                .flatMap(this::checkSingleAction))</span>
-<span class="fc" id="L492">                        .or(() -&gt; Optional.of(new ModalOrE2(i + 1, k))</span>
-<span class="fc" id="L493">                                .flatMap(this::checkSingleAction));</span>
-<span class="fc bfc" id="L494" title="All 2 branches covered.">                if (act.isPresent()) {</span>
-<span class="fc" id="L495">                    return act;</span>
+<span class="fc bfc" id="L492" title="All 2 branches covered.">        for (int j = 0; j &lt; proof.getSteps().size(); j++) {</span>
+<span class="fc bfc" id="L493" title="All 2 branches covered.">            if (proof.getSteps().get(j).isValid()) {</span>
+<span class="fc" id="L494">                int k = j + 1;</span>
+<span class="fc" id="L495">                var act = Optional.of(new ModalModusPonens(i + 1, k))</span>
+<span class="fc" id="L496">                        .flatMap(this::checkSingleAction)</span>
+<span class="fc" id="L497">                        .or(() -&gt; Optional.of(new ModalOrE1(i + 1, k))</span>
+<span class="fc" id="L498">                                .flatMap(this::checkSingleAction))</span>
+<span class="fc" id="L499">                        .or(() -&gt; Optional.of(new ModalOrE2(i + 1, k))</span>
+<span class="fc" id="L500">                                .flatMap(this::checkSingleAction));</span>
+<span class="fc bfc" id="L501" title="All 2 branches covered.">                if (act.isPresent()) {</span>
+<span class="fc" id="L502">                    return act;</span>
                 }
             }
         }
-<span class="fc" id="L499">        return Optional.empty();</span>
+<span class="fc" id="L506">        return Optional.empty();</span>
     }
 
     /**
      * Add a new goal to make easier to reach the current goal, if possible
      */
     private void updateGoal() {
-<span class="fc bfc" id="L506" title="All 2 branches covered.">        if (goals.getLast().getValue().equals(ConstantModal.FALSE)) {</span>
-<span class="fc" id="L507">            lastGoalFalse();</span>
-        } else {
-<span class="fc" id="L509">            var state = goals.getLast().getKey();</span>
-<span class="fc" id="L510">            ModalLogicalOperation goal = (ModalLogicalOperation) goals.getLast().getValue();</span>
-<span class="fc bfc" id="L511" title="All 5 branches covered.">            switch (goal) {</span>
-<span class="fc" id="L512">                case ConjunctionModal conj -&gt; updateGoalConjunction(conj, state);</span>
-<span class="fc" id="L513">                case ImplicationModal imp -&gt; updateGoalImplication(imp, state);</span>
-<span class="fc" id="L514">                case NegationModal neg -&gt; updateGoalNegation(neg, state);</span>
-<span class="fc" id="L515">                case Always always -&gt; updateGoalAlways(always, state);</span>
-<span class="fc" id="L516">                case null, default -&gt; updateGoalContradiction(goal, state);</span>
+<span class="fc bfc" id="L513" title="All 2 branches covered.">        if (goals.getLast().getValue().equals(ConstantModal.FALSE)) {</span>
+<span class="fc" id="L514">            lastGoalFalse();</span>
+<span class="fc bfc" id="L515" title="All 2 branches covered.">        } else if (goals.getLast().getValue() instanceof ModalLogicalOperation goal) {</span>
+            // A relation goal (s0 &lt;= s1) has no subgoals: only the premises and the elimination rules can reach it
+<span class="fc" id="L517">            var state = goals.getLast().getKey();</span>
+<span class="fc bfc" id="L518" title="All 5 branches covered.">            switch (goal) {</span>
+<span class="fc" id="L519">                case ConjunctionModal conj -&gt; updateGoalConjunction(conj, state);</span>
+<span class="fc" id="L520">                case ImplicationModal imp -&gt; updateGoalImplication(imp, state);</span>
+<span class="fc" id="L521">                case NegationModal neg -&gt; updateGoalNegation(neg, state);</span>
+<span class="fc" id="L522">                case Always always -&gt; updateGoalAlways(always, state);</span>
+<span class="fc" id="L523">                case null, default -&gt; updateGoalContradiction(goal, state);</span>
             }
         }
-<span class="fc" id="L519">    }</span>
+<span class="fc" id="L526">    }</span>
 
     /**
-     * Update the goal list in case the last goal is {@link ConstantModal#FALSE}
+     * Update the goal list in case the last goal is {@link ConstantModal#FALSE}. A line that a De Morgan rule was
+     * already applied to is not used: what it says is in the lines that rule gave, and aiming for what it negates can
+     * be the goal the solver is already trying to prove (the negation assumed for a proof by contradiction).
      */
     private void lastGoalFalse() {
-<span class="fc" id="L525">        int j = -1;</span>
-<span class="pc bpc" id="L526" title="1 of 2 branches missed.">        for (int i = 0; i &lt; proof.getSteps().size(); i++) {</span>
-<span class="fc" id="L527">            boolean b = true;</span>
-<span class="pc bpc" id="L528" title="2 of 4 branches missed.">            if (!usedForGoal.containsValue(i) &amp;&amp; proof.getSteps().get(i).isValid()) {</span>
-<span class="fc" id="L529">                String state = proof.getSteps().get(i).getState();</span>
-<span class="fc" id="L530">                LogicOperation log = proof.getSteps().get(i).getStep();</span>
-<span class="pc bpc" id="L531" title="1 of 5 branches missed.">                switch (log) {</span>
-<span class="fc" id="L532">                    case NegationModal neg -&gt; goals.add(new AbstractMap.SimpleEntry&lt;&gt;(state, neg.getElement()));</span>
-<span class="fc" id="L533">                    case DisjunctionModal disj -&gt;</span>
-<span class="fc" id="L534">                            goals.add(new AbstractMap.SimpleEntry&lt;&gt;(state, new NegationModal(disj.getLeft())));</span>
-<span class="nc" id="L535">                    case ImplicationModal imp -&gt; goals.add(new AbstractMap.SimpleEntry&lt;&gt;(state, imp.getLeft()));</span>
-<span class="fc" id="L536">                    case Sometime some -&gt;</span>
-<span class="fc" id="L537">                            goals.add(new AbstractMap.SimpleEntry&lt;&gt;(state, new Always(new NegationModal(some.getElement()))));</span>
-<span class="fc" id="L538">                    case null, default -&gt; b = false;</span>
+<span class="fc" id="L534">        int j = -1;</span>
+<span class="pc bpc" id="L535" title="1 of 2 branches missed.">        for (int i = 0; i &lt; proof.getSteps().size(); i++) {</span>
+<span class="fc" id="L536">            boolean b = true;</span>
+<span class="pc bpc" id="L537" title="3 of 6 branches missed.">            if (!usedForGoal.containsValue(i) &amp;&amp; proof.getSteps().get(i).isValid() &amp;&amp; !isDeMorganed(i + 1)) {</span>
+<span class="fc" id="L538">                String state = proof.getSteps().get(i).getState();</span>
+<span class="fc" id="L539">                LogicOperation log = proof.getSteps().get(i).getStep();</span>
+<span class="pc bpc" id="L540" title="1 of 5 branches missed.">                switch (log) {</span>
+<span class="fc" id="L541">                    case NegationModal neg -&gt; goals.add(new AbstractMap.SimpleEntry&lt;&gt;(state, neg.getElement()));</span>
+<span class="fc" id="L542">                    case DisjunctionModal disj -&gt;</span>
+<span class="fc" id="L543">                            goals.add(new AbstractMap.SimpleEntry&lt;&gt;(state, new NegationModal(disj.getLeft())));</span>
+<span class="nc" id="L544">                    case ImplicationModal imp -&gt; goals.add(new AbstractMap.SimpleEntry&lt;&gt;(state, imp.getLeft()));</span>
+<span class="fc" id="L545">                    case Sometime some -&gt;</span>
+<span class="fc" id="L546">                            goals.add(new AbstractMap.SimpleEntry&lt;&gt;(state, new Always(new NegationModal(some.getElement()))));</span>
+<span class="fc" id="L547">                    case null, default -&gt; b = false;</span>
                 }
-<span class="fc bfc" id="L540" title="All 2 branches covered.">                if (b) {</span>
-<span class="fc" id="L541">                    j = i;</span>
-<span class="fc" id="L542">                    break;</span>
+<span class="fc bfc" id="L549" title="All 2 branches covered.">                if (b) {</span>
+<span class="fc" id="L550">                    j = i;</span>
+<span class="fc" id="L551">                    break;</span>
                 }
             }
         }
-<span class="fc" id="L546">        usedForGoal.put(goals.size(), j);</span>
-<span class="fc" id="L547">    }</span>
+<span class="fc" id="L555">        usedForGoal.put(goals.size(), j);</span>
+<span class="fc" id="L556">    }</span>
+
+    /**
+     * Whether {@link ModalDeMorgan} or {@link DeMorgan} was applied to this 1-based line. Both are recorded in
+     * {@link #actionsDone} by {@link #checkSingleAction} (see {@link #lookForElimRules}); the modal
+     * {@code complex.DeMorgan} is an {@link AbstractModalAction}, unlike the classical class of the same name.
+     */
+    private boolean isDeMorganed(int line) {
+<span class="fc" id="L564">        AbstractModalAction modalDeMorgan = new ModalDeMorgan(line);</span>
+<span class="fc" id="L565">        AbstractModalAction deMorgan = new DeMorgan(line);</span>
+<span class="pc bpc" id="L566" title="2 of 4 branches missed.">        return actionsDone.contains(modalDeMorgan) || actionsDone.contains(deMorgan);</span>
+    }
 
     /**
      * Create new goal a assumption from the last goal. Assume the opposite
@@ -553,20 +573,20 @@ public final class ModalAutomate {
      * @param goal last goal
      */
     private void updateGoalContradiction(ModalLogicalOperation goal, String state) {
-<span class="fc" id="L556">        var neg = new NegationModal(goal);</span>
-<span class="fc" id="L557">        boolean alreadyExists = false;</span>
-<span class="fc bfc" id="L558" title="All 2 branches covered.">        for (int i = 0; i &lt; proof.getSteps().size(); i++) {</span>
-<span class="pc bpc" id="L559" title="1 of 4 branches missed.">            if (proof.getSteps().get(i).isValid() &amp;&amp; proof.getSteps().get(i).getStep().equals(neg)) {</span>
-<span class="fc" id="L560">                alreadyExists = true;</span>
-<span class="fc" id="L561">                break;</span>
+<span class="fc" id="L576">        var neg = new NegationModal(goal);</span>
+<span class="fc" id="L577">        boolean alreadyExists = false;</span>
+<span class="fc bfc" id="L578" title="All 2 branches covered.">        for (int i = 0; i &lt; proof.getSteps().size(); i++) {</span>
+<span class="pc bpc" id="L579" title="1 of 4 branches missed.">            if (proof.getSteps().get(i).isValid() &amp;&amp; proof.getSteps().get(i).getStep().equals(neg)) {</span>
+<span class="fc" id="L580">                alreadyExists = true;</span>
+<span class="fc" id="L581">                break;</span>
             }
         }
-<span class="fc bfc" id="L564" title="All 2 branches covered.">        if (!alreadyExists) {</span>
-<span class="fc" id="L565">            goals.add(new AbstractMap.SimpleEntry&lt;&gt;(state, new NegationModal(new NegationModal(goal))));</span>
-<span class="fc" id="L566">            goals.add(new AbstractMap.SimpleEntry&lt;&gt;(state, ConstantModal.FALSE));</span>
-<span class="fc" id="L567">            (new ModalAssume(neg, state)).apply(proof);</span>
+<span class="fc bfc" id="L584" title="All 2 branches covered.">        if (!alreadyExists) {</span>
+<span class="fc" id="L585">            goals.add(new AbstractMap.SimpleEntry&lt;&gt;(state, new NegationModal(new NegationModal(goal))));</span>
+<span class="fc" id="L586">            goals.add(new AbstractMap.SimpleEntry&lt;&gt;(state, ConstantModal.FALSE));</span>
+<span class="fc" id="L587">            (new ModalAssume(neg, state)).apply(proof);</span>
         }
-<span class="fc" id="L569">    }</span>
+<span class="fc" id="L589">    }</span>
 
     /**
      * Create new goal and assumption from the last goal of type -
@@ -574,9 +594,9 @@ public final class ModalAutomate {
      * @param goal last goal of type -
      */
     private void updateGoalNegation(NegationModal goal, String state) {
-<span class="fc" id="L577">        goals.add(new AbstractMap.SimpleEntry&lt;&gt;(state, ConstantModal.FALSE));</span>
-<span class="fc" id="L578">        (new ModalAssume(goal.getElement(), state)).apply(proof);</span>
-<span class="fc" id="L579">    }</span>
+<span class="fc" id="L597">        goals.add(new AbstractMap.SimpleEntry&lt;&gt;(state, ConstantModal.FALSE));</span>
+<span class="fc" id="L598">        (new ModalAssume(goal.getElement(), state)).apply(proof);</span>
+<span class="fc" id="L599">    }</span>
 
     /**
      * Create new goal and assumption from the last goal of type -&gt;
@@ -584,9 +604,9 @@ public final class ModalAutomate {
      * @param goal last goal of type -&gt;
      */
     private void updateGoalImplication(ImplicationModal goal, String state) {
-<span class="fc" id="L587">        goals.add(new AbstractMap.SimpleEntry&lt;&gt;(state, goal.getRight()));</span>
-<span class="fc" id="L588">        (new ModalAssume(goal.getLeft(), state)).apply(proof);</span>
-<span class="fc" id="L589">    }</span>
+<span class="fc" id="L607">        goals.add(new AbstractMap.SimpleEntry&lt;&gt;(state, goal.getRight()));</span>
+<span class="fc" id="L608">        (new ModalAssume(goal.getLeft(), state)).apply(proof);</span>
+<span class="fc" id="L609">    }</span>
 
     /**
      * Create new goals from the last goal of type AND
@@ -594,9 +614,9 @@ public final class ModalAutomate {
      * @param goal last goal of type AND
      */
     private void updateGoalConjunction(ConjunctionModal goal, String state) {
-<span class="fc" id="L597">        goals.add(new AbstractMap.SimpleEntry&lt;&gt;(state, goal.getLeft()));</span>
-<span class="fc" id="L598">        goals.add(new AbstractMap.SimpleEntry&lt;&gt;(state, goal.getRight()));</span>
-<span class="fc" id="L599">    }</span>
+<span class="fc" id="L617">        goals.add(new AbstractMap.SimpleEntry&lt;&gt;(state, goal.getLeft()));</span>
+<span class="fc" id="L618">        goals.add(new AbstractMap.SimpleEntry&lt;&gt;(state, goal.getRight()));</span>
+<span class="fc" id="L619">    }</span>
 
     /**
      * Create new goals from the last goal of type []
@@ -604,9 +624,9 @@ public final class ModalAutomate {
      * @param goal last goal of type []
      */
     private void updateGoalAlways(Always goal, String state) {
-<span class="fc" id="L607">        var newState = proof.newState();</span>
-<span class="fc" id="L608">        goals.add(new AbstractMap.SimpleEntry&lt;&gt;(newState, goal.getElement()));</span>
-<span class="fc" id="L609">        (new ModalAssume(new LessEqual(state, newState))).apply(proof);</span>
-<span class="fc" id="L610">    }</span>
+<span class="fc" id="L627">        var newState = proof.newState();</span>
+<span class="fc" id="L628">        goals.add(new AbstractMap.SimpleEntry&lt;&gt;(newState, goal.getElement()));</span>
+<span class="fc" id="L629">        (new ModalAssume(new LessEqual(state, newState))).apply(proof);</span>
+<span class="fc" id="L630">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>

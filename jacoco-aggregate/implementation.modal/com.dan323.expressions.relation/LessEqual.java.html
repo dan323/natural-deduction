@@ -11,7 +11,7 @@ public final class LessEqual extends RelationOperation {
     @Override
     public boolean equals(Object object) {
 <span class="fc bfc" id="L13" title="All 2 branches covered.">        if (object instanceof LessEqual lessEqual) {</span>
-<span class="pc bpc" id="L14" title="1 of 4 branches missed.">            return lessEqual.getLeft().equals(getLeft()) &amp;&amp; lessEqual.getRight().equals(getRight());</span>
+<span class="fc bfc" id="L14" title="All 4 branches covered.">            return lessEqual.getLeft().equals(getLeft()) &amp;&amp; lessEqual.getRight().equals(getRight());</span>
         } else {
 <span class="fc" id="L16">            return false;</span>
         }
@@ -19,7 +19,7 @@ public final class LessEqual extends RelationOperation {
 
     @Override
     public int hashCode() {
-<span class="nc" id="L22">        return Objects.hash(getLeft(), getRight(), getClass());</span>
+<span class="fc" id="L22">        return Objects.hash(getLeft(), getRight(), getClass());</span>
     }
 
 }

@@ -45,7 +45,7 @@ public final class OrE2 extends CompositionRule {
     @Override
     public void apply(NaturalDeduction pf) {
 <span class="fc" id="L47">        (new ClassicAssume(((BinaryOperation&lt;ClassicalLogicOperation&gt;) pf.getSteps().get(a - 1).getStep()).getRight())).apply(pf);</span>
-<span class="fc" id="L48">        (new ClassicFI(pf.getSteps().size(), a)).apply(pf);</span>
+<span class="fc" id="L48">        (new ClassicFI(pf.getSteps().size(), b)).apply(pf);</span>
 <span class="fc" id="L49">        (new ClassicFE(pf.getSteps().size(), ((BinaryOperation&lt;ClassicalLogicOperation&gt;) pf.getSteps().get(a - 1).getStep()).getLeft())).apply(pf);</span>
 <span class="fc" id="L50">        (new ClassicDeductionTheorem()).apply(pf);</span>
 <span class="fc" id="L51">        (new ClassicAssume(((BinaryOperation&lt;ClassicalLogicOperation&gt;) pf.getSteps().get(a - 1).getStep()).getLeft())).apply(pf);</span>
