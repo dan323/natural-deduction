@@ -2,6 +2,7 @@
 
 import com.dan323.expressions.firstorder.FirstOrderOperation;
 import com.dan323.proof.firstorder.FirstOrderAction;
+import com.dan323.proof.firstorder.internal.FirstOrderAutomate;
 import com.dan323.proof.generic.proof.ParseAction;
 import com.dan323.proof.generic.proof.Proof;
 import com.dan323.proof.generic.proof.ProofReason;
@@ -11,38 +12,37 @@ import java.util.List;
 
 /**
  * A proof of first-order logic with equality. Its steps are plain {@link ProofStep}s, printed in the usual text layout.
- * It has no automatic solver.
+ * Its automatic solver is {@link FirstOrderAutomate}, a best-effort proof search.
  */
-<span class="fc" id="L16">public final class FirstOrderNaturalDeduction extends Proof&lt;FirstOrderOperation, ProofStep&lt;FirstOrderOperation&gt;&gt; {</span>
+<span class="fc" id="L17">public final class FirstOrderNaturalDeduction extends Proof&lt;FirstOrderOperation, ProofStep&lt;FirstOrderOperation&gt;&gt; {</span>
 
     private static final String ASSUMPTION = &quot;Ass&quot;;
 
     @Override
     public void initializeProof(List&lt;FirstOrderOperation&gt; assms, FirstOrderOperation goal) {
-<span class="fc" id="L22">        initializeProofSteps();</span>
-<span class="fc" id="L23">        setAssms(assms);</span>
-<span class="fc" id="L24">        setGoal(goal);</span>
-<span class="fc" id="L25">    }</span>
+<span class="fc" id="L23">        initializeProofSteps();</span>
+<span class="fc" id="L24">        setAssms(assms);</span>
+<span class="fc" id="L25">        setGoal(goal);</span>
+<span class="fc" id="L26">    }</span>
 
     @Override
     public List&lt;FirstOrderAction&gt; parse() {
-<span class="fc" id="L29">        return ((ParseAction&lt;FirstOrderAction, FirstOrderNaturalDeduction, FirstOrderOperation, ProofStep&lt;FirstOrderOperation&gt;&gt;) ParseFirstOrderAction::parse).translateToActions(this);</span>
+<span class="fc" id="L30">        return ((ParseAction&lt;FirstOrderAction, FirstOrderNaturalDeduction, FirstOrderOperation, ProofStep&lt;FirstOrderOperation&gt;&gt;) ParseFirstOrderAction::parse).translateToActions(this);</span>
     }
 
     @Override
     protected ProofStep&lt;FirstOrderOperation&gt; generateAssm(FirstOrderOperation logicExpression) {
-<span class="fc" id="L34">        return new ProofStep&lt;&gt;(0, logicExpression, new ProofReason(ASSUMPTION, List.of(), List.of()));</span>
+<span class="fc" id="L35">        return new ProofStep&lt;&gt;(0, logicExpression, new ProofReason(ASSUMPTION, List.of(), List.of()));</span>
     }
 
     /**
-     * First-order logic has no automatic solver.
-     *
-     * @throws UnsupportedOperationException always
+     * Resets the proof to its premises and runs {@link FirstOrderAutomate}. First-order logic is undecidable, so it may
+     * find no proof: then the proof is left with its premises.
      */
     @Override
     public void automate() {
-<span class="fc" id="L44">        throw new UnsupportedOperationException(&quot;First-order logic has no automatic solver&quot;);</span>
-    }
+<span class="fc" id="L44">        new FirstOrderAutomate(this).solve();</span>
+<span class="fc" id="L45">    }</span>
 
     /**
      * @param name   a name
