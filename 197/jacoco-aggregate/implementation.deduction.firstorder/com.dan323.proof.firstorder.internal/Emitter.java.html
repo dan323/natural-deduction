@@ -4,6 +4,7 @@ import com.dan323.expressions.firstorder.DisjunctionFirstOrder;
 import com.dan323.expressions.firstorder.Exists;
 import com.dan323.expressions.firstorder.FirstOrderOperation;
 import com.dan323.expressions.firstorder.Forall;
+import com.dan323.expressions.firstorder.VariableTerm;
 import com.dan323.proof.firstorder.*;
 import com.dan323.proof.firstorder.internal.FirstOrderAutomate.Node;
 import com.dan323.proof.firstorder.proof.FirstOrderNaturalDeduction;
@@ -20,91 +21,103 @@ import java.util.Map;
  */
 final class Emitter {
 
+    /** The term of the {@code =I} that rewrites the last line as the goal; any term does. */
+    private static final String SOME_NAME = &quot;a&quot;;
+
     private final FirstOrderNaturalDeduction proof;
     /** For each open subproof (the first one is the premises' level), the 1-based line of each formula derived in it. */
-<span class="fc" id="L25">    private final Deque&lt;Map&lt;FirstOrderOperation, Integer&gt;&gt; scopes = new ArrayDeque&lt;&gt;();</span>
+<span class="fc" id="L29">    private final Deque&lt;Map&lt;FirstOrderOperation, Integer&gt;&gt; scopes = new ArrayDeque&lt;&gt;();</span>
 
-<span class="fc" id="L27">    Emitter(FirstOrderNaturalDeduction proof) {</span>
-<span class="fc" id="L28">        this.proof = proof;</span>
-<span class="fc" id="L29">        Map&lt;FirstOrderOperation, Integer&gt; premises = new HashMap&lt;&gt;();</span>
-<span class="fc bfc" id="L30" title="All 2 branches covered.">        for (int line = 1; line &lt;= proof.getSteps().size(); line++) {</span>
-<span class="fc" id="L31">            premises.putIfAbsent(proof.getSteps().get(line - 1).getStep(), line);</span>
+<span class="fc" id="L31">    Emitter(FirstOrderNaturalDeduction proof) {</span>
+<span class="fc" id="L32">        this.proof = proof;</span>
+<span class="fc" id="L33">        Map&lt;FirstOrderOperation, Integer&gt; premises = new HashMap&lt;&gt;();</span>
+<span class="fc bfc" id="L34" title="All 2 branches covered.">        for (int line = 1; line &lt;= proof.getSteps().size(); line++) {</span>
+<span class="fc" id="L35">            premises.putIfAbsent(proof.getSteps().get(line - 1).getStep(), line);</span>
         }
-<span class="fc" id="L33">        scopes.push(premises);</span>
-<span class="fc" id="L34">    }</span>
+<span class="fc" id="L37">        scopes.push(premises);</span>
+<span class="fc" id="L38">    }</span>
 
     /**
-     * Writes the derivation and makes its formula the last line.
+     * Writes the derivation and makes its formula the last line, written exactly as the goal.
      *
      * @throws IllegalStateException if a rule does not accept a step of the derivation
      */
     void write(Node root) {
-<span class="fc" id="L42">        last(emit(root));</span>
-<span class="fc" id="L43">    }</span>
+<span class="fc" id="L46">        int line = emit(root);</span>
+<span class="fc" id="L47">        FirstOrderOperation goal = proof.getGoal();</span>
+<span class="fc bfc" id="L48" title="All 2 branches covered.">        if (proof.getSteps().get(line - 1).getStep().toString().equals(goal.toString())) {</span>
+<span class="fc" id="L49">            last(line);</span>
+        } else {
+            // The line is the goal only up to renaming of bound variables. A client compares the text of the lines
+            // with the goal, so rewrite it as the goal: =E with a = a leaves it as it is, and its target is the goal
+<span class="fc" id="L53">            apply(new FirstOrderEqualsI(new VariableTerm(SOME_NAME)));</span>
+<span class="fc" id="L54">            apply(new FirstOrderEqualsE(proof.getSteps().size(), line, goal));</span>
+        }
+<span class="fc" id="L56">    }</span>
 
     private Integer lookup(FirstOrderOperation formula) {
-<span class="fc bfc" id="L46" title="All 2 branches covered.">        for (Map&lt;FirstOrderOperation, Integer&gt; scope : scopes) {</span>
-<span class="fc" id="L47">            Integer line = scope.get(formula);</span>
-<span class="fc bfc" id="L48" title="All 2 branches covered.">            if (line != null) {</span>
-<span class="fc" id="L49">                return line;</span>
+<span class="fc bfc" id="L59" title="All 2 branches covered.">        for (Map&lt;FirstOrderOperation, Integer&gt; scope : scopes) {</span>
+<span class="fc" id="L60">            Integer line = scope.get(formula);</span>
+<span class="fc bfc" id="L61" title="All 2 branches covered.">            if (line != null) {</span>
+<span class="fc" id="L62">                return line;</span>
             }
-<span class="fc" id="L51">        }</span>
-<span class="fc" id="L52">        return null;</span>
+<span class="fc" id="L64">        }</span>
+<span class="fc" id="L65">        return null;</span>
     }
 
     private int emit(Node node) {
-<span class="fc" id="L56">        Integer known = lookup(node.formula());</span>
-<span class="fc bfc" id="L57" title="All 2 branches covered.">        if (known != null) {</span>
-<span class="fc" id="L58">            return known;</span>
+<span class="fc" id="L69">        Integer known = lookup(node.formula());</span>
+<span class="fc bfc" id="L70" title="All 2 branches covered.">        if (known != null) {</span>
+<span class="fc" id="L71">            return known;</span>
         }
-<span class="pc bpc" id="L60" title="2 of 20 branches missed.">        switch (node.kind()) {</span>
-<span class="nc" id="L61">            case PREMISE, ASSUMPTION -&gt; throw new IllegalStateException(node.formula() + &quot; is not in scope&quot;);</span>
-<span class="fc" id="L62">            case AND_I -&gt; apply(new FirstOrderAndI(emit(premise(node, 0)), emit(premise(node, 1))));</span>
-<span class="fc" id="L63">            case AND_E1 -&gt; apply(new FirstOrderAndE1(emit(premise(node, 0))));</span>
-<span class="fc" id="L64">            case AND_E2 -&gt; apply(new FirstOrderAndE2(emit(premise(node, 0))));</span>
-<span class="fc" id="L65">            case OR_I1 -&gt; apply(new FirstOrderOrI1(emit(premise(node, 0)), ((DisjunctionFirstOrder) node.formula()).getRight()));</span>
-<span class="fc" id="L66">            case OR_I2 -&gt; apply(new FirstOrderOrI2(emit(premise(node, 0)), ((DisjunctionFirstOrder) node.formula()).getLeft()));</span>
+<span class="pc bpc" id="L73" title="2 of 20 branches missed.">        switch (node.kind()) {</span>
+<span class="nc" id="L74">            case PREMISE, ASSUMPTION -&gt; throw new IllegalStateException(node.formula() + &quot; is not in scope&quot;);</span>
+<span class="fc" id="L75">            case AND_I -&gt; apply(new FirstOrderAndI(emit(premise(node, 0)), emit(premise(node, 1))));</span>
+<span class="fc" id="L76">            case AND_E1 -&gt; apply(new FirstOrderAndE1(emit(premise(node, 0))));</span>
+<span class="fc" id="L77">            case AND_E2 -&gt; apply(new FirstOrderAndE2(emit(premise(node, 0))));</span>
+<span class="fc" id="L78">            case OR_I1 -&gt; apply(new FirstOrderOrI1(emit(premise(node, 0)), ((DisjunctionFirstOrder) node.formula()).getRight()));</span>
+<span class="fc" id="L79">            case OR_I2 -&gt; apply(new FirstOrderOrI2(emit(premise(node, 0)), ((DisjunctionFirstOrder) node.formula()).getLeft()));</span>
             case OR_E -&gt; {
-<span class="fc" id="L68">                int disjunction = emit(premise(node, 0));</span>
-<span class="fc" id="L69">                int left = emit(premise(node, 1));</span>
-<span class="fc" id="L70">                int right = emit(premise(node, 2));</span>
-<span class="fc" id="L71">                apply(new FirstOrderOrE(disjunction, left, right));</span>
-<span class="fc" id="L72">            }</span>
-<span class="fc" id="L73">            case IMP_I -&gt; subproof(node, premise(node, 0), new FirstOrderDeductionTheorem());</span>
+<span class="fc" id="L81">                int disjunction = emit(premise(node, 0));</span>
+<span class="fc" id="L82">                int left = emit(premise(node, 1));</span>
+<span class="fc" id="L83">                int right = emit(premise(node, 2));</span>
+<span class="fc" id="L84">                apply(new FirstOrderOrE(disjunction, left, right));</span>
+<span class="fc" id="L85">            }</span>
+<span class="fc" id="L86">            case IMP_I -&gt; subproof(node, premise(node, 0), new FirstOrderDeductionTheorem());</span>
             case IMP_E -&gt; {
-<span class="fc" id="L75">                int implication = emit(premise(node, 0));</span>
-<span class="fc" id="L76">                apply(new FirstOrderModusPonens(implication, emit(premise(node, 1))));</span>
-<span class="fc" id="L77">            }</span>
-<span class="fc" id="L78">            case NOT_I -&gt; subproof(node, premise(node, 0), new FirstOrderNotI());</span>
-<span class="fc" id="L79">            case NOT_E -&gt; apply(new FirstOrderNotE(emit(premise(node, 0))));</span>
+<span class="fc" id="L88">                int implication = emit(premise(node, 0));</span>
+<span class="fc" id="L89">                apply(new FirstOrderModusPonens(implication, emit(premise(node, 1))));</span>
+<span class="fc" id="L90">            }</span>
+<span class="fc" id="L91">            case NOT_I -&gt; subproof(node, premise(node, 0), new FirstOrderNotI());</span>
+<span class="fc" id="L92">            case NOT_E -&gt; apply(new FirstOrderNotE(emit(premise(node, 0))));</span>
             case FALSE_I -&gt; {
-<span class="fc" id="L81">                int positive = emit(premise(node, 0));</span>
-<span class="fc" id="L82">                apply(new FirstOrderFI(positive, emit(premise(node, 1))));</span>
-<span class="fc" id="L83">            }</span>
-<span class="fc" id="L84">            case FALSE_E -&gt; apply(new FirstOrderFE(emit(premise(node, 0)), node.formula()));</span>
-<span class="fc" id="L85">            case FORALL_I -&gt; apply(new FirstOrderForallI(emit(premise(node, 0)), (Forall) node.formula()));</span>
-<span class="fc" id="L86">            case FORALL_E -&gt; apply(new FirstOrderForallE(emit(premise(node, 0)), node.term()));</span>
-<span class="fc" id="L87">            case EXISTS_I -&gt; apply(new FirstOrderExistsI(emit(premise(node, 0)), (Exists) node.formula()));</span>
+<span class="fc" id="L94">                int positive = emit(premise(node, 0));</span>
+<span class="fc" id="L95">                apply(new FirstOrderFI(positive, emit(premise(node, 1))));</span>
+<span class="fc" id="L96">            }</span>
+<span class="fc" id="L97">            case FALSE_E -&gt; apply(new FirstOrderFE(emit(premise(node, 0)), node.formula()));</span>
+<span class="fc" id="L98">            case FORALL_I -&gt; apply(new FirstOrderForallI(emit(premise(node, 0)), (Forall) node.formula()));</span>
+<span class="fc" id="L99">            case FORALL_E -&gt; apply(new FirstOrderForallE(emit(premise(node, 0)), node.term()));</span>
+<span class="fc" id="L100">            case EXISTS_I -&gt; apply(new FirstOrderExistsI(emit(premise(node, 0)), (Exists) node.formula()));</span>
             case EXISTS_E -&gt; {
-<span class="fc" id="L89">                int exists = emit(premise(node, 0));</span>
-<span class="fc" id="L90">                subproof(node, premise(node, 1), new FirstOrderExistsE(exists));</span>
-<span class="fc" id="L91">            }</span>
-<span class="fc" id="L92">            case EQ_I -&gt; apply(new FirstOrderEqualsI(node.term()));</span>
+<span class="fc" id="L102">                int exists = emit(premise(node, 0));</span>
+<span class="fc" id="L103">                subproof(node, premise(node, 1), new FirstOrderExistsE(exists));</span>
+<span class="fc" id="L104">            }</span>
+<span class="fc" id="L105">            case EQ_I -&gt; apply(new FirstOrderEqualsI(node.term()));</span>
             case EQ_E -&gt; {
-<span class="fc" id="L94">                int equation = emit(premise(node, 0));</span>
-<span class="fc" id="L95">                apply(new FirstOrderEqualsE(equation, emit(premise(node, 1)), node.formula()));</span>
+<span class="fc" id="L107">                int equation = emit(premise(node, 0));</span>
+<span class="fc" id="L108">                apply(new FirstOrderEqualsE(equation, emit(premise(node, 1)), node.formula()));</span>
             }
         }
-<span class="fc" id="L98">        int line = proof.getSteps().size();</span>
-<span class="pc bpc" id="L99" title="1 of 2 branches missed.">        if (!proof.getSteps().getLast().getStep().equals(node.formula())) {</span>
-<span class="nc" id="L100">            throw new IllegalStateException(&quot;The step &quot; + line + &quot; is not &quot; + node.formula());</span>
+<span class="fc" id="L111">        int line = proof.getSteps().size();</span>
+<span class="pc bpc" id="L112" title="1 of 2 branches missed.">        if (!proof.getSteps().getLast().getStep().equals(node.formula())) {</span>
+<span class="nc" id="L113">            throw new IllegalStateException(&quot;The step &quot; + line + &quot; is not &quot; + node.formula());</span>
         }
-<span class="fc" id="L102">        scopes.peek().put(node.formula(), line);</span>
-<span class="fc" id="L103">        return line;</span>
+<span class="fc" id="L115">        scopes.peek().put(node.formula(), line);</span>
+<span class="fc" id="L116">        return line;</span>
     }
 
     private static Node premise(Node node, int index) {
-<span class="fc" id="L107">        return node.premises().get(index);</span>
+<span class="fc" id="L120">        return node.premises().get(index);</span>
     }
 
     /**
@@ -112,29 +125,29 @@ final class Emitter {
      * {@code close}.
      */
     private void subproof(Node node, Node body, FirstOrderAction close) {
-<span class="fc" id="L115">        apply(new FirstOrderAssume(node.assumption()));</span>
-<span class="fc" id="L116">        Map&lt;FirstOrderOperation, Integer&gt; scope = new HashMap&lt;&gt;();</span>
-<span class="fc" id="L117">        scope.put(node.assumption(), proof.getSteps().size());</span>
-<span class="fc" id="L118">        scopes.push(scope);</span>
-<span class="fc" id="L119">        last(emit(body));</span>
-<span class="fc" id="L120">        scopes.pop();</span>
-<span class="fc" id="L121">        apply(close);</span>
-<span class="fc" id="L122">    }</span>
+<span class="fc" id="L128">        apply(new FirstOrderAssume(node.assumption()));</span>
+<span class="fc" id="L129">        Map&lt;FirstOrderOperation, Integer&gt; scope = new HashMap&lt;&gt;();</span>
+<span class="fc" id="L130">        scope.put(node.assumption(), proof.getSteps().size());</span>
+<span class="fc" id="L131">        scopes.push(scope);</span>
+<span class="fc" id="L132">        last(emit(body));</span>
+<span class="fc" id="L133">        scopes.pop();</span>
+<span class="fc" id="L134">        apply(close);</span>
+<span class="fc" id="L135">    }</span>
 
     /**
      * Makes line {@code line} the last one, copying it when it is not.
      */
     private void last(int line) {
-<span class="fc bfc" id="L128" title="All 2 branches covered.">        if (line != proof.getSteps().size()) {</span>
-<span class="fc" id="L129">            apply(new FirstOrderCopy(line));</span>
+<span class="fc bfc" id="L141" title="All 2 branches covered.">        if (line != proof.getSteps().size()) {</span>
+<span class="fc" id="L142">            apply(new FirstOrderCopy(line));</span>
         }
-<span class="fc" id="L131">    }</span>
+<span class="fc" id="L144">    }</span>
 
     private void apply(FirstOrderAction action) {
-<span class="pc bpc" id="L134" title="1 of 2 branches missed.">        if (!action.isValid(proof)) {</span>
-<span class="nc" id="L135">            throw new IllegalStateException(action.getClass().getSimpleName() + &quot; does not apply to\n&quot; + proof);</span>
+<span class="pc bpc" id="L147" title="1 of 2 branches missed.">        if (!action.isValid(proof)) {</span>
+<span class="nc" id="L148">            throw new IllegalStateException(action.getClass().getSimpleName() + &quot; does not apply to\n&quot; + proof);</span>
         }
-<span class="fc" id="L137">        action.apply(proof);</span>
-<span class="fc" id="L138">    }</span>
+<span class="fc" id="L150">        action.apply(proof);</span>
+<span class="fc" id="L151">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>
