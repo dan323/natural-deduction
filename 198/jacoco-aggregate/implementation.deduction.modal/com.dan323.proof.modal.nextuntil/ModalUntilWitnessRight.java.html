@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>ModalUntilWitnessRight.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">jacoco-report-aggregate</a> &gt; <a href="../index.html" class="el_bundle">implementation.deduction.modal</a> &gt; <a href="index.source.html" class="el_package">com.dan323.proof.modal.nextuntil</a> &gt; <span class="el_source">ModalUntilWitnessRight.java</span></div><h1>ModalUntilWitnessRight.java</h1><pre class="source lang-java linenums">package com.dan323.proof.modal.nextuntil;
+
+import com.dan323.expressions.modal.ModalLogicalOperation;
+import com.dan323.proof.modal.proof.ModalNaturalDeduction;
+
+import java.util.List;
+import java.util.Optional;
+
+/**
+ * Until witness reaches {@code B}, {@code UB [i]}: from the {@code UW} step {@code s &lt;= t} (line {@code i}) of
+ * {@code A U B}, derive {@code B} in {@code t}.
+ */
+public final class ModalUntilWitnessRight extends NextUntilRule {
+
+    public ModalUntilWitnessRight(int line) {
+<span class="fc" id="L16">        super(ParseModalNextUntilAction.UNTIL_WITNESS_RIGHT, List.of(line));</span>
+<span class="fc" id="L17">    }</span>
+
+    @Override
+    Optional&lt;Conclusion&gt; conclusion(ModalNaturalDeduction pf) {
+<span class="fc" id="L21">        return ModalUntilWitness.witness(pf, line(0))</span>
+<span class="fc" id="L22">                .map(witness -&gt; new Conclusion((ModalLogicalOperation) witness.until().getRight(), witness.state()));</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>
