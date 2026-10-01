@@ -40,7 +40,8 @@ public final class StateOrder {
     private Map<String, Map<String, Integer>> distances;
     /** The states read so far, since reading one is the costly part of a question. */
     private final Map<String, Optional<StateTerm>> terms = new HashMap<>();
-    private Optional<SortedSet<Integer>> contradiction;
+    private Optional<SortedSet<Integer>> contradiction = Optional.empty();
+    private boolean contradictionSearched;
 
     /**
      * @param relations the relations, each with the 1-based line it is on; relations whose sides are not state terms
@@ -121,22 +122,22 @@ public final class StateOrder {
             for (Edge edge : edges) {
                 distances.get(edge.from()).merge(edge.to(), edge.weight(), Math::min);
             }
-            for (String k : nodes) {
-                for (String i : nodes) {
-                    Integer ik = distances.get(i).get(k);
-                    if (ik == null) {
-                        continue;
-                    }
-                    for (String j : nodes) {
-                        Integer kj = distances.get(k).get(j);
-                        if (kj != null) {
-                            distances.get(i).merge(j, ik + kj, Math::min);
-                        }
-                    }
+            for (String through : nodes) {
+                for (String from : nodes) {
+                    shortenThrough(from, through);
                 }
             }
         }
         return distances;
+    }
+
+    /** Make the paths from {@code from} go through {@code through} where that is lighter. */
+    private void shortenThrough(String from, String through) {
+        Integer first = distances.get(from).get(through);
+        if (first == null) {
+            return;
+        }
+        Map.copyOf(distances.get(through)).forEach((to, second) -> distances.get(from).merge(to, first + second, Math::min));
     }
 
     /**
@@ -159,22 +160,26 @@ public final class StateOrder {
                 .map(StateOrder::lines);
     }
 
-    /** @return whether the relations give both {@code u <= v} and {@code v <= u} */
-    public Optional<SortedSet<Integer>> equal(String u, String v) {
-        var first = entails(u, v);
-        var second = entails(v, u);
-        if (first.isEmpty() || second.isEmpty()) {
+    /**
+     * @return the lines whose relations give both {@code first <= second} and {@code second <= first}, so that the two
+     * are the same state; empty when they do not
+     */
+    public Optional<SortedSet<Integer>> sameState(String first, String second) {
+        var forth = entails(first, second);
+        var back = entails(second, first);
+        if (forth.isEmpty() || back.isEmpty()) {
             return Optional.empty();
         }
-        SortedSet<Integer> lines = new TreeSet<>(first.get());
-        lines.addAll(second.get());
+        SortedSet<Integer> lines = new TreeSet<>(forth.get());
+        lines.addAll(back.get());
         return Optional.of(lines);
     }
 
     /** @return the lines of relations that contradict each other (a cycle of negative weight), empty when they do not */
     public Optional<SortedSet<Integer>> contradiction() {
-        if (contradiction == null) {
+        if (!contradictionSearched) {
             contradiction = findContradiction();
+            contradictionSearched = true;
         }
         return contradiction;
     }
@@ -220,28 +225,12 @@ public final class StateOrder {
 
     /** The lightest path from {@code from} to {@code to}, when there is one and no negative cycle is on the way. */
     private Optional<List<Edge>> shortestPath(String from, String to) {
-        if (!nodes.contains(from) || !nodes.contains(to)) {
+        if (!nodes.contains(from) || !nodes.contains(to) || to.equals(from)) {
+            // A path from a base to itself only matters through a negative cycle, which contradiction() reports
             return Optional.empty();
         }
-        Map<String, Integer> distance = new HashMap<>();
-        Map<String, Edge> previous = new HashMap<>();
-        distance.put(from, 0);
-        for (int i = 0; i < nodes.size(); i++) {
-            boolean relaxed = false;
-            for (Edge edge : edges) {
-                Integer start = distance.get(edge.from());
-                if (start != null && (!distance.containsKey(edge.to()) || start + edge.weight() < distance.get(edge.to()))) {
-                    distance.put(edge.to(), start + edge.weight());
-                    previous.put(edge.to(), edge);
-                    relaxed = true;
-                }
-            }
-            if (!relaxed) {
-                break;
-            }
-        }
-        if (!distance.containsKey(to) || to.equals(from)) {
-            // A path from a base to itself only matters through a negative cycle, which contradiction() reports
+        var previous = lightestEdgesFrom(from);
+        if (!previous.containsKey(to)) {
             return Optional.empty();
         }
         List<Edge> path = new ArrayList<>();
@@ -257,6 +246,27 @@ public final class StateOrder {
             node = edge.from();
         }
         return Optional.of(path);
+    }
+
+    /** Bellman-Ford from {@code from}: for each node reached, the last edge of the lightest path to it. */
+    private Map<String, Edge> lightestEdgesFrom(String from) {
+        Map<String, Integer> distance = new HashMap<>();
+        Map<String, Edge> previous = new HashMap<>();
+        distance.put(from, 0);
+        boolean relaxed = true;
+        for (int i = 0; i < nodes.size() && relaxed; i++) {
+            relaxed = false;
+            for (Edge edge : edges) {
+                Integer start = distance.get(edge.from());
+                Integer end = distance.get(edge.to());
+                if (start != null && (end == null || start + edge.weight() < end)) {
+                    distance.put(edge.to(), start + edge.weight());
+                    previous.put(edge.to(), edge);
+                    relaxed = true;
+                }
+            }
+        }
+        return previous;
     }
 
     private static int weight(List<Edge> path) {

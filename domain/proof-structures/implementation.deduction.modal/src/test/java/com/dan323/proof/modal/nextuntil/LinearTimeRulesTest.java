@@ -101,8 +101,8 @@ class LinearTimeRulesTest {
     @Test
     void theOrderFindsEqualAndContradictoryStates() {
         var equal = order("s0 <= s1", "s1 <= s0");
-        assertEquals(lines(1, 2), equal.equal("s0", "s1").orElseThrow());
-        assertEquals(lines(1, 2), equal.equal("s0+1", "s1+1").orElseThrow());
+        assertEquals(lines(1, 2), equal.sameState("s0", "s1").orElseThrow());
+        assertEquals(lines(1, 2), equal.sameState("s0+1", "s1+1").orElseThrow());
         assertTrue(equal.hasEqualStates());
         assertTrue(equal.contradiction().isEmpty());
 
@@ -117,7 +117,7 @@ class LinearTimeRulesTest {
 
         assertTrue(order.holds("s0", "s1+1"));
         assertTrue(order.holds("s1+1", "s0"));
-        assertTrue(order.equal("s0+1", "s1+2").isPresent());
+        assertTrue(order.sameState("s0+1", "s1+2").isPresent());
     }
 
     // ---------------------------------------------------------------- Ord

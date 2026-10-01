@@ -17,7 +17,6 @@ import com.dan323.expressions.modal.Until;
 import com.dan323.expressions.relation.LessEqual;
 import com.dan323.expressions.relation.RelationOperation;
 import com.dan323.expressions.relation.StateTerm;
-import com.dan323.proof.generic.RuleUtils;
 import com.dan323.proof.modal.AbstractModalAction;
 import com.dan323.proof.modal.ModalAndE1;
 import com.dan323.proof.modal.ModalAndE2;
@@ -166,11 +165,6 @@ public final class LinearTimeAutomate {
         private boolean isFalse() {
             return ConstantModal.FALSE.equals(target);
         }
-
-        @Override
-        public String toString() {
-            return (state == null ? "" : state + ": ") + target + " (" + closer + ")";
-        }
     }
 
     /**
@@ -269,34 +263,41 @@ public final class LinearTimeAutomate {
             if (--rounds < 0 || System.nanoTime() > deadline) {
                 return false;
             }
-            boolean stuck;
-            if (proof.getSteps().size() > maxSize) {
-                stuck = true;
-            } else {
-                Goal top = goals.getLast();
-                if (reached(top)) {
-                    goals.removeLast();
-                    if (top.mark != null) {
-                        marks.remove(top.mark);
-                        checkpoints.removeIf(checkpoint -> checkpoint.mark().equals(top.mark));
-                    }
-                    stuck = !close(top);
-                    if (!stuck && goals.isEmpty()) {
-                        return proof.isDone();
-                    }
-                } else if (top.closer == Closer.TRY) {
-                    if (!introduce(top) && !eliminate(false)) {
-                        goals.removeLast();
-                    }
-                    stuck = false;
-                } else {
-                    stuck = !introduce(top) && !eliminate(true) && !expand(top);
+            boolean stuck = proof.getSteps().size() > maxSize || !round();
+            if (!stuck && goals.isEmpty()) {
+                // The goal may have been reached on an earlier line: the proof ends with it
+                if (!(proof.getGoal() instanceof RelationOperation)) {
+                    lastIs(proof.getGoal(), proof.getState0());
                 }
+                return proof.isDone();
             }
             if (stuck && !backtrack()) {
                 return false;
             }
         }
+    }
+
+    /**
+     * One round on the top goal.
+     *
+     * @return false when nothing applies to it
+     */
+    private boolean round() {
+        Goal top = goals.getLast();
+        if (reached(top)) {
+            goals.removeLast();
+            if (top.mark != null) {
+                marks.remove(top.mark);
+                checkpoints.removeIf(checkpoint -> checkpoint.mark().equals(top.mark));
+            }
+            return close(top);
+        } else if (top.closer == Closer.TRY) {
+            if (!introduce(top) && !eliminate(false)) {
+                goals.removeLast();
+            }
+            return true;
+        }
+        return introduce(top) || eliminate(true) || expand(top);
     }
 
     /** Remember the search as it is, before making the choice {@code mark}. */
@@ -446,11 +447,7 @@ public final class LinearTimeAutomate {
                 }
             }
         }
-        for (Goal goal : goals) {
-            if (goal.state != null) {
-                states.add(goal.state);
-            }
-        }
+        goals.stream().map(goal -> goal.state).filter(Objects::nonNull).forEach(states::add);
         states.removeIf(state -> term(state).filter(t -> t.offset() <= maxOffset).isEmpty());
         return new ArrayList<>(states);
     }
@@ -465,12 +462,6 @@ public final class LinearTimeAutomate {
 
     private static Optional<String> successor(String state) {
         return term(state).filter(StateTerm::hasSuccessor).map(t -> t.successor().toString());
-    }
-
-    /** The first line of the innermost open subproof, or 0 at the top level. */
-    private int innermost() {
-        int level = RuleUtils.getLastAssumptionLevel(proof);
-        return level == 0 ? 0 : last() - RuleUtils.getToLastAssumption(proof, level) + 1;
     }
 
     /** Assume a formula or a relation and return its line. */
@@ -500,27 +491,31 @@ public final class LinearTimeAutomate {
      * other.
      */
     private boolean contradiction() {
-        if (has(ConstantModal.FALSE, proof.getState0())) {
-            return true;
-        }
+        return has(ConstantModal.FALSE, proof.getState0()) || opposites() || order().hasEqualStates() && oppositesInEqualStates()
+                || order().contradiction().isPresent() && apply(new ModalOrder(ConstantModal.FALSE));
+    }
+
+    /** {@code FI} on {@code A} and {@code -A} in the same state, if there are such lines. */
+    private boolean opposites() {
         for (int i = 0; i < steps().size(); i++) {
             var step = steps().get(i);
-            if (step.isValid() && step.getStep() instanceof NegationModal negation) {
-                int positive = find(negation.getElement(), step.getState());
-                if (positive > 0) {
-                    return apply(new ModalFI(positive, i + 1));
-                }
+            int positive = step.isValid() && step.getStep() instanceof NegationModal negation ? find(negation.getElement(), step.getState()) : 0;
+            if (positive > 0) {
+                return apply(new ModalFI(positive, i + 1));
             }
         }
-        if (order().hasEqualStates()) {
-            for (int i = 0; i < steps().size(); i++) {
-                var step = steps().get(i);
-                if (step.isValid() && step.getStep() instanceof NegationModal negation && transferred(negation.getElement(), step.getState())) {
-                    return apply(new ModalFI(last(), i + 1));
-                }
+        return false;
+    }
+
+    /** {@code Eq} and {@code FI} on {@code A} and {@code -A} in two states the relations make equal. */
+    private boolean oppositesInEqualStates() {
+        for (int i = 0; i < steps().size(); i++) {
+            var step = steps().get(i);
+            if (step.isValid() && step.getStep() instanceof NegationModal negation && transferred(negation.getElement(), step.getState())) {
+                return apply(new ModalFI(last(), i + 1));
             }
         }
-        return order().contradiction().isPresent() && apply(new ModalOrder(ConstantModal.FALSE));
+        return false;
     }
 
     /** Derive {@code formula} in {@code state} with {@code Eq} from a line in a state equal to it, if there is one. */
@@ -702,30 +697,30 @@ public final class LinearTimeAutomate {
             }
         }
         for (int w = 1; w <= last(); w++) {
-            var step = steps().get(w - 1);
-            if (!step.isValid() || !ParseModalNextUntilAction.UNTIL_WITNESS.equals(step.getProof().getNameProof())
-                    || !(step.getStep() instanceof LessEqual witness)) {
-                continue;
-            }
-            var until = ModalUntilWitness.witness(proof, w).map(ModalUntilWitness.Witness::until);
-            if (until.isEmpty()) {
-                continue;
-            }
-            for (String state : states()) {
-                var next = successor(state);
-                if (next.isPresent() && !has(until.get().getLeft(), state) && entails(witness.getLeft(), state)
-                        && entails(next.get(), witness.getRight()) && apply(new ModalUntilWitnessLeft(w, state))) {
-                    return true;
-                }
+            if (beforeWitness(w)) {
+                return true;
             }
         }
         return false;
     }
 
-    /**
-     * {@code XE}, but not beyond {@link #maxOffset} successors of a base: otherwise {@code [] (p -> X p)} would give
-     * {@code p} in {@code s0+1}, {@code s0+2}, ... for ever. Beyond that, induction has to do it.
-     */
+    /** {@code UA} on the {@code UW} line {@code w}, for a state where it adds a line, if there is one. */
+    private boolean beforeWitness(int w) {
+        var witness = ModalUntilWitness.witness(proof, w);
+        if (witness.isEmpty()) {
+            return false;
+        }
+        var left = witness.get().until().getLeft();
+        for (String state : states()) {
+            var next = successor(state);
+            if (next.isPresent() && !has(left, state) && entails(witness.get().from(), state)
+                    && entails(next.get(), witness.get().state()) && apply(new ModalUntilWitnessLeft(w, state))) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     /** After {@code UW}: {@code UB}, then {@code s+1 <= t} from {@code -B} in {@code s} (line {@code notRight}). */
     private void witnessLater(String state, int notRight) {
         int witnessLine = last();
@@ -742,6 +737,10 @@ public final class LinearTimeAutomate {
         }
     }
 
+    /**
+     * {@code XE}, but not beyond {@link #maxOffset} successors of a base: otherwise {@code [] (p -> X p)} would give
+     * {@code p} in {@code s0+1}, {@code s0+2}, ... for ever. Beyond that, induction has to do it.
+     */
     private boolean eliminateNext() {
         for (int i = 1; i <= last(); i++) {
             var step = steps().get(i - 1);
