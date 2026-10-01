@@ -9,7 +9,9 @@
   max-width: none;
   max-height: none;
   margin: 0;
-  padding: 0;
+  padding: 16px;
+  box-sizing: border-box;
+  overflow: hidden;
   border: 0;
   color: inherit;
   background-color: rgba(0, 0, 0, 0.5);
@@ -27,15 +29,25 @@
   max-width: 500px;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
   text-align: center;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  max-height: calc(100vh - 32px);
+  max-height: calc(100dvh - 32px);
 }
 
 .modal h2 {
+  flex: none;
   margin: 0 0 20px 0;
   font-size: 1.5rem;
   color: #333;
 }
 
 .modal-body {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
   margin-bottom: 20px;
   text-align: left;
 }
@@ -144,6 +156,7 @@
 }
 
 .modal-footer {
+  flex: none;
   display: flex;
   justify-content: flex-end;
   gap: 10px;
@@ -251,4 +264,33 @@
 
 .modal-body .connective-buttons {
   margin: 0 0 8px;
+}
+
+/* Narrow windows: the dialog is full-screen, the footer buttons stack and the remove buttons are tap targets. */
+@media (max-width: 479px) {
+  .modal {
+    padding: 0;
+  }
+
+  .modal-content {
+    width: 100%;
+    max-width: none;
+    height: 100%;
+    max-height: none;
+    border-radius: 0;
+  }
+
+  .modal-footer {
+    flex-direction: column-reverse;
+  }
+
+  .modal-footer .submit-btn,
+  .modal-footer .close-btn {
+    width: 100%;
+  }
+
+  .remove-premise-btn {
+    width: 44px;
+    height: 44px;
+  }
 }
