@@ -6,6 +6,21 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 The project has never been versioned or tagged, since it was not meant for public use. Instead, each calendar month with changes is treated as one release, named `mon-yy` (for example `sep-26`). Releases are listed newest first, and entries use the commit or PR titles from git history.
 
+## oct-26
+
+### Added
+- Linear time for `modal-next-until`: the rules `-U`, `UW`/`UB`/`UA` (the witness of an Until), `Ord`, `Eq` and `Lin`,
+  and a solver (`POST /logic/modal-next-until/solve`, Solve in the UI) that implements the proof search of Bolotov,
+  Grigoriev and Shangin for PLTL, with induction; it solves every exercise and is checked against the semantics on
+  random formulas (#196)
+
+### Fixed
+- The modal solver no longer crashes on relation goals or after a De Morgan step; the modal and classical solvers no
+  longer write an `FI` line that cannot be replayed when refuting the right side of a disjunction; the modal solver
+  proves `- (<> (- p)) ⊢ [] p` instead of repeating `Refl` until the timeout, and goals like
+  `(([] p) -> (<> q)) | (- q)`, where it aimed for the goal itself again after splitting its negation with De Morgan
+  (#196)
+
 ## sep-26
 
 ### Added

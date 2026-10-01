@@ -28,7 +28,8 @@ import static org.junit.jupiter.api.Assertions.*;
  * The modal solver must keep producing exactly the proofs it produced before #191 was fixed. The expected proofs in
  * {@code modal-solver-proofs.txt} were written by {@code ModalAutomate} before that fix with
  * {@code -DwriteSolverProofs=true}; each block is the goal, the premises (all in {@code s0}) and the proof the solver
- * left, finished or not.
+ * left, finished or not. The only changes are the {@code FI} lines of {@code ModalOrE2}, which cited the disjunction
+ * instead of the negation (so the proof did not replay) until that was fixed in #196.
  */
 class ModalSolverRegressionTest {
 
@@ -162,6 +163,47 @@ class ModalSolverRegressionTest {
             assertEquals(proof.getState0(), last.getState(), goal + ": derived in the initial state");
             assertTrue(transformer.from(transformer.fromProof(proof)).isDone(), goal + ": replays and is done");
         }));
+    }
+
+    /**
+     * {@code Refl} was applied again and again when the line after its source line was a discharged step (here the
+     * {@code s0 <= s1} that {@code DeMorgan} opens), so the solver never stopped; and {@code DeMorgan} on
+     * {@code - (<> (- p))} gave {@code [] (- (- p))} instead of {@code [] p}.
+     */
+    @Test
+    void theDualOfSometimeIsProved() {
+        assertProved(List.of("- (<> (- p))"), "[] p");
+    }
+
+    /**
+     * The negated goal assumed for a proof by contradiction is split by De Morgan; FALSE must then come from the
+     * lines that gave, not from aiming for the goal itself again.
+     */
+    @Test
+    void aDeMorganedLineIsNotAimedAt() {
+        assertProved(List.of(), "(([] p) -> (<> q)) | (- q)");
+    }
+
+    /**
+     * Like {@link #aDeMorganedLineIsNotAimedAt()}, for a {@code - (<> A)} line that {@code DeMorgan} turned into
+     * {@code [] (- A)}: without skipping it the solver aims for {@code <> q} again and does not finish.
+     */
+    @Test
+    void aLineDeMorganedIntoAlwaysIsNotAimedAt() {
+        assertProved(List.of(), "(<> q) | (([] p) -> ([] (- q)))");
+    }
+
+    private static void assertProved(List<String> premises, String goal) {
+        var transformer = new ModalProofTransformer();
+        var steps = premises.stream().map(premise -> new StepDto(premise, "Ass", 0, Map.of("state", "s0"))).toList();
+        ModalNaturalDeduction proof = transformer.from(new ProofDto(steps, "modal", goal));
+        assertTimeoutPreemptively(Duration.ofSeconds(2), proof::automate);
+        assertTrue(proof.isDone(), goal);
+        var last = proof.getSteps().getLast();
+        assertEquals(goal, last.getStep().toString());
+        assertEquals(0, last.getAssumptionLevel());
+        assertEquals(proof.getState0(), last.getState());
+        assertTrue(transformer.from(transformer.fromProof(proof)).isDone(), goal + ": replays and is done");
     }
 
     @TestFactory

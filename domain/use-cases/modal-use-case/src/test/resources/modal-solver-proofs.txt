@@ -287,7 +287,7 @@ s0:    (- p) | q           Ass
 s0:       p           Ass
 s0:          - q           Ass
 s0:             q           Ass
-s0:             FALSE           FI [5, 1]
+s0:             FALSE           FI [5, 4]
 s0:             - p           FE [6]
 s0:          q -> (- p)           ->I [5-7]
 s0:             - p           Ass
@@ -363,7 +363,7 @@ s0:          q | p           |I [8]
 s0:          FALSE           FI [9, 3]
 s0:       - p           -I [8-10]
 s0:          q           Ass
-s0:          FALSE           FI [12, 1]
+s0:          FALSE           FI [12, 7]
 s0:          p           FE [13]
 s0:       q -> p           ->I [12-14]
 s0:          p           Ass

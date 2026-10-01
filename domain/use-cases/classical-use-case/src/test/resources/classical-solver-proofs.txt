@@ -78,7 +78,7 @@ p | q           Ass
       FALSE           FI [8, 2]
    - p           -I [7-9]
       q           Ass
-      FALSE           FI [11, 1]
+      FALSE           FI [11, 6]
       p           FE [12]
    q -> p           ->I [11-13]
       p           Ass
@@ -370,7 +370,7 @@ proof:
       p           Ass
          - q           Ass
             q           Ass
-            FALSE           FI [4, 1]
+            FALSE           FI [4, 3]
             - p           FE [5]
          q -> (- p)           ->I [4-6]
             - p           Ass
@@ -463,7 +463,7 @@ proof:
          FALSE           FI [8, 2]
       - p           -I [7-9]
          q           Ass
-         FALSE           FI [11, 1]
+         FALSE           FI [11, 6]
          p           FE [12]
       q -> p           ->I [11-13]
          p           Ass

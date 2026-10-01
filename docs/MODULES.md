@@ -127,9 +127,12 @@ Defines and implements inference rules for natural deduction.
   - One `Modal*` class per rule (`ModalBoxE`, `ModalDiaI`, ...) and the relational rules `Reflexive` (`Refl`) and
     `Transitive` (`Trans`)
   - `ParseModalAction` - builds a rule from its name; it is the source of truth for the rule names
-  - The automatic solver (`ModalAutomate`)
+  - The automatic solvers (`internal/`): `ModalAutomate` (modal logic) and `LinearTimeAutomate` (`modal-next-until`), Bolotov, Grigoriev and Shangin's proof search for PLTL with
+    backtracking
   - `com.dan323.proof.modal.nextuntil`: `ModalNextUntilNaturalDeduction` (successor-aware freshness, the goal must be
-    in `s0`, no solver), the Next and Until rules (`ModalNextI`, `ModalUntilE`, `ModalInduction`, ...) and
+    in `s0`, its solver is `LinearTimeAutomate`), the Next and Until rules (`ModalNextI`, `ModalUntilE`, `ModalInduction`, ...),
+    the rules of linear time (`ModalNegatedUntil`, `ModalUntilWitness`, `ModalUntilWitnessRight`, `ModalUntilWitnessLeft`,
+    `ModalOrder`, `ModalEqualState`, `ModalLinearity`), `StateOrder` (relations as difference constraints) and
     `ParseModalNextUntilAction`
 - **Dependencies**: logic-language/implementation.modal, framework.deduction/
 - **Used By**: modal-use-case/

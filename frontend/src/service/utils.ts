@@ -185,3 +185,17 @@ export function loadsBackWithSameGoal(proof: ProofDto): boolean {
     && last?.assmsLevel === 0
     && withoutSpaces(last.expression) === withoutSpaces(proof.goal);
 }
+
+// The steps counted as the proof's premises: a leading run of `Ass` steps at assumption level 0, the shape
+// `handleNewProofSubmit` creates. The backend treats exactly this prefix as the premises when it replays a proof
+// (see `ClassicalProofTransformer.replayProof` / `ProofParser.extractAssumptions`), so it is what "nothing beyond
+// the premises" means for Undo (nothing left to undo), New Proof (nothing to lose by discarding it) and Solve (a
+// solver that gave up and kept nothing).
+export function premiseCount(steps: StepDto[]): number {
+  let count = 0;
+  for (const step of steps) {
+    if (step.assmsLevel !== 0 || step.rule !== 'Ass') break;
+    count++;
+  }
+  return count;
+}

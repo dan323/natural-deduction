@@ -4,6 +4,7 @@ import com.dan323.expressions.relation.RelationOperation;
 import com.dan323.expressions.relation.StateTerm;
 import com.dan323.proof.generic.proof.ParseAction;
 import com.dan323.proof.modal.AbstractModalAction;
+import com.dan323.proof.modal.internal.LinearTimeAutomate;
 import com.dan323.proof.modal.proof.ModalNaturalDeduction;
 import com.dan323.proof.modal.proof.ProofStepModal;
 
@@ -20,7 +21,8 @@ import java.util.Set;
  * {@code []I} and {@code <>E} introduce must be a base that is used nowhere before, not even on the other side of its
  * relation ({@code t+1 <= t} would say that {@code t} comes after itself).
  * <p>
- * This logic has no solver: the modal one uses none of the Next and Until rules.
+ * Time is linear: every state is a natural number, {@code s+1} is the next one and {@code s <= t} says that {@code s} is
+ * not after {@code t}. Its solver is {@link LinearTimeAutomate}.
  */
 public class ModalNextUntilNaturalDeduction extends ModalNaturalDeduction {
 
@@ -103,11 +105,12 @@ public class ModalNextUntilNaturalDeduction extends ModalNaturalDeduction {
     }
 
     /**
-     * @throws UnsupportedOperationException always: this logic has no solver
+     * Solve the proof from its premises with {@link LinearTimeAutomate}, which leaves it with its premises only when it
+     * finds no proof.
      */
     @Override
     public void automate() {
-        throw new UnsupportedOperationException("modal-next-until has no solver");
+        new LinearTimeAutomate().automate(this);
     }
 
     private static Set<String> basesOf(ProofStepModal step) {

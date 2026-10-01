@@ -9,6 +9,8 @@ import com.dan323.classical.complex.OrE2;
 import com.dan323.classical.complex.Sequence;
 import com.dan323.classical.proof.NaturalDeduction;
 import com.dan323.expressions.classical.ConstantClassic;
+import com.dan323.expressions.classical.DisjunctionClassic;
+import com.dan323.expressions.classical.NegationClassic;
 import com.dan323.expressions.classical.ImplicationClassic;
 import com.dan323.expressions.classical.VariableClassic;
 import org.junit.jupiter.api.Test;
@@ -54,6 +56,27 @@ public class ClassicalComplexTest {
         assertNotEquals(orE22, orE23);
         assertEquals(orE23, orE24);
         assertNotEquals(orE21, log);
+    }
+
+    @Test
+    void theRightSideOfADisjunctionRefutedGivesItsLeftSide() {
+        var p = new VariableClassic("P");
+        var q = new VariableClassic("Q");
+        var pf = new NaturalDeduction();
+        pf.initializeProof(List.of(new DisjunctionClassic(p, q), new NegationClassic(q)), p);
+        var rule = new OrE2(1, 2);
+        assertTrue(rule.isValid(pf));
+        rule.apply(pf);
+        assertEquals(p, pf.getSteps().getLast().getStep());
+        // Every line it wrote replays: the FI line cites the negation it contradicts
+        var actions = pf.parse();
+        var replayed = new NaturalDeduction();
+        replayed.initializeProof(List.of(new DisjunctionClassic(p, q), new NegationClassic(q)), p);
+        for (int i = 2; i < actions.size(); i++) {
+            assertTrue(actions.get(i).isValid(replayed), pf.getSteps().get(i).toString());
+            actions.get(i).apply(replayed);
+        }
+        assertTrue(replayed.isDone());
     }
 
     @Test

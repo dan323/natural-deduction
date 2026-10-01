@@ -35,6 +35,11 @@ public class ProofReason {
         return nameProof;
     }
 
+    /** @return the single lines the rule cites, in the order it cites them (not the ranges, such as {@code 2-4}) */
+    public List<Integer> getLines() {
+        return Collections.unmodifiableList(listLines);
+    }
+
     public String toString() {
         return getNameProof() + (printable().isEmpty() ? "" : (" " + printable()));
     }

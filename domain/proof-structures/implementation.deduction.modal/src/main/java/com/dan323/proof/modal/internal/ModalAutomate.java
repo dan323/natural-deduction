@@ -16,6 +16,12 @@ import java.util.concurrent.CancellationException;
 /**
  * Class to execute a Natural deduction in modal logic
  *
+ * <p>It keeps a stack of goals, each one a formula in a state, with the proof's goal in the initial state at the
+ * bottom. Each round it reaches the top goal with an introduction rule if it can, otherwise it applies the elimination
+ * rules it has not applied yet; when neither is possible it pushes subgoals (and assumptions) that make the top goal
+ * easier to reach. It stops when the stack is empty (the proof is done) or when a round changes neither the proof nor
+ * the goals.
+ *
  * @author daniel
  */
 public final class ModalAutomate {
@@ -466,19 +472,20 @@ public final class ModalAutomate {
         return answer;
     }
 
+    /**
+     * {@code Refl} on a state is applied once, and again only when the {@code s <= s} step it gave was discharged.
+     * {@link #reflUsed} maps the state to the 0-based index of that step, which is the size of the proof before it is
+     * applied.
+     */
     private Optional<AbstractModalAction> checkReflAction(Reflexive act) {
         int k = act.getStep();
         var state = proof.getSteps().get(k - 1).getState();
-        if (reflUsed.containsKey(state)) {
-            if (!proof.getSteps().get(reflUsed.get(state)).isValid()) {
-                reflUsed.put(state, k);
-                return Optional.of(act);
-            }
-        } else {
-            reflUsed.put(state, k);
-            return Optional.of(act);
+        Integer used = reflUsed.get(state);
+        if (used != null && used < proof.getSteps().size() && proof.getSteps().get(used).isValid()) {
+            return Optional.empty();
         }
-        return Optional.empty();
+        reflUsed.put(state, proof.getSteps().size());
+        return Optional.of(act);
     }
 
     private Optional<AbstractModalAction> checkAdditionOfDisjIModPonens(int i) {
@@ -505,9 +512,9 @@ public final class ModalAutomate {
     private void updateGoal() {
         if (goals.getLast().getValue().equals(ConstantModal.FALSE)) {
             lastGoalFalse();
-        } else {
+        } else if (goals.getLast().getValue() instanceof ModalLogicalOperation goal) {
+            // A relation goal (s0 <= s1) has no subgoals: only the premises and the elimination rules can reach it
             var state = goals.getLast().getKey();
-            ModalLogicalOperation goal = (ModalLogicalOperation) goals.getLast().getValue();
             switch (goal) {
                 case ConjunctionModal conj -> updateGoalConjunction(conj, state);
                 case ImplicationModal imp -> updateGoalImplication(imp, state);
@@ -519,13 +526,15 @@ public final class ModalAutomate {
     }
 
     /**
-     * Update the goal list in case the last goal is {@link ConstantModal#FALSE}
+     * Update the goal list in case the last goal is {@link ConstantModal#FALSE}. A line that a De Morgan rule was
+     * already applied to is not used: what it says is in the lines that rule gave, and aiming for what it negates can
+     * be the goal the solver is already trying to prove (the negation assumed for a proof by contradiction).
      */
     private void lastGoalFalse() {
         int j = -1;
         for (int i = 0; i < proof.getSteps().size(); i++) {
             boolean b = true;
-            if (!usedForGoal.containsValue(i) && proof.getSteps().get(i).isValid()) {
+            if (!usedForGoal.containsValue(i) && proof.getSteps().get(i).isValid() && !isDeMorganed(i + 1)) {
                 String state = proof.getSteps().get(i).getState();
                 LogicOperation log = proof.getSteps().get(i).getStep();
                 switch (log) {
@@ -544,6 +553,17 @@ public final class ModalAutomate {
             }
         }
         usedForGoal.put(goals.size(), j);
+    }
+
+    /**
+     * Whether {@link ModalDeMorgan} or {@link DeMorgan} was applied to this 1-based line. Both are recorded in
+     * {@link #actionsDone} by {@link #checkSingleAction} (see {@link #lookForElimRules}); the modal
+     * {@code complex.DeMorgan} is an {@link AbstractModalAction}, unlike the classical class of the same name.
+     */
+    private boolean isDeMorganed(int line) {
+        AbstractModalAction modalDeMorgan = new ModalDeMorgan(line);
+        AbstractModalAction deMorgan = new DeMorgan(line);
+        return actionsDone.contains(modalDeMorgan) || actionsDone.contains(deMorgan);
     }
 
     /**

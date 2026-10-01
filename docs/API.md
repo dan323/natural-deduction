@@ -115,7 +115,7 @@ Runs the automatic solver on the proof (a `ProofDto`) and returns the resulting 
 - At most as many solves as there are processors (at least 2) run at once, per logic. Another one is answered at once
   with `429` and `{"message": "The solver is busy with other proofs, try again in a moment"}`.
 - An invalid proof is a `400`, as for `/action`.
-- A logic without a solver of its own (`modal-next-until`, `first-order`) answers `400` with
+- A logic without a solver of its own (`first-order`) answers `400` with
   `{"message": "There is no solver for the logic 'first-order'"}`.
 
 ### List the exercises: `GET /logic/{logic}/exercises`
@@ -200,8 +200,8 @@ shares everything else with `classical`: the formula syntax, the proof and proof
 
 ### Modal logic with Next and Until
 
-`modal-next-until` is modal logic over discrete time: every state `s` has a successor `s+1`, and `s <= t` holds when
-`t` is `s`, `s+1`, `s+2`, ... It adds two connectives to the modal formulas: Next, `X A` (`A` holds in `s+1`), and
+`modal-next-until` is modal logic over discrete, linear time: every state `s` has a successor `s+1`, and `s <= t`
+holds when `t` is `s`, `s+1`, `s+2`, ... It adds two connectives to the modal formulas: Next, `X A` (`A` holds in `s+1`), and
 Until, `A U B` (`B` holds in some `s+k` and `A` in every state from `s` up to, not including, `s+k`). `"modal"` does not
 change.
 
@@ -227,6 +227,19 @@ change.
   | `UE`   | INT        | `UE [i]`     | from `A U B` in `s`, derive `B \| (A & X (A U B))` in `s`           |
   | `U<>`  | INT        | `U<> [i]`    | from `A U B` in `s`, derive `<> B` in `s`                           |
   | `Ind`  | INT, INT   | `Ind [i, j]` | from `A` and `[] (A -> X A)` in `s`, derive `[] A` in `s`           |
+  | `-U`   | INT        | `-U [i]`     | from `-(A U B)` in `s`, derive `([] (- B)) \| ((- B) U ((- A) & (- B)))` in `s` |
+  | `UW`   | INT, STATE | `UW [i]`     | from `A U B` in `s`, derive `s <= t` for the new state `t` (the witness) |
+  | `UB`   | INT        | `UB [i]`     | from the `UW` line `s <= t` of `A U B`, derive `B` in `t`           |
+  | `UA`   | INT, STATE | `UA [i, ...]` | from the `UW` line `s <= t` of `A U B`, derive `A` in `k` when the relations give `s <= k` and `k+1 <= t` |
+  | `Ord`  | EXPR       | `Ord [...]`  | derive the relation (or `FALSE`) that the relations above give in linear time |
+  | `Eq`   | INT, STATE | `Eq [i, ...]` | from `A` in `u`, derive `A` in `v` when the relations give `u <= v` and `v <= u` |
+  | `Lin`  | (none)     | `Lin [i-j]`  | close the subproof that assumes `u <= v` and ends in `FALSE`, derive `v+1 <= u` |
+
+- `Ord`, `Eq` and `UA` take no relation lines from the client: the server finds the relation lines they need among the
+  valid ones and cites them (`Ord [2, 5]`, or `Ord` when none is needed, as for `s0 <= s0+2`). Replaying a step checks
+  the lines it cites. `Ord` covers `Refl`, `Trans` and `Succ`, and adds what linear time gives: `s <= t` gives
+  `s+1 <= t+1`, and `s+1 <= s` is a contradiction. The witness of `UW` must be a new name, as the fresh state of `[]I`
+  is (with no state, the server picks one), so it cannot be generalized over later.
 
 - `XI` needs a line whose state is written as a successor: `A` in `s1` does not give `X A` anywhere, even if some
   earlier line says `s0 <= s1`.
@@ -235,7 +248,16 @@ change.
   accepts a last line in any state whose name is used before, such as `s0+3`.
 - A proof is done when a top-level line is the goal in `s0` (or the goal is a relation): `X p ⊢ p` is not done by
   `p` in `s0+1`. In `modal`, `done` still looks at the formula only.
-- `POST /logic/modal-next-until/solve` is a `400`: the modal solver uses none of the Next and Until rules.
+- `POST /logic/modal-next-until/solve` has a solver of its own, the proof search of Bolotov, Grigoriev and Shangin
+  (*Automated Natural Deduction for Propositional Linear-time Temporal Logic*, TIME 2007) for these rules. It keeps a
+  stack of goals: a goal is reached by an introduction rule, or after the eliminations (`XE`, `[]E`, `-U`, the witness
+  of an Until, ...); a `|`, `<>` or `U` goal is first tried as one of its parts; otherwise its negation is assumed and
+  the goal is `FALSE`, which it looks for through the missing premise of an elimination, a case split on the order of
+  two states (`Lin`), or induction on a formula of the proof (`Ind`, only when a `[]` is in the proof). When a choice
+  leads nowhere it goes back to the last open one. It starts from the premises, always stops (within a size bound, a
+  budget of rounds; no time limit of its own, so the answer does not depend on the machine, and the request timeout
+  still applies), and when it finds no proof it returns the premises only (`200`, `done` false), as
+  for `<> q ⊢ p U q`. It solves every exercise, `p, [] (p -> X p) ⊢ [] p` with `Ind`.
 
 ### First-order logic
 

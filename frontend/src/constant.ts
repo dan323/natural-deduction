@@ -31,8 +31,8 @@ export const LOGICS: readonly LogicInfo[] = [
     {
         id: 'modal-next-until',
         name: 'Modal with Next and Until',
-        description: 'Modal logic over discrete time: every state s has a next state s+1 (written s0+1, s0+2, ...), X A says that A holds in the next state and A U B that B holds in some later state and A until then. There is no solver.',
-        hasSolver: false,
+        description: 'Modal logic over discrete time: every state s has a next state s+1 (written s0+1, s0+2, ...), X A says that A holds in the next state and A U B that B holds in the current state or a later state and A until then. Time is a line: of two states, one comes first or they are the same.',
+        hasSolver: true,
     },
     {
         id: 'first-order',

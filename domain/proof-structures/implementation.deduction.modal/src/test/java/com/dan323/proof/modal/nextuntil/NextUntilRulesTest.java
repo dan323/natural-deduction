@@ -330,8 +330,38 @@ class NextUntilRulesTest {
     }
 
     @Test
-    void thereIsNoSolver() {
-        var proof = proof("p");
-        assertThrows(UnsupportedOperationException.class, proof::automate);
+    void theSolverUsesTheNextAndUntilRules() {
+        var proof = new ModalNextUntilNaturalDeduction("s0");
+        proof.initializeProof(List.of(parse("p"), parse("X q")), parse("p U q"));
+
+        proof.automate();
+
+        assertTrue(proof.isDone());
+        var rules = proof.getSteps().stream().map(step -> step.getProof().getNameProof()).toList();
+        assertTrue(rules.containsAll(List.of("XE", "-U", "UW", "UB", "UA", "Lin")), rules.toString());
+        assertEquals("s0", proof.getSteps().getLast().getState());
+    }
+
+    @Test
+    void theSolverUsesInduction() {
+        var proof = new ModalNextUntilNaturalDeduction("s0");
+        proof.initializeProof(List.of(parse("p"), parse("[] (p -> (X p))")), parse("[] p"));
+
+        proof.automate();
+
+        assertTrue(proof.isDone());
+        var rules = proof.getSteps().stream().map(step -> step.getProof().getNameProof()).toList();
+        assertTrue(rules.contains("Ind"), rules.toString());
+    }
+
+    @Test
+    void theSolverLeavesAProofItCannotFinishWithItsPremises() {
+        var proof = new ModalNextUntilNaturalDeduction("s0");
+        proof.initializeProof(List.of(parse("p")), parse("X p"));
+
+        proof.automate();
+
+        assertFalse(proof.isDone(), "p need not hold in the next state");
+        assertEquals(1, proof.getSteps().size());
     }
 }

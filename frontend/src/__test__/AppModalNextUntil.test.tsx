@@ -51,7 +51,7 @@ describe('App with a modal-next-until proof', () => {
     expect(option).toHaveValue('modal-next-until');
   });
 
-  test('the premises are in s0, except a relation between successor states, and there is no Solve', async () => {
+  test('the premises are in s0, except a relation between successor states, and Solve is offered', async () => {
     await startProof();
 
     const [replay] = requestsTo('/logic/modal-next-until/action');
@@ -61,8 +61,8 @@ describe('App with a modal-next-until proof', () => {
     ]);
 
     expect(stateCells()).toEqual(['s0', '–none (a relation between states)']);
-    expect(screen.queryByRole('button', { name: /Solve/i })).not.toBeInTheDocument();
-    expect(screen.getByText('Modal with Next and Until logic has no automatic solver.')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /Solve/i })).toBeInTheDocument();
+    expect(screen.queryByText(/has no automatic solver/)).not.toBeInTheDocument();
   });
 
   test('a step in a successor state shows it, and the goal outside s0 does not finish the proof', async () => {
