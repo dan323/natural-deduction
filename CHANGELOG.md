@@ -18,6 +18,10 @@ The project has never been versioned or tagged, since it was not meant for publi
   Grigoriev and Shangin for PLTL, with induction; it solves every exercise and is checked against the semantics on
   random formulas (#196)
 
+### Changed
+- The New Proof dialog fits any window: its title and buttons stay visible while only the body scrolls, and below
+  480px wide it is full-screen with stacked buttons and larger remove-premise buttons (#198)
+
 ### Fixed
 - The modal solver no longer crashes on relation goals or after a De Morgan step; the modal and classical solvers no
   longer write an `FI` line that cannot be replayed when refuting the right side of a disjunction; the modal solver
