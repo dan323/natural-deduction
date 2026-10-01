@@ -37,8 +37,8 @@ export const LOGICS: readonly LogicInfo[] = [
     {
         id: 'first-order',
         name: 'First-order',
-        description: 'Predicates P(x), functions f(x), equations s = t and the quantifiers ∀ (forall x. A) and ∃ (exists x. A). A name that is free in a premise, like e, acts as a constant. There is no solver.',
-        hasSolver: false,
+        description: 'Predicates P(x), functions f(x), equations s = t and the quantifiers ∀ (forall x. A) and ∃ (exists x. A). A name that is free in a premise, like e, acts as a constant. Its solver is best effort: it may not find a proof that exists.',
+        hasSolver: true,
     },
 ];
 

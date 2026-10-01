@@ -115,7 +115,7 @@ describe('App with a first-order proof', () => {
     expect(requestsTo('/logic/first-order/action')).toHaveLength(0);
   });
 
-  test('∀E with a term, then ∃I, finishes the proof, which shows ∀ and ∃ and has no Solve', async () => {
+  test('∀E with a term, then ∃I, finishes the proof, which shows ∀ and ∃ and offers Solve', async () => {
     const user = await startProof();
 
     const [replay] = requestsTo('/logic/first-order/action');
@@ -123,8 +123,8 @@ describe('App with a first-order proof', () => {
       logic: 'first-order', goal: GOAL, steps: [{ expression: PREMISE, rule: 'Ass', assmsLevel: 0, extraParameters: {} }],
     });
     expect(expressionCells()).toEqual(['∀x. P(x)']);
-    expect(screen.queryByRole('button', { name: /Solve/i })).not.toBeInTheDocument();
-    expect(screen.getByText('First-order logic has no automatic solver.')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /Solve/i })).toBeInTheDocument();
+    expect(screen.queryByText(/has no automatic solver/)).not.toBeInTheDocument();
 
     // ∀E: a line and a term. The term input is plain text, without the formula hint or connective buttons.
     await user.selectOptions(await screen.findByLabelText(/Select Inference Rule:/i), '∀E');

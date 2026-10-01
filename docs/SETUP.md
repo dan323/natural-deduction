@@ -178,7 +178,7 @@ export const LOGICS: readonly LogicInfo[] = [
     { id: 'intuitionistic', name: 'Intuitionistic', description: '...', hasSolver: true },
     { id: 'modal', name: 'Modal', description: '...', hasSolver: true },
     { id: 'modal-next-until', name: 'Modal with Next and Until', description: '...', hasSolver: true },
-    { id: 'first-order', name: 'First-order', description: '...', hasSolver: false },
+    { id: 'first-order', name: 'First-order', description: '...', hasSolver: true },
 ];
 ```
 

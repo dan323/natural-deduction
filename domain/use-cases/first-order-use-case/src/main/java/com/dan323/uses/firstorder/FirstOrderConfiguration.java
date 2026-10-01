@@ -10,7 +10,8 @@ import org.springframework.context.annotation.Configuration;
 
 /**
  * {@code first-order}: first-order logic with equality, with function symbols, predicates, {@code =} and the
- * quantifiers {@code forall x. A} and {@code exists x. A}. It has no solver. Its one theory is {@code group}.
+ * quantifiers {@code forall x. A} and {@code exists x. A}. Its solver is a best-effort proof search
+ * ({@code FirstOrderNaturalDeduction.automate()}). Its one theory is {@code group}.
  */
 @Configuration
 public class FirstOrderConfiguration {

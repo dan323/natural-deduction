@@ -9,6 +9,10 @@ The project has never been versioned or tagged, since it was not meant for publi
 ## oct-26
 
 ### Added
+- A solver for `first-order`: `POST /logic/first-order/solve` runs a bounded proof search (intercalation, after Sieg
+  and Byrnes) with the first-order rules only, always stops, solves every exercise outside group theory, answers
+  `done=false` when it finds no proof (five of the six group exercises, as `=E` is only used for symmetry and
+  transitivity), and the UI shows Solve for it (#197)
 - Linear time for `modal-next-until`: the rules `-U`, `UW`/`UB`/`UA` (the witness of an Until), `Ord`, `Eq` and `Lin`,
   and a solver (`POST /logic/modal-next-until/solve`, Solve in the UI) that implements the proof search of Bolotov,
   Grigoriev and Shangin for PLTL, with induction; it solves every exercise and is checked against the semantics on

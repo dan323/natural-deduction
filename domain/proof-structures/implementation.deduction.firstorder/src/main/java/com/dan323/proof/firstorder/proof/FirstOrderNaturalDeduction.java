@@ -2,6 +2,7 @@ package com.dan323.proof.firstorder.proof;
 
 import com.dan323.expressions.firstorder.FirstOrderOperation;
 import com.dan323.proof.firstorder.FirstOrderAction;
+import com.dan323.proof.firstorder.internal.FirstOrderAutomate;
 import com.dan323.proof.generic.proof.ParseAction;
 import com.dan323.proof.generic.proof.Proof;
 import com.dan323.proof.generic.proof.ProofReason;
@@ -11,7 +12,7 @@ import java.util.List;
 
 /**
  * A proof of first-order logic with equality. Its steps are plain {@link ProofStep}s, printed in the usual text layout.
- * It has no automatic solver.
+ * Its automatic solver is {@link FirstOrderAutomate}, a best-effort proof search.
  */
 public final class FirstOrderNaturalDeduction extends Proof<FirstOrderOperation, ProofStep<FirstOrderOperation>> {
 
@@ -35,13 +36,12 @@ public final class FirstOrderNaturalDeduction extends Proof<FirstOrderOperation,
     }
 
     /**
-     * First-order logic has no automatic solver.
-     *
-     * @throws UnsupportedOperationException always
+     * Resets the proof to its premises and runs {@link FirstOrderAutomate}. First-order logic is undecidable, so it may
+     * find no proof: then the proof is left with its premises.
      */
     @Override
     public void automate() {
-        throw new UnsupportedOperationException("First-order logic has no automatic solver");
+        new FirstOrderAutomate(this).solve();
     }
 
     /**

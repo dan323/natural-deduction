@@ -142,8 +142,9 @@ Defines and implements inference rules for natural deduction.
 #### implementation.deduction.firstorder/
 - **Purpose**: First-order natural deduction
 - **Key Components**:
-  - `FirstOrderNaturalDeduction` - the first-order proof, with plain `ProofStep`s (no states); `automate()` throws
-    `UnsupportedOperationException`
+  - `FirstOrderNaturalDeduction` - the first-order proof, with plain `ProofStep`s (no states); `automate()` runs
+    `FirstOrderAutomate` (`com.dan323.proof.firstorder.internal`, not exported), a best-effort proof search that
+    writes what it finds with the first-order rules (`Emitter`) and leaves the premises when it finds nothing
   - One `FirstOrder*` class per shared rule (`FirstOrderAndI`, `FirstOrderModusPonens`, ...) and the rules
     `FirstOrderForallI`/`ForallE`, `FirstOrderExistsI`/`ExistsE` and `FirstOrderEqualsI`/`EqualsE`
   - `Instances` - the side conditions: whether a formula is an instance `A[x:=t]` of another (and for which `t`), and
@@ -216,7 +217,7 @@ Orchestrates the application logic by combining logic languages and proof struct
 - **Key Components**: `FirstOrderProofTransformer`, `FirstOrderProofParser`, `FirstOrderGetActions` and
   `AvailableFirstOrderAction` (20 actions: the 14 shared rules under their modal names plus `∀I`, `∀E`, `∃I`, `∃E`,
   `=I`, `=E`; `∀E` and `=I` take a `TERM`), `FirstOrderExercises`, `FirstOrderTheories` (the `group` theory) and
-  `FirstOrderConfiguration`. No solver (`hasSolver()` is false)
+  `FirstOrderConfiguration`. Its solver is `FirstOrderNaturalDeduction.automate()` (`hasSolver()` is true)
 - **Dependencies**: logic-language/implementation.firstorder, proof-structures/implementation.deduction.firstorder,
   base-use-case/, model/
 - **Used By**: executable/
