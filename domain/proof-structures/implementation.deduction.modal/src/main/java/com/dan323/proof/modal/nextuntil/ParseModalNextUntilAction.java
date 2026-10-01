@@ -150,14 +150,7 @@ public final class ParseModalNextUntilAction {
     }
 
     private static int[] lines(ProofReason reason) {
-        var text = reason.toString();
-        if (text.equals(reason.getNameProof())) {
-            return new int[0];
-        }
-        return Arrays.stream(text.substring(reason.getNameProof().length() + 2, text.length() - 1).split(","))
-                .map(String::trim)
-                .mapToInt(Integer::parseInt)
-                .toArray();
+        return reason.getLines().stream().mapToInt(Integer::intValue).toArray();
     }
 
     private static int[] lines(ProofReason reason, int count) {

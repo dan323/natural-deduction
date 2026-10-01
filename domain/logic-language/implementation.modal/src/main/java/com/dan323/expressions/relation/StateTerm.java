@@ -1,6 +1,7 @@
 package com.dan323.expressions.relation;
 
 import java.util.Objects;
+import java.util.Optional;
 import java.util.regex.Pattern;
 
 /**
@@ -59,6 +60,18 @@ public record StateTerm(String base, int offset) {
             }
         }
         return new StateTerm(parts[0], offset);
+    }
+
+    /**
+     * @param text a state such as {@code s1} or {@code s0+2}, or anything else
+     * @return the state written as {@code text}, empty when {@code text} is not a state
+     */
+    public static Optional<StateTerm> tryParse(String text) {
+        try {
+            return Optional.of(parse(text));
+        } catch (IllegalArgumentException e) {
+            return Optional.empty();
+        }
     }
 
     /**

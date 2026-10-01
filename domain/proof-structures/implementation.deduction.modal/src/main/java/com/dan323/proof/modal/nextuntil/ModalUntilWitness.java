@@ -73,7 +73,10 @@ public final class ModalUntilWitness extends RelationalAction {
         if (!ParseModalNextUntilAction.UNTIL_WITNESS.equals(reason.getNameProof()) || !(step.getStep() instanceof LessEqual relation)) {
             return Optional.empty();
         }
-        int source = Integer.parseInt(reason.toString().substring(reason.getNameProof().length() + 2, reason.toString().length() - 1).trim());
+        if (reason.getLines().size() != 1) {
+            return Optional.empty();
+        }
+        int source = reason.getLines().getFirst();
         if (!RuleUtils.isValidIndexAndProp(pf, source) || !(pf.getSteps().get(source - 1).getStep() instanceof Until until)) {
             return Optional.empty();
         }

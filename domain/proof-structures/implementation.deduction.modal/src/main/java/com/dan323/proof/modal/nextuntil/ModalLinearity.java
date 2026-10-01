@@ -34,8 +34,8 @@ public final class ModalLinearity extends RelationalAction {
         if (!"Ass".equals(first.getProof().getNameProof()) || !(first.getStep() instanceof LessEqual relation)) {
             return Optional.empty();
         }
-        var right = StateOrder.term(relation.getRight());
-        if (right.isEmpty() || !right.get().hasSuccessor() || StateOrder.term(relation.getLeft()).isEmpty()) {
+        var right = StateTerm.tryParse(relation.getRight());
+        if (right.isEmpty() || !right.get().hasSuccessor() || StateTerm.tryParse(relation.getLeft()).isEmpty()) {
             return Optional.empty();
         }
         return Optional.of(relation);

@@ -49,8 +49,8 @@ public final class StateOrder {
      */
     public StateOrder(Map<Integer, RelationOperation> relations) {
         relations.forEach((line, relation) -> {
-            var left = term(relation.getLeft());
-            var right = term(relation.getRight());
+            var left = StateTerm.tryParse(relation.getLeft());
+            var right = StateTerm.tryParse(relation.getRight());
             if (left.isEmpty() || right.isEmpty()) {
                 return;
             }
@@ -70,21 +70,13 @@ public final class StateOrder {
         edges.add(new Edge(greater.base(), smaller.base(), greater.offset() - smaller.offset(), line));
     }
 
-    static Optional<StateTerm> term(String state) {
-        try {
-            return Optional.of(StateTerm.parse(state));
-        } catch (IllegalArgumentException e) {
-            return Optional.empty();
-        }
-    }
-
     /**
      * @return whether the relations give {@code u <= v} (a quick answer for many questions; {@link #entails} also says
      * which lines give it). When the relations contradict each other, the answer may be either.
      */
     public boolean holds(String u, String v) {
-        var x = terms.computeIfAbsent(u, StateOrder::term);
-        var y = terms.computeIfAbsent(v, StateOrder::term);
+        var x = terms.computeIfAbsent(u, StateTerm::tryParse);
+        var y = terms.computeIfAbsent(v, StateTerm::tryParse);
         if (x.isEmpty() || y.isEmpty()) {
             return false;
         }
@@ -97,14 +89,17 @@ public final class StateOrder {
     }
 
     /**
-     * @return whether the relations make two different bases the same state (a path of weight 0 each way between
-     * them), which is when a formula may need to be carried from one to the other
+     * @return whether the relations make a state of one base the same as a state of another (the paths each way
+     * between the two bases weigh 0 together, or less when the relations contradict each other), which is when a
+     * formula may need to be carried from one to the other
      */
     public boolean hasEqualStates() {
         var all = distances();
         for (String a : nodes) {
             for (String b : nodes) {
-                if (!a.equals(b) && all.get(a).containsKey(b) && all.get(b).containsKey(a)) {
+                Integer forth = all.get(a).get(b);
+                Integer back = all.get(b).get(a);
+                if (!a.equals(b) && forth != null && back != null && forth + back <= 0) {
                     return true;
                 }
             }
@@ -146,8 +141,8 @@ public final class StateOrder {
      * {@code s0 <= s0+1} does
      */
     public Optional<SortedSet<Integer>> entails(String u, String v) {
-        var x = term(u);
-        var y = term(v);
+        var x = StateTerm.tryParse(u);
+        var y = StateTerm.tryParse(v);
         if (x.isEmpty() || y.isEmpty()) {
             return Optional.empty();
         }

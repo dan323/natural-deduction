@@ -255,7 +255,8 @@ change.
   the goal is `FALSE`, which it looks for through the missing premise of an elimination, a case split on the order of
   two states (`Lin`), or induction on a formula of the proof (`Ind`, only when a `[]` is in the proof). When a choice
   leads nowhere it goes back to the last open one. It starts from the premises, always stops (within a size bound, a
-  budget of rounds and 5 seconds), and when it finds no proof it returns the premises only (`200`, `done` false), as
+  budget of rounds; no time limit of its own, so the answer does not depend on the machine, and the request timeout
+  still applies), and when it finds no proof it returns the premises only (`200`, `done` false), as
   for `<> q ⊢ p U q`. It solves every exercise, `p, [] (p -> X p) ⊢ [] p` with `Ind`.
 
 ### First-order logic

@@ -109,6 +109,9 @@ class LinearTimeRulesTest {
         var contradiction = order("s0 <= s1", "s1+1 <= s0", "s0 <= s2");
         assertEquals(lines(1, 2), contradiction.contradiction().orElseThrow(), "s1+1 <= s1: only the lines of the cycle");
         assertEquals(lines(1), order("s0+1 <= s0").contradiction().orElseThrow());
+
+        assertFalse(order("s0 <= s1", "s1 <= s0+3").hasEqualStates(), "a cycle of positive weight makes no state equal");
+        assertTrue(order("s0 <= s1+1", "s1+1 <= s0").hasEqualStates(), "s0 is s1+1");
     }
 
     @Test

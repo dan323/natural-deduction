@@ -98,6 +98,14 @@ class LinearTimeSolverTest {
     }
 
     @Test
+    void contradictoryRelationsDoNotStopTheSolver() {
+        // -q in s0 would make the witness of p U q later than s0, but the relations already contradict each other
+        var proof = solve("r", "s1+1 <= s0", "s0 <= s1", "p U q", "- q");
+        assertTrue(proof.isDone());
+        assertSolved("r", "s1+1 <= s0", "s0 <= s1", "p U q", "- q");
+    }
+
+    @Test
     void anInterruptedSolverStops() {
         var proof = new ModalNextUntilNaturalDeduction("s0");
         proof.initializeProof(List.of(), parse("(p U q) -> (p U (q | r))"));

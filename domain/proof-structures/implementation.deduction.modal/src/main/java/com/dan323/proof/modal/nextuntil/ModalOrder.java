@@ -30,6 +30,7 @@ public final class ModalOrder implements ModalAction {
 
     private final List<Integer> lines;
     private final ModalOperation target;
+    private final LastSupport lastSupport = new LastSupport();
 
     /** The rule as a client applies it: the lines are found among the valid relations. */
     public ModalOrder(ModalOperation target) {
@@ -64,12 +65,12 @@ public final class ModalOrder implements ModalAction {
 
     @Override
     public boolean isValid(ModalNaturalDeduction pf) {
-        return support(pf).isPresent();
+        return lastSupport.find(pf, this::support).isPresent();
     }
 
     @Override
     public void applyStepSupplier(ModalNaturalDeduction pf, ProofStepSupplier<ModalOperation, ProofStepModal> supp) {
-        var used = new ArrayList<>(support(pf).orElseThrow());
+        var used = new ArrayList<>(lastSupport.take(pf, this::support).orElseThrow());
         pf.getSteps().add(supp.generateProofStep(RuleUtils.getLastAssumptionLevel(pf), target,
                 new ProofReason(ParseModalNextUntilAction.ORDER, List.of(), used)));
     }

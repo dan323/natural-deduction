@@ -2,6 +2,7 @@ package com.dan323.proof.modal.nextuntil;
 
 import com.dan323.expressions.modal.ModalLogicalOperation;
 import com.dan323.expressions.modal.ModalOperation;
+import com.dan323.expressions.relation.StateTerm;
 import com.dan323.proof.generic.RuleUtils;
 import com.dan323.proof.generic.proof.ProofReason;
 import com.dan323.proof.generic.proof.ProofStepSupplier;
@@ -27,6 +28,7 @@ public final class ModalUntilWitnessLeft implements ModalAction {
     private final int line;
     private final String state;
     private final List<Integer> relations;
+    private final LastSupport lastSupport = new LastSupport();
 
     /** The rule as a client applies it: the relation lines are found among the valid relations. */
     public ModalUntilWitnessLeft(int line, String state) {
@@ -46,11 +48,12 @@ public final class ModalUntilWitnessLeft implements ModalAction {
 
     private Optional<SortedSet<Integer>> support(ModalNaturalDeduction pf) {
         var witness = ModalUntilWitness.witness(pf, line);
-        var term = StateOrder.term(state);
+        var term = StateTerm.tryParse(state);
         if (witness.isEmpty() || term.isEmpty() || !term.get().hasSuccessor()) {
             return Optional.empty();
         }
-        var order = Relations.order(pf, relations);
+        // The UW line is a relation too (s <= t), and usually the one that puts k before t
+        var order = Relations.order(pf, relations == null ? null : withLine(relations));
         if (order.isEmpty()) {
             return Optional.empty();
         }
@@ -64,19 +67,29 @@ public final class ModalUntilWitnessLeft implements ModalAction {
         }
         SortedSet<Integer> used = new TreeSet<>(fromS.get());
         used.addAll(beforeT.get());
+        // Cited first anyway
+        used.remove(line);
         return Optional.of(used);
+    }
+
+    private List<Integer> withLine(List<Integer> cited) {
+        var all = new ArrayList<>(cited);
+        if (!all.contains(line)) {
+            all.add(line);
+        }
+        return all;
     }
 
     @Override
     public boolean isValid(ModalNaturalDeduction pf) {
-        return support(pf).isPresent();
+        return lastSupport.find(pf, this::support).isPresent();
     }
 
     @Override
     public void applyStepSupplier(ModalNaturalDeduction pf, ProofStepSupplier<ModalOperation, ProofStepModal> supp) {
         var cited = new ArrayList<Integer>();
         cited.add(line);
-        cited.addAll(support(pf).orElseThrow());
+        cited.addAll(lastSupport.take(pf, this::support).orElseThrow());
         var left = ModalUntilWitness.witness(pf, line).orElseThrow().until().getLeft();
         pf.getSteps().add(supp.generateProofStep(RuleUtils.getLastAssumptionLevel(pf), left,
                 new ProofReason(ParseModalNextUntilAction.UNTIL_WITNESS_LEFT, List.of(), cited)));

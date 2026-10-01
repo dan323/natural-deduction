@@ -26,6 +26,7 @@ public final class ModalEqualState implements ModalAction {
     private final int line;
     private final String state;
     private final List<Integer> relations;
+    private final LastSupport lastSupport = new LastSupport();
 
     /** The rule as a client applies it: the relation lines are found among the valid relations. */
     public ModalEqualState(int line, String state) {
@@ -55,14 +56,14 @@ public final class ModalEqualState implements ModalAction {
 
     @Override
     public boolean isValid(ModalNaturalDeduction pf) {
-        return support(pf).isPresent();
+        return lastSupport.find(pf, this::support).isPresent();
     }
 
     @Override
     public void applyStepSupplier(ModalNaturalDeduction pf, ProofStepSupplier<ModalOperation, ProofStepModal> supp) {
         var cited = new ArrayList<Integer>();
         cited.add(line);
-        cited.addAll(support(pf).orElseThrow());
+        cited.addAll(lastSupport.take(pf, this::support).orElseThrow());
         pf.getSteps().add(supp.generateProofStep(RuleUtils.getLastAssumptionLevel(pf), pf.getSteps().get(line - 1).getStep(),
                 new ProofReason(ParseModalNextUntilAction.EQUAL, List.of(), cited)));
     }

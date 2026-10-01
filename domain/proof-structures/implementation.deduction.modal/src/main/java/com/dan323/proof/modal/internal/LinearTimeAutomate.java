@@ -55,7 +55,6 @@ import com.dan323.proof.modal.nextuntil.StateOrder;
 import com.dan323.proof.modal.proof.ModalNaturalDeduction;
 import com.dan323.proof.modal.proof.ProofStepModal;
 
-import java.time.Duration;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Deque;
@@ -99,9 +98,10 @@ import java.util.concurrent.CancellationException;
  * A line used as a source of goals, a pair of states split by cases or a formula tried by induction is marked, and
  * unmarked when the goal it gave is reached, as in the paper. Unlike the paper, the search goes back when a choice
  * leads nowhere: to the last choice whose goal is not reached yet, which is then left out. It gives up, leaving the
- * proof with its premises only, when nothing is left to try, after {@link #ROUNDS_PER_SYMBOL} rounds for each symbol of
- * the premises and the goal, or after {@link #TIME_LIMIT}; a branch that grows beyond {@link #STEPS_PER_SYMBOL} lines
- * for each symbol counts as leading nowhere. {@code XE}, and the states it reasons on, stop {@link #maxOffset} states
+ * proof with its premises only, when nothing is left to try or after {@link #ROUNDS_PER_SYMBOL} rounds for each symbol
+ * of the premises and the goal (a count of rounds, not a time, so that the answer does not depend on the speed or the
+ * load of the machine); a branch that grows beyond {@link #STEPS_PER_SYMBOL} lines for each symbol counts as leading
+ * nowhere. {@code XE}, and the states it reasons on, stop {@link #maxOffset} states
  * after a base: induction has to go further.
  */
 public final class LinearTimeAutomate {
@@ -116,12 +116,6 @@ public final class LinearTimeAutomate {
      * search exponential, so an unprovable goal would otherwise run until the solver's timeout.
      */
     static final int ROUNDS_PER_SYMBOL = 300;
-
-    /**
-     * How long the search may take before it gives up, below the solver timeout of the REST API (10 seconds by
-     * default), so that a goal it cannot prove ends with no proof rather than a timeout.
-     */
-    static final Duration TIME_LIMIT = Duration.ofSeconds(5);
 
     private enum Closer {
         /** Nothing to apply: the goal below uses it. */
@@ -187,7 +181,6 @@ public final class LinearTimeAutomate {
     private int maxSize;
     private int maxOffset;
     private int rounds;
-    private long deadline;
     private StateOrder order;
     private int orderSize = -1;
     /** The first valid line of each formula in each state, for {@link #find}; rebuilt when the proof changes. */
@@ -225,7 +218,6 @@ public final class LinearTimeAutomate {
         maxSize = STEPS_PER_SYMBOL * symbols;
         maxOffset = Math.max(1, temporal);
         rounds = ROUNDS_PER_SYMBOL * symbols;
-        deadline = System.nanoTime() + TIME_LIMIT.toNanos();
         goals.add(goal(proof.getGoal(), proof.getState0(), Closer.NONE, null, 0));
         if (!search()) {
             proof.reset();
@@ -260,7 +252,7 @@ public final class LinearTimeAutomate {
     private boolean search() {
         while (true) {
             checkNotInterrupted();
-            if (--rounds < 0 || System.nanoTime() > deadline) {
+            if (--rounds < 0) {
                 return false;
             }
             boolean stuck = proof.getSteps().size() > maxSize || !round();
@@ -380,13 +372,8 @@ public final class LinearTimeAutomate {
 
     /** @return the 1-based line of a valid relation step equal to {@code relation}, or 0 */
     private int findRelation(RelationOperation relation) {
-        for (int i = 0; i < steps().size(); i++) {
-            var step = steps().get(i);
-            if (step.isValid() && step.getStep().equals(relation)) {
-                return i + 1;
-            }
-        }
-        return 0;
+        // A relation step has no state
+        return find(relation, null);
     }
 
     private boolean has(ModalOperation formula, String state) {
@@ -448,20 +435,12 @@ public final class LinearTimeAutomate {
             }
         }
         goals.stream().map(goal -> goal.state).filter(Objects::nonNull).forEach(states::add);
-        states.removeIf(state -> term(state).filter(t -> t.offset() <= maxOffset).isEmpty());
+        states.removeIf(state -> StateTerm.tryParse(state).filter(t -> t.offset() <= maxOffset).isEmpty());
         return new ArrayList<>(states);
     }
 
-    private static Optional<StateTerm> term(String state) {
-        try {
-            return Optional.of(StateTerm.parse(state));
-        } catch (IllegalArgumentException e) {
-            return Optional.empty();
-        }
-    }
-
     private static Optional<String> successor(String state) {
-        return term(state).filter(StateTerm::hasSuccessor).map(t -> t.successor().toString());
+        return StateTerm.tryParse(state).filter(StateTerm::hasSuccessor).map(t -> t.successor().toString());
     }
 
     /** Assume a formula or a relation and return its line. */
@@ -597,11 +576,14 @@ public final class LinearTimeAutomate {
     }
 
     private boolean introduceSometime(Sometime sometime, String state) {
-        for (int i = 0; i < steps().size(); i++) {
-            var step = steps().get(i);
-            if (step.isValid() && step.getStep().equals(sometime.getElement()) && entails(state, step.getState())) {
-                int relation = relationLine(state, step.getState());
-                if (relation > 0 && apply(new ModalDiaI(i + 1, relation))) {
+        var lines = linesOf(sometime.getElement());
+        // linesOf lists the last line first: try the first one first
+        for (int k = lines.size() - 1; k >= 0; k--) {
+            int line = lines.get(k);
+            String other = steps().get(line - 1).getState();
+            if (entails(state, other)) {
+                int relation = relationLine(state, other);
+                if (relation > 0 && apply(new ModalDiaI(line, relation))) {
                     return true;
                 }
             }
@@ -686,6 +668,10 @@ public final class LinearTimeAutomate {
      * on and before a witness.
      */
     private boolean eliminateUntil() {
+        if (order().contradiction().isPresent()) {
+            // The witness could not be shown later than s (Eq needs the order); FALSE is reached anyway
+            return false;
+        }
         for (int i = 1; i <= last(); i++) {
             var step = steps().get(i - 1);
             if (step.isValid() && step.getStep() instanceof Until until) {
@@ -745,7 +731,7 @@ public final class LinearTimeAutomate {
         for (int i = 1; i <= last(); i++) {
             var step = steps().get(i - 1);
             if (step.isValid() && step.getStep() instanceof Next next) {
-                var succ = term(step.getState()).filter(t -> t.hasSuccessor() && t.offset() < maxOffset).map(t -> t.successor().toString());
+                var succ = StateTerm.tryParse(step.getState()).filter(t -> t.hasSuccessor() && t.offset() < maxOffset).map(t -> t.successor().toString());
                 if (succ.isPresent() && !has(next.getElement(), succ.get()) && apply(new ModalNextE(i))) {
                     return true;
                 }
