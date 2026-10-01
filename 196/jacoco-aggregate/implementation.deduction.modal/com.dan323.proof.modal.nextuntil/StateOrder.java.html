@@ -40,40 +40,41 @@ public final class StateOrder {
     private Map&lt;String, Map&lt;String, Integer&gt;&gt; distances;
     /** The states read so far, since reading one is the costly part of a question. */
 <span class="fc" id="L42">    private final Map&lt;String, Optional&lt;StateTerm&gt;&gt; terms = new HashMap&lt;&gt;();</span>
-    private Optional&lt;SortedSet&lt;Integer&gt;&gt; contradiction;
+<span class="fc" id="L43">    private Optional&lt;SortedSet&lt;Integer&gt;&gt; contradiction = Optional.empty();</span>
+    private boolean contradictionSearched;
 
     /**
      * @param relations the relations, each with the 1-based line it is on; relations whose sides are not state terms
      *                  are left out
      */
-<span class="fc" id="L49">    public StateOrder(Map&lt;Integer, RelationOperation&gt; relations) {</span>
-<span class="fc" id="L50">        relations.forEach((line, relation) -&gt; {</span>
-<span class="fc" id="L51">            var left = term(relation.getLeft());</span>
-<span class="fc" id="L52">            var right = term(relation.getRight());</span>
-<span class="pc bpc" id="L53" title="2 of 4 branches missed.">            if (left.isEmpty() || right.isEmpty()) {</span>
-<span class="nc" id="L54">                return;</span>
+<span class="fc" id="L50">    public StateOrder(Map&lt;Integer, RelationOperation&gt; relations) {</span>
+<span class="fc" id="L51">        relations.forEach((line, relation) -&gt; {</span>
+<span class="fc" id="L52">            var left = term(relation.getLeft());</span>
+<span class="fc" id="L53">            var right = term(relation.getRight());</span>
+<span class="pc bpc" id="L54" title="2 of 4 branches missed.">            if (left.isEmpty() || right.isEmpty()) {</span>
+<span class="nc" id="L55">                return;</span>
             }
-<span class="fc bfc" id="L56" title="All 2 branches covered.">            if (relation instanceof LessEqual) {</span>
-<span class="fc" id="L57">                add(left.get(), right.get(), line);</span>
-<span class="pc bpc" id="L58" title="1 of 2 branches missed.">            } else if (relation instanceof Equals) {</span>
-<span class="fc" id="L59">                add(left.get(), right.get(), line);</span>
-<span class="fc" id="L60">                add(right.get(), left.get(), line);</span>
+<span class="fc bfc" id="L57" title="All 2 branches covered.">            if (relation instanceof LessEqual) {</span>
+<span class="fc" id="L58">                add(left.get(), right.get(), line);</span>
+<span class="pc bpc" id="L59" title="1 of 2 branches missed.">            } else if (relation instanceof Equals) {</span>
+<span class="fc" id="L60">                add(left.get(), right.get(), line);</span>
+<span class="fc" id="L61">                add(right.get(), left.get(), line);</span>
             }
-<span class="fc" id="L62">        });</span>
-<span class="fc" id="L63">    }</span>
+<span class="fc" id="L63">        });</span>
+<span class="fc" id="L64">    }</span>
 
     /** {@code a+i &lt;= b+j}: {@code a - b &lt;= j - i}, an edge from {@code b} to {@code a}. */
     private void add(StateTerm smaller, StateTerm greater, int line) {
-<span class="fc" id="L67">        nodes.add(smaller.base());</span>
-<span class="fc" id="L68">        nodes.add(greater.base());</span>
-<span class="fc" id="L69">        edges.add(new Edge(greater.base(), smaller.base(), greater.offset() - smaller.offset(), line));</span>
-<span class="fc" id="L70">    }</span>
+<span class="fc" id="L68">        nodes.add(smaller.base());</span>
+<span class="fc" id="L69">        nodes.add(greater.base());</span>
+<span class="fc" id="L70">        edges.add(new Edge(greater.base(), smaller.base(), greater.offset() - smaller.offset(), line));</span>
+<span class="fc" id="L71">    }</span>
 
     static Optional&lt;StateTerm&gt; term(String state) {
         try {
-<span class="fc" id="L74">            return Optional.of(StateTerm.parse(state));</span>
-<span class="fc" id="L75">        } catch (IllegalArgumentException e) {</span>
-<span class="fc" id="L76">            return Optional.empty();</span>
+<span class="fc" id="L75">            return Optional.of(StateTerm.parse(state));</span>
+<span class="fc" id="L76">        } catch (IllegalArgumentException e) {</span>
+<span class="fc" id="L77">            return Optional.empty();</span>
         }
     }
 
@@ -82,17 +83,17 @@ public final class StateOrder {
      * which lines give it). When the relations contradict each other, the answer may be either.
      */
     public boolean holds(String u, String v) {
-<span class="fc" id="L85">        var x = terms.computeIfAbsent(u, StateOrder::term);</span>
-<span class="fc" id="L86">        var y = terms.computeIfAbsent(v, StateOrder::term);</span>
-<span class="pc bpc" id="L87" title="1 of 4 branches missed.">        if (x.isEmpty() || y.isEmpty()) {</span>
-<span class="fc" id="L88">            return false;</span>
+<span class="fc" id="L86">        var x = terms.computeIfAbsent(u, StateOrder::term);</span>
+<span class="fc" id="L87">        var y = terms.computeIfAbsent(v, StateOrder::term);</span>
+<span class="pc bpc" id="L88" title="1 of 4 branches missed.">        if (x.isEmpty() || y.isEmpty()) {</span>
+<span class="fc" id="L89">            return false;</span>
         }
-<span class="fc" id="L90">        int bound = y.get().offset() - x.get().offset();</span>
-<span class="fc bfc" id="L91" title="All 4 branches covered.">        if (x.get().base().equals(y.get().base()) &amp;&amp; bound &gt;= 0) {</span>
-<span class="fc" id="L92">            return true;</span>
+<span class="fc" id="L91">        int bound = y.get().offset() - x.get().offset();</span>
+<span class="fc bfc" id="L92" title="All 4 branches covered.">        if (x.get().base().equals(y.get().base()) &amp;&amp; bound &gt;= 0) {</span>
+<span class="fc" id="L93">            return true;</span>
         }
-<span class="fc" id="L94">        Integer distance = distances().getOrDefault(y.get().base(), Map.of()).get(x.get().base());</span>
-<span class="fc bfc" id="L95" title="All 4 branches covered.">        return distance != null &amp;&amp; distance &lt;= bound;</span>
+<span class="fc" id="L95">        Integer distance = distances().getOrDefault(y.get().base(), Map.of()).get(x.get().base());</span>
+<span class="fc bfc" id="L96" title="All 4 branches covered.">        return distance != null &amp;&amp; distance &lt;= bound;</span>
     }
 
     /**
@@ -100,44 +101,44 @@ public final class StateOrder {
      * them), which is when a formula may need to be carried from one to the other
      */
     public boolean hasEqualStates() {
-<span class="fc" id="L103">        var all = distances();</span>
-<span class="fc bfc" id="L104" title="All 2 branches covered.">        for (String a : nodes) {</span>
-<span class="fc bfc" id="L105" title="All 2 branches covered.">            for (String b : nodes) {</span>
-<span class="fc bfc" id="L106" title="All 6 branches covered.">                if (!a.equals(b) &amp;&amp; all.get(a).containsKey(b) &amp;&amp; all.get(b).containsKey(a)) {</span>
-<span class="fc" id="L107">                    return true;</span>
+<span class="fc" id="L104">        var all = distances();</span>
+<span class="fc bfc" id="L105" title="All 2 branches covered.">        for (String a : nodes) {</span>
+<span class="fc bfc" id="L106" title="All 2 branches covered.">            for (String b : nodes) {</span>
+<span class="fc bfc" id="L107" title="All 6 branches covered.">                if (!a.equals(b) &amp;&amp; all.get(a).containsKey(b) &amp;&amp; all.get(b).containsKey(a)) {</span>
+<span class="fc" id="L108">                    return true;</span>
                 }
-<span class="fc" id="L109">            }</span>
-<span class="fc" id="L110">        }</span>
-<span class="fc" id="L111">        return false;</span>
+<span class="fc" id="L110">            }</span>
+<span class="fc" id="L111">        }</span>
+<span class="fc" id="L112">        return false;</span>
     }
 
     /** Floyd-Warshall on the bases. */
     private Map&lt;String, Map&lt;String, Integer&gt;&gt; distances() {
-<span class="fc bfc" id="L116" title="All 2 branches covered.">        if (distances == null) {</span>
-<span class="fc" id="L117">            distances = new HashMap&lt;&gt;();</span>
-<span class="fc bfc" id="L118" title="All 2 branches covered.">            for (String node : nodes) {</span>
-<span class="fc" id="L119">                distances.put(node, new HashMap&lt;&gt;());</span>
-<span class="fc" id="L120">            }</span>
-<span class="fc bfc" id="L121" title="All 2 branches covered.">            for (Edge edge : edges) {</span>
-<span class="fc" id="L122">                distances.get(edge.from()).merge(edge.to(), edge.weight(), Math::min);</span>
-<span class="fc" id="L123">            }</span>
-<span class="fc bfc" id="L124" title="All 2 branches covered.">            for (String k : nodes) {</span>
-<span class="fc bfc" id="L125" title="All 2 branches covered.">                for (String i : nodes) {</span>
-<span class="fc" id="L126">                    Integer ik = distances.get(i).get(k);</span>
-<span class="fc bfc" id="L127" title="All 2 branches covered.">                    if (ik == null) {</span>
-<span class="fc" id="L128">                        continue;</span>
-                    }
-<span class="fc bfc" id="L130" title="All 2 branches covered.">                    for (String j : nodes) {</span>
-<span class="fc" id="L131">                        Integer kj = distances.get(k).get(j);</span>
-<span class="fc bfc" id="L132" title="All 2 branches covered.">                        if (kj != null) {</span>
-<span class="fc" id="L133">                            distances.get(i).merge(j, ik + kj, Math::min);</span>
-                        }
-<span class="fc" id="L135">                    }</span>
-<span class="fc" id="L136">                }</span>
-<span class="fc" id="L137">            }</span>
+<span class="fc bfc" id="L117" title="All 2 branches covered.">        if (distances == null) {</span>
+<span class="fc" id="L118">            distances = new HashMap&lt;&gt;();</span>
+<span class="fc bfc" id="L119" title="All 2 branches covered.">            for (String node : nodes) {</span>
+<span class="fc" id="L120">                distances.put(node, new HashMap&lt;&gt;());</span>
+<span class="fc" id="L121">            }</span>
+<span class="fc bfc" id="L122" title="All 2 branches covered.">            for (Edge edge : edges) {</span>
+<span class="fc" id="L123">                distances.get(edge.from()).merge(edge.to(), edge.weight(), Math::min);</span>
+<span class="fc" id="L124">            }</span>
+<span class="fc bfc" id="L125" title="All 2 branches covered.">            for (String through : nodes) {</span>
+<span class="fc bfc" id="L126" title="All 2 branches covered.">                for (String from : nodes) {</span>
+<span class="fc" id="L127">                    shortenThrough(from, through);</span>
+<span class="fc" id="L128">                }</span>
+<span class="fc" id="L129">            }</span>
         }
-<span class="fc" id="L139">        return distances;</span>
+<span class="fc" id="L131">        return distances;</span>
     }
+
+    /** Make the paths from {@code from} go through {@code through} where that is lighter. */
+    private void shortenThrough(String from, String through) {
+<span class="fc" id="L136">        Integer first = distances.get(from).get(through);</span>
+<span class="fc bfc" id="L137" title="All 2 branches covered.">        if (first == null) {</span>
+<span class="fc" id="L138">            return;</span>
+        }
+<span class="fc" id="L140">        Map.copyOf(distances.get(through)).forEach((to, second) -&gt; distances.get(from).merge(to, first + second, Math::min));</span>
+<span class="fc" id="L141">    }</span>
 
     /**
      * @return the lines whose relations give {@code u &lt;= v}, empty when they do not give it (or when {@code u} or
@@ -145,128 +146,137 @@ public final class StateOrder {
      * {@code s0 &lt;= s0+1} does
      */
     public Optional&lt;SortedSet&lt;Integer&gt;&gt; entails(String u, String v) {
-<span class="fc" id="L148">        var x = term(u);</span>
-<span class="fc" id="L149">        var y = term(v);</span>
-<span class="pc bpc" id="L150" title="1 of 4 branches missed.">        if (x.isEmpty() || y.isEmpty()) {</span>
-<span class="fc" id="L151">            return Optional.empty();</span>
+<span class="fc" id="L149">        var x = term(u);</span>
+<span class="fc" id="L150">        var y = term(v);</span>
+<span class="pc bpc" id="L151" title="1 of 4 branches missed.">        if (x.isEmpty() || y.isEmpty()) {</span>
+<span class="fc" id="L152">            return Optional.empty();</span>
         }
-<span class="fc" id="L153">        int bound = y.get().offset() - x.get().offset();</span>
-<span class="fc bfc" id="L154" title="All 4 branches covered.">        if (x.get().base().equals(y.get().base()) &amp;&amp; bound &gt;= 0) {</span>
-<span class="fc" id="L155">            return Optional.of(new TreeSet&lt;&gt;());</span>
+<span class="fc" id="L154">        int bound = y.get().offset() - x.get().offset();</span>
+<span class="fc bfc" id="L155" title="All 4 branches covered.">        if (x.get().base().equals(y.get().base()) &amp;&amp; bound &gt;= 0) {</span>
+<span class="fc" id="L156">            return Optional.of(new TreeSet&lt;&gt;());</span>
         }
-<span class="fc" id="L157">        return shortestPath(y.get().base(), x.get().base())</span>
-<span class="fc bfc" id="L158" title="All 2 branches covered.">                .filter(path -&gt; weight(path) &lt;= bound)</span>
-<span class="fc" id="L159">                .map(StateOrder::lines);</span>
+<span class="fc" id="L158">        return shortestPath(y.get().base(), x.get().base())</span>
+<span class="fc bfc" id="L159" title="All 2 branches covered.">                .filter(path -&gt; weight(path) &lt;= bound)</span>
+<span class="fc" id="L160">                .map(StateOrder::lines);</span>
     }
 
-    /** @return whether the relations give both {@code u &lt;= v} and {@code v &lt;= u} */
-    public Optional&lt;SortedSet&lt;Integer&gt;&gt; equal(String u, String v) {
-<span class="fc" id="L164">        var first = entails(u, v);</span>
-<span class="fc" id="L165">        var second = entails(v, u);</span>
-<span class="fc bfc" id="L166" title="All 4 branches covered.">        if (first.isEmpty() || second.isEmpty()) {</span>
-<span class="fc" id="L167">            return Optional.empty();</span>
+    /**
+     * @return the lines whose relations give both {@code first &lt;= second} and {@code second &lt;= first}, so that the two
+     * are the same state; empty when they do not
+     */
+    public Optional&lt;SortedSet&lt;Integer&gt;&gt; sameState(String first, String second) {
+<span class="fc" id="L168">        var forth = entails(first, second);</span>
+<span class="fc" id="L169">        var back = entails(second, first);</span>
+<span class="fc bfc" id="L170" title="All 4 branches covered.">        if (forth.isEmpty() || back.isEmpty()) {</span>
+<span class="fc" id="L171">            return Optional.empty();</span>
         }
-<span class="fc" id="L169">        SortedSet&lt;Integer&gt; lines = new TreeSet&lt;&gt;(first.get());</span>
-<span class="fc" id="L170">        lines.addAll(second.get());</span>
-<span class="fc" id="L171">        return Optional.of(lines);</span>
+<span class="fc" id="L173">        SortedSet&lt;Integer&gt; lines = new TreeSet&lt;&gt;(forth.get());</span>
+<span class="fc" id="L174">        lines.addAll(back.get());</span>
+<span class="fc" id="L175">        return Optional.of(lines);</span>
     }
 
     /** @return the lines of relations that contradict each other (a cycle of negative weight), empty when they do not */
     public Optional&lt;SortedSet&lt;Integer&gt;&gt; contradiction() {
-<span class="pc bpc" id="L176" title="1 of 2 branches missed.">        if (contradiction == null) {</span>
-<span class="fc" id="L177">            contradiction = findContradiction();</span>
+<span class="pc bpc" id="L180" title="1 of 2 branches missed.">        if (!contradictionSearched) {</span>
+<span class="fc" id="L181">            contradiction = findContradiction();</span>
+<span class="fc" id="L182">            contradictionSearched = true;</span>
         }
-<span class="fc" id="L179">        return contradiction;</span>
+<span class="fc" id="L184">        return contradiction;</span>
     }
 
     private Optional&lt;SortedSet&lt;Integer&gt;&gt; findContradiction() {
         // Bellman-Ford from a virtual source joined to every node with weight 0
-<span class="fc" id="L184">        Map&lt;String, Integer&gt; distance = new HashMap&lt;&gt;();</span>
-<span class="fc" id="L185">        Map&lt;String, Edge&gt; previous = new HashMap&lt;&gt;();</span>
-<span class="fc" id="L186">        nodes.forEach(node -&gt; distance.put(node, 0));</span>
-<span class="fc" id="L187">        String changed = null;</span>
-<span class="fc bfc" id="L188" title="All 2 branches covered.">        for (int i = 0; i &lt;= nodes.size(); i++) {</span>
-<span class="fc" id="L189">            changed = null;</span>
-<span class="fc bfc" id="L190" title="All 2 branches covered.">            for (Edge edge : edges) {</span>
-<span class="fc bfc" id="L191" title="All 2 branches covered.">                if (distance.get(edge.from()) + edge.weight() &lt; distance.get(edge.to())) {</span>
-<span class="fc" id="L192">                    distance.put(edge.to(), distance.get(edge.from()) + edge.weight());</span>
-<span class="fc" id="L193">                    previous.put(edge.to(), edge);</span>
-<span class="fc" id="L194">                    changed = edge.to();</span>
+<span class="fc" id="L189">        Map&lt;String, Integer&gt; distance = new HashMap&lt;&gt;();</span>
+<span class="fc" id="L190">        Map&lt;String, Edge&gt; previous = new HashMap&lt;&gt;();</span>
+<span class="fc" id="L191">        nodes.forEach(node -&gt; distance.put(node, 0));</span>
+<span class="fc" id="L192">        String changed = null;</span>
+<span class="fc bfc" id="L193" title="All 2 branches covered.">        for (int i = 0; i &lt;= nodes.size(); i++) {</span>
+<span class="fc" id="L194">            changed = null;</span>
+<span class="fc bfc" id="L195" title="All 2 branches covered.">            for (Edge edge : edges) {</span>
+<span class="fc bfc" id="L196" title="All 2 branches covered.">                if (distance.get(edge.from()) + edge.weight() &lt; distance.get(edge.to())) {</span>
+<span class="fc" id="L197">                    distance.put(edge.to(), distance.get(edge.from()) + edge.weight());</span>
+<span class="fc" id="L198">                    previous.put(edge.to(), edge);</span>
+<span class="fc" id="L199">                    changed = edge.to();</span>
                 }
-<span class="fc" id="L196">            }</span>
-<span class="fc bfc" id="L197" title="All 2 branches covered.">            if (changed == null) {</span>
-<span class="fc" id="L198">                return Optional.empty();</span>
+<span class="fc" id="L201">            }</span>
+<span class="fc bfc" id="L202" title="All 2 branches covered.">            if (changed == null) {</span>
+<span class="fc" id="L203">                return Optional.empty();</span>
             }
         }
         // A node relaxed in the last round leads back into a negative cycle: walk back into the cycle, then around it
-<span class="fc" id="L202">        String node = changed;</span>
-<span class="pc bpc" id="L203" title="1 of 4 branches missed.">        for (int i = 0; i &lt; nodes.size() &amp;&amp; previous.containsKey(node); i++) {</span>
-<span class="fc" id="L204">            node = previous.get(node).from();</span>
+<span class="fc" id="L207">        String node = changed;</span>
+<span class="pc bpc" id="L208" title="1 of 4 branches missed.">        for (int i = 0; i &lt; nodes.size() &amp;&amp; previous.containsKey(node); i++) {</span>
+<span class="fc" id="L209">            node = previous.get(node).from();</span>
         }
-<span class="fc" id="L206">        SortedSet&lt;Integer&gt; lines = new TreeSet&lt;&gt;();</span>
-<span class="fc" id="L207">        String start = node;</span>
+<span class="fc" id="L211">        SortedSet&lt;Integer&gt; lines = new TreeSet&lt;&gt;();</span>
+<span class="fc" id="L212">        String start = node;</span>
         do {
-<span class="fc" id="L209">            Edge edge = previous.get(node);</span>
-<span class="pc bpc" id="L210" title="1 of 2 branches missed.">            if (edge == null) {</span>
+<span class="fc" id="L214">            Edge edge = previous.get(node);</span>
+<span class="pc bpc" id="L215" title="1 of 2 branches missed.">            if (edge == null) {</span>
                 // Not reached in a well-formed run: report every relation rather than a wrong cycle
-<span class="nc" id="L212">                edges.forEach(e -&gt; lines.add(e.line()));</span>
-<span class="nc" id="L213">                return Optional.of(lines);</span>
+<span class="nc" id="L217">                edges.forEach(e -&gt; lines.add(e.line()));</span>
+<span class="nc" id="L218">                return Optional.of(lines);</span>
             }
-<span class="fc" id="L215">            lines.add(edge.line());</span>
-<span class="fc" id="L216">            node = edge.from();</span>
-<span class="fc bfc" id="L217" title="All 2 branches covered.">        } while (!node.equals(start));</span>
-<span class="fc" id="L218">        return Optional.of(lines);</span>
+<span class="fc" id="L220">            lines.add(edge.line());</span>
+<span class="fc" id="L221">            node = edge.from();</span>
+<span class="fc bfc" id="L222" title="All 2 branches covered.">        } while (!node.equals(start));</span>
+<span class="fc" id="L223">        return Optional.of(lines);</span>
     }
 
     /** The lightest path from {@code from} to {@code to}, when there is one and no negative cycle is on the way. */
     private Optional&lt;List&lt;Edge&gt;&gt; shortestPath(String from, String to) {
-<span class="fc bfc" id="L223" title="All 4 branches covered.">        if (!nodes.contains(from) || !nodes.contains(to)) {</span>
-<span class="fc" id="L224">            return Optional.empty();</span>
-        }
-<span class="fc" id="L226">        Map&lt;String, Integer&gt; distance = new HashMap&lt;&gt;();</span>
-<span class="fc" id="L227">        Map&lt;String, Edge&gt; previous = new HashMap&lt;&gt;();</span>
-<span class="fc" id="L228">        distance.put(from, 0);</span>
-<span class="pc bpc" id="L229" title="1 of 2 branches missed.">        for (int i = 0; i &lt; nodes.size(); i++) {</span>
-<span class="fc" id="L230">            boolean relaxed = false;</span>
-<span class="fc bfc" id="L231" title="All 2 branches covered.">            for (Edge edge : edges) {</span>
-<span class="fc" id="L232">                Integer start = distance.get(edge.from());</span>
-<span class="fc bfc" id="L233" title="All 6 branches covered.">                if (start != null &amp;&amp; (!distance.containsKey(edge.to()) || start + edge.weight() &lt; distance.get(edge.to()))) {</span>
-<span class="fc" id="L234">                    distance.put(edge.to(), start + edge.weight());</span>
-<span class="fc" id="L235">                    previous.put(edge.to(), edge);</span>
-<span class="fc" id="L236">                    relaxed = true;</span>
-                }
-<span class="fc" id="L238">            }</span>
-<span class="fc bfc" id="L239" title="All 2 branches covered.">            if (!relaxed) {</span>
-<span class="fc" id="L240">                break;</span>
-            }
-        }
-<span class="fc bfc" id="L243" title="All 4 branches covered.">        if (!distance.containsKey(to) || to.equals(from)) {</span>
+<span class="fc bfc" id="L228" title="All 6 branches covered.">        if (!nodes.contains(from) || !nodes.contains(to) || to.equals(from)) {</span>
             // A path from a base to itself only matters through a negative cycle, which contradiction() reports
-<span class="fc" id="L245">            return Optional.empty();</span>
+<span class="fc" id="L230">            return Optional.empty();</span>
         }
-<span class="fc" id="L247">        List&lt;Edge&gt; path = new ArrayList&lt;&gt;();</span>
-<span class="fc" id="L248">        Set&lt;String&gt; seen = new HashSet&lt;&gt;();</span>
-<span class="fc" id="L249">        String node = to;</span>
-<span class="fc bfc" id="L250" title="All 2 branches covered.">        while (!node.equals(from)) {</span>
-<span class="pc bpc" id="L251" title="1 of 2 branches missed.">            if (!seen.add(node)) {</span>
+<span class="fc" id="L232">        var previous = lightestEdgesFrom(from);</span>
+<span class="fc bfc" id="L233" title="All 2 branches covered.">        if (!previous.containsKey(to)) {</span>
+<span class="fc" id="L234">            return Optional.empty();</span>
+        }
+<span class="fc" id="L236">        List&lt;Edge&gt; path = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L237">        Set&lt;String&gt; seen = new HashSet&lt;&gt;();</span>
+<span class="fc" id="L238">        String node = to;</span>
+<span class="fc bfc" id="L239" title="All 2 branches covered.">        while (!node.equals(from)) {</span>
+<span class="pc bpc" id="L240" title="1 of 2 branches missed.">            if (!seen.add(node)) {</span>
                 // A negative cycle: the relations contradict each other, which contradiction() reports instead
-<span class="nc" id="L253">                return Optional.empty();</span>
+<span class="nc" id="L242">                return Optional.empty();</span>
             }
-<span class="fc" id="L255">            Edge edge = previous.get(node);</span>
-<span class="fc" id="L256">            path.add(edge);</span>
-<span class="fc" id="L257">            node = edge.from();</span>
-<span class="fc" id="L258">        }</span>
-<span class="fc" id="L259">        return Optional.of(path);</span>
+<span class="fc" id="L244">            Edge edge = previous.get(node);</span>
+<span class="fc" id="L245">            path.add(edge);</span>
+<span class="fc" id="L246">            node = edge.from();</span>
+<span class="fc" id="L247">        }</span>
+<span class="fc" id="L248">        return Optional.of(path);</span>
+    }
+
+    /** Bellman-Ford from {@code from}: for each node reached, the last edge of the lightest path to it. */
+    private Map&lt;String, Edge&gt; lightestEdgesFrom(String from) {
+<span class="fc" id="L253">        Map&lt;String, Integer&gt; distance = new HashMap&lt;&gt;();</span>
+<span class="fc" id="L254">        Map&lt;String, Edge&gt; previous = new HashMap&lt;&gt;();</span>
+<span class="fc" id="L255">        distance.put(from, 0);</span>
+<span class="fc" id="L256">        boolean relaxed = true;</span>
+<span class="fc bfc" id="L257" title="All 4 branches covered.">        for (int i = 0; i &lt; nodes.size() &amp;&amp; relaxed; i++) {</span>
+<span class="fc" id="L258">            relaxed = false;</span>
+<span class="fc bfc" id="L259" title="All 2 branches covered.">            for (Edge edge : edges) {</span>
+<span class="fc" id="L260">                Integer start = distance.get(edge.from());</span>
+<span class="fc" id="L261">                Integer end = distance.get(edge.to());</span>
+<span class="fc bfc" id="L262" title="All 6 branches covered.">                if (start != null &amp;&amp; (end == null || start + edge.weight() &lt; end)) {</span>
+<span class="fc" id="L263">                    distance.put(edge.to(), start + edge.weight());</span>
+<span class="fc" id="L264">                    previous.put(edge.to(), edge);</span>
+<span class="fc" id="L265">                    relaxed = true;</span>
+                }
+<span class="fc" id="L267">            }</span>
+        }
+<span class="fc" id="L269">        return previous;</span>
     }
 
     private static int weight(List&lt;Edge&gt; path) {
-<span class="fc" id="L263">        return path.stream().mapToInt(Edge::weight).sum();</span>
+<span class="fc" id="L273">        return path.stream().mapToInt(Edge::weight).sum();</span>
     }
 
     private static SortedSet&lt;Integer&gt; lines(List&lt;Edge&gt; path) {
-<span class="fc" id="L267">        SortedSet&lt;Integer&gt; lines = new TreeSet&lt;&gt;();</span>
-<span class="fc" id="L268">        path.forEach(edge -&gt; lines.add(edge.line()));</span>
-<span class="fc" id="L269">        return lines;</span>
+<span class="fc" id="L277">        SortedSet&lt;Integer&gt; lines = new TreeSet&lt;&gt;();</span>
+<span class="fc" id="L278">        path.forEach(edge -&gt; lines.add(edge.line()));</span>
+<span class="fc" id="L279">        return lines;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>

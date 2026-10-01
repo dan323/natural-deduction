@@ -47,8 +47,8 @@ public final class DeMorgan extends CompositionRule {
 <span class="fc" id="L47">        (new ModalDiaI(k + 2, k + 1)).apply(pf);</span>
 <span class="fc" id="L48">        (new ModalFI(k + 3, i)).apply(pf);</span>
 <span class="fc" id="L49">        (new ModalNotI()).apply(pf);</span>
-<span class="pc bpc" id="L50" title="1 of 2 branches missed.">        if (element instanceof NegationModal) {</span>
-<span class="nc" id="L51">            (new ModalNotE(pf.getSteps().size())).apply(pf);</span>
+<span class="fc bfc" id="L50" title="All 2 branches covered.">        if (element instanceof NegationModal) {</span>
+<span class="fc" id="L51">            (new ModalNotE(pf.getSteps().size())).apply(pf);</span>
         }
 <span class="fc" id="L53">        (new ModalBoxI()).apply(pf);</span>
 <span class="fc" id="L54">    }</span>

@@ -65,8 +65,8 @@ public final class ModalUntilWitness extends RelationalAction {
      * holds in, when that line is a valid {@code UW} step
      */
     public static Optional&lt;Witness&gt; witness(ModalNaturalDeduction pf, int line) {
-<span class="pc bpc" id="L68" title="1 of 2 branches missed.">        if (!RuleUtils.isValidIndexAndProp(pf, line)) {</span>
-<span class="nc" id="L69">            return Optional.empty();</span>
+<span class="fc bfc" id="L68" title="All 2 branches covered.">        if (!RuleUtils.isValidIndexAndProp(pf, line)) {</span>
+<span class="fc" id="L69">            return Optional.empty();</span>
         }
 <span class="fc" id="L71">        var step = pf.getSteps().get(line - 1);</span>
 <span class="fc" id="L72">        var reason = step.getProof();</span>

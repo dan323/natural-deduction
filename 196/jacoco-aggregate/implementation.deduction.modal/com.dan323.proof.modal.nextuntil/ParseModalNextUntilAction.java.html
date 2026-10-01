@@ -103,8 +103,8 @@ public final class ParseModalNextUntilAction {
             }
 <span class="fc" id="L104">            case NEGATED_UNTIL -&gt; new ModalNegatedUntil(lines(reason, 1)[0]);</span>
             case UNTIL_WITNESS -&gt; {
-<span class="pc bpc" id="L106" title="1 of 2 branches missed.">                if (!(atPos instanceof LessEqual relation)) {</span>
-<span class="nc" id="L107">                    throw new IllegalArgumentException(UNTIL_WITNESS + &quot; derives a relation&quot;);</span>
+<span class="fc bfc" id="L106" title="All 2 branches covered.">                if (!(atPos instanceof LessEqual relation)) {</span>
+<span class="fc" id="L107">                    throw new IllegalArgumentException(UNTIL_WITNESS + &quot; derives a relation&quot;);</span>
                 }
 <span class="fc" id="L109">                yield new ModalUntilWitness(lines(reason, 1)[0], relation.getRight());</span>
             }
@@ -129,7 +129,7 @@ public final class ParseModalNextUntilAction {
     }
 
     public static AbstractModalAction parseAction(String name, List&lt;Integer&gt; sources, ModalOperation extraInfo, String state) {
-<span class="pc bpc" id="L132" title="7 of 16 branches missed.">        return switch (name) {</span>
+<span class="fc bfc" id="L132" title="All 16 branches covered.">        return switch (name) {</span>
 <span class="fc" id="L133">            case NEXT_I -&gt; new ModalNextI(sources.getFirst());</span>
 <span class="fc" id="L134">            case NEXT_E -&gt; new ModalNextE(sources.getFirst());</span>
 <span class="fc" id="L135">            case SUCCESSOR -&gt; new ModalSuccessor(sources.getFirst());</span>
@@ -138,13 +138,13 @@ public final class ParseModalNextUntilAction {
 <span class="fc" id="L138">            case UNTIL_E -&gt; new ModalUntilE(sources.getFirst());</span>
 <span class="fc" id="L139">            case UNTIL_SOMETIME -&gt; new ModalUntilSometime(sources.getFirst());</span>
 <span class="fc" id="L140">            case INDUCTION -&gt; new ModalInduction(sources.get(0), sources.get(1));</span>
-<span class="nc" id="L141">            case NEGATED_UNTIL -&gt; new ModalNegatedUntil(sources.getFirst());</span>
-<span class="nc" id="L142">            case UNTIL_WITNESS -&gt; new ModalUntilWitness(sources.getFirst(), state);</span>
-<span class="nc" id="L143">            case UNTIL_WITNESS_RIGHT -&gt; new ModalUntilWitnessRight(sources.getFirst());</span>
-<span class="nc" id="L144">            case UNTIL_WITNESS_LEFT -&gt; new ModalUntilWitnessLeft(sources.getFirst(), state);</span>
-<span class="nc" id="L145">            case ORDER -&gt; new ModalOrder(extraInfo);</span>
-<span class="nc" id="L146">            case EQUAL -&gt; new ModalEqualState(sources.getFirst(), state);</span>
-<span class="nc" id="L147">            case LINEARITY -&gt; new ModalLinearity();</span>
+<span class="fc" id="L141">            case NEGATED_UNTIL -&gt; new ModalNegatedUntil(sources.getFirst());</span>
+<span class="fc" id="L142">            case UNTIL_WITNESS -&gt; new ModalUntilWitness(sources.getFirst(), state);</span>
+<span class="fc" id="L143">            case UNTIL_WITNESS_RIGHT -&gt; new ModalUntilWitnessRight(sources.getFirst());</span>
+<span class="fc" id="L144">            case UNTIL_WITNESS_LEFT -&gt; new ModalUntilWitnessLeft(sources.getFirst(), state);</span>
+<span class="fc" id="L145">            case ORDER -&gt; new ModalOrder(extraInfo);</span>
+<span class="fc" id="L146">            case EQUAL -&gt; new ModalEqualState(sources.getFirst(), state);</span>
+<span class="fc" id="L147">            case LINEARITY -&gt; new ModalLinearity();</span>
 <span class="fc" id="L148">            default -&gt; ParseModalAction.parseAction(name, sources, extraInfo, state);</span>
         };
     }
@@ -170,8 +170,8 @@ public final class ParseModalNextUntilAction {
 
     private static int[] atLeast(ProofReason reason) {
 <span class="fc" id="L172">        int[] lines = lines(reason);</span>
-<span class="pc bpc" id="L173" title="1 of 2 branches missed.">        if (lines.length == 0) {</span>
-<span class="nc" id="L174">            throw new IllegalArgumentException(reason.getNameProof() + &quot; takes at least one line&quot;);</span>
+<span class="fc bfc" id="L173" title="All 2 branches covered.">        if (lines.length == 0) {</span>
+<span class="fc" id="L174">            throw new IllegalArgumentException(reason.getNameProof() + &quot; takes at least one line&quot;);</span>
         }
 <span class="fc" id="L176">        return lines;</span>
     }

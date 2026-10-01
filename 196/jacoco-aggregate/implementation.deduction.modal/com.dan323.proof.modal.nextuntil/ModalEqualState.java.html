@@ -49,7 +49,7 @@ public final class ModalEqualState implements ModalAction {
 <span class="fc" id="L49">            return Optional.empty();</span>
         }
 <span class="fc" id="L51">        var from = pf.getSteps().get(line - 1).getState();</span>
-<span class="fc" id="L52">        var used = Relations.order(pf, relations).flatMap(order -&gt; order.equal(from, state));</span>
+<span class="fc" id="L52">        var used = Relations.order(pf, relations).flatMap(order -&gt; order.sameState(from, state));</span>
 <span class="fc bfc" id="L53" title="All 2 branches covered.">        return relations == null ? used : used.map(found -&gt; new TreeSet&lt;&gt;(relations));</span>
     }
 
