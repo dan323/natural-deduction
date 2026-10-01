@@ -44,7 +44,7 @@ class FirstOrderUseTest {
         assertEquals(LOGIC, configuration.firstOrderActions().getLogicName());
         assertEquals(LOGIC, configuration.firstOrderTransformer().logic());
         assertEquals(LOGIC, configuration.firstOrderProofParser().logic());
-        assertFalse(configuration.firstOrderTransformer().hasSolver());
+        assertTrue(configuration.firstOrderTransformer().hasSolver());
     }
 
     @Test

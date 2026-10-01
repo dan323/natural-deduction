@@ -40,7 +40,8 @@ docker run -p 8080:8080 dan323/natural-deduction
 - **First-Order Logic** (`first-order`) - Predicates, function symbols, equality and the quantifiers ∀ and ∃, with a
   premise set for group theory
 
-Every logic has a catalog of exercises; classical and modal logic also have an automatic solver.
+Every logic has a catalog of exercises and an automatic solver (best effort for first-order logic, which is
+undecidable).
 
 ## Documentation
 

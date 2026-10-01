@@ -4,12 +4,21 @@ import userEvent from '@testing-library/user-event';
 import Menu from '../Menu';
 import { fetchActions, applyAction, solveProof } from '../../../service/actions';
 import { ProofDto } from '../../../types';
+import { hasSolver } from '../../../constant';
 
 jest.mock('../../../service/actions', () => ({
     fetchActions: jest.fn(),
     applyAction: jest.fn(),
     solveProof: jest.fn(),
 }));
+
+// Every logic the UI offers has a solver, so a test of a logic without one replaces hasSolver
+jest.mock('../../../constant', () => {
+    const actual = jest.requireActual('../../../constant');
+    return { ...actual, hasSolver: jest.fn() };
+});
+const actualHasSolver = jest.requireActual('../../../constant').hasSolver;
+const mockHasSolver = hasSolver as jest.Mock;
 
 const mockFetchActions = fetchActions as jest.Mock;
 const mockApplyAction = applyAction as jest.Mock;
@@ -40,6 +49,7 @@ describe('Menu solve button', () => {
 
     beforeEach(() => {
         jest.clearAllMocks();
+        mockHasSolver.mockImplementation(actualHasSolver);
         mockFetchActions.mockImplementation((logic, callback) => callback([{ name: 'Rep', params: ['INT'] }]));
     });
 
@@ -162,11 +172,20 @@ describe('Menu solve button', () => {
     });
 
     test('is not offered for a logic without a solver, which says so instead', () => {
+        mockHasSolver.mockReturnValue(false);
+        render(<Menu {...props} logic="classical" proof={{ ...proof, logic: 'classical' }} />);
+
+        expect(mockHasSolver).toHaveBeenCalledWith('classical');
+        expect(screen.queryByRole('button', { name: /Solve/i })).not.toBeInTheDocument();
+        expect(screen.getByText('Classical logic has no automatic solver.')).toBeInTheDocument();
+        expect(screen.getByRole('button', { name: /Apply Rule/i })).toBeInTheDocument();
+    });
+
+    test('is offered for first-order logic', () => {
         render(<Menu {...props} logic="first-order" proof={{ ...proof, logic: 'first-order' }} />);
 
-        expect(screen.queryByRole('button', { name: /Solve/i })).not.toBeInTheDocument();
-        expect(screen.getByText('First-order logic has no automatic solver.')).toBeInTheDocument();
-        expect(screen.getByRole('button', { name: /Apply Rule/i })).toBeInTheDocument();
+        expect(screen.getByRole('button', { name: /Solve/i })).toBeInTheDocument();
+        expect(screen.queryByText(/has no automatic solver/)).not.toBeInTheDocument();
     });
 
     test('is offered for intuitionistic logic', () => {

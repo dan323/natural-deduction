@@ -115,8 +115,8 @@ Runs the automatic solver on the proof (a `ProofDto`) and returns the resulting 
 - At most as many solves as there are processors (at least 2) run at once, per logic. Another one is answered at once
   with `429` and `{"message": "The solver is busy with other proofs, try again in a moment"}`.
 - An invalid proof is a `400`, as for `/action`.
-- A logic without a solver of its own (`first-order`) answers `400` with
-  `{"message": "There is no solver for the logic 'first-order'"}`.
+- Every logic has a solver. A logic without one would answer `400` with
+  `{"message": "There is no solver for the logic '...'"}`.
 
 ### List the exercises: `GET /logic/{logic}/exercises`
 
@@ -261,7 +261,7 @@ change.
 
 ### First-order logic
 
-`first-order` is first-order logic with equality. It has no solver (`POST /logic/first-order/solve` is a `400`).
+`first-order` is first-order logic with equality.
 
 - Formulas: `forall x. A` and `exists x. A` (`forall`, `exists`, `TRUE` and `FALSE` are reserved words; the body
   reaches as far right as it can, so `forall x. P(x) & Q(x)` quantifies over the conjunction; parentheses limit it),
@@ -285,6 +285,15 @@ change.
 - A term that does not parse, or a missing one (`=I needs a term`), is a `400`; a generalization that breaks its side
   condition (`∀I` on a name free in a premise) is a `202`. The term of a `∀E` step is not written in the proof: the
   server recovers it from the formula when it replays the proof.
+- `POST /logic/first-order/solve` runs a best-effort proof search, a bounded version of the intercalation calculus of
+  Sieg and Byrnes (*Normal natural deduction proofs (in classical logic)*, Studia Logica 60, 1998). It works backwards
+  from the goal with the introduction rules (`∀I` and `∃E` with a new name) and forwards with the elimination rules:
+  `∀E` and `∃I` with the terms already in the proof (no deeper than two function applications), `=I`, and `=E` only
+  for the symmetry and transitivity of `=`; else it proves the goal by contradiction. First-order logic is
+  undecidable, so it can miss a proof: when it finds none within its bounds (a budget of goals and of lines looked at,
+  counts and not a time limit) it returns the premises only (`200`, `done` false), as for
+  `exists x. P(x) ⊢ forall x. P(x)`. It solves every exercise except the group ones that rewrite inside a term
+  (`group-identity-unique` is solved).
 
 ## Other endpoints
 

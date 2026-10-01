@@ -25,7 +25,8 @@ import java.util.Optional;
  * {@code =I}) is {@code extraParameters.term}, its formula ({@code Ass}, a disjunct, a target) is
  * {@code extraParameters.expression}.
  * <p>
- * There is no solver: {@link FirstOrderNaturalDeduction#automate()} is not supported.
+ * The solver is {@link FirstOrderNaturalDeduction#automate()}, a best-effort proof search: when it finds no proof, the
+ * proof is left with its premises.
  */
 public class FirstOrderProofTransformer implements Transformer<FirstOrderOperation, ProofStep<FirstOrderOperation>, FirstOrderNaturalDeduction, FirstOrderAction> {
 
@@ -40,7 +41,7 @@ public class FirstOrderProofTransformer implements Transformer<FirstOrderOperati
 
     @Override
     public boolean hasSolver() {
-        return false;
+        return true;
     }
 
     @Override

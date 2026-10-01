@@ -360,11 +360,20 @@ public class RestServiceIT {
     }
 
     @Test
-    void firstOrderHasNoSolver() {
-        var response = restTemplate.exchange(createURLWithPort("/logic/" + FIRST_ORDER + "/solve"), HttpMethod.POST,
-                new HttpEntity<>(new ProofDto(List.of(), FIRST_ORDER, "forall x. x = x"), headers), ErrorResponse.class);
-        assertError(HttpStatus.BAD_REQUEST, response);
-        assertEquals("There is no solver for the logic 'first-order'", response.getBody().message());
+    void solveFirstOrderProof() {
+        var premise = new StepDto("forall x. P(x)", "Ass", 0, Map.of());
+        var response = solve(FIRST_ORDER, new ProofDto(List.of(premise), FIRST_ORDER, "exists x. P(x)"));
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        var solved = Objects.requireNonNull(response.getBody());
+        assertTrue(solved.isDone());
+        assertEquals(List.of(premise, new StepDto("P(a)", "∀E [1]", 0, Map.of()), new StepDto("exists x. P(x)", "∃I [2]", 0, Map.of())),
+                solved.steps());
+
+        // Not a theorem: no proof is still a 200, with the premises only
+        var noProof = solve(FIRST_ORDER, new ProofDto(List.of(new StepDto("exists x. P(x)", "Ass", 0, Map.of())), FIRST_ORDER, "forall x. P(x)"));
+        assertEquals(HttpStatus.OK, noProof.getStatusCode());
+        assertFalse(Objects.requireNonNull(noProof.getBody()).isDone());
+        assertEquals(1, noProof.getBody().steps().size());
     }
 
     @Test

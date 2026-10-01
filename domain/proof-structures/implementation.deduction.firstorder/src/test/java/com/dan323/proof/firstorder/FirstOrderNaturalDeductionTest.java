@@ -153,13 +153,6 @@ class FirstOrderNaturalDeductionTest {
     }
 
     @Test
-    void automateIsUnsupported() {
-        var proof = proof("P(a)");
-
-        assertThrows(UnsupportedOperationException.class, proof::automate);
-    }
-
-    @Test
     void isFreeInOpenAssumptionOnlyLooksBefore() {
         var proof = proof("P(a)");
         assume(proof, "Q(b)");

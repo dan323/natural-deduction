@@ -260,7 +260,11 @@ that needs `Ind`. See [API.md](./API.md#modal-logic-with-next-and-until).
 ### Overview
 
 `first-order` is classical first-order logic with equality. Formulas talk about individuals through **terms**, and
-the quantifiers `∀` and `∃` range over them. There are no states and no automatic solver.
+the quantifiers `∀` and `∃` range over them. There are no states. The automatic solver (`FirstOrderAutomate`) is
+best effort, a bounded version of the intercalation calculus of Sieg and Byrnes (*Normal natural deduction proofs (in
+classical logic)*, Studia Logica 60, 1998): introduction rules backwards from the goal (`∀I` and `∃E` with a new
+name), elimination rules forwards (`∀E` and `∃I` with the terms of the proof, `=E` only for symmetry and
+transitivity), then proof by contradiction. When it finds no proof within its bounds it leaves the premises.
 
 ### Syntax
 
@@ -346,7 +350,7 @@ the group exercises under "Group theory".
 | **Operators**  | ∧, ∨, ¬, →  | as classical     | classical + □, ◇                            | modal + X, U                                                            | classical + ∀, ∃, =, predicates and functions         |
 | **Actions**    | 14          | 13 (no ¬E)       | 14 classical + 6 modal                      | the 20 modal + 15 (`XI`, `XE`, `Succ`, `UI1`, `UI2`, `UE`, `U<>`, `Ind`, `-U`, `UW`, `UB`, `UA`, `Ord`, `Eq`, `Lin`) | 14 classical + 6 (`∀I`, `∀E`, `∃I`, `∃E`, `=I`, `=E`) |
 | **States**     | none        | none             | named states, `<=` reflexive and transitive | `s0`, `s0+1`, ...: discrete time                                        | none                                                  |
-| **Solver**     | yes         | yes              | yes                                         | yes                                                                     | no                                                    |
+| **Solver**     | yes         | yes              | yes                                         | yes                                                                     | yes (best effort)                                     |
 | **Logic name** | `classical` | `intuitionistic` | `modal`                                     | `modal-next-until`                                                      | `first-order`                                         |
 
 ## Implementation Details
