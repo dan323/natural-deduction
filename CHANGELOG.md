@@ -19,6 +19,9 @@ The project has never been versioned or tagged, since it was not meant for publi
   random formulas (#196)
 
 ### Changed
+- Dark mode: the design tokens have dark values, used when the system prefers dark; a System/Light/Dark toggle in the
+  app bar overrides it and is remembered in the browser, and the focus ring has its own token so it stays visible in
+  both palettes (#201)
 - Responsive page layout: from 1024px wide the proof and the sticky rule panel sit side by side, below it they
   stack; the proof table scrolls inside its own container, the goal font scales with the window, and at 600px and
   below the toolbar is one row of compact buttons and each exercise's Start button goes under its statement (#200)
