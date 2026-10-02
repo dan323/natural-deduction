@@ -19,6 +19,9 @@ The project has never been versioned or tagged, since it was not meant for publi
   random formulas (#196)
 
 ### Changed
+- Responsive page layout: from 1024px wide the proof and the sticky rule panel sit side by side, below it they
+  stack; the proof table scrolls inside its own container, the goal font scales with the window, and at 600px and
+  below the toolbar is one row of compact buttons and each exercise's Start button goes under its statement (#200)
 - One look for the whole UI: colours, radii, spacing, shadows and fonts are design tokens in `index.css`, every button
   is the same `Button` component (primary, secondary, danger and ghost variants) with a visible focus ring, and the
   header and toolbar are one sticky app bar (#199)
