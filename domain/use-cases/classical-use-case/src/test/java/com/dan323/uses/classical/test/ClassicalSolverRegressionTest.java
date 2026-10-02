@@ -35,10 +35,6 @@ class ClassicalSolverRegressionTest {
 
     private static final Path EXPECTED = Path.of("src", "test", "resources", "classical-solver-proofs.txt");
 
-    // Left out because the classical solver does not stop on them (it keeps adding steps), so there is no proof to
-    // compare: (p | (q & r)) -> ((p | q) & (p | r)), ((p | q) & (p | r)) -> (p | (q & r)) and
-    // ((p | q) | r) -> (p | (q | r)). OrE1/OrE2 leave an identity implication B -> B among the steps, and ->E with it
-    // and the newest B is a new action (actions are told apart by their lines) that adds another B, forever.
     private static final List<String> EXTRA_GOALS = List.of(
             "p | (- p)",
             "(- (- p)) -> p",
@@ -80,10 +76,13 @@ class ClassicalSolverRegressionTest {
             "p", "q", "p & (- q)", "q & r", "r", "r", "(- p) | (- q)", "- p");
 
     /**
-     * Goals the classical solver did not stop on before #191 was fixed. Their proofs were appended to the end of
+     * Goals the classical solver did not stop on before #191 and #192 were fixed. Their proofs were appended to the end of
      * {@code classical-solver-proofs.txt} after the fix; the proofs above them are still the original ones.
      */
-    private static final List<String> NO_LONGER_LOOPING = List.of("(- p) -> (p -> FALSE)");
+    private static final List<String> NO_LONGER_LOOPING = List.of("(- p) -> (p -> FALSE)",
+            "(p | (q & r)) -> ((p | q) & (p | r))",
+            "((p | q) & (p | r)) -> (p | (q | r))",
+            "((p | q) | r) -> (p | (q | r))");
 
     private record Input(List<String> premises, String goal) {
     }

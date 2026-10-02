@@ -50,9 +50,8 @@ import java.util.List;
  * disjunction goal, the implication or the disjunction step, and ex falso at most once), so attempts nest at most as
  * deep as there are such formulas. The proof and the goals together are also kept below a size proportional to the
  * size of the premises and the goal ({@link #STEPS_PER_SYMBOL}); a round that would go further counts as stuck. The
- * shared engine needs that bound: {@code OrE1}/{@code OrE2} leave an identity implication {@code B -> B} among the
- * steps, and {@code ->E} with it and the newest {@code B} is a new elimination each time (on {@code p | q, - p} with
- * goal {@code r} it would add copies of {@code q} forever).
+ * bound is a second line of defence: the engine no longer applies {@code ->E} to the identity implication
+ * {@code B -> B} that {@code OrE1}/{@code OrE2} leave among the steps (#192).
  *
  * @author daniel
  */

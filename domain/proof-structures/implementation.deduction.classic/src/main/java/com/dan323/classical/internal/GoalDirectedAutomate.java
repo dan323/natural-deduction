@@ -475,11 +475,21 @@ abstract class GoalDirectedAutomate {
         return null;
     }
 
+    /**
+     * {@code B -> B}, which {@link OrE1} and {@link OrE2} leave in the proof: {@code ->E} on it only repeats
+     * {@code B}, once more for every new line {@code B}, so the elimination loop would never end.
+     */
+    private static boolean isIdentityImplication(ClassicalLogicOperation step) {
+        return step instanceof ImplicationClassic imp && imp.getLeft().equals(imp.getRight());
+    }
+
     private ClassicalAction checkAdditionOfDisjIModPonens(int i) {
         for (int j = 0; j < proof.getSteps().size(); j++) {
             if (proof.getSteps().get(j).isValid()) {
-                ClassicalAction act = new ClassicModusPonens(i + 1, j + 1);
-                act = checkSingleAction(act);
+                ClassicalAction act = null;
+                if (!isIdentityImplication(proof.getSteps().get(i).getStep())) {
+                    act = checkSingleAction(new ClassicModusPonens(i + 1, j + 1));
+                }
                 if (act != null) {
                     return act;
                 }

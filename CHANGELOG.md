@@ -32,6 +32,8 @@ The project has never been versioned or tagged, since it was not meant for publi
   480px wide it is full-screen with stacked buttons and larger remove-premise buttons (#198)
 
 ### Fixed
+- The `classical` and `modal` solvers no longer loop forever re-applying `->E` to the `B -> B` that `|E` leaves behind,
+  so goals like `p | q, - p ⊢ r` now finish (#202)
 - The modal solver no longer crashes on relation goals or after a De Morgan step; the modal and classical solvers no
   longer write an `FI` line that cannot be replayed when refuting the right side of a disjunction; the modal solver
   proves `- (<> (- p)) ⊢ [] p` instead of repeating `Refl` until the timeout, and goals like
