@@ -160,3 +160,8 @@ h3 {
     border-top: 2px solid var(--color-text-heading);
     margin: 0;
 }
+
+/* A long formula scrolls inside the proof, not the page. */
+.proof-viewer {
+    overflow-x: auto;
+}

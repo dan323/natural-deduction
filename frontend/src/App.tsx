@@ -677,23 +677,29 @@ function App() {
               Exercise: <strong>{currentExercise.title}</strong>{solved.has(currentExercise.id) ? ' (Solved)' : ''}
             </p>
           )}
-          <Menu key={proofId} ref={menuRef} logic={logic} proof={proof} setProof={setMenuProof} onColorChange={onColorChange} onNewProof={handleOpenModalFromMenu} onNextExercise={handleNextExercise} />
-          {hasProof ? (
-            <Proof proof={proof} coloring={colorMapping} onSelectLine={handleSelectLine} />
-          ) : (
-            <EmptyProofState
-              logic={logic}
-              isRestoring={isRestoring}
-              restoreError={restoreError}
-              isStartingExample={isStartingExample}
-              exampleError={exampleError}
-              isChangingLogicBlocked={isStartingExample || startingExerciseId !== null}
-              isExercisesOpen={isExercisesOpen}
-              onLogicChange={handleEmptyLogicChange}
-              onTryExample={handleTryExample}
-              onBrowseExercises={handleBrowseExercises}
-            />
-          )}
+          <div className="workspace">
+            <div className="workspace-proof">
+            {hasProof ? (
+              <Proof proof={proof} coloring={colorMapping} onSelectLine={handleSelectLine} />
+            ) : (
+              <EmptyProofState
+                logic={logic}
+                isRestoring={isRestoring}
+                restoreError={restoreError}
+                isStartingExample={isStartingExample}
+                exampleError={exampleError}
+                isChangingLogicBlocked={isStartingExample || startingExerciseId !== null}
+                isExercisesOpen={isExercisesOpen}
+                onLogicChange={handleEmptyLogicChange}
+                onTryExample={handleTryExample}
+                onBrowseExercises={handleBrowseExercises}
+              />
+            )}
+            </div>
+            <div className="workspace-rules">
+            <Menu key={proofId} ref={menuRef} logic={logic} proof={proof} setProof={setMenuProof} onColorChange={onColorChange} onNewProof={handleOpenModalFromMenu} onNextExercise={handleNextExercise} />
+            </div>
+          </div>
         </main>
       </div>
 

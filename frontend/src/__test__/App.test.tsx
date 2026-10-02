@@ -322,6 +322,22 @@ describe('App', () => {
     expect(screen.queryByText(/to get started/)).not.toBeInTheDocument();
   });
 
+  test('the proof and the rule panel sit in their own layout regions, with their landmarks and labels unchanged', async () => {
+    mockBackend([{ name: 'Rep', params: ['INT'] }], 200, repProof);
+    const user = userEvent.setup();
+    const { container } = render(<App />);
+    await startProof(user, 'P', 'P');
+
+    const proofRegion = container.querySelector('.workspace-proof');
+    const rulesRegion = container.querySelector('.workspace-rules');
+    expect(proofRegion).toContainElement(screen.getByRole('table', { name: 'Proof steps' }));
+    expect(rulesRegion).toContainElement(await screen.findByLabelText(/Select Inference Rule:/i));
+    expect(rulesRegion).not.toContainElement(screen.getByRole('table', { name: 'Proof steps' }));
+    expect(screen.getByRole('main')).toContainElement(proofRegion as HTMLElement);
+    expect(screen.getByRole('main')).toContainElement(rulesRegion as HTMLElement);
+    expect(screen.getByRole('banner')).toBeInTheDocument();
+  });
+
   test('the empty state explains the three steps of a proof', () => {
     mockBackend([], 200, {});
     render(<App />);
