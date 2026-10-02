@@ -92,3 +92,20 @@
   border: 1px solid var(--color-danger-border);
   border-radius: var(--radius-sm);
 }
+
+/* Phones: each Start button goes under its statement. */
+@media (max-width: 600px) {
+  .exercises {
+    margin: var(--space-3);
+    padding: var(--space-3) var(--space-4);
+  }
+
+  .exercise-item {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .exercise-statement {
+    overflow-wrap: anywhere;
+  }
+}
