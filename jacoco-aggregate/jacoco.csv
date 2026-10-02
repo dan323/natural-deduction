@@ -67,7 +67,7 @@ jacoco-report-aggregate/implementation.deduction.modal,com.dan323.proof.modal,Mo
 jacoco-report-aggregate/implementation.deduction.modal,com.dan323.proof.modal,ModalAssume,22,68,3,5,2,13,4,7,1,6
 jacoco-report-aggregate/implementation.deduction.modal,com.dan323.proof.modal,ModalCopy,18,46,2,2,2,7,3,5,1,5
 jacoco-report-aggregate/implementation.deduction.modal,com.dan323.proof.modal.internal,LinearTimeAutomate,72,3044,86,424,9,427,83,258,0,73
-jacoco-report-aggregate/implementation.deduction.modal,com.dan323.proof.modal.internal,ModalAutomate,167,1969,50,222,12,287,40,146,0,47
+jacoco-report-aggregate/implementation.deduction.modal,com.dan323.proof.modal.internal,ModalAutomate,170,1999,52,226,12,289,42,149,0,49
 jacoco-report-aggregate/implementation.deduction.modal,com.dan323.proof.modal.internal,LinearTimeAutomate.Closer,0,63,0,0,0,4,0,1,0,1
 jacoco-report-aggregate/implementation.deduction.modal,com.dan323.proof.modal.internal,LinearTimeAutomate.Goal,0,59,0,4,0,13,0,6,0,4
 jacoco-report-aggregate/implementation.deduction.modal,com.dan323.proof.modal.internal,LinearTimeAutomate.Located,0,9,0,0,0,1,0,1,0,1
@@ -182,10 +182,10 @@ jacoco-report-aggregate/implementation.deduction.classic,com.dan323.classical.co
 jacoco-report-aggregate/implementation.deduction.classic,com.dan323.classical.complex,OrE2,9,169,2,12,1,18,3,9,1,4
 jacoco-report-aggregate/implementation.deduction.classic,com.dan323.classical.complex,CompositionRule,10,3,0,0,2,1,2,1,2,1
 jacoco-report-aggregate/implementation.deduction.classic,com.dan323.classical.complex,Sequence,8,73,1,7,1,20,1,7,0,4
-jacoco-report-aggregate/implementation.deduction.classic,com.dan323.classical.internal,GoalDirectedAutomate,68,1247,15,167,7,224,11,113,0,33
+jacoco-report-aggregate/implementation.deduction.classic,com.dan323.classical.internal,GoalDirectedAutomate,68,1274,16,172,7,226,12,116,0,34
 jacoco-report-aggregate/implementation.deduction.classic,com.dan323.classical.internal,ClassicalAutomate,0,68,1,7,0,15,1,7,0,4
 jacoco-report-aggregate/implementation.deduction.classic,com.dan323.classical.internal,IntuitionisticAutomate.Alternative,0,9,0,0,0,1,0,1,0,1
-jacoco-report-aggregate/implementation.deduction.classic,com.dan323.classical.internal,IntuitionisticAutomate,2,558,9,71,0,93,9,50,0,19
+jacoco-report-aggregate/implementation.deduction.classic,com.dan323.classical.internal,IntuitionisticAutomate,3,557,7,73,0,93,7,52,0,19
 jacoco-report-aggregate/implementation.deduction.classic,com.dan323.classical.internal,IntuitionisticAutomate.Attempt,0,12,0,0,0,1,0,1,0,1
 jacoco-report-aggregate/implementation.deduction.classic,com.dan323.classical.internal,GoalDirectedAutomate.State,0,15,0,0,0,1,0,1,0,1
 jacoco-report-aggregate/implementation.deduction.classic,com.dan323.classical.internal,IntuitionisticAutomate.Key,0,9,0,0,0,1,0,1,0,1
