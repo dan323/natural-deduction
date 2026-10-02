@@ -30,6 +30,8 @@
   --color-highlight: #1a1a2e;
   --color-on-highlight: #ff9ccf;
   --color-overlay: rgba(20, 22, 36, 0.5);
+  --color-focus: #0b5ed7;
+  color-scheme: light;
 
   /* Radii */
   --radius-sm: 4px;
@@ -56,6 +58,85 @@
   --font-mono: source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
 }
 
+/* Dark values for the tokens above. They apply when the OS asks for dark and the app is not forced to light, and when the
+   app is forced to dark. The two blocks must stay identical (designTokens.test.ts checks it). The focus ring is yellow so
+   that it differs from the pink glow of a referenced line and from the blue of the buttons. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']):not([data-theme='dark']) {
+    --color-background: #12141c;
+    --color-surface: #1b1e2a;
+    --color-surface-muted: #242838;
+    --color-border: #343a4d;
+    --color-border-strong: #7d8499;
+    --color-text: #e8e9ee;
+    --color-text-heading: #f2f3f7;
+    --color-muted: #a9aebf;
+    --color-primary: #6ea8fe;
+    --color-primary-hover: #9ec5fe;
+    --color-primary-soft: #17284a;
+    --color-primary-border: #2f5aa0;
+    --color-on-primary: #08122b;
+    --color-success: #5fd08f;
+    --color-success-hover: #86e0ac;
+    --color-success-soft: #153324;
+    --color-danger: #ff8a80;
+    --color-danger-hover: #ffb3ad;
+    --color-danger-soft: #3a1a1a;
+    --color-danger-border: #7a2f2f;
+    --color-warning: #ffd77a;
+    --color-warning-soft: #3a2f0b;
+    --color-warning-border: #6b5514;
+    --color-info: #8ec1ff;
+    --color-info-soft: #14243f;
+    --color-info-border: #2d4f85;
+    --color-highlight: #4a2150;
+    --color-on-highlight: #ffc2e2;
+    --color-focus: #ffd24d;
+    --color-overlay: rgba(0, 0, 0, 0.65);
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.5), 0 1px 3px rgba(0, 0, 0, 0.4);
+    --shadow-md: 0 2px 8px rgba(0, 0, 0, 0.55);
+    --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.7);
+    color-scheme: dark;
+  }
+}
+
+:root[data-theme='dark'] {
+  --color-background: #12141c;
+  --color-surface: #1b1e2a;
+  --color-surface-muted: #242838;
+  --color-border: #343a4d;
+  --color-border-strong: #7d8499;
+  --color-text: #e8e9ee;
+  --color-text-heading: #f2f3f7;
+  --color-muted: #a9aebf;
+  --color-primary: #6ea8fe;
+  --color-primary-hover: #9ec5fe;
+  --color-primary-soft: #17284a;
+  --color-primary-border: #2f5aa0;
+  --color-on-primary: #08122b;
+  --color-success: #5fd08f;
+  --color-success-hover: #86e0ac;
+  --color-success-soft: #153324;
+  --color-danger: #ff8a80;
+  --color-danger-hover: #ffb3ad;
+  --color-danger-soft: #3a1a1a;
+  --color-danger-border: #7a2f2f;
+  --color-warning: #ffd77a;
+  --color-warning-soft: #3a2f0b;
+  --color-warning-border: #6b5514;
+  --color-info: #8ec1ff;
+  --color-info-soft: #14243f;
+  --color-info-border: #2d4f85;
+  --color-highlight: #4a2150;
+  --color-on-highlight: #ffc2e2;
+  --color-focus: #ffd24d;
+  --color-overlay: rgba(0, 0, 0, 0.65);
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.5), 0 1px 3px rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 2px 8px rgba(0, 0, 0, 0.55);
+  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.7);
+  color-scheme: dark;
+}
+
 body {
   margin: 0;
   font-family: var(--font-ui);
@@ -68,7 +149,7 @@ body {
 /* One visible focus ring for every control (WCAG 2.4.7, 1.4.11). No rule may switch the outline off; the ring has to stay
    distinguishable from the glow of a referenced line, which is a box-shadow. */
 :focus-visible {
-  outline: 3px solid var(--color-primary);
+  outline: 3px solid var(--color-focus);
   outline-offset: 2px;
 }
 
