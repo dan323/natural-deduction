@@ -67,7 +67,7 @@ describe('design tokens', () => {
     walk(SRC);
     const offenders = cssFiles.filter((file) => {
       const text = readFileSync(file, 'utf8').replace(rootBlockPattern, '');
-      return /#[0-9a-fA-F]{3,6}\b/.test(text);
+      return /#[0-9a-fA-F]{3,8}\b/.test(text);
     });
     expect(offenders).toEqual([]);
   });
