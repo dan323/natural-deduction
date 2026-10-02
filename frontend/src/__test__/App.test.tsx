@@ -20,6 +20,30 @@ describe('App', () => {
     (global as any).fetch = fetchMock;
     // The proof on screen is saved in sessionStorage, which jsdom keeps from one test to the next.
     window.sessionStorage.clear();
+    window.localStorage.removeItem('natural-deduction.theme');
+  });
+
+  describe('colour theme', () => {
+    it('sets data-theme from the toggle and saves the choice', async () => {
+      mockBackend([REP], 200, {});
+      const user = userEvent.setup();
+      render(<App />);
+      const toggle = screen.getByRole('combobox', { name: 'Colour theme' });
+      expect(toggle).toHaveValue('system');
+      await user.selectOptions(toggle, 'dark');
+      expect(document.documentElement.getAttribute('data-theme')).toBe('dark');
+      expect(window.localStorage.getItem('natural-deduction.theme')).toBe('dark');
+      await user.selectOptions(toggle, 'light');
+      expect(document.documentElement.getAttribute('data-theme')).toBe('light');
+    });
+
+    it('starts from the saved choice', () => {
+      mockBackend([REP], 200, {});
+      window.localStorage.setItem('natural-deduction.theme', 'dark');
+      render(<App />);
+      expect(screen.getByRole('combobox', { name: 'Colour theme' })).toHaveValue('dark');
+      expect(document.documentElement.getAttribute('data-theme')).toBe('dark');
+    });
   });
 
   const actionRequests = () => fetchMock.mock.calls.filter(([url]) => String(url).endsWith('/actions'));

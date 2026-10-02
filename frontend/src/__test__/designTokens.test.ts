@@ -4,9 +4,22 @@ import { join } from 'path';
 const SRC = join(__dirname, '..');
 const rootBlockPattern = /:root\s*\{[^}]*\}/;
 const rootBlock = rootBlockPattern.exec(readFileSync(join(SRC, 'index.css'), 'utf8'))![0];
-const tokens = new Map<string, string>(
-  Array.from(rootBlock.matchAll(/--([\w-]+):\s*(#[0-9a-fA-F]{6})\s*;/g)).map((m) => [m[1], m[2]]),
-);
+const css = readFileSync(join(SRC, 'index.css'), 'utf8');
+const darkBlock = /:root\[data-theme='dark'\]\s*\{[^}]*\}/.exec(css)![0];
+const mediaBlock = /@media \(prefers-color-scheme: dark\)\s*\{\s*:root:not\([^{]*\{[^}]*\}/.exec(css)![0];
+const colourTokens = (block: string) =>
+  new Map<string, string>(
+    Array.from(block.matchAll(/--([\w-]+):\s*(#[0-9a-fA-F]{6})\s*;/g)).map((m) => [m[1], m[2]]),
+  );
+const declarations = (block: string) =>
+  block
+    .slice(block.indexOf('{', block.indexOf('{') + (block.startsWith('@') ? 1 : 0)) + 1)
+    .split(';')
+    .map((d) => d.replace(/[}\s]+/g, ' ').trim())
+    .filter(Boolean);
+const lightTokens = colourTokens(rootBlock);
+// The dark palette overrides some of the light tokens; the rest stay as they are.
+const darkTokens = new Map([...lightTokens, ...colourTokens(darkBlock)]);
 
 const luminance = (hex: string) => {
   const [r, g, b] = [1, 3, 5].map((i) => {
@@ -48,11 +61,34 @@ const PAIRS: [string, string][] = [
   ['color-on-highlight', 'color-highlight'],
 ];
 
-describe('design tokens', () => {
+describe.each([
+  ['light', lightTokens],
+  ['dark', darkTokens],
+])('%s design tokens', (_name, tokens) => {
   it.each(PAIRS)('%s on %s has a contrast of at least 4.5:1', (text, background) => {
     expect(tokens.has(text)).toBe(true);
     expect(tokens.has(background)).toBe(true);
     expect(contrast(tokens.get(text)!, tokens.get(background)!)).toBeGreaterThanOrEqual(4.5);
+  });
+
+  it.each(['color-background', 'color-surface', 'color-surface-muted'])(
+    'the focus ring has a contrast of at least 3:1 on %s',
+    (background) => {
+      expect(contrast(tokens.get('color-focus')!, tokens.get(background)!)).toBeGreaterThanOrEqual(3);
+    },
+  );
+
+  it('keeps the focus ring, the highlight and the subproof rule distinguishable', () => {
+    const colours = ['color-focus', 'color-highlight', 'color-text-heading', 'color-muted'].map((t) => tokens.get(t));
+    expect(new Set(colours).size).toBe(colours.length);
+    expect(contrast(tokens.get('color-highlight')!, tokens.get('color-surface')!)).toBeGreaterThanOrEqual(1.2);
+  });
+});
+
+describe('design tokens', () => {
+  it('has the same dark values for the OS preference and for data-theme="dark"', () => {
+    expect(declarations(mediaBlock)).toEqual(declarations(darkBlock));
+    expect(declarations(darkBlock).length).toBeGreaterThan(20);
   });
 
   it('has colour literals only in the :root token block', () => {
@@ -66,7 +102,10 @@ describe('design tokens', () => {
     };
     walk(SRC);
     const offenders = cssFiles.filter((file) => {
-      const text = readFileSync(file, 'utf8').replace(rootBlockPattern, '');
+      const text = readFileSync(file, 'utf8')
+        .replace(rootBlockPattern, '')
+        .replace(darkBlock, '')
+        .replace(mediaBlock, '');
       return /#[0-9a-fA-F]{3,8}\b/.test(text);
     });
     expect(offenders).toEqual([]);
