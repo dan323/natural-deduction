@@ -1,20 +1,19 @@
 /* Menu Container */
 .menu {
-    background-color: #f8f9fa;
+    background-color: var(--color-surface-muted);
     padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-md);
     max-width: 600px;
     margin: 20px auto;
     text-align: center;
-    font-family: Arial, sans-serif;
 }
 
 /* Label for Select */
 .menu-label {
     display: block;
     font-size: 1.5rem;
-    color: #333;
+    color: var(--color-text-heading);
     margin-bottom: 10px;
 }
 
@@ -23,10 +22,10 @@
     width: 100%;
     padding: 10px;
     font-size: 1.2rem;
-    border: 1px solid #ccc;
-    border-radius: 4px;
+    border: 1px solid var(--color-border-strong);
+    border-radius: var(--radius-sm);
     margin-bottom: 20px;
-    background-color: #fff;
+    background-color: var(--color-surface);
     cursor: pointer;
 }
 
@@ -44,7 +43,7 @@
 /* Label for Inputs */
 .input-label {
     font-size: 1.2rem;
-    color: #555;
+    color: var(--color-muted);
     display: block;
     margin-bottom: 5px;
 }
@@ -54,8 +53,8 @@
     width: 100%;
     padding: 8px;
     font-size: 1.1rem;
-    border: 1px solid #ccc;
-    border-radius: 4px;
+    border: 1px solid var(--color-border-strong);
+    border-radius: var(--radius-sm);
     box-sizing: border-box;
     transition: box-shadow 0.3s ease, border-color 0.2s;
 }
@@ -63,52 +62,30 @@
 /* No Inputs Message */
 .no-inputs {
     font-size: 1.1rem;
-    color: #666;
+    color: var(--color-muted);
     margin-bottom: 20px;
     font-style: italic;
 }
 
 /* Inline error message */
 .menu-error {
-    color: #c0392b;
-    background-color: #fdecea;
-    border: 1px solid #f5c6cb;
-    border-radius: 4px;
+    color: var(--color-danger);
+    background-color: var(--color-danger-soft);
+    border: 1px solid var(--color-danger-border);
+    border-radius: var(--radius-sm);
     padding: 8px 12px;
     font-size: 1rem;
     margin-bottom: 12px;
     text-align: left;
 }
 
-/* Action Button */
-.menu-button {
-    background-color: #0b5ed7;
-    color: #fff;
-    border: none;
-    padding: 12px 24px;
-    font-size: 1.2rem;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-}
-
-.menu-button:hover:not(:disabled) {
-    background-color: #0056b3;
-}
-
-.menu-button:disabled {
-    background-color: #9ec5fe;
-    cursor: not-allowed;
-    opacity: 0.7;
-}
-
 /* Non-error message, e.g. the outcome of the solver */
 .menu-notice {
     display: block;
-    color: #084298;
-    background-color: #e7f1ff;
-    border: 1px solid #b6d4fe;
-    border-radius: 4px;
+    color: var(--color-info);
+    background-color: var(--color-primary-soft);
+    border: 1px solid var(--color-info-border);
+    border-radius: var(--radius-sm);
     padding: 8px 12px;
     font-size: 1rem;
     margin-bottom: 12px;
@@ -116,20 +93,20 @@
 }
 
 /* Offered once the proof is complete */
-.menu-new-proof {
+.btn.menu-new-proof {
     margin-bottom: 12px;
 }
 
 /* Why Apply Rule is disabled */
 .menu-hint {
-    color: #666;
+    color: var(--color-muted);
     font-size: 0.95rem;
     margin: 12px 0 0;
 }
 
 /* What the selected rule does */
 .menu-description {
-    color: #555;
+    color: var(--color-muted);
     font-size: 1.05rem;
     margin: -10px 0 20px;
     text-align: left;
@@ -141,21 +118,4 @@
     gap: 12px;
     justify-content: center;
     flex-wrap: wrap;
-}
-
-.menu-button-secondary {
-    background-color: #fff;
-    color: #0056b3;
-    border: 2px solid #0056b3;
-}
-
-.menu-button-secondary:hover:not(:disabled) {
-    background-color: #e7f1ff;
-}
-
-.menu-button-secondary:disabled {
-    background-color: #fff;
-    color: #0056b3;
-    border-color: #0056b3;
-    opacity: 0.6;
 }

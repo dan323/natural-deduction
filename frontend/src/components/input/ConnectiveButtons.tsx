@@ -1,6 +1,7 @@
 import { FC, useLayoutEffect, useRef } from 'react';
 import { connectivesFor, insertAtCursor } from './connectives';
 import './connectives.css';
+import Button from '../ui/Button';
 
 type ConnectiveButtonsProps = {
     // The expression input the connectives go into.
@@ -51,9 +52,11 @@ const ConnectiveButtons: FC<ConnectiveButtonsProps> = ({ getInput, onInsert, tar
     return (
         <fieldset className="connective-buttons plain-group" aria-label={target ? `Connectives for ${target}` : 'Connectives'}>
             {connectivesFor(logic).map(({ symbol, ascii, name, insert: text }) => (
-                <button
+                <Button
                     key={ascii}
                     type="button"
+                    variant="secondary"
+                    size="sm"
                     className="connective-btn"
                     onClick={() => insert(text ?? ascii)}
                     // Keeps the selection of the input while the button is pressed.
@@ -63,7 +66,7 @@ const ConnectiveButtons: FC<ConnectiveButtonsProps> = ({ getInput, onInsert, tar
                     title={`Insert ${name} (${ascii})`}
                 >
                     {symbol}
-                </button>
+                </Button>
             ))}
         </fieldset>
     );

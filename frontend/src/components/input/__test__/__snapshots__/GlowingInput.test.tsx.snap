@@ -31,7 +31,7 @@ exports[`Glowing input matches snapshot when shouldGlow is false 1`] = `
     >
       <button
         aria-label="Insert implies (->)"
-        class="connective-btn"
+        class="btn btn-secondary btn-sm connective-btn"
         title="Insert implies (->)"
         type="button"
       >
@@ -39,7 +39,7 @@ exports[`Glowing input matches snapshot when shouldGlow is false 1`] = `
       </button>
       <button
         aria-label="Insert and (&)"
-        class="connective-btn"
+        class="btn btn-secondary btn-sm connective-btn"
         title="Insert and (&)"
         type="button"
       >
@@ -47,7 +47,7 @@ exports[`Glowing input matches snapshot when shouldGlow is false 1`] = `
       </button>
       <button
         aria-label="Insert or (|)"
-        class="connective-btn"
+        class="btn btn-secondary btn-sm connective-btn"
         title="Insert or (|)"
         type="button"
       >
@@ -55,7 +55,7 @@ exports[`Glowing input matches snapshot when shouldGlow is false 1`] = `
       </button>
       <button
         aria-label="Insert not (-)"
-        class="connective-btn"
+        class="btn btn-secondary btn-sm connective-btn"
         title="Insert not (-)"
         type="button"
       >

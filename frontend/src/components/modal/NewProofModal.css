@@ -14,7 +14,7 @@
   overflow: hidden;
   border: 0;
   color: inherit;
-  background-color: rgba(0, 0, 0, 0.5);
+  background-color: var(--color-overlay);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -22,12 +22,12 @@
 }
 
 .modal-content {
-  background-color: #fff;
+  background-color: var(--color-surface);
   padding: 24px;
-  border-radius: 8px;
+  border-radius: var(--radius-md);
   width: 90%;
   max-width: 500px;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+  box-shadow: var(--shadow-lg);
   text-align: center;
   box-sizing: border-box;
   display: flex;
@@ -40,7 +40,7 @@
   flex: none;
   margin: 0 0 20px 0;
   font-size: 1.5rem;
-  color: #333;
+  color: var(--color-text-heading);
 }
 
 .modal-body {
@@ -56,22 +56,22 @@
   display: block;
   margin-bottom: 8px;
   font-weight: bold;
-  color: #333;
+  color: var(--color-text-heading);
 }
 
 .modal-logic-select,
 .modal-theory-select {
   width: 100%;
   padding: 8px 10px;
-  border-radius: 4px;
-  border: 1px solid #ccc;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-border-strong);
   font-size: 1rem;
   box-sizing: border-box;
 }
 
 .modal-logic-desc {
   margin: 4px 0 16px;
-  color: #333;
+  color: var(--color-text-heading);
   font-size: 0.95rem;
 }
 
@@ -90,67 +90,41 @@
   width: 100%;
   padding: 8px 10px;
   margin-bottom: 0;
-  border-radius: 4px;
-  border: 1px solid #ccc;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-border-strong);
   font-size: 1rem;
   box-sizing: border-box;
   transition: border-color 0.2s;
 }
 
-.remove-premise-btn {
+.btn.remove-premise-btn {
   flex-shrink: 0;
-  width: 30px;
-  height: 30px;
+  width: 32px;
   padding: 0;
   font-size: 1.2rem;
   line-height: 1;
-  border: none;
-  background-color: #e0e0e0;
-  color: #555;
-  border-radius: 4px;
-  cursor: pointer;
+}
+
+.btn.add-premise-btn {
   display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.remove-premise-btn:hover {
-  background-color: #dc3545;
-  color: #fff;
-}
-
-.add-premise-btn {
-  display: block;
   margin: 8px 0 16px;
-  padding: 8px 12px;
-  font-size: 0.95rem;
-  border: 1px dashed #0056b3;
-  background-color: transparent;
-  color: #0056b3;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: background-color 0.2s, color 0.2s;
-}
-
-.add-premise-btn:hover {
-  background-color: #0056b3;
-  color: #fff;
+  border-style: dashed;
 }
 
 /* Why a field is not accepted, and why Start Proof is disabled */
 .modal-error {
   margin: -4px 0 8px;
-  color: #c0392b;
+  color: var(--color-danger);
   font-size: 0.9rem;
 }
 
 .modal-body input[aria-invalid="true"] {
-  border-color: #c0392b;
+  border-color: var(--color-danger);
 }
 
 .modal-hint {
   margin: 0 0 12px;
-  color: #666;
+  color: var(--color-muted);
   font-size: 0.9rem;
   text-align: right;
 }
@@ -162,45 +136,11 @@
   gap: 10px;
 }
 
-.submit-btn,
-.close-btn {
-  padding: 9px 18px;
-  font-size: 1rem;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: background-color 0.2s;
-}
-
-.submit-btn {
-  background-color: #1e7e34;
-  color: #fff;
-}
-
-.submit-btn:hover:not(:disabled) {
-  background-color: #19692c;
-}
-
-.submit-btn:disabled {
-  background-color: #94d3a2;
-  cursor: not-allowed;
-}
-
-.close-btn {
-  background-color: #6c757d;
-  color: #fff;
-}
-
-.close-btn:hover {
-  background-color: #545b62;
-}
-
-
 /* Load a proof from text */
 .load-text-section {
   margin-top: 20px;
   padding-top: 16px;
-  border-top: 1px solid #ddd;
+  border-top: 1px solid var(--color-border);
 }
 
 .load-text-section h3 {
@@ -211,16 +151,16 @@
 .modal-field-label {
   display: block;
   margin: 8px 0 4px;
-  color: #333;
+  color: var(--color-text-heading);
   font-size: 0.95rem;
 }
 
 .load-text-section textarea {
   width: 100%;
   padding: 8px 10px;
-  border-radius: 4px;
-  border: 1px solid #ccc;
-  font-family: monospace;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-border-strong);
+  font-family: var(--font-mono);
   font-size: 0.95rem;
   white-space: pre;
   box-sizing: border-box;
@@ -228,33 +168,16 @@
 }
 
 .load-text-section textarea[aria-invalid="true"] {
-  border-color: #c0392b;
+  border-color: var(--color-danger);
 }
 
 .load-text-section .modal-error {
   margin: 8px 0 0;
 }
 
-.load-text-btn {
-  display: block;
+.btn.load-text-btn {
+  display: flex;
   margin-top: 12px;
-  padding: 8px 14px;
-  font-size: 0.95rem;
-  border: none;
-  border-radius: 4px;
-  background-color: #0b5ed7;
-  color: #fff;
-  cursor: pointer;
-}
-
-.load-text-btn:hover:not(:disabled) {
-  background-color: #0056b3;
-}
-
-.load-text-btn:disabled {
-  background-color: #9ec5fe;
-  color: #1a1a1a;
-  cursor: not-allowed;
 }
 
 /* The syntax the formula fields accept, above the premises */
@@ -284,13 +207,12 @@
     flex-direction: column-reverse;
   }
 
-  .modal-footer .submit-btn,
-  .modal-footer .close-btn {
+  .modal-footer .btn {
     width: 100%;
   }
 
-  .remove-premise-btn {
+  .btn.remove-premise-btn {
     width: 44px;
-    height: 44px;
+    min-height: 44px;
   }
 }

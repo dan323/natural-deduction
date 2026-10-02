@@ -5,6 +5,7 @@ import { syntaxHint } from '../input/connectives';
 import { DEFAULT_LOGIC, LOGICS, logicInfo } from '../../constant';
 import { Theory } from '../../types';
 import './NewProofModal.css';
+import Button from '../ui/Button';
 
 type NewProofModalProps = {
   isOpen: boolean;
@@ -331,7 +332,9 @@ const NewProofModal: FC<NewProofModalProps> = ({ isOpen, opener: openerProp, onC
                     aria-describedby={describedBy(!!premise.error && `premise-${index}-error`)}
                   />
                   {premises.length > 1 && (
-                    <button
+                    <Button
+                      variant="ghost"
+                      size="sm"
                       className="remove-premise-btn"
                       onClick={() => handleRemovePremise(index)}
                       disabled={isSubmitting}
@@ -339,7 +342,7 @@ const NewProofModal: FC<NewProofModalProps> = ({ isOpen, opener: openerProp, onC
                       title="Remove"
                     >
                       ×
-                    </button>
+                    </Button>
                   )}
                 </div>
                 <ConnectiveButtons
@@ -354,9 +357,9 @@ const NewProofModal: FC<NewProofModalProps> = ({ isOpen, opener: openerProp, onC
                 )}
               </Fragment>
             ))}
-            <button className="add-premise-btn" onClick={handleAddPremise} disabled={isSubmitting}>
+            <Button variant="secondary" size="sm" className="add-premise-btn" onClick={handleAddPremise} disabled={isSubmitting}>
               + Add Premise
-            </button>
+            </Button>
           </fieldset>
 
           <label htmlFor="modal-goal" className="modal-section-label">Goal:</label>
@@ -395,14 +398,15 @@ const NewProofModal: FC<NewProofModalProps> = ({ isOpen, opener: openerProp, onC
                 aria-describedby={loadError ? 'modal-proof-text-error' : undefined}
               />
               {loadError && <p id="modal-proof-text-error" className="modal-error" role="alert">{loadError}</p>}
-              <button
+              <Button
+                size="sm"
                 className="load-text-btn"
                 onClick={handleLoad}
                 disabled={!canLoad}
                 aria-disabled={!canLoad}
               >
                 {isLoading ? 'Loading…' : 'Load proof'}
-              </button>
+              </Button>
             </section>
           )}
         </div>
@@ -413,18 +417,17 @@ const NewProofModal: FC<NewProofModalProps> = ({ isOpen, opener: openerProp, onC
           <p id="new-proof-submit-error" className="modal-error" role="alert">{submitError}</p>
         )}
         <div className="modal-footer">
-          <button
+          <Button
             ref={submitRef}
-            className="submit-btn"
             onClick={handleSubmit}
             disabled={goal.trim() === '' || isSubmitting || isLoading}
             aria-describedby={submitDescription}
           >
             {isSubmitting ? 'Starting…' : 'Start Proof'}
-          </button>
-          <button className="close-btn" onClick={onClose}>
+          </Button>
+          <Button variant="secondary" onClick={onClose}>
             Cancel
-          </button>
+          </Button>
         </div>
       </div>
     </dialog>

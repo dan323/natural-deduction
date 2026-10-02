@@ -2,6 +2,7 @@ import { FC } from 'react';
 import './ExerciseList.css';
 import { Difficulty, Exercise, Theory } from '../../types';
 import { logicName } from '../../constant';
+import Button from '../ui/Button';
 
 // What the list shows: the exercises while they are being fetched, once they are in, or why they could not be fetched.
 // `theories` are the logic's premise sets (`GET /logic/{logic}/theories`), when they could be fetched: an exercise whose
@@ -79,14 +80,15 @@ const ExerciseList: FC<ExerciseListProps> = ({ logic, state, solved, currentId, 
                             {!theory && exercise.premises.length > 0 ? `${exercise.premises.join(', ')} ` : ''}⊢ {exercise.goal}
                         </code>
                     </div>
-                    <button
-                        className="exercise-start-btn"
+                    <Button
+                        variant="secondary"
+                        size="sm"
                         onClick={() => onStart(exercise)}
                         disabled={startingId !== null}
                         aria-label={`Start exercise ${exercise.title}`}
                     >
                         {startingId === exercise.id ? 'Starting…' : 'Start'}
-                    </button>
+                    </Button>
                 </li>
             ))}
         </ul>
@@ -134,7 +136,7 @@ const ExerciseList: FC<ExerciseListProps> = ({ logic, state, solved, currentId, 
         <section id="exercises-panel" className="exercises" aria-labelledby="exercises-title">
             <div className="exercises-header">
                 <h2 id="exercises-title" className="exercises-title" tabIndex={-1}>Exercises</h2>
-                <button className="exercises-close-btn" onClick={onClose}>Close exercises</button>
+                <Button variant="secondary" size="sm" onClick={onClose}>Close exercises</Button>
             </div>
             <p className="exercises-logic">In {logicName(logic)}. To see the exercises of another logic, start a new proof in it.</p>
             {startError && <p className="exercises-error" role="alert">{startError}</p>}

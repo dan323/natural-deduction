@@ -6,6 +6,7 @@ import GlowingInput from '../input/GlowingInput';
 import { ProofDto, ActionDto, ActionDescriptor, ActionCategory, ApplyActionResponse, ParamKind } from '../../types';
 import { hasSolver, logicName } from '../../constant';
 import { premiseCount } from '../../service/utils';
+import Button from '../ui/Button';
 
 type MenuProps = {
     // The logic of the proof (`proof.logic`): its rules are offered, and Solve only when it has a solver. App remounts the
@@ -325,31 +326,30 @@ const Menu: FC<MenuProps> = ({ logic, onColorChange, setProof, proof, ref, onNew
             )}
             {/* Outside of the status, so that only the message is announced. */}
             {done && onNewProof && (
-                <button className="menu-button menu-new-proof" onClick={onNewProof}>New Proof</button>
+                <Button className="menu-new-proof" onClick={onNewProof}>New Proof</Button>
             )}
             {done && onNextExercise && (
-                <button className="menu-button menu-new-proof" onClick={onNextExercise}>Next exercise</button>
+                <Button className="menu-new-proof" onClick={onNextExercise}>Next exercise</Button>
             )}
             <div className="menu-buttons">
-                <button
-                    className="menu-button"
+                <Button
                     onClick={processAction}
                     disabled={!canApply || busy}
                     aria-disabled={!canApply || busy}
                     aria-describedby={canApply || done ? undefined : 'apply-hint'}
                 >
                     {isLoading ? 'Applying…' : 'Apply Rule'}
-                </button>
+                </Button>
                 {canSolve && (
-                    <button
-                        className="menu-button menu-button-secondary"
+                    <Button
+                        variant="secondary"
                         onClick={solve}
                         disabled={busy || done}
                         aria-disabled={busy || done}
                         title="Let the solver try to finish the whole proof"
                     >
                         {isSolving ? 'Solving…' : 'Solve'}
-                    </button>
+                    </Button>
                 )}
             </div>
             {!canSolve && !done && <p className="menu-hint menu-no-solver">{logicName(logic)} has no automatic solver.</p>}

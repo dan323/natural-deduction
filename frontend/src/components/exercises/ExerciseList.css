@@ -3,9 +3,9 @@
   margin: 16px auto;
   max-width: 720px;
   padding: 16px 24px;
-  background-color: #fff;
-  border: 1px solid #ddd;
-  border-radius: 8px;
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
   text-align: left;
 }
 
@@ -23,24 +23,24 @@
 
 .exercises-logic {
   margin: 8px 0 0;
-  color: #333;
+  color: var(--color-text-heading);
 }
 
 .exercises-progress {
   margin: 8px 0 0;
-  color: #333;
+  color: var(--color-text-heading);
 }
 
 .exercises-group-title {
   margin: 16px 0 8px;
   font-size: 1.1rem;
-  color: #333;
+  color: var(--color-text-heading);
 }
 
 .exercises-subgroup-title {
   margin: 12px 0 6px;
   font-size: 1rem;
-  color: #333;
+  color: var(--color-text-heading);
 }
 
 .exercises-group {
@@ -55,7 +55,7 @@
   justify-content: space-between;
   gap: 12px;
   padding: 8px 0;
-  border-top: 1px solid #eee;
+  border-top: 1px solid var(--color-border);
 }
 
 .exercise-text {
@@ -71,12 +71,12 @@
 
 /* The text says it is solved; the colour only repeats it. */
 .exercise-solved {
-  color: #146c43;
+  color: var(--color-success);
   font-weight: 600;
 }
 
 .exercise-current {
-  color: #595959;
+  color: var(--color-muted);
 }
 
 .exercise-statement {
@@ -84,39 +84,11 @@
   font-size: 0.95rem;
 }
 
-.exercise-start-btn,
-.exercises-close-btn,
-.exercises-btn {
-  padding: 6px 14px;
-  font-size: 0.95rem;
-  border: 1px solid #0b5ed7;
-  border-radius: 4px;
-  background-color: #fff;
-  color: #0b5ed7;
-  cursor: pointer;
-}
-
-.exercises-btn {
-  padding: 9px 20px;
-  font-size: 1rem;
-}
-
-.exercise-start-btn:hover:not(:disabled),
-.exercises-close-btn:hover,
-.exercises-btn:hover {
-  background-color: #e7f1ff;
-}
-
-.exercise-start-btn:disabled {
-  cursor: wait;
-  opacity: 0.7;
-}
-
 .exercises-error {
   margin: 8px 0 0;
   padding: 8px 12px;
-  color: #c0392b;
-  background-color: #fdecea;
-  border: 1px solid #f5c6cb;
-  border-radius: 4px;
+  color: var(--color-danger);
+  background-color: var(--color-danger-soft);
+  border: 1px solid var(--color-danger-border);
+  border-radius: var(--radius-sm);
 }
