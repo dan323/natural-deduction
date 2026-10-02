@@ -169,11 +169,6 @@ class ModalSolverRegressionTest {
     }
 
     /**
-     * {@code Refl} was applied again and again when the line after its source line was a discharged step (here the
-     * {@code s0 <= s1} that {@code DeMorgan} opens), so the solver never stopped; and {@code DeMorgan} on
-     * {@code - (<> (- p))} gave {@code [] (- (- p))} instead of {@code [] p}.
-     */
-    /**
      * The solver used to throw a ClassCastException here (#193): it took a line for a relation without checking it.
      */
     @Test
@@ -181,6 +176,11 @@ class ModalSolverRegressionTest {
         assertProved(List.of(), SOMETIME_OVER_OR);
     }
 
+    /**
+     * {@code Refl} was applied again and again when the line after its source line was a discharged step (here the
+     * {@code s0 <= s1} that {@code DeMorgan} opens), so the solver never stopped; and {@code DeMorgan} on
+     * {@code - (<> (- p))} gave {@code [] (- (- p))} instead of {@code [] p}.
+     */
     @Test
     void theDualOfSometimeIsProved() {
         assertProved(List.of("- (<> (- p))"), "[] p");
