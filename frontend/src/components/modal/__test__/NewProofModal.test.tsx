@@ -914,3 +914,45 @@ describe('NewProofModal premises from a theory', () => {
     expect(screen.queryByLabelText('Premises from theory:')).not.toBeInTheDocument();
   });
 });
+
+describe('NewProofModal layout', () => {
+  const setup = async (premises: number) => {
+    const user = userEvent.setup();
+    render(<NewProofModal isOpen={true} onClose={jest.fn()} onSubmit={jest.fn()} />);
+    for (let i = 1; i < premises; i++) {
+      fireEvent.click(screen.getByText('+ Add Premise'));
+    }
+    for (let i = 1; i <= premises; i++) {
+      fireEvent.change(screen.getByLabelText(`Premise ${i}`), { target: { value: 'p' } });
+    }
+    fireEvent.change(screen.getByPlaceholderText('Enter the goal expression'), { target: { value: 'p' } });
+    return user;
+  };
+
+  test('the title and the footer are not inside the scrolling body', async () => {
+    await setup(1);
+    const body = document.querySelector('.modal-body') as HTMLElement;
+    expect(body).not.toBeNull();
+    expect(body).not.toContainElement(screen.getByRole('button', { name: 'Start Proof' }));
+    expect(body).not.toContainElement(screen.getByRole('button', { name: 'Cancel' }));
+    expect(body).not.toContainElement(screen.getByText('New Proof'));
+  });
+
+  test('Start Proof and Cancel stay reachable with Tab and Shift+Tab with 20 premises', async () => {
+    const user = await setup(20);
+    const start = screen.getByRole('button', { name: 'Start Proof' });
+    const cancel = screen.getByRole('button', { name: 'Cancel' });
+    expect(start).toBeEnabled();
+
+    start.focus();
+    await user.tab();
+    expect(cancel).toHaveFocus();
+    await user.tab({ shift: true });
+    expect(start).toHaveFocus();
+
+    // Wrapping from the first control back to the end still lands on the footer.
+    screen.getByLabelText('Logic:').focus();
+    await user.tab({ shift: true });
+    expect(cancel).toHaveFocus();
+  });
+});
