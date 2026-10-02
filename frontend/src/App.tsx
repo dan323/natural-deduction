@@ -677,7 +677,7 @@ function App() {
               Exercise: <strong>{currentExercise.title}</strong>{solved.has(currentExercise.id) ? ' (Solved)' : ''}
             </p>
           )}
-          <div className="workspace">
+          <div className={hasProof ? 'workspace' : 'workspace workspace-empty'}>
             <div className="workspace-proof">
             {hasProof ? (
               <Proof proof={proof} coloring={colorMapping} onSelectLine={handleSelectLine} />
@@ -696,7 +696,7 @@ function App() {
               />
             )}
             </div>
-            <div className="workspace-rules">
+            <div className="workspace-rules" hidden={!hasProof}>
             <Menu key={proofId} ref={menuRef} logic={logic} proof={proof} setProof={setMenuProof} onColorChange={onColorChange} onNewProof={handleOpenModalFromMenu} onNextExercise={handleNextExercise} />
             </div>
           </div>

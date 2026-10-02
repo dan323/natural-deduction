@@ -174,6 +174,8 @@
    that applying a rule does not scroll the proof away. */
 .workspace {
   display: block;
+  /* Room the sticky rule panel leaves for the app bar (and a gap under it) */
+  --app-bar-offset: 88px;
 }
 
 .workspace-proof,
@@ -189,12 +191,19 @@
     align-items: start;
   }
 
+  /* No proof yet: the rule panel is empty, so the placeholder gets the whole width */
+  .workspace.workspace-empty {
+    display: block;
+  }
+
   .workspace-rules {
     position: sticky;
     /* Below the sticky app bar */
-    top: 88px;
-    max-height: calc(100vh - 104px);
+    top: var(--app-bar-offset);
+    max-height: calc(100vh - var(--app-bar-offset) - var(--space-4));
     overflow-y: auto;
+    /* Keeps focus rings at the edges from being clipped by the scroll container */
+    padding: var(--space-1);
   }
 
   .workspace-rules .menu {
