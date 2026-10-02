@@ -19,6 +19,9 @@ The project has never been versioned or tagged, since it was not meant for publi
   random formulas (#196)
 
 ### Changed
+- One look for the whole UI: colours, radii, spacing, shadows and fonts are design tokens in `index.css`, every button
+  is the same `Button` component (primary, secondary, danger and ghost variants) with a visible focus ring, and the
+  header and toolbar are one sticky app bar (#199)
 - The New Proof dialog fits any window: its title and buttons stay visible while only the body scrolls, and below
   480px wide it is full-screen with stacked buttons and larger remove-premise buttons (#198)
 
