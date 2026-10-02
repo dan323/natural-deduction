@@ -484,6 +484,13 @@ public class RestServiceIT {
     }
 
     @Test
+    void solveModalSometimeOverOrIsNotAServerError() {
+        var response = solve("modal", new ProofDto(List.of(), "modal", "(<> (p | q)) -> ((<> p) | (<> q))"));
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertTrue(Objects.requireNonNull(response.getBody()).isDone());
+    }
+
+    @Test
     void solveModalProof() {
         var response = solve("modal", new ProofDto(List.of(new StepDto("[]P", "Ass", 0, Map.of("state", "s0"))), "modal", "<>P"));
         assertEquals(HttpStatus.OK, response.getStatusCode());
