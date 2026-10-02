@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>Printer.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">jacoco-report-aggregate</a> &gt; <a href="../index.html" class="el_bundle">implementation.firstorder</a> &gt; <a href="index.source.html" class="el_package">com.dan323.expressions.firstorder</a> &gt; <span class="el_source">Printer.java</span></div><h1>Printer.java</h1><pre class="source lang-java linenums">package com.dan323.expressions.firstorder;
+
+import com.dan323.expressions.base.BinaryOperation;
+import com.dan323.expressions.base.UnaryOperation;
+
+/**
+ * Printing of the binary connectives. It follows the framework's {@link BinaryOperation#toString()} (parentheses around
+ * a binary or unary operand) and also puts them around a quantifier operand: on the left its body would otherwise reach
+ * over the connective, and on the right they are not needed but make the scope plain.
+ */
+final class Printer {
+
+    private Printer() {
+    }
+
+    static String binary(FirstOrderOperation left, String operator, FirstOrderOperation right) {
+<span class="fc" id="L17">        return operand(left) + &quot; &quot; + operator + &quot; &quot; + operand(right);</span>
+    }
+
+    private static String operand(FirstOrderOperation operand) {
+<span class="fc bfc" id="L21" title="All 6 branches covered.">        return operand instanceof BinaryOperation || operand instanceof UnaryOperation || operand instanceof Quantifier</span>
+<span class="fc" id="L22">                ? &quot;(&quot; + operand + &quot;)&quot; : operand.toString();</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>
