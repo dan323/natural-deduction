@@ -17,11 +17,11 @@
 
 
 .goal-success {
-    color: green;
+    color: var(--color-success);
 }
 
 .goal-failure {
-    color: red;
+    color: var(--color-danger);
 }
 
 .goal-marker {
@@ -33,15 +33,15 @@
 .goal-logic {
     margin-left: 1rem;
     font-size: 1.1rem;
-    color: #595959;
+    color: var(--color-muted);
 }
 
 .goal-marker-success {
-    color: #0a6b0a;
+    color: var(--color-success);
 }
 
 .goal-marker-failure {
-    color: #595959;
+    color: var(--color-muted);
 }
 /* Celebration container styling */
 .celebration {

@@ -7,7 +7,7 @@
 /* Label for Inputs */
 .input-label {
     font-size: 1.2rem;
-    color: #555;
+    color: var(--color-muted);
     display: block;
     margin-bottom: 5px;
 }
@@ -17,8 +17,8 @@
     width: 100%;
     padding: 8px;
     font-size: 1.1rem;
-    border: 1px solid #ccc;
-    border-radius: 4px;
+    border: 1px solid var(--color-border-strong);
+    border-radius: var(--radius-sm);
     transition: box-shadow 0.3s ease;
 }
 
@@ -30,11 +30,11 @@
 
 /* An input whose value is not accepted, and the reason why */
 .input-field[aria-invalid="true"] {
-    border-color: #c0392b;
+    border-color: var(--color-danger);
 }
 
 .input-error {
-    color: #c0392b;
+    color: var(--color-danger);
     font-size: 0.95rem;
     margin: 4px 0 0;
 }

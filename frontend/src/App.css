@@ -1,64 +1,40 @@
 .App {
   text-align: center;
   min-height: 100vh;
-  background-color: #fafafa;
+  background-color: var(--color-background);
 }
 
-/* Toolbar below header */
+/* One sticky app bar: the title and the toolbar. */
+.app-bar {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-3) var(--space-5);
+  padding: var(--space-3) var(--space-5);
+  background-color: var(--color-surface);
+  border-bottom: 1px solid var(--color-border);
+  box-shadow: var(--shadow-sm);
+}
+
+.app-title {
+  margin: 0;
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: var(--color-text-heading);
+  letter-spacing: 0.01em;
+  text-align: left;
+}
+
 .app-toolbar {
   display: flex;
   align-items: center;
   justify-content: flex-end;
   flex-wrap: wrap;
-  gap: 12px;
-  padding: 12px 24px;
-  background-color: #f0f0f5;
-  border-bottom: 1px solid #ddd;
-}
-
-/* New Proof Button */
-.new-proof-btn {
-  padding: 9px 20px;
-  font-size: 1rem;
-  border: none;
-  border-radius: 4px;
-  background-color: #0b5ed7;
-  color: #fff;
-  cursor: pointer;
-  transition: background-color 0.2s;
-}
-
-.new-proof-btn:hover:not(:disabled) {
-  background-color: #0056b3;
-}
-
-.new-proof-btn:disabled {
-  background-color: #9ec5fe;
-  cursor: not-allowed;
-  opacity: 0.7;
-}
-
-/* Undo last step button */
-.undo-btn {
-  padding: 9px 20px;
-  font-size: 1rem;
-  border: 1px solid #0b5ed7;
-  border-radius: 4px;
-  background-color: #fff;
-  color: #0b5ed7;
-  cursor: pointer;
-  transition: background-color 0.2s;
-}
-
-.undo-btn:hover:not(:disabled) {
-  background-color: #e7f1ff;
-}
-
-.undo-btn:disabled {
-  color: #9ec5fe;
-  border-color: #9ec5fe;
-  cursor: not-allowed;
-  opacity: 0.7;
+  flex: 1 1 auto;
+  gap: var(--space-3);
 }
 
 /* In-page confirmation shown before New Proof discards the current work; not window.confirm, so it can carry the
@@ -68,40 +44,13 @@
   align-items: center;
   flex-wrap: wrap;
   gap: 10px;
+  flex-basis: 100%;
   padding: 8px 12px;
-  background-color: #fff3cd;
-  border: 1px solid #ffe69c;
-  border-radius: 4px;
-  color: #664d03;
+  background-color: var(--color-warning-soft);
+  border: 1px solid var(--color-warning-border);
+  border-radius: var(--radius-md);
+  color: var(--color-warning);
   font-size: 0.95rem;
-}
-
-.confirm-btn {
-  padding: 6px 14px;
-  font-size: 0.95rem;
-  border: none;
-  border-radius: 4px;
-  background-color: #c0392b;
-  color: #fff;
-  cursor: pointer;
-}
-
-.confirm-btn:hover {
-  background-color: #a5291d;
-}
-
-.cancel-btn {
-  padding: 6px 14px;
-  font-size: 0.95rem;
-  border: 1px solid #999;
-  border-radius: 4px;
-  background-color: #fff;
-  color: #333;
-  cursor: pointer;
-}
-
-.cancel-btn:hover {
-  background-color: #f0f0f0;
 }
 
 /* Undo failure, e.g. a network error; same treatment as Menu's own inline error. "Try an example" refused by the
@@ -111,35 +60,12 @@
 .restore-error {
   margin: 0 24px 12px;
   padding: 8px 12px;
-  color: #c0392b;
-  background-color: #fdecea;
-  border: 1px solid #f5c6cb;
-  border-radius: 4px;
+  color: var(--color-danger);
+  background-color: var(--color-danger-soft);
+  border: 1px solid var(--color-danger-border);
+  border-radius: var(--radius-sm);
   font-size: 1rem;
   text-align: left;
-}
-
-/* Copy proof as text: same look as Undo */
-.copy-text-btn {
-  padding: 9px 20px;
-  font-size: 1rem;
-  border: 1px solid #0b5ed7;
-  border-radius: 4px;
-  background-color: #fff;
-  color: #0b5ed7;
-  cursor: pointer;
-  transition: background-color 0.2s;
-}
-
-.copy-text-btn:hover:not(:disabled) {
-  background-color: #e7f1ff;
-}
-
-.copy-text-btn:disabled {
-  color: #9ec5fe;
-  border-color: #9ec5fe;
-  cursor: not-allowed;
-  opacity: 0.7;
 }
 
 /* What Copy proof as text did, and the text itself when the clipboard is not available */
@@ -147,10 +73,10 @@
   display: block;
   margin: 0 24px 12px;
   padding: 8px 12px;
-  color: #1a1a1a;
-  background-color: #e7f1ff;
-  border: 1px solid #9ec5fe;
-  border-radius: 4px;
+  color: var(--color-text);
+  background-color: var(--color-primary-soft);
+  border: 1px solid var(--color-primary-border);
+  border-radius: var(--radius-sm);
   font-size: 1rem;
   text-align: left;
 }
@@ -163,7 +89,7 @@
 .copy-fallback {
   width: 100%;
   box-sizing: border-box;
-  font-family: monospace;
+  font-family: var(--font-mono);
   font-size: 0.95rem;
   white-space: pre;
 }
@@ -178,10 +104,10 @@
   margin: 40px auto;
   max-width: 500px;
   padding: 32px;
-  background-color: #fff;
-  border: 2px dashed #ccc;
-  border-radius: 8px;
-  color: #595959;
+  background-color: var(--color-surface);
+  border: 2px dashed var(--color-border);
+  border-radius: var(--radius-md);
+  color: var(--color-muted);
   font-size: 1.1rem;
 }
 
@@ -193,14 +119,14 @@
 .empty-logic-label {
   margin-right: 8px;
   font-weight: bold;
-  color: #333;
+  color: var(--color-text-heading);
 }
 
 .empty-logic select {
   padding: 6px 8px;
   font-size: 1rem;
-  border: 1px solid #ccc;
-  border-radius: 4px;
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-sm);
 }
 
 .empty-logic-desc {
@@ -211,7 +137,7 @@
 .how-it-works-title {
   margin: 24px 0 8px;
   font-size: 1.1rem;
-  color: #333;
+  color: var(--color-text-heading);
 }
 
 .how-it-works {
@@ -219,26 +145,6 @@
   padding-left: 1.5em;
   text-align: left;
   line-height: 1.6;
-}
-
-.try-example-btn {
-  padding: 9px 20px;
-  font-size: 1rem;
-  border: 1px solid #0b5ed7;
-  border-radius: 4px;
-  background-color: #fff;
-  color: #0b5ed7;
-  cursor: pointer;
-  transition: background-color 0.2s;
-}
-
-.try-example-btn:hover:not(:disabled) {
-  background-color: #e7f1ff;
-}
-
-.try-example-btn:disabled {
-  cursor: wait;
-  opacity: 0.7;
 }
 
 .try-example-error,
@@ -255,7 +161,7 @@
 .current-exercise {
   margin: 12px 0 0;
   font-size: 1rem;
-  color: #333;
+  color: var(--color-text-heading);
 }
 
 .browse-exercises {
@@ -263,16 +169,3 @@
   font-size: 0.95rem;
 }
 
-.browse-exercises-btn {
-  padding: 6px 14px;
-  font-size: 0.95rem;
-  border: 1px solid #0b5ed7;
-  border-radius: 4px;
-  background-color: #fff;
-  color: #0b5ed7;
-  cursor: pointer;
-}
-
-.browse-exercises-btn:hover {
-  background-color: #e7f1ff;
-}

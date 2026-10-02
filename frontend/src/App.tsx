@@ -2,6 +2,7 @@ import { ReactNode, useCallback, useEffect, useMemo, useRef, useState } from 're
 import './App.css';
 import Proof from './components/proof/ProofViewer';
 import Header from './components/Header';
+import Button from './components/ui/Button';
 import Menu, { MenuHandle } from './components/menu/Menu';
 import NewProofModal from './components/modal/NewProofModal';
 import ExerciseList, { ExercisesState, exercisesInListOrder } from './components/exercises/ExerciseList';
@@ -118,9 +119,9 @@ function EmptyProofState({
         <li>Pick an inference rule.</li>
         <li>Enter the line numbers the rule uses, and apply it.</li>
       </ol>
-      <button className="try-example-btn" onClick={onTryExample} disabled={isStartingExample}>
+      <Button variant="secondary" onClick={onTryExample} disabled={isStartingExample}>
         {isStartingExample ? 'Starting the example…' : 'Try an example'}
-      </button>
+      </Button>
       {exampleError && <p className="try-example-error" role="alert">{exampleError}</p>}
       <p className="try-example-desc">
         Premises <code>{EXAMPLE_PREMISES.join(', ')}</code>, goal <code>{EXAMPLE_GOAL}</code>.
@@ -128,7 +129,7 @@ function EmptyProofState({
       {!isExercisesOpen && (
         <p className="browse-exercises">
           Or practise with a graded exercise:{' '}
-          <button className="browse-exercises-btn" onClick={onBrowseExercises}>Browse exercises</button>
+          <Button variant="secondary" size="sm" onClick={onBrowseExercises}>Browse exercises</Button>
         </p>
       )}
     </div>
@@ -612,50 +613,48 @@ function App() {
     <div className="App">
       {/* While the modal is open the page behind it can neither be tabbed to nor read by assistive technology. */}
       <div inert={isModalOpen}>
-        <Header />
-        <div className="app-toolbar">
-          <button
-            className="undo-btn"
+        <Header>
+          <Button
+            variant="secondary"
             onClick={handleUndo}
             disabled={!canUndo || isUndoing}
             aria-disabled={!canUndo || isUndoing}
           >
             {isUndoing ? 'Undoing…' : 'Undo last step'}
-          </button>
-          <button
-            className="copy-text-btn"
+          </Button>
+          <Button
+            variant="secondary"
             onClick={handleCopyText}
             disabled={proof.steps.length === 0}
             aria-disabled={proof.steps.length === 0}
           >
             Copy proof as text
-          </button>
-          <button
+          </Button>
+          <Button
             ref={exercisesButtonRef}
-            className="exercises-btn"
+            variant="secondary"
             onClick={handleToggleExercises}
             aria-expanded={isExercisesOpen}
             aria-controls={isExercisesOpen ? 'exercises-panel' : undefined}
           >
             Exercises
-          </button>
-          <button
+          </Button>
+          <Button
             ref={newProofButtonRef}
-            className="new-proof-btn"
             onClick={handleOpenModal}
             aria-label="Start a new proof"
           >
             New Proof
-          </button>
+          </Button>
           {confirmingNewProof && (
             <div className="confirm-bar" role="alertdialog" aria-labelledby="confirm-new-proof-title" aria-describedby="confirm-new-proof-desc">
               <span id="confirm-new-proof-title" className="visually-hidden">Discard the current proof?</span>
               <span id="confirm-new-proof-desc">Starting a new proof discards the current one. Continue?</span>
-              <button className="confirm-btn" onClick={handleConfirmNewProof}>Discard and start new</button>
-              <button ref={confirmCancelRef} className="cancel-btn" onClick={handleCancelNewProof}>Cancel</button>
+              <Button variant="danger" size="sm" onClick={handleConfirmNewProof}>Discard and start new</Button>
+              <Button ref={confirmCancelRef} variant="secondary" size="sm" onClick={handleCancelNewProof}>Cancel</Button>
             </div>
           )}
-        </div>
+        </Header>
         {undoError && (
           <p className="undo-error" role="alert" aria-live="assertive">{undoError}</p>
         )}

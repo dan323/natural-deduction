@@ -1,10 +1,11 @@
-import { FC } from 'react';
-import './Header.css';
+import { FC, ReactNode } from 'react';
 
-const Header: FC<{}> = () => {
+/** The sticky app bar: the title and, next to it, the toolbar given as children. */
+const Header: FC<{ children?: ReactNode }> = ({ children }) => {
   return (
-    <header className="app-header">
+    <header className="app-bar">
       <h1 className="app-title">Natural Deduction Proof Assistant</h1>
+      <div className="app-toolbar">{children}</div>
     </header>
   );
 };

@@ -22,7 +22,7 @@ describe('stylesheets', () => {
     });
 
   test('one shared :focus-visible ring is defined', () => {
-    expect(read('index.css')).toMatch(/:focus-visible\s*\{[^}]*outline:\s*3px solid #0b5ed7;[^}]*outline-offset:\s*2px/);
+    expect(read('index.css')).toMatch(/:focus-visible\s*\{[^}]*outline:\s*3px solid var\(--color-primary\);[^}]*outline-offset:\s*2px/);
   });
 
   test('the confetti only animates when the user has not asked for reduced motion', () => {
