@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>ClassicalAutomate.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">jacoco-report-aggregate</a> &gt; <a href="../index.html" class="el_bundle">implementation.deduction.classic</a> &gt; <a href="index.source.html" class="el_package">com.dan323.classical.internal</a> &gt; <span class="el_source">ClassicalAutomate.java</span></div><h1>ClassicalAutomate.java</h1><pre class="source lang-java linenums">package com.dan323.classical.internal;
+
+import com.dan323.classical.ClassicAssume;
+import com.dan323.expressions.classical.ClassicalLogicOperation;
+import com.dan323.expressions.classical.ConstantClassic;
+import com.dan323.expressions.classical.NegationClassic;
+
+/**
+ * Class to execute a Natural deduction in classic logic: the goal-directed solver with double negation elimination,
+ * which reaches any other goal by contradiction.
+ *
+ * @author daniel
+ */
+public final class ClassicalAutomate extends GoalDirectedAutomate {
+
+    /**
+     * A solver keeps its working state in fields: use one instance per proof to solve.
+     */
+<span class="fc" id="L19">    public ClassicalAutomate() {</span>
+        // Nothing to set up: automate initializes the state
+<span class="fc" id="L21">    }</span>
+
+    @Override
+    protected boolean eliminatesDoubleNegations() {
+<span class="fc" id="L25">        return true;</span>
+    }
+
+    /**
+     * Create new goal a assumption from the last goal. Assume the opposite
+     * and try to reach a contradiction
+     *
+     * @param goal last goal
+     */
+    @Override
+    protected void updateOtherGoal(ClassicalLogicOperation goal) {
+<span class="fc" id="L36">        ClassicalLogicOperation neg = new NegationClassic(goal);</span>
+<span class="fc" id="L37">        boolean alreadyExists = false;</span>
+<span class="fc bfc" id="L38" title="All 2 branches covered.">        for (int i = 0; i &lt; proof().getSteps().size(); i++) {</span>
+<span class="pc bpc" id="L39" title="1 of 4 branches missed.">            if (proof().getSteps().get(i).isValid() &amp;&amp; proof().getSteps().get(i).getStep().equals(neg)) {</span>
+<span class="fc" id="L40">                alreadyExists = true;</span>
+<span class="fc" id="L41">                break;</span>
+            }
+        }
+<span class="fc bfc" id="L44" title="All 2 branches covered.">        if (!alreadyExists) {</span>
+<span class="fc" id="L45">            pushGoal(new NegationClassic(new NegationClassic(goal)));</span>
+<span class="fc" id="L46">            pushGoal(ConstantClassic.FALSE);</span>
+<span class="fc" id="L47">            (new ClassicAssume(neg)).apply(proof());</span>
+        }
+<span class="fc" id="L49">    }</span>
+
+    /**
+     * Nothing changed, so it has failed: the proof is left as it is.
+     */
+    @Override
+    protected boolean stalled() {
+<span class="fc" id="L56">        return false;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>
