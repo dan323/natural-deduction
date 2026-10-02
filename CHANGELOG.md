@@ -9,6 +9,8 @@ The project has never been versioned or tagged, since it was not meant for publi
 ## oct-26
 
 ### Added
+- Regression tests that `POST /logic/modal/solve` proves `(<> (p | q)) -> ((<> p) | (<> q))` (done in `s0`) instead of
+  throwing a `ClassCastException`, which no longer happens (#203)
 - A solver for `first-order`: `POST /logic/first-order/solve` runs a bounded proof search (intercalation, after Sieg
   and Byrnes) with the first-order rules only, always stops, solves every exercise outside group theory, answers
   `done=false` when it finds no proof (five of the six group exercises, as `=E` is only used for symmetry and
