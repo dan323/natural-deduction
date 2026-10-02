@@ -584,3 +584,137 @@ proof:
    p -> FALSE           ->I [2-3]
 (- p) -> (p -> FALSE)           ->I [1-4]
 end
+goal: (p | (q & r)) -> ((p | q) & (p | r))
+proof:
+   p | (q & r)           Ass
+      - (p | r)           Ass
+         p           Ass
+         p | r           |I [3]
+         FALSE           FI [4, 2]
+      - p           -I [3-5]
+         r           Ass
+         p | r           |I [7]
+         FALSE           FI [8, 2]
+      - r           -I [7-9]
+         p           Ass
+         FALSE           FI [11, 6]
+         q & r           FE [12]
+      p -> (q & r)           ->I [11-13]
+         q & r           Ass
+      (q & r) -> (q & r)           ->I [15-15]
+      q & r           |E [1, 14, 16]
+      q           &E [17]
+      r           &E [17]
+      FALSE           FI [19, 10]
+   - (- (p | r))           -I [2-20]
+   p | r           -E [21]
+      - (p | q)           Ass
+         p           Ass
+         p | q           |I [24]
+         FALSE           FI [25, 23]
+      - p           -I [24-26]
+         q           Ass
+         p | q           |I [28]
+         FALSE           FI [29, 23]
+      - q           -I [28-30]
+         p           Ass
+         FALSE           FI [32, 27]
+         q & r           FE [33]
+      p -> (q & r)           ->I [32-34]
+         q & r           Ass
+      (q & r) -> (q & r)           ->I [36-36]
+      q & r           |E [1, 35, 37]
+         p           Ass
+         FALSE           FI [39, 27]
+         r           FE [40]
+      p -> r           ->I [39-41]
+         r           Ass
+      r -> r           ->I [43-43]
+      r           |E [22, 42, 44]
+      q           &E [38]
+      FALSE           FI [46, 31]
+   - (- (p | q))           -I [23-47]
+   p | q           -E [48]
+   (p | q) & (p | r)           &I [49, 22]
+(p | (q & r)) -> ((p | q) & (p | r))           ->I [1-50]
+end
+goal: ((p | q) & (p | r)) -> (p | (q | r))
+proof:
+   (p | q) & (p | r)           Ass
+   p | q           &E [1]
+   p | r           &E [1]
+      - (p | (q | r))           Ass
+         p           Ass
+         p | (q | r)           |I [5]
+         FALSE           FI [6, 4]
+      - p           -I [5-7]
+         q | r           Ass
+         p | (q | r)           |I [9]
+         FALSE           FI [10, 4]
+      - (q | r)           -I [9-11]
+         p           Ass
+         FALSE           FI [13, 8]
+         q           FE [14]
+      p -> q           ->I [13-15]
+         q           Ass
+      q -> q           ->I [17-17]
+      q           |E [2, 16, 18]
+         p           Ass
+         FALSE           FI [20, 8]
+         r           FE [21]
+      p -> r           ->I [20-22]
+         r           Ass
+      r -> r           ->I [24-24]
+      r           |E [3, 23, 25]
+         q           Ass
+         q | r           |I [27]
+         FALSE           FI [28, 12]
+      - q           -I [27-29]
+         r           Ass
+         q | r           |I [31]
+         FALSE           FI [32, 12]
+      - r           -I [31-33]
+      FALSE           FI [19, 30]
+   - (- (p | (q | r)))           -I [4-35]
+   p | (q | r)           -E [36]
+((p | q) & (p | r)) -> (p | (q | r))           ->I [1-37]
+end
+goal: ((p | q) | r) -> (p | (q | r))
+proof:
+   (p | q) | r           Ass
+      - (p | (q | r))           Ass
+         p           Ass
+         p | (q | r)           |I [3]
+         FALSE           FI [4, 2]
+      - p           -I [3-5]
+         q | r           Ass
+         p | (q | r)           |I [7]
+         FALSE           FI [8, 2]
+      - (q | r)           -I [7-9]
+         q           Ass
+         q | r           |I [11]
+         FALSE           FI [12, 10]
+      - q           -I [11-13]
+         r           Ass
+         q | r           |I [15]
+         FALSE           FI [16, 10]
+      - r           -I [15-17]
+         r           Ass
+         FALSE           FI [19, 18]
+         p | q           FE [20]
+      r -> (p | q)           ->I [19-21]
+         p | q           Ass
+      (p | q) -> (p | q)           ->I [23-23]
+      p | q           |E [1, 24, 22]
+         p           Ass
+         FALSE           FI [26, 6]
+         q           FE [27]
+      p -> q           ->I [26-28]
+         q           Ass
+      q -> q           ->I [30-30]
+      q           |E [25, 29, 31]
+      FALSE           FI [32, 14]
+   - (- (p | (q | r)))           -I [2-33]
+   p | (q | r)           -E [34]
+((p | q) | r) -> (p | (q | r))           ->I [1-35]
+end

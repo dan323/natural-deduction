@@ -488,11 +488,20 @@ public final class ModalAutomate {
         return Optional.of(act);
     }
 
+    /**
+     * {@code B -> B}, which {@code OrE1} and {@code OrE2} leave in the proof: {@code ->E} on it only repeats
+     * {@code B}, once more for every new line {@code B}, so the elimination loop would never end.
+     */
+    private static boolean isIdentityImplication(Object step) {
+        return step instanceof ImplicationModal imp && imp.getLeft().equals(imp.getRight());
+    }
+
     private Optional<AbstractModalAction> checkAdditionOfDisjIModPonens(int i) {
         for (int j = 0; j < proof.getSteps().size(); j++) {
             if (proof.getSteps().get(j).isValid()) {
                 int k = j + 1;
                 var act = Optional.of(new ModalModusPonens(i + 1, k))
+                        .filter(a -> !isIdentityImplication(proof.getSteps().get(i).getStep()))
                         .flatMap(this::checkSingleAction)
                         .or(() -> Optional.of(new ModalOrE1(i + 1, k))
                                 .flatMap(this::checkSingleAction))
