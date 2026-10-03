@@ -619,3 +619,54 @@ s0:       FALSE           FI [3, 1]
 s0:    p -> FALSE           ->I [3-4]
 s0: (- p) -> (p -> FALSE)           ->I [1-5]
 end
+goal: (<> (p | q)) -> ((<> p) | (<> q))
+proof:
+s0:    <> (p | q)           Ass
+   s0 <= s0           Refl [1]
+s0:       - ((<> p) | (<> q))           Ass
+s0:          <> p           Ass
+s0:          (<> p) | (<> q)           |I [4]
+s0:          FALSE           FI [5, 3]
+s0:       - (<> p)           -I [4-6]
+s0:          <> q           Ass
+s0:          (<> p) | (<> q)           |I [8]
+s0:          FALSE           FI [9, 3]
+s0:       - (<> q)           -I [8-10]
+         s0 <= s1           Ass
+s1:             p           Ass
+s0:             <> p           <>I [13, 12]
+s0:             FALSE           FI [14, 7]
+s1:          - p           -I [13-15]
+s0:       [] (- p)           []I [12-16]
+         s0 <= s1           Ass
+s1:             q           Ass
+s0:             <> q           <>I [19, 18]
+s0:             FALSE           FI [20, 11]
+s1:          - q           -I [19-21]
+s0:       [] (- q)           []I [18-22]
+s0:       - p           []E [17, 2]
+s0:       - q           []E [23, 2]
+         s0 <= s1           Ass
+s1:          - p           []E [17, 26]
+s1:          - q           []E [23, 26]
+         s1 <= s1           Refl [27]
+s1:             p | q           Ass
+s1:                p           Ass
+s0:                FALSE           FI [31, 27]
+s1:                q           FE [32]
+s1:             p -> q           ->I [31-33]
+s1:                q           Ass
+s1:             q -> q           ->I [35-35]
+s1:             q           |E [30, 34, 36]
+s0:             FALSE           FI [37, 28]
+s1:          - (p | q)           -I [30-38]
+s0:       [] (- (p | q))           []I [26-39]
+         s0 <= s1           Ass
+s1:             p | q           Ass
+s1:             - (p | q)           []E [40, 41]
+s0:             FALSE           FI [42, 43]
+s0:       FALSE           <>E [1, 41-44]
+s0:    - (- ((<> p) | (<> q)))           -I [3-45]
+s0:    (<> p) | (<> q)           -E [46]
+s0: (<> (p | q)) -> ((<> p) | (<> q))           ->I [1-47]
+end

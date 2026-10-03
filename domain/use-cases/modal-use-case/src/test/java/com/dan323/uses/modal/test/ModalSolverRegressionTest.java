@@ -36,7 +36,7 @@ class ModalSolverRegressionTest {
     private static final Path EXPECTED = Path.of("src", "test", "resources", "modal-solver-proofs.txt");
 
     // Left out because the modal solver does not finish them: (p -> p) | q, (p & q) | ((- p) | (- q)) and
-    // q | ((- q) & p) keep adding steps, and (<> (p | q)) -> ((<> p) | (<> q)) fails with a ClassCastException.
+    // q | ((- q) & p) keep adding steps.
     private static final List<String> EXTRA_GOALS = List.of(
             "p | (- p)",
             "(- (- p)) -> p",
@@ -88,6 +88,8 @@ class ModalSolverRegressionTest {
      */
     private static final List<String> NO_LONGER_LOOPING = List.of("(- p) -> (p -> FALSE)");
 
+    private static final String SOMETIME_OVER_OR = "(<> (p | q)) -> ((<> p) | (<> q))";
+
     private record Input(List<String> premises, String goal) {
     }
 
@@ -99,6 +101,7 @@ class ModalSolverRegressionTest {
             inputs.add(new Input(EXTRA_PREMISES.get(i), EXTRA_PREMISE_GOALS.get(i)));
         }
         NO_LONGER_LOOPING.forEach(goal -> inputs.add(new Input(List.of(), goal)));
+        inputs.add(new Input(List.of(), SOMETIME_OVER_OR));
         return inputs;
     }
 
@@ -163,6 +166,14 @@ class ModalSolverRegressionTest {
             assertEquals(proof.getState0(), last.getState(), goal + ": derived in the initial state");
             assertTrue(transformer.from(transformer.fromProof(proof)).isDone(), goal + ": replays and is done");
         }));
+    }
+
+    /**
+     * The solver used to throw a ClassCastException here (#193): it took a line for a relation without checking it.
+     */
+    @Test
+    void sometimeOverOrDoesNotThrow() {
+        assertProved(List.of(), SOMETIME_OVER_OR);
     }
 
     /**
