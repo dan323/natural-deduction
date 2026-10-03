@@ -9,6 +9,8 @@ The project has never been versioned or tagged, since it was not meant for publi
 ## oct-26
 
 ### Added
+- Regression tests that `POST /logic/modal/solve` stops on `(p -> p) | q` and `(p & q) | ((- p) | (- q))` with a proof
+  done in `s0`, and quickly with `done=false` on `q | ((- q) & p)`, instead of timing out (#204)
 - Regression tests that `POST /logic/modal/solve` proves `(<> (p | q)) -> ((<> p) | (<> q))` (done in `s0`) instead of
   throwing a `ClassCastException`, which no longer happens (#203)
 - A solver for `first-order`: `POST /logic/first-order/solve` runs a bounded proof search (intercalation, after Sieg
