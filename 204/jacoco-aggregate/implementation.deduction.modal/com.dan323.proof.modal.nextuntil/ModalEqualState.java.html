@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>ModalEqualState.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">jacoco-report-aggregate</a> &gt; <a href="../index.html" class="el_bundle">implementation.deduction.modal</a> &gt; <a href="index.source.html" class="el_package">com.dan323.proof.modal.nextuntil</a> &gt; <span class="el_source">ModalEqualState.java</span></div><h1>ModalEqualState.java</h1><pre class="source lang-java linenums">package com.dan323.proof.modal.nextuntil;
+
+import com.dan323.expressions.modal.ModalLogicalOperation;
+import com.dan323.expressions.modal.ModalOperation;
+import com.dan323.proof.generic.RuleUtils;
+import com.dan323.proof.generic.proof.ProofReason;
+import com.dan323.proof.generic.proof.ProofStepSupplier;
+import com.dan323.proof.modal.ModalAction;
+import com.dan323.proof.modal.proof.ModalNaturalDeduction;
+import com.dan323.proof.modal.proof.ProofStepModal;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.SortedSet;
+import java.util.TreeSet;
+
+/**
+ * Equal states, {@code Eq [i, j, ...]}: from {@code A} in state {@code u} (line {@code i}), derive {@code A} in state
+ * {@code v} when the relations on lines {@code j, ...} give {@code u &lt;= v} and {@code v &lt;= u}: then {@code u} and
+ * {@code v} are the same state. A client names {@code v}, and the relation lines are the ones it needs.
+ */
+public final class ModalEqualState implements ModalAction {
+
+    private final int line;
+    private final String state;
+    private final List&lt;Integer&gt; relations;
+<span class="fc" id="L29">    private final LastSupport lastSupport = new LastSupport();</span>
+
+    /** The rule as a client applies it: the relation lines are found among the valid relations. */
+    public ModalEqualState(int line, String state) {
+<span class="fc" id="L33">        this(line, state, null);</span>
+<span class="fc" id="L34">    }</span>
+
+    /**
+     * @param line      the line with the formula
+     * @param state     the state to derive it in
+     * @param relations the relation lines to reason with, or null to find them
+     */
+<span class="fc" id="L41">    public ModalEqualState(int line, String state, List&lt;Integer&gt; relations) {</span>
+<span class="fc" id="L42">        this.line = line;</span>
+<span class="fc" id="L43">        this.state = state;</span>
+<span class="fc bfc" id="L44" title="All 2 branches covered.">        this.relations = relations == null ? null : List.copyOf(relations);</span>
+<span class="fc" id="L45">    }</span>
+
+    private Optional&lt;SortedSet&lt;Integer&gt;&gt; support(ModalNaturalDeduction pf) {
+<span class="pc bpc" id="L48" title="1 of 4 branches missed.">        if (state == null || !RuleUtils.isValidIndexAndProp(pf, line)</span>
+<span class="fc bfc" id="L49" title="All 2 branches covered.">                || !(pf.getSteps().get(line - 1).getStep() instanceof ModalLogicalOperation)) {</span>
+<span class="fc" id="L50">            return Optional.empty();</span>
+        }
+<span class="fc" id="L52">        var from = pf.getSteps().get(line - 1).getState();</span>
+<span class="fc" id="L53">        var used = Relations.order(pf, relations).flatMap(order -&gt; order.sameState(from, state));</span>
+<span class="fc bfc" id="L54" title="All 2 branches covered.">        return relations == null ? used : used.map(found -&gt; new TreeSet&lt;&gt;(relations));</span>
+    }
+
+    @Override
+    public boolean isValid(ModalNaturalDeduction pf) {
+<span class="fc" id="L59">        return lastSupport.find(pf, this::support).isPresent();</span>
+    }
+
+    @Override
+    public void applyStepSupplier(ModalNaturalDeduction pf, ProofStepSupplier&lt;ModalOperation, ProofStepModal&gt; supp) {
+<span class="fc" id="L64">        var cited = new ArrayList&lt;Integer&gt;();</span>
+<span class="fc" id="L65">        cited.add(line);</span>
+<span class="fc" id="L66">        cited.addAll(lastSupport.take(pf, this::support).orElseThrow());</span>
+<span class="fc" id="L67">        pf.getSteps().add(supp.generateProofStep(RuleUtils.getLastAssumptionLevel(pf), pf.getSteps().get(line - 1).getStep(),</span>
+<span class="fc" id="L68">                new ProofReason(ParseModalNextUntilAction.EQUAL, List.of(), cited)));</span>
+<span class="fc" id="L69">    }</span>
+
+    @Override
+    public void apply(ModalNaturalDeduction pf) {
+<span class="fc" id="L73">        applyStepSupplier(pf, (assLevel, log, reason) -&gt; new ProofStepModal(state, assLevel, (ModalLogicalOperation) log, reason));</span>
+<span class="fc" id="L74">    }</span>
+
+    @Override
+    public boolean equals(Object o) {
+<span class="pc bpc" id="L78" title="1 of 4 branches missed.">        return o instanceof ModalEqualState other &amp;&amp; other.line == line &amp;&amp; Objects.equals(other.state, state)</span>
+<span class="pc bpc" id="L79" title="2 of 4 branches missed.">                &amp;&amp; Objects.equals(other.relations, relations);</span>
+    }
+
+    @Override
+    public int hashCode() {
+<span class="fc" id="L84">        return Objects.hash(getClass(), line, state, relations);</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>

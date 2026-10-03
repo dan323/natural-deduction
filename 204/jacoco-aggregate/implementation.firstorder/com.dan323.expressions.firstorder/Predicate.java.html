@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>Predicate.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">jacoco-report-aggregate</a> &gt; <a href="../index.html" class="el_bundle">implementation.firstorder</a> &gt; <a href="index.source.html" class="el_package">com.dan323.expressions.firstorder</a> &gt; <span class="el_source">Predicate.java</span></div><h1>Predicate.java</h1><pre class="source lang-java linenums">package com.dan323.expressions.firstorder;
+
+import java.util.HashSet;
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+/**
+ * A predicate applied to terms, such as {@code P(x, e)}. Without arguments it is a propositional variable, printed as
+ * its bare name.
+ */
+public final class Predicate implements FirstOrderOperation {
+
+    private final String name;
+    private final List&lt;Term&gt; arguments;
+
+<span class="fc" id="L18">    public Predicate(String name, List&lt;Term&gt; arguments) {</span>
+<span class="fc" id="L19">        this.name = Objects.requireNonNull(name);</span>
+<span class="fc" id="L20">        this.arguments = List.copyOf(arguments);</span>
+<span class="fc" id="L21">    }</span>
+
+    public Predicate(String name) {
+<span class="fc" id="L24">        this(name, List.of());</span>
+<span class="fc" id="L25">    }</span>
+
+    public String getName() {
+<span class="fc" id="L28">        return name;</span>
+    }
+
+    public List&lt;Term&gt; getArguments() {
+<span class="fc" id="L32">        return arguments;</span>
+    }
+
+    @Override
+    public Set&lt;String&gt; freeVariables() {
+<span class="fc" id="L37">        Set&lt;String&gt; free = new HashSet&lt;&gt;();</span>
+<span class="fc" id="L38">        arguments.forEach(arg -&gt; free.addAll(arg.freeVariables()));</span>
+<span class="fc" id="L39">        return Set.copyOf(free);</span>
+    }
+
+    @Override
+    public Predicate substitute(String variable, Term term) {
+<span class="fc" id="L44">        return new Predicate(name, arguments.stream().map(arg -&gt; arg.substitute(variable, term)).toList());</span>
+    }
+
+    @Override
+    public String toString() {
+<span class="fc bfc" id="L49" title="All 2 branches covered.">        if (arguments.isEmpty()) {</span>
+<span class="fc" id="L50">            return name;</span>
+        }
+<span class="fc" id="L52">        return name + arguments.stream().map(Term::toString).collect(Collectors.joining(&quot;, &quot;, &quot;(&quot;, &quot;)&quot;));</span>
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+<span class="fc" id="L57">        return Alpha.equivalent(this, obj);</span>
+    }
+
+    @Override
+    public int hashCode() {
+<span class="fc" id="L62">        return Alpha.hash(this);</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>
