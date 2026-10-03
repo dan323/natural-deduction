@@ -619,6 +619,64 @@ s0:       FALSE           FI [3, 1]
 s0:    p -> FALSE           ->I [3-4]
 s0: (- p) -> (p -> FALSE)           ->I [1-5]
 end
+goal: (p -> p) | q
+proof:
+s0:    - ((p -> p) | q)           Ass
+s0:       p -> p           Ass
+s0:       (p -> p) | q           |I [2]
+s0:       FALSE           FI [3, 1]
+s0:    - (p -> p)           -I [2-4]
+s0:       q           Ass
+s0:       (p -> p) | q           |I [6]
+s0:       FALSE           FI [7, 1]
+s0:    - q           -I [6-8]
+   s0 <= s0           Refl [1]
+s0:       p           Ass
+s0:    p -> p           ->I [11-11]
+s0:    FALSE           FI [12, 5]
+s0: - (- ((p -> p) | q))           -I [1-13]
+s0: (p -> p) | q           -E [14]
+end
+goal: (p & q) | ((- p) | (- q))
+proof:
+s0:    - ((p & q) | ((- p) | (- q)))           Ass
+s0:       p & q           Ass
+s0:       (p & q) | ((- p) | (- q))           |I [2]
+s0:       FALSE           FI [3, 1]
+s0:    - (p & q)           -I [2-4]
+s0:       (- p) | (- q)           Ass
+s0:       (p & q) | ((- p) | (- q))           |I [6]
+s0:       FALSE           FI [7, 1]
+s0:    - ((- p) | (- q))           -I [6-8]
+   s0 <= s0           Refl [1]
+s0:       - p           Ass
+s0:       (- p) | (- q)           |I [11]
+s0:       FALSE           FI [12, 9]
+s0:    - (- p)           -I [11-13]
+s0:       - q           Ass
+s0:       (- p) | (- q)           |I [15]
+s0:       FALSE           FI [16, 9]
+s0:    - (- q)           -I [15-17]
+s0:    p           -E [14]
+s0:    q           -E [18]
+s0:    p & q           &I [19, 20]
+s0:    FALSE           FI [21, 5]
+s0: - (- ((p & q) | ((- p) | (- q))))           -I [1-22]
+s0: (p & q) | ((- p) | (- q))           -E [23]
+end
+goal: q | ((- q) & p)
+proof:
+s0:    - (q | ((- q) & p))           Ass
+s0:       q           Ass
+s0:       q | ((- q) & p)           |I [2]
+s0:       FALSE           FI [3, 1]
+s0:    - q           -I [2-4]
+s0:       (- q) & p           Ass
+s0:       q | ((- q) & p)           |I [6]
+s0:       FALSE           FI [7, 1]
+s0:    - ((- q) & p)           -I [6-8]
+   s0 <= s0           Refl [1]
+end
 goal: (<> (p | q)) -> ((<> p) | (<> q))
 proof:
 s0:    <> (p | q)           Ass

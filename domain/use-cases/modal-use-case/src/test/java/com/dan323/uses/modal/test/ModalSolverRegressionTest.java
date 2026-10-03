@@ -35,8 +35,6 @@ class ModalSolverRegressionTest {
 
     private static final Path EXPECTED = Path.of("src", "test", "resources", "modal-solver-proofs.txt");
 
-    // Left out because the modal solver does not finish them: (p -> p) | q, (p & q) | ((- p) | (- q)) and
-    // q | ((- q) & p) keep adding steps.
     private static final List<String> EXTRA_GOALS = List.of(
             "p | (- p)",
             "(- (- p)) -> p",
@@ -86,7 +84,14 @@ class ModalSolverRegressionTest {
      * Goals the modal solver did not stop on before #191 was fixed. Their proofs were appended to the end of
      * {@code modal-solver-proofs.txt} after the fix; the proofs above them are still the ones from before it.
      */
-    private static final List<String> NO_LONGER_LOOPING = List.of("(- p) -> (p -> FALSE)");
+    private static final List<String> NO_LONGER_LOOPING = List.of("(- p) -> (p -> FALSE)",
+            "(p -> p) | q", "(p & q) | ((- p) | (- q))");
+
+    /**
+     * Valid, but beyond the solver (the classical one stops there too): it must stop within the timeout (#194; it
+     * used to run until the solve timeout), leaving an unfinished proof.
+     */
+    private static final List<String> STOPS_UNFINISHED = List.of("q | ((- q) & p)");
 
     private static final String SOMETIME_OVER_OR = "(<> (p | q)) -> ((<> p) | (<> q))";
 
@@ -101,6 +106,7 @@ class ModalSolverRegressionTest {
             inputs.add(new Input(EXTRA_PREMISES.get(i), EXTRA_PREMISE_GOALS.get(i)));
         }
         NO_LONGER_LOOPING.forEach(goal -> inputs.add(new Input(List.of(), goal)));
+        STOPS_UNFINISHED.forEach(goal -> inputs.add(new Input(List.of(), goal)));
         inputs.add(new Input(List.of(), SOMETIME_OVER_OR));
         return inputs;
     }
@@ -165,6 +171,16 @@ class ModalSolverRegressionTest {
             assertEquals(0, last.getAssumptionLevel());
             assertEquals(proof.getState0(), last.getState(), goal + ": derived in the initial state");
             assertTrue(transformer.from(transformer.fromProof(proof)).isDone(), goal + ": replays and is done");
+        }));
+    }
+
+    @TestFactory
+    Stream<DynamicTest> theSolverStopsOnWhatItCannotProve() {
+        var transformer = new ModalProofTransformer();
+        return STOPS_UNFINISHED.stream().map(goal -> DynamicTest.dynamicTest(goal, () -> {
+            ModalNaturalDeduction proof = transformer.from(new ProofDto(List.of(), "modal", goal));
+            assertTimeoutPreemptively(Duration.ofSeconds(2), proof::automate);
+            assertFalse(proof.isDone(), goal);
         }));
     }
 
